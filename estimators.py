@@ -121,6 +121,7 @@ def get_classifiers(n_estimators, seed, n_jobs, verbosity):
     # Linear Support Vector Classification
     algo = 'LSVC'
     params = {"C" : 0.01,
+              "max_iter" : 2000,
               "penalty" : 'l1',
               "dual" : False,
               "random_state" : seed,
@@ -138,7 +139,7 @@ def get_classifiers(n_estimators, seed, n_jobs, verbosity):
     params = {"kernel" : 'linear',
               "probability" : True,
               "random_state" : seed,
-              "verbose" : True}
+              "verbose" : verbosity}
     est = SVC(**params)
     grid = {"C" : np.logspace(-2, 10, 13),
             "gamma" : np.logspace(-9, 3, 13),
@@ -171,7 +172,7 @@ def get_classifiers(n_estimators, seed, n_jobs, verbosity):
     params = {"kernel" : 'rbf',
               "probability" : True,
               "random_state" : seed,
-              "verbose" : True}
+              "verbose" : verbosity}
     est = SVC(**params)
     grid = {"C" : np.logspace(-2, 10, 13),
             "gamma" : np.logspace(-9, 3, 13),
@@ -204,8 +205,7 @@ def get_classifiers(n_estimators, seed, n_jobs, verbosity):
     algo = 'RLOGR'
     params = {"n_resampling" : n_estimators,
               "random_state" : seed,
-              #"n_jobs" : n_jobs,
-              "verbose" : True}
+              "verbose" : verbosity}
     est = RandomizedLogisticRegression(**params)
     grid = {"n_resampling" : [100, 200, 500],
             "C" : [0.1, 1, 10, 100, 1000, 1e4, 1e5],
@@ -218,7 +218,7 @@ def get_classifiers(n_estimators, seed, n_jobs, verbosity):
     algo = 'SVM'
     params = {"probability" : True,
               "random_state" : seed,
-              "verbose" : True}
+              "verbose" : verbosity}
     est = SVC(**params)
     grid = {"C" : np.logspace(-2, 10, 13),
             "gamma" : np.logspace(-9, 3, 13),
@@ -234,12 +234,12 @@ def get_classifiers(n_estimators, seed, n_jobs, verbosity):
               "max_depth" : 10,
               "learning_rate" : 0.1,
               "min_child_weight" : 1.05,
-              "subsample" : 0.85,
+              "subsample" : 0.95,
               "colsample_bytree" : 0.8,
               "nthread" : n_jobs,
-              "silent" : False}
+              "silent" : True}
     est = xgb.XGBClassifier(**params)
-    grid = {"n_estimators" : [10, 20, 30, 50, 100, 200, 500],
+    grid = {"n_estimators" : [10, 21, 31, 51, 101, 201, 501, 1001],
             "max_depth" : [None, 3, 6, 7, 8, 10, 20],
             "learning_rate" : [0.01, 0.02, 0.05, 0.1, 0.2],
             "min_child_weight" : [1.0, 1.05, 1.1, 1.2],
@@ -259,7 +259,7 @@ def get_classifiers(n_estimators, seed, n_jobs, verbosity):
               "nthread" : n_jobs,
               "silent" : False}
     est = xgb.XGBClassifier(**params)
-    grid = {"n_estimators" : [10, 20, 30, 50, 100, 200],
+    grid = {"n_estimators" : [10, 21, 31, 51, 101, 201, 501, 1001],
             "max_depth" : [None, 3, 6, 7, 8, 10, 20],
             "learning_rate" : [0.01, 0.02, 0.05, 0.1, 0.2],
             "min_child_weight" : [1.0, 1.05, 1.1, 1.2],
@@ -365,7 +365,7 @@ def get_regressors(n_estimators, seed, n_jobs, verbosity):
     params = {"n_resampling" : n_estimators,
               "random_state" : seed,
               "n_jobs" : n_jobs,
-              "verbose" : True}
+              "verbose" : verbosity}
     est = RandomizedLasso(**params)
     grid = {"n_resampling" : [100, 200, 500],
             "max_iter" : [300, 500, 700, 1000],

@@ -30,7 +30,7 @@ print(__doc__)
 # Imports
 #
 
-from globs import PSEP
+from globs import PSEP, SSEP, USEP
 import logging
 import numpy as np
 import pandas as pd
@@ -96,22 +96,16 @@ def write_plot(model, plot_type, partition):
 
     # Extract model parameters
     base_dir = model.specs['base_dir']
-    extension = model.specs['extension']
-    plots = model.specs['plots']
     project = model.specs['project']
 
     # Create output file specification
-    file_only = PSEP.join([filename, extension])
-    file_all = SSEP.join([directory, file_only])
-    logger.info("Writing plot to %s", file_all)
-    try:
-        df.to_csv(file_all, sep=separator)
-    except:
-        logger.info("Could not write data frame to %s", file_all)
+    file_only = ''.join([plot_type, USEP, partition, '.png'])
+    file_all = SSEP.join([base_dir, project, file_only])
 
     # Save plot    
+    logger.info("Writing plot to %s", file_all)
     plt.tight_layout()
-    plt.savefig(''.join([plot_type, '_', partition, '.png']))
+    plt.savefig(file_all)
 
 
 #

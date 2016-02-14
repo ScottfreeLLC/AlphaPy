@@ -348,7 +348,7 @@ if __name__ == '__main__':
 
     # Argument Parsing
 
-    algos = 'XGB'
+    algos = 'RF,XGB'
 
     parser = argparse.ArgumentParser(description="Alpha314 Game Parser")
     parser.add_argument('-algos', dest="algorithms", action='store', default=algos,
@@ -359,6 +359,8 @@ if __name__ == '__main__':
                         help="number of grid search iterations")
     parser.add_argument("-name", dest="project", default="NBA",
                         help="unique project name")
+    parser.add_argument('-nest', dest="n_estimators", type=int, default=201,
+                        help="default number of estimators [201]")
     parser.add_argument('-nfold', dest="n_folds", type=int, default=3,
                         help="number of folds for cross-validation")
     parser.add_argument('-nstep', dest="n_step", type=int, default=10,
@@ -389,6 +391,7 @@ if __name__ == '__main__':
     print '\nPARAMETERS:\n'
     print 'algorithms      =', args.algorithms
     print 'base_dir        =', args.base_dir
+    print 'n_estimators    =', args.n_estimators
     print 'n_folds         =', args.n_folds
     print 'n_iters         =', args.n_iters
     print 'n_step          =', args.n_step
@@ -442,21 +445,25 @@ if __name__ == '__main__':
     specs = {}
     specs['algorithms'] = args.algorithms
     specs['base_dir'] = base_dir
+    specs['calibration'] = 'isotonic'
     specs['categoricals'] = None
     specs['drop'] = ['Unnamed: 0', 'index', 'season', 'date', 'away.team', 'away.score', 'home.team', 'home.score', 'total_points', 'over', 'point_margin_game', 'cover_margin_game', 'lost_on_spread', 'under', 'overunder_margin', 'lost_on_points', 'won_on_points']
     specs['dummy_limit'] = 100
     specs['extension'] = 'csv'
     specs['features'] = WILDCARD
+    specs['grid_search'] = False
     specs['interactions'] = True
+    specs['n_estimators'] = args.n_estimators
     specs['n_folds'] = args.n_folds
     specs['n_iters'] = args.n_iters
     specs['n_jobs'] = -1
     specs['n_step'] = args.n_step
     specs['ngrams_max'] = 2
-    specs['plots'] = False
+    specs['plots'] = True
     specs['poly_degree'] = 0
     specs['project'] = organization
     specs['regression'] = args.regression
+    specs['rfe'] = False
     specs['scorer'] = 'roc_auc'
     specs['seed'] = 13201
     specs['separator'] = ','

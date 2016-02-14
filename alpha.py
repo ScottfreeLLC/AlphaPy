@@ -34,10 +34,9 @@ from model import predict_blend
 from model import save_results
 import numpy as np
 from optimize import calibrate_model
-from optimize import grid_search
+from optimize import hyper_grid_search
 from optimize import rfe_search
 from optimize import rfecv_search
-from optimize import sfm_search
 import pandas as pd
 from plots import plot_calibration
 from sklearn.cross_validation import train_test_split
@@ -68,7 +67,6 @@ def pipeline(model):
     dummy_limit = model.specs['dummy_limit']
     extension = model.specs['extension']
     features = model.specs['features']
-    feature_select = model.specs['feature_select']
     grid_search = model.specs['grid_search']
     interactions = model.specs['interactions']
     n_estimators = model.specs['n_estimators']
@@ -78,6 +76,7 @@ def pipeline(model):
     poly_degree = model.specs['poly_degree']
     project = model.specs['project']
     regression = model.specs['regression']
+    rfe = model.specs['rfe']
     seed = model.specs['seed']
     separator = model.specs['separator']
     shuffle = model.specs['shuffle']
@@ -189,27 +188,25 @@ def pipeline(model):
         # initial fit
         logger.info("Fitting model for %s", a)
         est = estimator.estimator
-        est.fit(X_train, y_train)
+        if 'XGB' in a:
+            es = [(X_train, y_train)]
+            est.fit(X_train, y_train, eval_set=es, eval_metric="auc",
+                    early_stopping_rounds=30)
+        else:
+            est.fit(X_train, y_train)
         model.estimators[a] = est
         score = est.score(X_train, y_train)
         model.scores[a] = score
         logger.info("Initial Score: %.6f", score)
         # feature selection
-        logger.info("Feature Selection")
-        if feature_select == 'RFE':
+        if rfe:
             if scoring:
                 model = rfecv_search(model, estimator)
             elif hasattr(est, "coef_"):
                 model = rfe_search(model, estimator)
-        elif feature_select == 'LSVC' or feature_select == 'XT' or feature_select == 'RLOGR':
-            model = sfm_search(model, a, feature_select, estimators[feature_select])
-        elif feature_select == 'RLASS':
-            model = sfm_search(model, a, feature_select, regressors[feature_select])
-        else:
-            logger.info("No Available Feature Selection: %s", feature_select)
-        # grid search
+         # grid search
         if grid_search:
-            model = grid_search(model, estimator)
+            model = hyper_grid_search(model, estimator)
         # calibration
         if not regression:
             model = calibrate_model(model, estimator)
@@ -281,7 +278,7 @@ if __name__ == '__main__':
     # Argument Parsing
 
     parser = argparse.ArgumentParser(description="Alpha314 Parser")
-    parser.add_argument('-algos', dest="algorithms", action='store', default='RF,XGB',
+    parser.add_argument('-algos', dest="algorithms", action='store', default='XGB',
                         help='algorithms for either classification or regression')
     parser.add_argument('-base', dest="base_dir", default="/Users/markconway/Projects",
                         help="base directory location")
@@ -295,8 +292,6 @@ if __name__ == '__main__':
                         help="maximum limit for distinct categorical values")
     parser.add_argument('-ext', dest="extension", action='store', default='csv',
                         help='file extension for features and predictions')
-    parser.add_argument('-fs', dest="feature_select", action='store', default='RLOGR',
-                        help='feature selection [RLOGR, RFE, RLASS, LSVC, XT]')
     parser.add_argument('-grid', dest="grid_search", action="store_true",
                         help="perform a grid search [False]")
     parser.add_argument('-gsub', dest="subsample", action="store_true",
@@ -311,8 +306,8 @@ if __name__ == '__main__':
                         help="test labels are available [False]")
     parser.add_argument("-name", dest="project", default="project",
                         help="unique project name")
-    parser.add_argument('-nest', dest="n_estimators", type=int, default=101,
-                        help="default number of estimators [101]")
+    parser.add_argument('-nest', dest="n_estimators", type=int, default=201,
+                        help="default number of estimators [201]")
     parser.add_argument('-nfold', dest="n_folds", type=int, default=5,
                         help="number of folds for cross-validation")
     parser.add_argument('-ngram', dest="ngrams_max", type=int, default=1,
@@ -327,6 +322,8 @@ if __name__ == '__main__':
                         help="polynomial degree for interactions")
     parser.add_argument('-reg', dest="regression", action="store_true",
                         help="classification [default] or regression")
+    parser.add_argument('-rfe', dest="rfe", action="store_true",
+                        help="recursive feature elimination [False]")
     parser.add_argument('-score', dest="scorer", action='store', default='roc_auc',
                         help='scorer function')
     parser.add_argument('-seed', dest="seed", type=int, default=42,
@@ -362,7 +359,6 @@ if __name__ == '__main__':
     print 'extension       =', args.extension
     print 'drop            =', args.drop
     print 'features [X]    =', args.features
-    print 'feature_select  =', args.feature_select
     print 'grid_search     =', args.grid_search
     print 'interactions    =', args.interactions
     print 'n_estimators    =', args.n_estimators
@@ -375,6 +371,7 @@ if __name__ == '__main__':
     print 'poly_degree     =', args.poly_degree
     print 'project         =', args.project
     print 'regression      =', args.regression
+    print 'rfe             =', args.rfe
     print 'scorer          =', args.scorer
     print 'seed            =', args.seed
     print 'separator       =', args.separator

@@ -22,7 +22,6 @@ from sklearn.calibration import CalibratedClassifierCV
 from sklearn.cross_validation import train_test_split
 from sklearn.feature_selection import RFE
 from sklearn.feature_selection import RFECV
-from sklearn.feature_selection import SelectFromModel
 from sklearn.grid_search import GridSearchCV
 from sklearn.grid_search import RandomizedSearchCV
 from sklearn.metrics import log_loss
@@ -46,8 +45,6 @@ def rfecv_search(model, estimator):
     with cross-validation.
     """
 
-    logger.info("Recursive Feature Elimination with CV")
-
     # Extract model data and parameters.
 
     X_train = model.X_train
@@ -65,6 +62,7 @@ def rfecv_search(model, estimator):
 
     # Perform Recursive Feature Elimination
 
+    logger.info("Recursive Feature Elimination with CV")
     rfecv = RFECV(estimator, step=n_step, cv=n_folds,
                   scoring=scorer, verbose=verbosity)
     start = time()
@@ -92,8 +90,6 @@ def rfe_search(model, estimator):
     Return the best feature set using recursive feature elimination.
     """
 
-    logger.info("Recursive Feature Elimination")
-
     # Extract model data and parameters.
 
     X_train = model.X_train
@@ -109,6 +105,7 @@ def rfe_search(model, estimator):
 
     # Perform Recursive Feature Elimination
 
+    logger.info("Recursive Feature Elimination")
     rfe = RFE(estimator, step=n_step, verbose=verbosity)
     start = time()
     selector = rfe.fit(X_train, y_train)
@@ -127,48 +124,13 @@ def rfe_search(model, estimator):
 
 
 #
-# Function sfm_search
+# Function hyper_grid_search
 #
 
-def sfm_search(model, algorithm, feature_select, estimator):
-    """
-    Select From Model [SFM] Feature Selection
-    """
-
-    logger.info("Select From Model: %s", feature_select)
-
-    # Extract model data and parameters.
-
-    X_train = model.X_train
-    y_train = model.y_train
-    clf = estimator.estimator
-
-    # Select features based on extra trees.
-
-    start = time()
-    clf = clf.fit(X_train, y_train)
-    sfm = SelectFromModel(clf, prefit=True)
-    logger.info("Select From Model: %s took %.2f seconds", feature_select, (time() - start))
-
-    # Record the support vector
-
-    model.support[algorithm] = sfm.get_support()
-
-    # Return the model with the support vector
-
-    return model
-
-
-#
-# Function grid_search
-#
-
-def grid_search(model, estimator):
+def hyper_grid_search(model, estimator):
     """
     Return the best hyperparameters using a randomized grid search.
     """
-
-    logger.info("Parameter Grid Search")
 
     # Extract estimator parameters.
 
@@ -216,6 +178,7 @@ def grid_search(model, estimator):
 
     # Fit the randomized search and time it.
 
+    logger.info("Parameter Grid Search")
     start = time()
     gscv.fit(X_train, y_train)
     if n_iters > 0:
@@ -245,25 +208,24 @@ def calibrate_model(model, estimator):
     Calibrate a classifier.
     """
 
+    # Extract estimator parameters.
+
+    algo = estimator.algorithm
+    clf = estimator.estimator
+
     # Extract model data and parameters.
 
     try:
-        support = model.support[algorithm]
+        support = model.support[algo]
         X_train = model.X_train[:, support]
     except:
         X_train = model.X_train
-
     X_test = model.X_test
     y_train = model.y_train
 
     calibration = model.specs['calibration']
     n_folds = model.specs['n_folds']
     regression = model.specs['regression']
-
-    # Extract estimator parameters.
-
-    algo = estimator.algorithm
-    clf = estimator.estimator
 
     # Iterate through the models, getting the best score for each one.
 
