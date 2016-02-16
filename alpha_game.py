@@ -348,23 +348,27 @@ if __name__ == '__main__':
 
     # Argument Parsing
 
-    algos = 'RF,XGB'
+    algos = 'XGB'
 
     parser = argparse.ArgumentParser(description="Alpha314 Game Parser")
     parser.add_argument('-algos', dest="algorithms", action='store', default=algos,
                         help='algorithms for either classification or regression')
     parser.add_argument('-base', dest="base_dir", default="/Users/markconway/Projects/AlphaPy_Projects",
                         help="base directory location")
-    parser.add_argument('-iters', dest="n_iters", type=int, default=0,
+    parser.add_argument('-grid', dest="grid_search", action="store_true",
+                        help="perform a grid search [False]")
+    parser.add_argument('-iters', dest="n_iters", type=int, default=20,
                         help="number of grid search iterations")
     parser.add_argument("-name", dest="project", default="NBA",
                         help="unique project name")
     parser.add_argument('-nest', dest="n_estimators", type=int, default=201,
                         help="default number of estimators [201]")
-    parser.add_argument('-nfold', dest="n_folds", type=int, default=3,
+    parser.add_argument('-nfold', dest="n_folds", type=int, default=5,
                         help="number of folds for cross-validation")
-    parser.add_argument('-nstep', dest="n_step", type=int, default=10,
+    parser.add_argument('-nstep', dest="n_step", type=int, default=5,
                         help="step increment for recursive feature elimination")
+    parser.add_argument('-plots', dest="plots", action="store_true",
+                        help="show plots [False]")
     parser.add_argument('-pmax', dest="points_max", type=int, default=45,
                         help="maximum points for simulation")
     parser.add_argument('-pmin', dest="points_min", type=int, default=3,
@@ -373,13 +377,15 @@ if __name__ == '__main__':
                         help="generate random scores for simulation [False]")
     parser.add_argument('-reg', dest="regression", action="store_true",
                         help="classification [default] or regression")
+    parser.add_argument('-rfe', dest="rfe", action="store_true",
+                        help="recursive feature elimination [False]")
     parser.add_argument('-seas', dest="season", type=int, default=0,
                         help="season [default is all seasons]")
     parser.add_argument('-split', dest="split", type=float, default=0.3,
                         help="percentage of data withheld for testing")
     parser.add_argument('-win', dest="window", type=int, default=3,
                         help="sliding window length for rolling calculations")
-    parser.add_argument('-v', dest="verbosity", type=int, default=1,
+    parser.add_argument('-v', dest="verbosity", type=int, default=0,
                         help="verbosity level")
     parser.add_argument("-y", dest="target", action='store', default='won_on_spread',
                         help="target variable [y]")
@@ -391,15 +397,18 @@ if __name__ == '__main__':
     print '\nPARAMETERS:\n'
     print 'algorithms      =', args.algorithms
     print 'base_dir        =', args.base_dir
+    print 'grid_search     =', args.grid_search
     print 'n_estimators    =', args.n_estimators
     print 'n_folds         =', args.n_folds
     print 'n_iters         =', args.n_iters
     print 'n_step          =', args.n_step
+    print 'plots           =', args.plots
     print 'points_max      =', args.points_max
     print 'points_min      =', args.points_min
     print 'project         =', args.project
     print 'random_scoring  =', args.random_scoring
     print 'regression      =', args.regression
+    print 'rfe             =', args.rfe
     print 'season          =', args.season
     print 'split           =', args.split
     print 'target [y]      =', args.target
@@ -451,7 +460,8 @@ if __name__ == '__main__':
     specs['dummy_limit'] = 100
     specs['extension'] = 'csv'
     specs['features'] = WILDCARD
-    specs['grid_search'] = False
+    specs['grid_search'] = args.grid_search
+    specs['gs_iters'] = 200
     specs['interactions'] = True
     specs['n_estimators'] = args.n_estimators
     specs['n_folds'] = args.n_folds
@@ -459,11 +469,11 @@ if __name__ == '__main__':
     specs['n_jobs'] = -1
     specs['n_step'] = args.n_step
     specs['ngrams_max'] = 2
-    specs['plots'] = True
+    specs['plots'] = args.plots
     specs['poly_degree'] = 0
     specs['project'] = organization
     specs['regression'] = args.regression
-    specs['rfe'] = False
+    specs['rfe'] = args.rfe
     specs['scorer'] = 'roc_auc'
     specs['seed'] = 13201
     specs['separator'] = ','
@@ -476,7 +486,7 @@ if __name__ == '__main__':
     specs['text_features'] = None
     specs['train_file'] = 'train'
     specs['target'] = args.target
-    specs['verbosity'] = 1
+    specs['verbosity'] = 0
 
     #
     # Read in the game frame. This is the feature generation phase.
@@ -505,7 +515,7 @@ if __name__ == '__main__':
     train_date = datetime.date(1900, 1, 1)
     train_date = train_date.strftime('%Y-%m-%d')
     predict_date = datetime.datetime.now()
-    predict_date = '2016-01-01' # predict_date.strftime("%Y-%m-%d")
+    predict_date = '2016-01-23' # predict_date.strftime("%Y-%m-%d")
 
 
     #
@@ -629,12 +639,12 @@ if __name__ == '__main__':
     #
 
     new_train_frame = ff.loc[(ff.date >= train_date) & (ff.date < predict_date)]
-    if len(new_train_frame) == 0:
-        raise ValueError("Training frame has length 0")
+    if len(new_train_frame) <= 1:
+        raise ValueError("Training frame has length 1 or less")
 
     new_test_frame = ff.loc[ff.date >= predict_date]
-    if len(new_test_frame) == 0:
-        raise ValueError("Test frame has length 0")
+    if len(new_test_frame) <= 1:
+        raise ValueError("Test frame has length 1 or less")
 
     #
     # Rewrite with all the features to the train and test files

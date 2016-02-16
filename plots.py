@@ -13,14 +13,13 @@
 # Plots
 #
 #     1. Calibration
-#     2. Feature Importances
+#     2. Feature Importance
 #     3. Learning Curve
 #     4. ROC Curve
 #     5. Confusion Matrix
-#     6. Classifier Comparison
+#     6. Decision Boundary
 #     7. Scatter Plot
-#     8. Validation Curve
-#     9. Partial Dependence
+#     8. Partial Dependence
 #
 
 print(__doc__)
@@ -30,7 +29,7 @@ print(__doc__)
 # Imports
 #
 
-from globs import PSEP, SSEP, USEP
+from globs import BSEP, PSEP, SSEP, USEP
 import logging
 import numpy as np
 import pandas as pd
@@ -40,12 +39,13 @@ from sklearn import cross_validation
 from sklearn import metrics
 from sklearn.calibration import calibration_curve
 from sklearn.cross_validation import cross_val_score
+from sklearn.cross_validation import ShuffleSplit
 from sklearn.cross_validation import StratifiedKFold
 from sklearn.cross_validation import train_test_split
 from sklearn.decomposition import PCA
 from sklearn.ensemble.partial_dependence import partial_dependence
 from sklearn.ensemble.partial_dependence import plot_partial_dependence
-from sklearn.learning_curve import validation_curve
+from sklearn.learning_curve import learning_curve
 from sklearn.metrics import auc
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
@@ -74,6 +74,7 @@ def get_partition_data(model, partition):
     """
     Get the X, y pair for a given model and partition
     """
+
     if partition == 'train':
         X = model.X_train
         y = model.y_train
@@ -82,14 +83,36 @@ def get_partition_data(model, partition):
         y = model.y_test
     else:
         raise TypeError('Partition must be train or test')
+
     return X, y
+
+
+#
+# Function generate_plots
+#
+
+def generate_plots(model, partition):
+    """
+    Save plot to a file.
+    """
+
+    # Generate plots
+
+    plot_calibration(model, partition)
+    plot_importance(model, partition)
+    plot_learning_curve(model, partition)
+    plot_roc_curve(model, partition)
+    # plot_confusion_matrix(model, partition)
+    # plot_boundary(model)
+    # plot_scatterplot(model)
+    # plot_partial_dependence(model, partition)
 
 
 #
 # Function write_plot
 #
 
-def write_plot(model, plot_type, partition):
+def write_plot(model, plot_type, partition, algo):
     """
     Save plot to a file.
     """
@@ -99,7 +122,7 @@ def write_plot(model, plot_type, partition):
     project = model.specs['project']
 
     # Create output file specification
-    file_only = ''.join([plot_type, USEP, partition, '.png'])
+    file_only = ''.join([plot_type, USEP, partition, USEP, algo, '.png'])
     file_all = SSEP.join([base_dir, project, file_only])
 
     # Save plot    
@@ -113,11 +136,24 @@ def write_plot(model, plot_type, partition):
 #
 
 def plot_calibration(model, partition):
+    """
+    Display calibration plots
+
+    Parameters
+    ----------
+
+    model : object that encapsulates all of the model parameters
+    partition : 'train' or 'test'
+
+    """
+
+    logger.info("Generating Calibration Plot")
 
     # For classification only
 
     if model.specs['regression']:
-        raise TypeError('Calibration plot is for classification only')
+        logger.info('Calibration plot is for classification only')
+        return None
 
     # Get X, Y for correct partition
 
@@ -143,10 +179,8 @@ def plot_calibration(model, partition):
                 (prob_pos - prob_pos.min()) / (prob_pos.max() - prob_pos.min())
         fraction_of_positives, mean_predicted_value = \
             calibration_curve(y, prob_pos, n_bins=10)
-
         ax1.plot(mean_predicted_value, fraction_of_positives, "s-",
                  label="%s" % (algo, ))
-
         ax2.hist(prob_pos, range=(0, 1), bins=10, label=algo,
                  histtype="step", lw=2)
 
@@ -159,7 +193,7 @@ def plot_calibration(model, partition):
     ax2.set_ylabel("Count")
     ax2.legend(loc="upper center", ncol=2)
 
-    write_plot(model, 'calibration', partition)
+    write_plot(model, 'calibration', partition, 'ALL')
 
 
 #
@@ -169,29 +203,43 @@ def plot_calibration(model, partition):
 def plot_importance(model, partition):
     """
     Display feature importances
+
+    Parameters
+    ----------
+
+    model : object that encapsulates all of the model parameters
+    partition : 'train' or 'test'
+
     """
 
-    # forest was input parameter
-    importances = forest.feature_importances_
-    std = np.std([tree.feature_importances_ for tree in forest.estimators_],
-                 axis=0)
-    indices = np.argsort(importances)[::-1]
+    logger.info("Generating Feature Importance Plots")
 
-    # Print the feature ranking
-    print("Feature ranking:")
-
-    for f in range(10):
-        print("%d. feature %d (%f)" % (f + 1, indices[f], importances[indices[f]]))
-
-    # Plot the feature importances of the forest
-    plt.figure()
-    plt.title("Feature importances")
-    plt.bar(range(10), importances[indices],
-           color="r", yerr=std[indices], align="center")
-    plt.xticks(range(10), indices)
-    plt.xlim([-1, 10])
-
-    write_plot(model, 'importance', partition)
+    for algo in model.algolist:
+        logger.info("Algorithm: %s", algo)
+        est = model.estimators[algo]
+        # test for feature importances in the estimator
+        if hasattr(est, "feature_importances_"):
+            # forest was input parameter
+            importances = est.feature_importances_
+            std = np.std([tree.feature_importances_ for tree in est.estimators_],
+                         axis=0)
+            indices = np.argsort(importances)[::-1]
+            # log the feature ranking
+            logger.info("Feature Ranking:")
+            for f in range(10):
+                logger.info("%d. Feature %d (%f)" % (f + 1, indices[f], importances[indices[f]]))
+            # plot the feature importances
+            title = BSEP.join([algo, "Feature Importances [", partition, "]"])
+            plt.figure()
+            plt.title(title)
+            plt.bar(range(10), importances[indices],
+                    color="r", yerr=std[indices], align="center")
+            plt.xticks(range(10), indices)
+            plt.xlim([-1, 10])
+            # save the plot
+            write_plot(model, 'feature_importance', partition, algo)
+        else:
+            logger.info("%s does not have feature importances", algo)
 
 
 #
@@ -200,97 +248,70 @@ def plot_importance(model, partition):
 
 def plot_learning_curve(model, partition):
     """
-    Display learning curve
+    Generate training and test learning curves.
+
+    Parameters
+    ----------
+
+    model : object that encapsulates all of the model parameters
+    partition : 'train' or 'test'
+
     """
 
-    # Get X, Y for correct partition
+    logger.info("Generating Learning Curve Plots")
+
+    # Extract model parameters.
+
+    n_folds = model.specs['n_folds']
+    n_iters = model.specs['n_iters']
+    n_jobs = model.specs['n_jobs']
+    seed = model.specs['seed']
+    split = model.specs['split']
+    verbosity = model.specs['verbosity']
+
+    # Get X, Y for correct partition.
 
     X, y = get_partition_data(model, partition)
 
-    test_score = np.zeros((params['n_estimators'],), dtype=np.float64)
+    # Set cross-validation parameters to get mean train and test curves.
 
-    for i, y_pred in enumerate(clf.staged_decision_function(X_test)):
-        test_score[i] = clf.loss_(y_test, y_pred)
+    cv = ShuffleSplit(X.shape[0], n_iter=n_iters, test_size=split,
+                      random_state=seed)
+    ylim = (0.0, 1.01)
 
-    plt.figure(figsize=(12, 6))
-    plt.subplot(1, 2, 1)
-    plt.title('Deviance')
-    plt.plot(np.arange(params['n_estimators']) + 1, clf.train_score_, 'b-',
-            label='Training Set Deviance')
-    plt.plot(np.arange(params['n_estimators']) + 1, test_score, 'r-',
-            label='Test Set Deviance')
-    plt.legend(loc='upper right')
-    plt.xlabel('Boosting Iterations')
-    plt.ylabel('Deviance')
-
-    write_plot(model, 'learning_curve', partition)
-
-
-#
-# Function plot_partial_dependence
-#
-
-
-def plot_partial_dependence(model, partition):
-    """
-    Plot partial dependence
-    """
-    # Get X, Y for correct partition
-
-    X, y = get_partition_data(model, partition)
-
-    # fetch California housing dataset
-    cal_housing = fetch_california_housing()
-
-    # split 80/20 train-test
-    X_train, X_test, y_train, y_test = train_test_split(cal_housing.data,
-                                                        cal_housing.target,
-                                                        test_size=0.2,
-                                                        random_state=1)
-    names = cal_housing.feature_names
-
-    print('_' * 80)
-    print("Training GBRT...")
-    clf = GradientBoostingRegressor(n_estimators=100, max_depth=4,
-                                    learning_rate=0.1, loss='huber',
-                                    random_state=1)
-    clf.fit(X_train, y_train)
-    print("done.")
-
-    print('_' * 80)
-    print('Convenience plot with ``partial_dependence_plots``')
-    print
-
-    features = [0, 5, 1, 2, (5, 1)]
-    fig, axs = plot_partial_dependence(clf, X_train, features, feature_names=names,
-                                       n_jobs=3, grid_resolution=50)
-    fig.suptitle('Partial dependence of house value on nonlocation features\n'
-                 'for the California housing dataset')
-    plt.subplots_adjust(top=0.9)  # tight_layout causes overlap with suptitle
-
-    print('_' * 80)
-    print('Custom 3d plot via ``partial_dependence``')
-    print
-    fig = plt.figure()
-
-    target_feature = (1, 5)
-    pdp, (x_axis, y_axis) = partial_dependence(clf, target_feature,
-                                               X=X_train, grid_resolution=50)
-    XX, YY = np.meshgrid(x_axis, y_axis)
-    Z = pdp.T.reshape(XX.shape).T
-    ax = Axes3D(fig)
-    surf = ax.plot_surface(XX, YY, Z, rstride=1, cstride=1, cmap=plt.cm.BuPu)
-    ax.set_xlabel(names[target_feature[0]])
-    ax.set_ylabel(names[target_feature[1]])
-    ax.set_zlabel('Partial dependence')
-    #  pretty init view
-    ax.view_init(elev=22, azim=122)
-    plt.colorbar(surf)
-    plt.suptitle('Partial dependence of house value on median age and '
-                'average occupancy')
-    plt.subplots_adjust(top=0.9)
-
-    plt.show()
+    for algo in model.algolist:
+        logger.info("Algorithm: %s", algo)
+        # get estimator
+        estimator = model.estimators[algo]
+        # plot learning curve
+        title = BSEP.join([algo, "Learning Curve [", partition, "]"])
+        # set up plot
+        plt.figure()
+        plt.title(title)
+        if ylim is not None:
+            plt.ylim(*ylim)
+        plt.xlabel("Training Examples")
+        plt.ylabel("Score")
+        train_sizes, train_scores, test_scores = learning_curve(
+            estimator, X, y, cv=cv, n_jobs=n_jobs)
+        train_scores_mean = np.mean(train_scores, axis=1)
+        train_scores_std = np.std(train_scores, axis=1)
+        test_scores_mean = np.mean(test_scores, axis=1)
+        test_scores_std = np.std(test_scores, axis=1)
+        plt.grid()
+        # plot data
+        plt.fill_between(train_sizes, train_scores_mean - train_scores_std,
+                         train_scores_mean + train_scores_std, alpha=0.1,
+                         color="r")
+        plt.fill_between(train_sizes, test_scores_mean - test_scores_std,
+                         test_scores_mean + test_scores_std, alpha=0.1, color="g")
+        plt.plot(train_sizes, train_scores_mean, 'o-', color="r",
+                 label="Training Score")
+        plt.plot(train_sizes, test_scores_mean, 'o-', color="g",
+                 label="Cross-Validation Score")
+        plt.legend(loc="best")
+        # save the plot
+        write_plot(model, 'learning_curve', partition, algo)
 
 
 #
@@ -302,41 +323,62 @@ def plot_roc_curve(model, partition):
     Display feature importances
     """
 
-    # Get X, Y for correct partition
+    logger.info("Generating ROC Curves")
+
+    # For classification only
+
+    if model.specs['regression']:
+        logger.info('ROC Curves are for classification only')
+        return None
+
+    # Extract model parameters.
+
+    n_folds = model.specs['n_folds']
+
+    # Get X, Y for correct partition.
 
     X, y = get_partition_data(model, partition)
 
-    cv = StratifiedKFold(y, n_folds=6)
+    # Set up for K-fold validation.
 
-    mean_tpr = 0.0
-    mean_fpr = np.linspace(0, 1, 100)
-    all_tpr = []
+    cv = StratifiedKFold(y, n_folds=n_folds)
 
-    for i, (train, test) in enumerate(cv):
-        probas_ = classifier.fit(X[train], y[train]).predict_proba(X[test])
-        # Compute ROC curve and area the curve
-        fpr, tpr, thresholds = roc_curve(y[test], probas_[:, 1])
-        mean_tpr += interp(mean_fpr, fpr, tpr)
-        mean_tpr[0] = 0.0
-        roc_auc = auc(fpr, tpr)
-        plt.plot(fpr, tpr, lw=1, label='ROC fold %d (area = %0.2f)' % (i, roc_auc))
+    # Plot a ROC Curve for each algorithm.
 
-    plt.plot([0, 1], [0, 1], '--', color=(0.6, 0.6, 0.6), label='Luck')
-
-    mean_tpr /= len(cv)
-    mean_tpr[-1] = 1.0
-    mean_auc = auc(mean_fpr, mean_tpr)
-    plt.plot(mean_fpr, mean_tpr, 'k--',
-             label='Mean ROC (area = %0.2f)' % mean_auc, lw=2)
-
-    plt.xlim([-0.05, 1.05])
-    plt.ylim([-0.05, 1.05])
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title('Receiver Operating Characteristic')
-    plt.legend(loc="lower right")
-
-    write_plot(model, 'roc_curve', partition)
+    for algo in model.algolist:
+        logger.info("Algorithm: %s", algo)
+        # get estimator
+        estimator = model.estimators[algo]
+        # initialize true and false positive rates
+        mean_tpr = 0.0
+        mean_fpr = np.linspace(0, 1, 100)
+        all_tpr = []
+        # cross-validation
+        for i, (train, test) in enumerate(cv):
+            probas_ = estimator.fit(X[train], y[train]).predict_proba(X[test])
+            # compute ROC curve and area the curve
+            fpr, tpr, thresholds = roc_curve(y[test], probas_[:, 1])
+            mean_tpr += interp(mean_fpr, fpr, tpr)
+            mean_tpr[0] = 0.0
+            roc_auc = auc(fpr, tpr)
+            plt.plot(fpr, tpr, lw=1, label='ROC Fold %d (area = %0.2f)' % (i, roc_auc))
+        # plot mean ROC
+        plt.plot([0, 1], [0, 1], '--', color=(0.6, 0.6, 0.6), label='Luck')
+        mean_tpr /= len(cv)
+        mean_tpr[-1] = 1.0
+        mean_auc = auc(mean_fpr, mean_tpr)
+        plt.plot(mean_fpr, mean_tpr, 'k--',
+                 label='Mean ROC (area = %0.2f)' % mean_auc, lw=2)
+        # plot labels
+        plt.xlim([-0.05, 1.05])
+        plt.ylim([-0.05, 1.05])
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        title = BSEP.join([algo, "ROC Curve [", partition, "]"])
+        plt.title('Receiver Operating Characteristic')
+        plt.legend(loc="lower right")
+        # save chart
+        write_plot(model, 'roc_curve', partition, algo)
 
 
 #
@@ -348,7 +390,46 @@ def plot_confusion_matrix(model, partition):
     Display the confusion matrix
     """
 
-    write_plot(model, 'confusion', partition)
+    logger.info("Generating Confusion Matrices")
+
+    # Get X, Y for correct partition.
+
+    X, y = get_partition_data(model, partition)
+
+    for algo in model.algolist:
+        # Run classifier, using a model that is too regularized (C too low) to see
+        # the impact on the results
+        classifier = svm.SVC(kernel='linear', C=0.01)
+        y_pred = classifier.fit(X_train, y_train).predict(X_test)
+
+        # Compute confusion matrix
+        cm = confusion_matrix(y_test, y_pred)
+        np.set_printoptions(precision=2)
+        print('Confusion matrix, without normalization')
+        print(cm)
+        plt.figure()
+        plot_confusion_matrix(cm)
+
+        # Normalize the confusion matrix by row (i.e by the number of samples
+        # in each class)
+        cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        print('Normalized confusion matrix')
+        print(cm_normalized)
+        plt.figure()
+
+        plot_confusion_matrix(cm_normalized, title='Normalized Confusion Matrix')
+        def plot_confusion_matrix(cm, title='Confusion Matrix', cmap=plt.cm.Blues):
+        plt.imshow(cm, interpolation='nearest', cmap=cmap)
+        plt.title(title)
+        plt.colorbar()
+        tick_marks = np.arange(len(iris.target_names))
+        plt.xticks(tick_marks, iris.target_names, rotation=45)
+        plt.yticks(tick_marks, iris.target_names)
+        plt.tight_layout()
+        plt.ylabel('True label')
+        plt.xlabel('Predicted label')
+
+        write_plot(model, 'confusion', partition, algo)
 
 
 #
@@ -359,6 +440,8 @@ def plot_boundary(model):
     """
     Display a comparison of classifiers
     """
+
+    logger.info("Generating Boundary Plots")
 
     # Extract model parameters
 
@@ -428,7 +511,7 @@ def plot_boundary(model):
         i += 1
 
     figure.subplots_adjust(left=.02, right=.98)
-    write_plot(model, 'boundary', partition)
+    write_plot(model, 'boundary', partition, algo)
 
 
 #
@@ -439,6 +522,8 @@ def plot_scatterplot(model, partition, feature1, feature2):
     """
     Plot a scatterplot of two variables
     """
+
+    logger.info("Generating Scatter Plot")
 
     # Get X, Y for correct partition
 
@@ -484,38 +569,70 @@ def plot_scatterplot(model, partition, feature1, feature2):
 
 
 #
-# Function plot_validation
+# Function plot_partial_dependence
 #
 
-def plot_validation(model, partition):
+
+def plot_partial_dependence(model, partition):
     """
-    Plot a cross-validation curve
+    Plot partial dependence
     """
+
+    logger.info("Generating Partial Dependence Plot")
 
     # Get X, Y for correct partition
 
     X, y = get_partition_data(model, partition)
 
-    param_range = np.logspace(-6, -1, 5)
-    train_scores, test_scores = validation_curve(
-        SVC(), X, y, param_name="gamma", param_range=param_range,
-        cv=10, scoring="accuracy", n_jobs=1)
-    train_scores_mean = np.mean(train_scores, axis=1)
-    train_scores_std = np.std(train_scores, axis=1)
-    test_scores_mean = np.mean(test_scores, axis=1)
-    test_scores_std = np.std(test_scores, axis=1)
+    # fetch California housing dataset
+    cal_housing = fetch_california_housing()
 
-    plt.title("Validation Curve with SVM")
-    plt.xlabel("$\gamma$")
-    plt.ylabel("Score")
-    plt.ylim(0.0, 1.1)
-    plt.semilogx(param_range, train_scores_mean, label="Training score", color="r")
-    plt.fill_between(param_range, train_scores_mean - train_scores_std,
-                     train_scores_mean + train_scores_std, alpha=0.2, color="r")
-    plt.semilogx(param_range, test_scores_mean, label="Cross-validation score",
-                 color="g")
-    plt.fill_between(param_range, test_scores_mean - test_scores_std,
-                     test_scores_mean + test_scores_std, alpha=0.2, color="g")
-    plt.legend(loc="best")
+    # split 80/20 train-test
+    X_train, X_test, y_train, y_test = train_test_split(cal_housing.data,
+                                                        cal_housing.target,
+                                                        test_size=0.2,
+                                                        random_state=1)
+    names = cal_housing.feature_names
 
-    write_plot(model, 'validation', partition)
+    print('_' * 80)
+    print("Training GBRT...")
+    clf = GradientBoostingRegressor(n_estimators=100, max_depth=4,
+                                    learning_rate=0.1, loss='huber',
+                                    random_state=1)
+    clf.fit(X_train, y_train)
+    print("done.")
+
+    print('_' * 80)
+    print('Convenience plot with ``partial_dependence_plots``')
+    print
+
+    features = [0, 5, 1, 2, (5, 1)]
+    fig, axs = plot_partial_dependence(clf, X_train, features, feature_names=names,
+                                       n_jobs=3, grid_resolution=50)
+    fig.suptitle('Partial dependence of house value on nonlocation features\n'
+                 'for the California housing dataset')
+    plt.subplots_adjust(top=0.9)  # tight_layout causes overlap with suptitle
+
+    print('_' * 80)
+    print('Custom 3d plot via ``partial_dependence``')
+    print
+    fig = plt.figure()
+
+    target_feature = (1, 5)
+    pdp, (x_axis, y_axis) = partial_dependence(clf, target_feature,
+                                               X=X_train, grid_resolution=50)
+    XX, YY = np.meshgrid(x_axis, y_axis)
+    Z = pdp.T.reshape(XX.shape).T
+    ax = Axes3D(fig)
+    surf = ax.plot_surface(XX, YY, Z, rstride=1, cstride=1, cmap=plt.cm.BuPu)
+    ax.set_xlabel(names[target_feature[0]])
+    ax.set_ylabel(names[target_feature[1]])
+    ax.set_zlabel('Partial dependence')
+    #  pretty init view
+    ax.view_init(elev=22, azim=122)
+    plt.colorbar(surf)
+    plt.suptitle('Partial dependence of house value on median age and '
+                'average occupancy')
+    plt.subplots_adjust(top=0.9)
+
+    plt.show()

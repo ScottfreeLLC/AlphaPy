@@ -193,9 +193,9 @@ def get_classifiers(n_estimators, seed, n_jobs, verbosity):
               "n_jobs" : n_jobs,
               "verbose" : verbosity}
     est = RandomForestClassifierCoef(**params)
-    grid = {"n_estimators" : [10, 20, 50, 101, 151, 201, 501],
-            "max_depth" : [3, 5, 7, 10, None],
-            "min_samples_split" : [1, 2, 3, 5, 10],
+    grid = {"n_estimators" : [21, 51, 101, 201, 501],
+            "max_depth" : [5, 10, None],
+            "min_samples_split" : [1, 3, 5, 10],
             "min_samples_leaf" : [1, 2, 3],
             "bootstrap" : [True, False],
             "criterion" : ['gini', 'entropy']}
@@ -239,32 +239,12 @@ def get_classifiers(n_estimators, seed, n_jobs, verbosity):
               "nthread" : n_jobs,
               "silent" : True}
     est = xgb.XGBClassifier(**params)
-    grid = {"n_estimators" : [10, 21, 31, 51, 101, 201, 501, 1001],
-            "max_depth" : [None, 3, 6, 7, 8, 10, 20],
-            "learning_rate" : [0.01, 0.02, 0.05, 0.1, 0.2],
-            "min_child_weight" : [1.0, 1.05, 1.1, 1.2],
-            "subsample" : [0.8, 0.85, 0.9, 0.95],
-            "colsample_bytree" : [0.6, 0.7, 0.8, 0.9]}
-    scoring = False
-    classifiers[algo] = Estimator(algo, est, grid, scoring)
-    # XGBoost Multi
-    algo = 'XGBM'
-    params = {"objective" : 'multi:softmax',
-              "n_estimators" : n_estimators,
-              "max_depth" : 10,
-              "learning_rate" : 0.1,
-              "min_child_weight" : 1.05,
-              "subsample" : 0.85,
-              "colsample_bytree" : 0.8,
-              "nthread" : n_jobs,
-              "silent" : False}
-    est = xgb.XGBClassifier(**params)
-    grid = {"n_estimators" : [10, 21, 31, 51, 101, 201, 501, 1001],
-            "max_depth" : [None, 3, 6, 7, 8, 10, 20],
-            "learning_rate" : [0.01, 0.02, 0.05, 0.1, 0.2],
-            "min_child_weight" : [1.0, 1.05, 1.1, 1.2],
-            "subsample" : [0.8, 0.85, 0.9, 0.95],
-            "colsample_bytree" : [0.6, 0.7, 0.8, 0.9]}
+    grid = {"n_estimators" : [21, 51, 101, 201, 501, 1001],
+            "max_depth" : [None, 6, 8, 10, 20],
+            "learning_rate" : [0.02, 0.05, 0.1],
+            "min_child_weight" : [1.0, 1.1],
+            "subsample" : [0.8, 0.9, 1.0],
+            "colsample_bytree" : [0.8, 0.9, 1.0]}
     scoring = False
     classifiers[algo] = Estimator(algo, est, grid, scoring)
     # Extra Trees
@@ -372,6 +352,25 @@ def get_regressors(n_estimators, seed, n_jobs, verbosity):
             "sample_fraction" : [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8],
             "selection_threshold" : [0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.6]}
     regressors[algo] = Estimator(algo, est, grid)
+    # XGBoost Multi
+    algo = 'XGBM'
+    params = {"objective" : 'multi:softmax',
+              "n_estimators" : n_estimators,
+              "max_depth" : 10,
+              "learning_rate" : 0.1,
+              "min_child_weight" : 1.05,
+              "subsample" : 0.85,
+              "colsample_bytree" : 0.8,
+              "nthread" : n_jobs,
+              "silent" : True}
+    est = xgb.XGBClassifier(**params)
+    grid = {"n_estimators" : [10, 21, 31, 51, 101, 201, 501, 1001],
+            "max_depth" : [None, 3, 6, 7, 8, 10, 20],
+            "learning_rate" : [0.01, 0.02, 0.05, 0.1, 0.2],
+            "min_child_weight" : [1.0, 1.05, 1.1, 1.2],
+            "subsample" : [0.8, 0.85, 0.9, 0.95],
+            "colsample_bytree" : [0.6, 0.7, 0.8, 0.9]}
+    regressors[algo] = Estimator(algo, est, grid)
     # XGBoost
     algo = 'XGBR'
     params = {"objective" : 'reg:linear',
@@ -383,7 +382,7 @@ def get_regressors(n_estimators, seed, n_jobs, verbosity):
               "colsample_bytree" : 0.8,
               "seed" : seed,
               "nthread" : n_jobs,
-              "silent" : False}
+              "silent" : True}
     est = xgb.XGBRegressor(**params)
     grid = {"n_estimators" : [10, 20, 30, 50, 100, 200],
             "max_depth" : [None, 3, 6, 7, 8, 10, 20],

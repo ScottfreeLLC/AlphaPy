@@ -13,6 +13,7 @@
 # Global Variables
 #
 
+BSEP = ' '
 CSEP = ':'
 PSEP = '.'
 SSEP = '/'

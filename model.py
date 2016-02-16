@@ -32,6 +32,7 @@ from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import explained_variance_score
 from sklearn.metrics import f1_score
+from sklearn.metrics import log_loss
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import median_absolute_error
@@ -116,6 +117,48 @@ class Model:
 
     def __str__(self):
         return self.name
+
+
+#
+# Function make_predictions
+#
+
+def make_predictions(model, algo):
+    """
+    Make predictions for training and test set.
+    """
+
+    # Extract model parameters
+
+    regression = model.specs['regression']
+    est = model.estimators[algo]
+
+    # Extract model data.
+
+    try:
+        support = model.support[algo]
+        X_train = model.X_train[:, support]
+        X_test = model.X_test[:, support]
+    except:
+        X_train = model.X_train
+        X_test = model.X_test
+    y_train = model.y_train
+
+    # Make predictions on original training and test data
+
+    model.preds[(algo, 'train')] = est.predict(X_train)
+    model.preds[(algo, 'test')] = est.predict(X_test)
+    if not regression:
+        model.probas[(algo, 'train')] = est.predict_proba(X_train)[:, 1]
+        model.probas[(algo, 'test')] = est.predict_proba(X_test)[:, 1]
+
+    # Training Log Loss
+
+    if not regression:
+        lloss = log_loss(y_train, model.probas[(algo, 'train')], eps=1e-15, normalize=True)
+        logger.info("Log Loss for %s: %.6f", algo, lloss)
+
+    return model
 
 
 #
@@ -308,18 +351,18 @@ def save_results(model, tag, partition):
     Save results in the given output file.
     """
 
-    # Extract data and model parameters.
+    # Extract model parameters.
 
-    X_train = model.X_train
-    X_test = model.X_test
-
-    predicted = model.preds[(tag, partition)]
-    probas = model.probas[(tag, partition)]
     base_dir = model.specs['base_dir']
     project = model.specs['project']
     extension = model.specs['extension']
     separator = model.specs['separator']
     regression = model.specs['regression']
+
+    # Extract data
+
+    X_train = model.X_train
+    X_test = model.X_test
 
     # Get date stamp to record file creation
 
@@ -347,12 +390,17 @@ def save_results(model, tag, partition):
     # output = SSEP.join([output_dir, output_file])
     # np.savetxt(output, preds, delimiter=separator)
     # probabilities
+
+    output_dir = SSEP.join([base_dir, project])
     if not regression:
-        output_dir = SSEP.join([base_dir, project])
         output_file = USEP.join(['probas', d.strftime(f)])
-        output_file = PSEP.join([output_file, extension])
-        output = SSEP.join([output_dir, output_file])
-        np.savetxt(output, probas, delimiter=separator)
+        preds = model.probas[(tag, partition)]
+    else:
+        output_file = USEP.join(['preds', d.strftime(f)])
+        preds = model.preds[(tag, partition)]
+    output_file = PSEP.join([output_file, extension])
+    output = SSEP.join([output_dir, output_file])
+    np.savetxt(output, preds, delimiter=separator)
 
     # Save model object
 

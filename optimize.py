@@ -24,7 +24,6 @@ from sklearn.feature_selection import RFE
 from sklearn.feature_selection import RFECV
 from sklearn.grid_search import GridSearchCV
 from sklearn.grid_search import RandomizedSearchCV
-from sklearn.metrics import log_loss
 from time import time
 
 
@@ -39,26 +38,24 @@ logger = logging.getLogger(__name__)
 # Function rfecv_search
 #
 
-def rfecv_search(model, estimator):
+def rfecv_search(model, algo):
     """
     Return the best feature set using recursive feature elimination
     with cross-validation.
     """
 
-    # Extract model data and parameters.
+    # Extract model data.
 
     X_train = model.X_train
     y_train = model.y_train
+
+    # Extract model parameters.
 
     n_step = model.specs['n_step']
     n_folds = model.specs['n_folds']
     scorer = model.specs['scorer']
     verbosity = model.specs['verbosity']
-
-    # Extract estimator parameters.
-
-    algorithm = estimator.algorithm
-    estimator = estimator.estimator
+    estimator = model.estimators[algo]
 
     # Perform Recursive Feature Elimination
 
@@ -70,11 +67,11 @@ def rfecv_search(model, estimator):
     logger.info("RFECV took %.2f seconds for step %d and %d folds",
                 (time() - start), n_step, n_folds)
     logger.info("Algorithm: %s, Selected Features: %d, Ranking: %s",
-                algorithm, selector.n_features_, selector.ranking_)
+                algo, selector.n_features_, selector.ranking_)
 
     # Record the support vector
 
-    model.support[algorithm] = selector.support_
+    model.support[algo] = selector.support_
 
     # Return the model with the support vector
 
@@ -85,23 +82,21 @@ def rfecv_search(model, estimator):
 # Function rfe_search
 #
 
-def rfe_search(model, estimator):
+def rfe_search(model, algo):
     """
     Return the best feature set using recursive feature elimination.
     """
 
-    # Extract model data and parameters.
+    # Extract model data.
 
     X_train = model.X_train
     y_train = model.y_train
 
+    # Extract model parameters.
+
     n_step = model.specs['n_step']
     verbosity = model.specs['verbosity']
-
-    # Extract estimator parameters.
-
-    algorithm = estimator.algorithm
-    estimator = estimator.estimator
+    estimator = model.estimators[algo]
 
     # Perform Recursive Feature Elimination
 
@@ -112,11 +107,11 @@ def rfe_search(model, estimator):
     logger.info("RFE took %.2f seconds for step %d",
                 (time() - start), n_step)
     logger.info("Algorithm: %s, Selected Features: %d, Ranking: %s",
-                algorithm, selector.n_features_, selector.ranking_)
+                algo, selector.n_features_, selector.ranking_)
 
     # Record the support vector
 
-    model.support[algorithm] = selector.support_
+    model.support[algo] = selector.support_
 
     # Return the model with the support vector
 
@@ -134,22 +129,24 @@ def hyper_grid_search(model, estimator):
 
     # Extract estimator parameters.
 
-    algorithm = estimator.algorithm
     grid = estimator.grid
     if not grid:
         raise AttributeError("A grid must be defined to use grid search")
-    estimator = estimator.estimator
+    algo = estimator.algorithm
+    est = model.estimators[algo]
 
-    # Extract model parameters.
+    # Extract model data.
 
     try:
-        support = model.support[algorithm]
+        support = model.support[algo]
         X_train = model.X_train[:, support]
     except:
         X_train = model.X_train
-
     y_train = model.y_train
-    n_iters = model.specs['n_iters']
+
+    # Extract model parameters.
+
+    gs_iters = model.specs['gs_iters']
     n_folds = model.specs['n_folds']
     n_jobs = model.specs['n_jobs']
     scorer = model.specs['scorer']
@@ -168,31 +165,31 @@ def hyper_grid_search(model, estimator):
 
     # Create the randomized grid search iterator.
 
-    if n_iters > 0:
-        gscv = RandomizedSearchCV(estimator, param_distributions=grid,
-                                  n_iter=n_iters, scoring=scorer, n_jobs=n_jobs,
-                                  cv=n_folds, verbose=verbosity)
+    if gs_iters > 0:
+        gscv = RandomizedSearchCV(est, param_distributions=grid, n_iter=gs_iters,
+                                  scoring=scorer, n_jobs=n_jobs, cv=n_folds,
+                                  verbose=verbosity)
     else:
-        gscv = GridSearchCV(estimator, param_grid=grid, scoring=scorer,
-                            n_jobs=n_jobs, cv=n_folds, verbose=verbosity)
+        gscv = GridSearchCV(est, param_grid=grid, scoring=scorer, n_jobs=n_jobs,
+                            cv=n_folds, verbose=verbosity)
 
     # Fit the randomized search and time it.
 
     logger.info("Parameter Grid Search")
     start = time()
     gscv.fit(X_train, y_train)
-    if n_iters > 0:
+    if gs_iters > 0:
         logger.info("Random Grid Search took %.2f seconds for %d iterations",
-                    (time() - start), n_iters)
+                    (time() - start), gs_iters)
     else:
         logger.info("Full Grid Search took %.2f seconds", (time() - start))
     logger.info("Algorithm: %s, Best Score: %.4f, Best Parameters: %s",
-                algorithm, gscv.best_score_, gscv.best_params_)
+                algo, gscv.best_score_, gscv.best_params_)
 
     # Assign the Grid Search estimator for this algorithm
 
-    model.estimators[algorithm] = gscv.best_estimator_
-    model.scores[algorithm] = gscv.best_score_
+    model.estimators[algo] = gscv.best_estimator_
+    model.scores[algo] = gscv.best_score_
 
     # Return the model with Grid Search estimators
 
@@ -203,29 +200,31 @@ def hyper_grid_search(model, estimator):
 # Function calibrate_model
 #
 
-def calibrate_model(model, estimator):
+def calibrate_model(model, algo):
     """
     Calibrate a classifier.
     """
 
-    # Extract estimator parameters.
+    # Extract model parameters
 
-    algo = estimator.algorithm
-    clf = estimator.estimator
+    calibration = model.specs['calibration']
+    grid_search = model.specs['grid_search']
+    n_folds = model.specs['n_folds']
+    regression = model.specs['regression']
+    seed = model.specs['seed']
+    split = model.specs['split']
+    clf = model.estimators[algo]
 
-    # Extract model data and parameters.
+    # Extract model data.
 
     try:
         support = model.support[algo]
         X_train = model.X_train[:, support]
+        X_test = model.X_test[:, support]
     except:
         X_train = model.X_train
-    X_test = model.X_test
+        X_test = model.X_test
     y_train = model.y_train
-
-    calibration = model.specs['calibration']
-    n_folds = model.specs['n_folds']
-    regression = model.specs['regression']
 
     # Iterate through the models, getting the best score for each one.
 
@@ -234,22 +233,21 @@ def calibrate_model(model, estimator):
 
     # Calibration
 
-    cal_clf = CalibratedClassifierCV(clf, method=calibration, cv=n_folds)
-    cal_clf.fit(X_train, y_train)
-    model.estimators[algo] = cal_clf
+    if 'XGB' in algo:
+        X1, X2, y1, y2 = train_test_split(X_train, y_train, test_size=split,
+                                          random_state=seed)
+        es = [(X1, y1), (X2, y2)]
+        clf.fit(X1, y1, eval_set=es, early_stopping_rounds=30)
+    else:
+        clf = CalibratedClassifierCV(clf, method=calibration, cv=n_folds)
+        clf.fit(X_train, y_train)
 
-    # Make predictions on original training and test data
+    # Record the training score
 
-    model.preds[(algo, 'train')] = cal_clf.predict(X_train)
-    model.preds[(algo, 'test')] = cal_clf.predict(X_test)
-    if not regression:
-        model.probas[(algo, 'train')] = cal_clf.predict_proba(X_train)[:, 1]
-        model.probas[(algo, 'test')] = cal_clf.predict_proba(X_test)[:, 1]
-
-    # Training Log Loss
-
-    lloss = log_loss(y_train, model.probas[(algo, 'train')], eps=1e-15, normalize=True)
-    logger.info("Log Loss for %s: %.6f", algo, lloss)
+    model.estimators[algo] = clf
+    score = clf.score(X_train, y_train)
+    model.scores[algo] = score
+    logger.info("Calibrated Score: %.6f", score)
 
     # Return the model with the calibrated classifier.
 
