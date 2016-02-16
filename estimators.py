@@ -60,14 +60,62 @@ class GradientBoostingClassifierCoef(GradientBoostingClassifier):
         super(GradientBoostingClassifierCoef, self).fit(*args, **kwargs)
         self.coef_ = self.feature_importances_
 
+#
+# Enumeration Type
+#
+
+class Enum(set):
+    def __getattr__(self, name):
+        if name in self:
+            return name
+        raise AttributeError
+
 
 #
-# Function get_classifiers
+# Model Types
+#
+
+model_types = Enum(["classification", "clustering", "multiclass", "regression"])
+
+
+#
+# Define scorers
+#
+
+scorers = {'accuracy' : model_types.classification,
+           'average_precision' : model_types.classification,
+           'f1' : model_types.classification,
+           'f1_macro' : model_types.classification,
+           'f1_micro' : model_types.classification,
+           'f1_samples' : model_types.classification,
+           'f1_weighted' : model_types.classification,
+           'log_loss' : model_types.classification,
+           'precision' : model_types.classification,
+           'recall' : model_types.classification,
+           'roc_auc' : model_types.classification,
+           'adjusted_rand_score' : model_types.clustering,
+           'mean_absolute_error' : model_types.regression,
+           'mean_squared_error' : model_types.regression,
+           'median_absolute_error' : model_types.regression,
+           'r2' : model_types.regression}
+
+
+#
+# Function get_scorers
+#
+
+def get_scorers():
+    return scorers
+
+
+#
+# Function get_estimators
 #
 
 # AdaBoost (feature_importances_)
 # Gradient Boosting (feature_importances_)
 # K-Nearest Neighbors (NA)
+# Linear Regression (coef_)
 # Linear Support Vector Machine (coef_)
 # Logistic Regression (coef_)
 # Naive Bayes (coef_)
@@ -77,13 +125,15 @@ class GradientBoostingClassifierCoef(GradientBoostingClassifier):
 # XGBoost Binary (NA)
 # XGBoost Multi (NA)
 # Extra Trees (feature_importances_)
+# Random Forest (feature_importances_)
+# Randomized Lasso
 
-
-def get_classifiers(n_estimators, seed, n_jobs, verbosity):
-    # initialize classifier dictionary
-    classifiers = {}
+def get_estimators(n_estimators, seed, n_jobs, verbosity):
+    # initialize estimator dictionary
+    estimators = {}
     # AdaBoost
     algo = 'AB'
+    model_type = model_types.classification
     params = {"n_estimators" : n_estimators,
               "random_state" : seed}
     est = AdaBoostClassifierCoef(**params)
@@ -91,9 +141,10 @@ def get_classifiers(n_estimators, seed, n_jobs, verbosity):
             "learning_rate" : [0.2, 0.5, 0.7, 1.0, 1.5, 2.0],
             "algorithm" : ['SAMME', 'SAMME.R']}
     scoring = True
-    classifiers[algo] = Estimator(algo, est, grid, scoring)
+    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
     # Gradient Boosting
     algo = 'GB'
+    model_type = model_types.classification
     params = {"n_estimators" : n_estimators,
               "max_depth" : 3,
               "random_state" : seed,
@@ -107,9 +158,18 @@ def get_classifiers(n_estimators, seed, n_jobs, verbosity):
             "min_samples_leaf" : [1, 2]
             }
     scoring = True
-    classifiers[algo] = Estimator(algo, est, grid, scoring)
+    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
+    # Gradient Boosting Regression
+    algo = 'GBR'
+    model_type = model_types.regression
+    params = {"n_estimators" : n_estimators,
+              "random_state" : seed,
+              "verbose" : verbosity}
+    est = GradientBoostingRegressor()
+    estimators[algo] = Estimator(algo, model_type, est, grid)
     # K-Nearest Neighbors
     algo = 'KNN'
+    model_type = model_types.classification
     params = {"n_jobs" : n_jobs}
     est = KNeighborsClassifier(**params)
     grid = {"n_neighbors" : [3, 5, 7, 10],
@@ -117,9 +177,16 @@ def get_classifiers(n_estimators, seed, n_jobs, verbosity):
             "algorithm" : ['ball_tree', 'kd_tree', 'brute', 'auto'],
             "leaf_size" : [10, 20, 30, 40, 50]}
     scoring = False
-    classifiers[algo] = Estimator(algo, est, grid, scoring)
+    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
+    # K-Nearest Neighbor Regression
+    algo = 'KNR'
+    model_type = model_types.regression
+    params = {"n_jobs" : n_jobs}
+    est = KNeighborsRegressor(**params)
+    estimators[algo] = Estimator(algo, model_type, est, grid)
     # Linear Support Vector Classification
     algo = 'LSVC'
+    model_type = model_types.classification
     params = {"C" : 0.01,
               "max_iter" : 2000,
               "penalty" : 'l1',
@@ -133,9 +200,10 @@ def get_classifiers(n_estimators, seed, n_jobs, verbosity):
             "tol" : [0.0005, 0.001, 0.005],
             "max_iter" : [500, 1000, 2000]}
     scoring = False
-    classifiers[algo] = Estimator(algo, est, grid, scoring)
+    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
     # Linear Support Vector Machine
     algo = 'LSVM'
+    model_type = model_types.classification
     params = {"kernel" : 'linear',
               "probability" : True,
               "random_state" : seed,
@@ -147,9 +215,10 @@ def get_classifiers(n_estimators, seed, n_jobs, verbosity):
             "tol" : [0.0005, 0.001, 0.005],
             "decision_function_shape" : ['ovo', 'ovr', None]}
     scoring = False
-    classifiers[algo] = Estimator(algo, est, grid, scoring)
+    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
     # Logistic Regression
     algo = 'LOGR'
+    model_type = model_types.classification
     params = {"random_state" : seed,
               "n_jobs" : n_jobs,
               "verbose" : verbosity}
@@ -159,16 +228,27 @@ def get_classifiers(n_estimators, seed, n_jobs, verbosity):
             "fit_intercept" : [True, False],
             "solver" : ['newton-cg', 'lbfgs', 'liblinear', 'sag']}
     scoring = True
-    classifiers[algo] = Estimator(algo, est, grid, scoring)
+    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
+    # Linear Regression
+    algo = 'LR'
+    model_type = model_types.regression
+    params = {"n_jobs" : n_jobs}
+    est = LinearRegression()
+    grid = {"fit_intercept" : [True, False],
+            "normalize" : [True, False],
+            "copy_X" : [True, False]}
+    estimators[algo] = Estimator(algo, model_type, est, grid)
     # Naive Bayes
     algo = 'NB'
+    model_type = model_types.classification
     est = MultinomialNB()
     grid = {"alpha" : [0.01, 0.1, 0.5, 1.0, 2.0, 5.0, 10.0],
             "fit_prior" : [True, False]}
     scoring = True
-    classifiers[algo] = Estimator(algo, est, grid, scoring)
+    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
     # Radial Basis Function
     algo = 'RBF'
+    model_type = model_types.classification
     params = {"kernel" : 'rbf',
               "probability" : True,
               "random_state" : seed,
@@ -180,9 +260,10 @@ def get_classifiers(n_estimators, seed, n_jobs, verbosity):
             "tol" : [0.0005, 0.001, 0.005],
             "decision_function_shape" : ['ovo', 'ovr', None]}
     scoring = False
-    classifiers[algo] = Estimator(algo, est, grid, scoring)
+    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
     # Random Forest
     algo = 'RF'
+    model_type = model_types.classification
     params = {"n_estimators" : n_estimators,
               "max_depth" : 10,
               "min_samples_split" : 2,
@@ -200,22 +281,19 @@ def get_classifiers(n_estimators, seed, n_jobs, verbosity):
             "bootstrap" : [True, False],
             "criterion" : ['gini', 'entropy']}
     scoring = True
-    classifiers[algo] = Estimator(algo, est, grid, scoring)
-    # Randomized Logistic Regression
-    algo = 'RLOGR'
-    params = {"n_resampling" : n_estimators,
+    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
+    # Random Forest Regression
+    algo = 'RFR'
+    model_type = model_types.regression
+    params = {"n_estimators" : n_estimators,
               "random_state" : seed,
+              "n_jobs" : n_jobs,
               "verbose" : verbosity}
-    est = RandomizedLogisticRegression(**params)
-    grid = {"n_resampling" : [100, 200, 500],
-            "C" : [0.1, 1, 10, 100, 1000, 1e4, 1e5],
-            "scaling" : [0.3, 0.5, 0.7],
-            "sample_fraction" : [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8],
-            "selection_threshold" : [0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.6]}
-    scoring = False
-    classifiers[algo] = Estimator(algo, est, grid, scoring)
+    est = RandomForestRegressor(**params)
+    estimators[algo] = Estimator(algo, model_type, est, grid)
     # Support Vector Machine
     algo = 'SVM'
+    model_type = model_types.classification
     params = {"probability" : True,
               "random_state" : seed,
               "verbose" : verbosity}
@@ -226,9 +304,10 @@ def get_classifiers(n_estimators, seed, n_jobs, verbosity):
             "tol" : [0.0005, 0.001, 0.005],
             "decision_function_shape" : ['ovo', 'ovr', None]}
     scoring = False
-    classifiers[algo] = Estimator(algo, est, grid, scoring)
+    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
     # XGBoost Binary
     algo = 'XGB'
+    model_type = model_types.classification
     params = {"objective" : 'binary:logistic',
               "n_estimators" : n_estimators,
               "max_depth" : 10,
@@ -246,9 +325,39 @@ def get_classifiers(n_estimators, seed, n_jobs, verbosity):
             "subsample" : [0.8, 0.9, 1.0],
             "colsample_bytree" : [0.8, 0.9, 1.0]}
     scoring = False
-    classifiers[algo] = Estimator(algo, est, grid, scoring)
+    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
+    # XGBoost Multiclass
+    algo = 'XGBM'
+    model_type = model_types.multiclass
+    params = {"objective" : 'multi:softmax',
+              "n_estimators" : n_estimators,
+              "max_depth" : 10,
+              "learning_rate" : 0.1,
+              "min_child_weight" : 1.05,
+              "subsample" : 0.85,
+              "colsample_bytree" : 0.8,
+              "nthread" : n_jobs,
+              "silent" : True}
+    est = xgb.XGBClassifier(**params)
+    estimators[algo] = Estimator(algo, model_type, est, grid)
+    # XGBoost Regression
+    algo = 'XGBR'
+    model_type = model_types.regression
+    params = {"objective" : 'reg:linear',
+              "n_estimators" : n_estimators,
+              "max_depth" : 10,
+              "learning_rate" : 0.1,
+              "min_child_weight" : 1.05,
+              "subsample" : 0.85,
+              "colsample_bytree" : 0.8,
+              "seed" : seed,
+              "nthread" : n_jobs,
+              "silent" : True}
+    est = xgb.XGBRegressor(**params)
+    estimators[algo] = Estimator(algo, model_type, est, grid)
     # Extra Trees
     algo = 'XT'
+    model_type = model_types.classification
     params = {"n_estimators" : n_estimators,
               "random_state" : seed,
               "n_jobs" : n_jobs,
@@ -262,161 +371,15 @@ def get_classifiers(n_estimators, seed, n_jobs, verbosity):
             "bootstrap" : [True, False],
             "warm_start" : [True, False]}
     scoring = True
-    classifiers[algo] = Estimator(algo, est, grid, scoring)
-    # return the entire classifier list
-    return classifiers
-
-
-#
-# Function get_class_scorers
-#
-
-def get_class_scorers():
-    scorers = ['accuracy',
-               'f1',
-               'log_loss',
-               'precision',
-               'recall',
-               'roc_auc']
-    return scorers
-
-
-#
-# Function get_regressors
-#
-
-# Decision Tree (feature_importances_)
-# Gradient Boosting (feature_importances_)
-# K-Nearest Neighbors (NA)
-# Linear Regression (coef_)
-# Random Forest (feature_importances_)
-# Randomized Lasso
-# XG Boost (NA)
-
-def get_regressors(n_estimators, seed, n_jobs, verbosity):
-    # initialize regressor list
-    regressors = {}
-    # Gradient Boosting
-    algo = 'GBR'
-    params = {"n_estimators" : n_estimators,
-              "random_state" : seed,
-              "verbose" : verbosity}
-    est = GradientBoostingRegressor()
-    grid = {"loss" : ['deviance', 'exponential'],
-            "learning_rate" : [0.05, 0.1, 0.15],
-            "n_estimators" : [50, 100, 200],
-            "max_depth" : [3, None],
-            "min_samples_split" : [1, 2, 3],
-            "min_samples_leaf" : [1, 2]}
-    regressors[algo] = Estimator(algo, est, grid)
-    # K-Nearest Neighbor
-    algo = 'KNR'
-    params = {"n_jobs" : n_jobs}
-    est = KNeighborsRegressor(**params)
-    grid = {"n_neighbors" : [3, 5, 7, 10],
-            "weights" : ['uniform', 'distance'],
-            "algorithm" : ['ball_tree', 'kd_tree', 'brute', 'auto'],
-            "leaf_size" : [10, 20, 30, 40, 50]}
-    regressors[algo] = Estimator(algo, est, grid)
-    # Linear Regression
-    algo = 'LR'
-    params = {"n_jobs" : n_jobs}
-    est = LinearRegression()
-    grid = {"fit_intercept" : [True, False],
-            "normalize" : [True, False],
-            "copy_X" : [True, False]}
-    regressors[algo] = Estimator(algo, est, grid)
-    # Random Forest
-    algo = 'RFR'
-    params = {"n_estimators" : n_estimators,
-              "random_state" : seed,
-              "n_jobs" : n_jobs,
-              "verbose" : verbosity}
-    est = RandomForestRegressor(**params)
-    grid = {"n_estimators" : [50, 100, 150, 200],
-            "max_depth" : [3, 10, None],
-            "min_samples_split" : [1, 2, 3, 5, 10],
-            "min_samples_leaf" : [1, 2, 3],
-            "bootstrap" : [True, False],
-            "criterion" : ['gini', 'entropy']}
-    regressors[algo] = Estimator(algo, est, grid)
-    # Randomized Lasso
-    algo = 'RLASS'
-    params = {"n_resampling" : n_estimators,
-              "random_state" : seed,
-              "n_jobs" : n_jobs,
-              "verbose" : verbosity}
-    est = RandomizedLasso(**params)
-    grid = {"n_resampling" : [100, 200, 500],
-            "max_iter" : [300, 500, 700, 1000],
-            "sample_fraction" : [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8],
-            "selection_threshold" : [0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.6]}
-    regressors[algo] = Estimator(algo, est, grid)
-    # XGBoost Multi
-    algo = 'XGBM'
-    params = {"objective" : 'multi:softmax',
-              "n_estimators" : n_estimators,
-              "max_depth" : 10,
-              "learning_rate" : 0.1,
-              "min_child_weight" : 1.05,
-              "subsample" : 0.85,
-              "colsample_bytree" : 0.8,
-              "nthread" : n_jobs,
-              "silent" : True}
-    est = xgb.XGBClassifier(**params)
-    grid = {"n_estimators" : [10, 21, 31, 51, 101, 201, 501, 1001],
-            "max_depth" : [None, 3, 6, 7, 8, 10, 20],
-            "learning_rate" : [0.01, 0.02, 0.05, 0.1, 0.2],
-            "min_child_weight" : [1.0, 1.05, 1.1, 1.2],
-            "subsample" : [0.8, 0.85, 0.9, 0.95],
-            "colsample_bytree" : [0.6, 0.7, 0.8, 0.9]}
-    regressors[algo] = Estimator(algo, est, grid)
-    # XGBoost
-    algo = 'XGBR'
-    params = {"objective" : 'reg:linear',
-              "n_estimators" : n_estimators,
-              "max_depth" : 10,
-              "learning_rate" : 0.1,
-              "min_child_weight" : 1.05,
-              "subsample" : 0.85,
-              "colsample_bytree" : 0.8,
-              "seed" : seed,
-              "nthread" : n_jobs,
-              "silent" : True}
-    est = xgb.XGBRegressor(**params)
-    grid = {"n_estimators" : [10, 20, 30, 50, 100, 200],
-            "max_depth" : [None, 3, 6, 7, 8, 10, 20],
-            "learning_rate" : [0.01, 0.02, 0.05, 0.1, 0.2],
-            "min_child_weight" : [1.0, 1.05, 1.1, 1.2],
-            "subsample" : [0.8, 0.85, 0.9, 0.95],
-            "colsample_bytree" : [0.6, 0.7, 0.8, 0.9]}
-    regressors[algo] = Estimator(algo, est, grid)
-    # Extra Trees
+    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
+    # Extra Trees Regression
     algo = 'XTR'
+    model_type = model_types.regression
     params = {"n_estimators" : n_estimators,
               "random_state" : seed,
               "n_jobs" : n_jobs,
               "verbose" : verbosity}
     est = ExtraTreesRegressor(**params)
-    grid = {"n_estimators" : [10, 50, 100, 150, 200],
-            "max_features" : ['auto', 'sqrt', 'log2', None],
-            "max_depth" : [3, 5, None],
-            "min_samples_split" : [1, 2, 3],
-            "min_samples_leaf" : [1, 2],
-            "bootstrap" : [True, False],
-            "warm_start" : [True, False]}
-    regressors[algo] = Estimator(algo, est, grid)
-    # return the entire regressor list
-    return regressors
-
-
-#
-# Function get_regr_scorers
-#
-
-def get_regr_scorers():
-    scorers = ['mean_absolute_error',
-               'mean_squared_error',
-               'median_absolute_error',
-               'r2']
-    return scorers
+    estimators[algo] = Estimator(algo, model_type, est, grid)
+    # return the entire classifier list
+    return estimators

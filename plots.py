@@ -20,6 +20,7 @@
 #     6. Decision Boundary
 #     7. Scatter Plot
 #     8. Partial Dependence
+#     9. Validation Curve
 #
 
 print(__doc__)
@@ -57,6 +58,7 @@ from sklearn.metrics import r2_score
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import roc_curve
 from sklearn.preprocessing import StandardScaler
+from util import remove_list_items
 
 
 #
@@ -102,7 +104,7 @@ def generate_plots(model, partition):
     plot_importance(model, partition)
     plot_learning_curve(model, partition)
     plot_roc_curve(model, partition)
-    # plot_confusion_matrix(model, partition)
+    plot_confusion_matrix(model, partition)
     # plot_boundary(model)
     # plot_scatterplot(model)
     # plot_partial_dependence(model, partition)
@@ -169,7 +171,8 @@ def plot_calibration(model, partition):
     ax2 = plt.subplot2grid((3, 1), (2, 0))
 
     ax1.plot([0, 1], [0, 1], "k:", label="Perfectly Calibrated")
-    for algo in model.algolist:
+    algos = remove_list_items(['BEST', 'BLEND'], model.algolist)
+    for algo in algos:
         clf = model.estimators[algo]
         if hasattr(clf, "predict_proba"):
             prob_pos = model.probas[(algo, partition)]
@@ -214,7 +217,8 @@ def plot_importance(model, partition):
 
     logger.info("Generating Feature Importance Plots")
 
-    for algo in model.algolist:
+    algos = remove_list_items(['BEST', 'BLEND'], model.algolist)
+    for algo in algos:
         logger.info("Algorithm: %s", algo)
         est = model.estimators[algo]
         # test for feature importances in the estimator
@@ -264,7 +268,6 @@ def plot_learning_curve(model, partition):
 
     n_folds = model.specs['n_folds']
     n_iters = model.specs['n_iters']
-    n_jobs = model.specs['n_jobs']
     seed = model.specs['seed']
     split = model.specs['split']
     verbosity = model.specs['verbosity']
@@ -279,7 +282,8 @@ def plot_learning_curve(model, partition):
                       random_state=seed)
     ylim = (0.0, 1.01)
 
-    for algo in model.algolist:
+    algos = remove_list_items(['BEST', 'BLEND'], model.algolist)
+    for algo in algos:
         logger.info("Algorithm: %s", algo)
         # get estimator
         estimator = model.estimators[algo]
@@ -293,7 +297,7 @@ def plot_learning_curve(model, partition):
         plt.xlabel("Training Examples")
         plt.ylabel("Score")
         train_sizes, train_scores, test_scores = learning_curve(
-            estimator, X, y, cv=cv, n_jobs=n_jobs)
+                                                 estimator, X, y, cv=cv)
         train_scores_mean = np.mean(train_scores, axis=1)
         train_scores_std = np.std(train_scores, axis=1)
         test_scores_mean = np.mean(test_scores, axis=1)
@@ -345,7 +349,8 @@ def plot_roc_curve(model, partition):
 
     # Plot a ROC Curve for each algorithm.
 
-    for algo in model.algolist:
+    algos = remove_list_items(['BEST', 'BLEND'], model.algolist)
+    for algo in algos:
         logger.info("Algorithm: %s", algo)
         # get estimator
         estimator = model.estimators[algo]
@@ -396,39 +401,32 @@ def plot_confusion_matrix(model, partition):
 
     X, y = get_partition_data(model, partition)
 
-    for algo in model.algolist:
-        # Run classifier, using a model that is too regularized (C too low) to see
-        # the impact on the results
-        classifier = svm.SVC(kernel='linear', C=0.01)
-        y_pred = classifier.fit(X_train, y_train).predict(X_test)
-
-        # Compute confusion matrix
-        cm = confusion_matrix(y_test, y_pred)
+    algos = remove_list_items(['BEST', 'BLEND'], model.algolist)
+    for algo in algos:
+        # get predictions for this partition
+        y_pred = model.preds[(algo, partition)]
+        # compute confusion matrix
+        cm = confusion_matrix(y, y_pred)
         np.set_printoptions(precision=2)
-        print('Confusion matrix, without normalization')
-        print(cm)
-        plt.figure()
-        plot_confusion_matrix(cm)
-
-        # Normalize the confusion matrix by row (i.e by the number of samples
-        # in each class)
+        # normalize the confusion matrix by the number of samples
         cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-        print('Normalized confusion matrix')
-        print(cm_normalized)
+        logger.info('Normalized Confusion Matrix', cm_normalized)
+        # plot the confusion matrix
         plt.figure()
-
-        plot_confusion_matrix(cm_normalized, title='Normalized Confusion Matrix')
-        def plot_confusion_matrix(cm, title='Confusion Matrix', cmap=plt.cm.Blues):
-        plt.imshow(cm, interpolation='nearest', cmap=cmap)
+        cmap = plt.cm.Blues
+        plt.imshow(cm_normalized, interpolation='nearest', cmap=cmap)
+        title = BSEP.join([algo, "Confusion Matrix [", partition, "]"])
         plt.title(title)
         plt.colorbar()
-        tick_marks = np.arange(len(iris.target_names))
-        plt.xticks(tick_marks, iris.target_names, rotation=45)
-        plt.yticks(tick_marks, iris.target_names)
+        # set up x and y axes
+        y_values = y.unique()
+        tick_marks = np.arange(len(y.unique()))
+        plt.xticks(tick_marks, y_values, rotation=45)
+        plt.yticks(tick_marks, y_values)
         plt.tight_layout()
-        plt.ylabel('True label')
-        plt.xlabel('Predicted label')
-
+        plt.ylabel('True Label')
+        plt.xlabel('Predicted Label')
+        # save the chart
         write_plot(model, 'confusion', partition, algo)
 
 

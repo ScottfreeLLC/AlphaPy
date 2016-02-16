@@ -22,6 +22,15 @@ import re
 
 
 #
+# Function remove_list_items
+#
+
+def remove_list_items(elements, alist):
+    sublist = [x for x in alist if x not in elements]
+    return sublist
+
+
+#
 # Function get_public_vars
 #
 

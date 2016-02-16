@@ -15,16 +15,10 @@
 
 import cPickle as pickle
 from datetime import datetime
-from estimators import get_classifiers
-from estimators import get_class_scorers
-from estimators import get_regressors
-from estimators import get_regr_scorers
 from globs import PSEP, SSEP, USEP
 import logging
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import RidgeCV
 from sklearn.metrics import accuracy_score

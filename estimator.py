@@ -19,6 +19,7 @@ class Estimator:
     
     def __new__(cls,
                 algorithm,
+                model_type,
                 estimator,
                 grid,
                 scoring=False):
@@ -28,10 +29,12 @@ class Estimator:
     
     def __init__(self,
                  algorithm,
+                 model_type,
                  estimator,
                  grid,
                  scoring=False):
         self.algorithm = algorithm.upper()
+        self.model_type = model_type
         self.estimator = estimator
         self.grid = grid
         self.scoring = scoring
