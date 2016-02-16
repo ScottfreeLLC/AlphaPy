@@ -36,6 +36,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from scipy import interp
 from sklearn import cross_validation
 from sklearn import metrics
 from sklearn.calibration import calibration_curve
@@ -98,6 +99,8 @@ def generate_plots(model, partition):
     Save plot to a file.
     """
 
+    logger.info("Generating Plots for Partition: %s", partition)
+
     # Generate plots
 
     plot_calibration(model, partition)
@@ -108,6 +111,7 @@ def generate_plots(model, partition):
     # plot_boundary(model)
     # plot_scatterplot(model)
     # plot_partial_dependence(model, partition)
+    # plot_validation_curve(model, partition)
 
 
 #
@@ -380,7 +384,7 @@ def plot_roc_curve(model, partition):
         plt.xlabel('False Positive Rate')
         plt.ylabel('True Positive Rate')
         title = BSEP.join([algo, "ROC Curve [", partition, "]"])
-        plt.title('Receiver Operating Characteristic')
+        plt.title(title)
         plt.legend(loc="lower right")
         # save chart
         write_plot(model, 'roc_curve', partition, algo)
@@ -410,7 +414,7 @@ def plot_confusion_matrix(model, partition):
         np.set_printoptions(precision=2)
         # normalize the confusion matrix by the number of samples
         cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-        logger.info('Normalized Confusion Matrix', cm_normalized)
+        logger.info('Normalized Confusion Matrix: %s', cm_normalized)
         # plot the confusion matrix
         plt.figure()
         cmap = plt.cm.Blues
@@ -419,8 +423,8 @@ def plot_confusion_matrix(model, partition):
         plt.title(title)
         plt.colorbar()
         # set up x and y axes
-        y_values = y.unique()
-        tick_marks = np.arange(len(y.unique()))
+        y_values, y_counts = np.unique(y, return_counts=True)
+        tick_marks = np.arange(len(y_values))
         plt.xticks(tick_marks, y_values, rotation=45)
         plt.yticks(tick_marks, y_values)
         plt.tight_layout()
