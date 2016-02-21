@@ -104,7 +104,6 @@ def generate_plots(model, partition):
     # Generate plots
 
     plot_calibration(model, partition)
-    plot_importance(model, partition)
     plot_learning_curve(model, partition)
     plot_roc_curve(model, partition)
     plot_confusion_matrix(model, partition)
@@ -175,8 +174,6 @@ def plot_calibration(model, partition):
     ax2 = plt.subplot2grid((3, 1), (2, 0))
 
     ax1.plot([0, 1], [0, 1], "k:", label="Perfectly Calibrated")
-    algos = remove_list_items(['BEST', 'BLEND'], model.algolist)
-    for algo in algos:
         clf = model.estimators[algo]
         if hasattr(clf, "predict_proba"):
             prob_pos = model.probas[(algo, partition)]
@@ -221,16 +218,8 @@ def plot_importance(model, partition):
 
     logger.info("Generating Feature Importance Plots")
 
-    algos = remove_list_items(['BEST', 'BLEND'], model.algolist)
-    for algo in algos:
         logger.info("Algorithm: %s", algo)
-        est = model.estimators[algo]
-        # test for feature importances in the estimator
-        if hasattr(est, "feature_importances_"):
             # forest was input parameter
-            importances = est.feature_importances_
-            std = np.std([tree.feature_importances_ for tree in est.estimators_],
-                         axis=0)
             indices = np.argsort(importances)[::-1]
             # log the feature ranking
             logger.info("Feature Ranking:")
@@ -240,13 +229,8 @@ def plot_importance(model, partition):
             title = BSEP.join([algo, "Feature Importances [", partition, "]"])
             plt.figure()
             plt.title(title)
-            plt.bar(range(10), importances[indices],
-                    color="r", yerr=std[indices], align="center")
-            plt.xticks(range(10), indices)
-            plt.xlim([-1, 10])
             # save the plot
             write_plot(model, 'feature_importance', partition, algo)
-        else:
             logger.info("%s does not have feature importances", algo)
 
 
@@ -286,8 +270,6 @@ def plot_learning_curve(model, partition):
                       random_state=seed)
     ylim = (0.0, 1.01)
 
-    algos = remove_list_items(['BEST', 'BLEND'], model.algolist)
-    for algo in algos:
         logger.info("Algorithm: %s", algo)
         # get estimator
         estimator = model.estimators[algo]
@@ -353,8 +335,6 @@ def plot_roc_curve(model, partition):
 
     # Plot a ROC Curve for each algorithm.
 
-    algos = remove_list_items(['BEST', 'BLEND'], model.algolist)
-    for algo in algos:
         logger.info("Algorithm: %s", algo)
         # get estimator
         estimator = model.estimators[algo]
@@ -405,8 +385,6 @@ def plot_confusion_matrix(model, partition):
 
     X, y = get_partition_data(model, partition)
 
-    algos = remove_list_items(['BEST', 'BLEND'], model.algolist)
-    for algo in algos:
         # get predictions for this partition
         y_pred = model.preds[(algo, partition)]
         # compute confusion matrix
@@ -418,7 +396,6 @@ def plot_confusion_matrix(model, partition):
         # plot the confusion matrix
         plt.figure()
         cmap = plt.cm.Blues
-        plt.imshow(cm_normalized, interpolation='nearest', cmap=cmap)
         title = BSEP.join([algo, "Confusion Matrix [", partition, "]"])
         plt.title(title)
         plt.colorbar()
@@ -638,3 +615,5 @@ def plot_partial_dependence(model, partition):
     plt.subplots_adjust(top=0.9)
 
     plt.show()
+
+

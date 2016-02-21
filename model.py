@@ -19,6 +19,7 @@ from globs import PSEP, SSEP, USEP
 import logging
 import numpy as np
 import pandas as pd
+from sklearn.cross_validation import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import RidgeCV
 from sklearn.metrics import accuracy_score
@@ -92,11 +93,11 @@ class Model:
             raise KeyError("Model specs must include the key: algorithms")
         # Key: (algorithm)
         self.estimators = {}
-        self.support = {}
-        self.scores = {}
         self.importances = {}
         self.coefs = {}
+        self.support = {}
         # Keys: (algorithm, partition)
+        self.scores = {}
         self.preds = {}
         self.probas = {}
         # Keys: (algorithm, partition, metric)
@@ -114,6 +115,107 @@ class Model:
 
 
 #
+# Function load_model
+#
+
+def load_model():
+    """
+    Load the model from storage.
+    """
+
+    logger.info("Loading Model")
+
+    # Open model object
+
+    f = file('model.save', 'rb')
+    model = pickle.load(f)
+    f.close()
+
+    return model
+
+
+#
+# Function save_model
+#
+
+def save_model(model):
+    """
+    Save the model to storage.
+    """
+
+    logger.info("Saving Model")
+
+    # Extract model parameters.
+
+    base_dir = model.specs['base_dir']
+    project = model.specs['project']
+
+    # Create full path name.
+
+    directory = SSEP.join([base_dir, project])
+    full_path = SSEP.join([directory, 'model.save'])
+
+    # Save model object
+
+    f = file(full_path, 'wb')
+    pickle.dump(model, f, protocol=pickle.HIGHEST_PROTOCOL)
+    f.close()
+
+
+#
+# Function first_fit
+#
+
+def first_fit(model, algo, est):
+    """
+    Fit the model before optimization.
+    """
+
+    logger.info("Fitting Initial Model")
+
+    # Extract model parameters.
+
+    n_folds = model.specs['n_folds']
+    regression = model.specs['regression']
+    seed = model.specs['seed']
+    split = model.specs['split']
+
+    # Extract model data.
+
+    try:
+        support = model.support[algo]
+        X_train = model.X_train[:, support]
+        X_test = model.X_test[:, support]
+    except:
+        X_train = model.X_train
+        X_test = model.X_test
+    y_train = model.y_train
+
+    # First Fit
+
+    X1, X2, y1, y2 = train_test_split(X_train, y_train, test_size=split,
+                                      random_state=seed)
+    est.fit(X1, y1)
+    model.estimators[algo] = est
+
+    # Record scores, importances, and coefficients, if available.
+
+    score = est.score(X1, y1)
+    logger.info("Training Score: %.6f", score)
+
+    score = est.score(X2, y2)
+    logger.info("Testing Score: %.6f", score)
+
+    if hasattr(est, "feature_importances_"):
+        model.importances[algo] = est.feature_importances_
+
+    if hasattr(est, "coef_"):
+        model.coefs[algo] = est.coef_
+
+    return model
+
+
+#
 # Function make_predictions
 #
 
@@ -122,7 +224,9 @@ def make_predictions(model, algo):
     Make predictions for training and test set.
     """
 
-    # Extract model parameters
+    logger.info("Final Model Predictions for %s", algo)
+
+    # Extract model parameters.
 
     regression = model.specs['regression']
     est = model.estimators[algo]
@@ -166,17 +270,20 @@ def predict_best(model):
 
     # Extract model parameters.
 
+    regression = model.specs['regression']
+    scorer = model.specs['scorer']
+
+    # Extract model data.
+
     X_train = model.X_train
     X_test = model.X_test
-    regression = model.specs['regression']
+    y_test = model.y_test
 
-    # Add BEST algorithm.
+    # Initialize best parameters.
 
     best_tag = 'BEST'
-
-    # Initialize best score
-
     best_score = 0.0
+    partition = 'train' if y_test is None else 'test'
 
     # Iterate through the models, getting the best score for each one.
 
@@ -184,7 +291,7 @@ def predict_best(model):
     logger.info("Best Model Selection Start: %s", start_time)
 
     for algorithm in model.algolist:
-        top_score = model.scores[algorithm]
+        top_score = model.metrics[(algorithm, partition, scorer)]
         # determine the best score from all the estimators
         if top_score > best_score:
             best_score = top_score
@@ -192,6 +299,7 @@ def predict_best(model):
 
     # Store predictions of best estimator
 
+    logger.info("Best Model is %s with a %s score of %.6f", best_algo, scorer, best_score)
     model.estimators[best_tag] = model.estimators[best_algo]
     model.preds[(best_tag, 'train')] = model.preds[(best_algo, 'train')]
     model.preds[(best_tag, 'test')] = model.preds[(best_algo, 'test')]
@@ -217,14 +325,16 @@ def predict_blend(model):
     Make predictions from a blended model.
     """
 
-    # Extract data and model parameters.
+    # Extract model paramters.
+
+    n_folds = model.specs['n_folds']
+    regression = model.specs['regression']
+
+    # Extract model data.
 
     X_train = model.X_train
     X_test = model.X_test
     y_train = model.y_train
-
-    n_folds = model.specs['n_folds']
-    regression = model.specs['regression']
 
     # Add blended algorithm.
 
@@ -288,16 +398,21 @@ def predict_blend(model):
 # Function generate_metrics
 #
 
-def generate_metrics(model, partition='train'):
+def generate_metrics(model, partition):
 
-    # Extract data and model parameters.
+    logger.info('='*80)
+    logger.info("Metrics for Partition: %s", partition)
+
+    # Extract model paramters.
+
+    regression = model.specs['regression']
+
+    # Extract model data.
 
     if partition == 'train':
         expected = model.y_train
     else:
         expected = model.y_test
-
-    regression = model.specs['regression']
 
     # Generate Metrics
 
@@ -320,8 +435,6 @@ def generate_metrics(model, partition='train'):
                 model.metrics[(algo, partition, 'explained_variance')] = explained_variance_score(expected, predicted)
                 model.metrics[(algo, partition, 'median_abs_error')] = median_absolute_error(expected, predicted)
         # log the metrics for each algorithm
-        logger.info('='*80)
-        logger.info("Metrics for Partition: %s", partition)
         for algo in model.algolist:
             logger.info('-'*80)
             logger.info("Algorithm: %s", algo)
@@ -331,7 +444,9 @@ def generate_metrics(model, partition='train'):
                 svalue.replace('\n', ' ')
                 logger.info("%s: %s", key, svalue)
     else:
-        logger.info("No labels are present to generate metrics")
+        logger.info("No labels for generating %s metrics", partition)
+
+    logger.info('='*80)
 
     return model
 
@@ -353,7 +468,7 @@ def save_results(model, tag, partition):
     separator = model.specs['separator']
     regression = model.specs['regression']
 
-    # Extract data
+    # Extract model data.
 
     X_train = model.X_train
     X_test = model.X_test
@@ -362,6 +477,10 @@ def save_results(model, tag, partition):
 
     d = datetime.now()
     f = "%m%d%y"
+
+    # Save the model
+
+    save_model(model)
 
     # Save predictions and final features
 
@@ -395,15 +514,3 @@ def save_results(model, tag, partition):
     output_file = PSEP.join([output_file, extension])
     output = SSEP.join([output_dir, output_file])
     np.savetxt(output, preds, delimiter=separator)
-
-    # Save model object
-
-    # f = file('model.save', 'wb')
-    # pickle.dump(model, f, protocol=pickle.HIGHEST_PROTOCOL)
-    # f.close()
-
-    # Open model object
-
-    # f = file('model.save', 'rb')
-    # model = pickle.load(f)
-    # f.close()

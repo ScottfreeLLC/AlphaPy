@@ -357,8 +357,6 @@ if __name__ == '__main__':
                         help="base directory location")
     parser.add_argument('-grid', dest="grid_search", action="store_true",
                         help="perform a grid search [False]")
-    parser.add_argument('-iters', dest="n_iters", type=int, default=20,
-                        help="number of grid search iterations")
     parser.add_argument("-name", dest="project", default="NBA",
                         help="unique project name")
     parser.add_argument('-nest', dest="n_estimators", type=int, default=201,
@@ -400,7 +398,6 @@ if __name__ == '__main__':
     print 'grid_search     =', args.grid_search
     print 'n_estimators    =', args.n_estimators
     print 'n_folds         =', args.n_folds
-    print 'n_iters         =', args.n_iters
     print 'n_step          =', args.n_step
     print 'plots           =', args.plots
     print 'points_max      =', args.points_max
@@ -465,7 +462,6 @@ if __name__ == '__main__':
     specs['interactions'] = True
     specs['n_estimators'] = args.n_estimators
     specs['n_folds'] = args.n_folds
-    specs['n_iters'] = args.n_iters
     specs['n_jobs'] = -1
     specs['n_step'] = args.n_step
     specs['ngrams_max'] = 2
