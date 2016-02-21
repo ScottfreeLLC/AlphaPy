@@ -16,10 +16,8 @@
 from __future__ import division
 import argparse
 from data import load_data
-from estimators import get_classifiers
-from estimators import get_class_scorers
-from estimators import get_regressors
-from estimators import get_regr_scorers
+from estimators import get_estimators
+from estimators import get_scorers
 from features import create_features
 from features import drop_features
 from globs import CSEP
@@ -27,7 +25,9 @@ from globs import PSEP
 from globs import SSEP
 from globs import WILDCARD
 import logging
+from model import first_fit
 from model import generate_metrics
+from model import make_predictions
 from model import Model
 from model import predict_best
 from model import predict_blend
@@ -38,8 +38,7 @@ from optimize import hyper_grid_search
 from optimize import rfe_search
 from optimize import rfecv_search
 import pandas as pd
-from plots import plot_calibration
-from sklearn.cross_validation import train_test_split
+from plots import generate_plots
 
 
 #
@@ -77,6 +76,7 @@ def pipeline(model):
     project = model.specs['project']
     regression = model.specs['regression']
     rfe = model.specs['rfe']
+    scorer = model.specs['scorer']
     seed = model.specs['seed']
     separator = model.specs['separator']
     shuffle = model.specs['shuffle']
@@ -128,10 +128,8 @@ def pipeline(model):
     # Feature Generation
 
     logger.info("Generating Features")
-
     logger.info("Number of Training Rows    : %d", X_train.shape[0])
     logger.info("Number of Training Columns : %d", X_train.shape[1])
-
     logger.info("Number of Testing Rows    : %d", X_test.shape[0])
     logger.info("Number of Testing Columns : %d", X_test.shape[1])
 
@@ -164,90 +162,70 @@ def pipeline(model):
 
     # Get the available classifiers and regressors 
 
-    logger.info("Getting Classifiers and Regressors")
+    logger.info("Getting All Estimators")
 
-    if regression:
-        estimators = get_regressors(n_estimators, seed, n_jobs, verbosity)
-        scorers = get_regr_scorers()
-    else:
-        estimators = get_classifiers(n_estimators, seed, n_jobs, verbosity)
-        scorers = get_class_scorers()
+    estimators = get_estimators(n_estimators, seed, n_jobs, verbosity)
+
+    # Get the available scorers
+
+    scorers = get_scorers()
+    if scorer not in scorers:
+        raise KeyError("Scorer function %s not found", scorer)
 
     # Model Selection
 
     logger.info("Selecting Models")
 
-    for a in model.algolist:
-        logger.info("Algorithm: %s", a)
+    for algo in model.algolist:
+        logger.info("Algorithm: %s", algo)
         # select estimator
         try:
-            estimator = estimators[a]
+            estimator = estimators[algo]
             scoring = estimator.scoring
+            est = estimator.estimator
         except KeyError:
-            logger.info("Algorithm %s not found", a)
+            logger.info("Algorithm %s not found", algo)
         # initial fit
-        logger.info("Fitting model for %s", a)
-        est = estimator.estimator
-        if 'XGB' in a:
-            es = [(X_train, y_train)]
-            est.fit(X_train, y_train, eval_set=es, eval_metric="auc",
-                    early_stopping_rounds=30)
-        else:
-            est.fit(X_train, y_train)
-        model.estimators[a] = est
-        score = est.score(X_train, y_train)
-        model.scores[a] = score
-        logger.info("Initial Score: %.6f", score)
+        model = first_fit(model, algo, est)
         # feature selection
         if rfe:
             if scoring:
-                model = rfecv_search(model, estimator)
+                model = rfecv_search(model, algo)
             elif hasattr(est, "coef_"):
-                model = rfe_search(model, estimator)
-         # grid search
+                model = rfe_search(model, algo)
+        # grid search
         if grid_search:
             model = hyper_grid_search(model, estimator)
         # calibration
         if not regression:
-            model = calibrate_model(model, estimator)
+            model = calibrate_model(model, algo)
+        # predictions
+        model = make_predictions(model, algo)
 
     # Create a blended estimator
 
     logger.info("Blending Multiple Models")
-
     model = predict_blend(model)
 
-    # Store the best estimator
-
-    logger.info("Selecting Best Model")
-
-    model = predict_best(model)
-
-    # Add the bested and blended algorithms to the model list
-
-    model.algolist.extend(['BEST', 'BLEND'])
-
     # Generate metrics
-
-    logger.info("Generating Metrics")
 
     model = generate_metrics(model, 'train')
     model = generate_metrics(model, 'test')
 
+    # Store the best estimator
+
+    logger.info("Selecting Best Model")
+    model = predict_best(model)
+
     # Generate plots
 
     if plots:
-        logger.info("Generating Plots")
-        # generate_plots(model, 'train')
-        # generate_plots(model, 'test')
-        plot_calibration(model, 'train')
-        if test_labels:
-            plot_calibration(model, 'test')
+        generate_plots(model, 'train')
+        generate_plots(model, 'test')
 
     # Save best features and predictions
 
     logger.info("Saving Model")
-
     save_results(model, 'BEST', 'test')
 
     # Return the completed model
@@ -300,8 +278,6 @@ if __name__ == '__main__':
                         help="subsampling percentage for grid search")
     parser.add_argument('-inter', dest="interactions", action="store_true",
                         help="compute feature interactions [False]")
-    parser.add_argument('-iters', dest="n_iters", type=int, default=0,
-                        help="number of grid search iterations")
     parser.add_argument('-label', dest="test_labels", action="store_true",
                         help="test labels are available [False]")
     parser.add_argument("-name", dest="project", default="project",
@@ -312,9 +288,11 @@ if __name__ == '__main__':
                         help="number of folds for cross-validation")
     parser.add_argument('-ngram', dest="ngrams_max", type=int, default=1,
                         help="number of maximum ngrams for text features")
+    parser.add_argument('-ngs', dest="gs_iters", type=int, default=200,
+                        help="number of grid search iterations")
     parser.add_argument('-njobs', dest="n_jobs", type=int, default=-1,
                         help="number of jobs to run in parallel (-1 use all cores)")
-    parser.add_argument('-nstep', dest="n_step", type=int, default=1,
+    parser.add_argument('-nstep', dest="n_step", type=int, default=5,
                         help="step increment for recursive feature elimination")
     parser.add_argument('-plots', dest="plots", action="store_true",
                         help="show plots [False]")
@@ -340,7 +318,7 @@ if __name__ == '__main__':
                         help='text features')
     parser.add_argument("-train", dest="train_file", default="train",
                         help="training file containing features and labels")
-    parser.add_argument('-v', dest="verbosity", type=int, default=2,
+    parser.add_argument('-v', dest="verbosity", type=int, default=0,
                         help="verbosity level")
     parser.add_argument('-X', dest="features", action='store', default=WILDCARD,
                         help='features [default is all features]')
@@ -360,10 +338,10 @@ if __name__ == '__main__':
     print 'drop            =', args.drop
     print 'features [X]    =', args.features
     print 'grid_search     =', args.grid_search
+    print 'gs_iters        =', args.gs_iters
     print 'interactions    =', args.interactions
     print 'n_estimators    =', args.n_estimators
     print 'n_folds         =', args.n_folds
-    print 'n_iters         =', args.n_iters
     print 'n_jobs          =', args.n_jobs
     print 'n_step          =', args.n_step
     print 'ngrams_max      =', args.ngrams_max

@@ -48,16 +48,8 @@ from sklearn.decomposition import PCA
 from sklearn.ensemble.partial_dependence import partial_dependence
 from sklearn.ensemble.partial_dependence import plot_partial_dependence
 from sklearn.learning_curve import learning_curve
+from sklearn.learning_curve import validation_curve
 from sklearn.metrics import auc
-from sklearn.metrics import classification_report
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import explained_variance_score
-from sklearn.metrics import mean_absolute_error
-from sklearn.metrics import mean_squared_error
-from sklearn.metrics import median_absolute_error
-from sklearn.metrics import r2_score
-from sklearn.metrics import roc_auc_score
-from sklearn.metrics import roc_curve
 from sklearn.preprocessing import StandardScaler
 from util import remove_list_items
 
@@ -104,6 +96,8 @@ def generate_plots(model, partition):
     # Generate plots
 
     plot_calibration(model, partition)
+    if partition == 'train':
+        plot_importance(model, partition)
     plot_learning_curve(model, partition)
     plot_roc_curve(model, partition)
     plot_confusion_matrix(model, partition)
@@ -174,6 +168,7 @@ def plot_calibration(model, partition):
     ax2 = plt.subplot2grid((3, 1), (2, 0))
 
     ax1.plot([0, 1], [0, 1], "k:", label="Perfectly Calibrated")
+    for algo in model.algolist:
         clf = model.estimators[algo]
         if hasattr(clf, "predict_proba"):
             prob_pos = model.probas[(algo, partition)]
@@ -218,19 +213,33 @@ def plot_importance(model, partition):
 
     logger.info("Generating Feature Importance Plots")
 
+    # Get X, Y for correct partition
+
+    X, y = get_partition_data(model, partition)
+
+    # For each algorithm that has importances, generate the plot.
+
+    n_top = 10
+    for algo in model.algolist:
         logger.info("Algorithm: %s", algo)
+        try:
+            importances = model.importances[algo]
             # forest was input parameter
             indices = np.argsort(importances)[::-1]
             # log the feature ranking
             logger.info("Feature Ranking:")
-            for f in range(10):
+            for f in range(n_top):
                 logger.info("%d. Feature %d (%f)" % (f + 1, indices[f], importances[indices[f]]))
             # plot the feature importances
             title = BSEP.join([algo, "Feature Importances [", partition, "]"])
             plt.figure()
             plt.title(title)
+            plt.bar(range(n_top), importances[indices][:n_top], color="b", align="center")
+            plt.xticks(range(n_top), indices[:n_top])
+            plt.xlim([-1, n_top])
             # save the plot
             write_plot(model, 'feature_importance', partition, algo)
+        except:
             logger.info("%s does not have feature importances", algo)
 
 
@@ -250,7 +259,7 @@ def plot_learning_curve(model, partition):
 
     """
 
-    logger.info("Generating Learning Curve Plots")
+    logger.info("Generating Learning Curves")
 
     # Extract model parameters.
 
@@ -270,6 +279,7 @@ def plot_learning_curve(model, partition):
                       random_state=seed)
     ylim = (0.0, 1.01)
 
+    for algo in model.algolist:
         logger.info("Algorithm: %s", algo)
         # get estimator
         estimator = model.estimators[algo]
@@ -335,6 +345,7 @@ def plot_roc_curve(model, partition):
 
     # Plot a ROC Curve for each algorithm.
 
+    for algo in model.algolist:
         logger.info("Algorithm: %s", algo)
         # get estimator
         estimator = model.estimators[algo]
@@ -342,6 +353,7 @@ def plot_roc_curve(model, partition):
         mean_tpr = 0.0
         mean_fpr = np.linspace(0, 1, 100)
         all_tpr = []
+        plt.figure()
         # cross-validation
         for i, (train, test) in enumerate(cv):
             probas_ = estimator.fit(X[train], y[train]).predict_proba(X[test])
@@ -385,17 +397,17 @@ def plot_confusion_matrix(model, partition):
 
     X, y = get_partition_data(model, partition)
 
+    for algo in model.algolist:
         # get predictions for this partition
         y_pred = model.preds[(algo, partition)]
         # compute confusion matrix
         cm = confusion_matrix(y, y_pred)
-        np.set_printoptions(precision=2)
-        # normalize the confusion matrix by the number of samples
-        cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-        logger.info('Normalized Confusion Matrix: %s', cm_normalized)
+        logger.info('Confusion Matrix: %s', cm)
         # plot the confusion matrix
+        np.set_printoptions(precision=2)
         plt.figure()
         cmap = plt.cm.Blues
+        plt.imshow(cm, interpolation='nearest', cmap=cmap)
         title = BSEP.join([algo, "Confusion Matrix [", partition, "]"])
         plt.title(title)
         plt.colorbar()
@@ -617,3 +629,62 @@ def plot_partial_dependence(model, partition):
     plt.show()
 
 
+#
+# Function plot_validation_curve
+#
+
+def plot_validation_curve(model, partition, pname, prange):
+    """
+    Generate validation curves.
+
+    Parameters
+    ----------
+
+    model : object that encapsulates all of the model parameters
+    partition : data subset ['train' or 'test']
+    pname : hyperparameter name ['gamma']
+    prange : hyperparameter values [np.logspace(-6, -1, 5)]
+
+    """
+
+    logger.info("Generating Validation Curves")
+
+    # Extract model parameters.
+
+    n_folds = model.specs['n_folds']
+    n_jobs = model.specs['n_jobs']
+    scorer = model.specs['scorer']
+    verbosity = model.specs['verbosity']
+
+    # Get X, Y for correct partition.
+
+    X, y = get_partition_data(model, partition)
+
+    
+    for algo in model.algolist:
+        logger.info("Algorithm: %s", algo)
+        # get estimator
+        estimator = model.estimators[algo]
+        # set up plot
+        train_scores, test_scores = validation_curve(
+            estimator, X, y, param_name=pname, param_range=prange,
+            cv=n_folds, scoring=scorer, n_jobs=n_jobs)
+        train_scores_mean = np.mean(train_scores, axis=1)
+        train_scores_std = np.std(train_scores, axis=1)
+        test_scores_mean = np.mean(test_scores, axis=1)
+        test_scores_std = np.std(test_scores, axis=1)
+        # plot learning curve
+        title = BSEP.join([algo, "Validation Curve [", partition, "]"])
+        plt.title(title)
+        plt.xlabel("$\pname$")
+        plt.ylabel("Score")
+        plt.ylim(0.0, 1.1)
+        plt.semilogx(prange, train_scores_mean, label="Training Score", color="r")
+        plt.fill_between(prange, train_scores_mean - train_scores_std,
+                         train_scores_mean + train_scores_std, alpha=0.2, color="r")
+        plt.semilogx(prange, test_scores_mean, label="Cross-Validation Score",
+                     color="g")
+        plt.fill_between(prange, test_scores_mean - test_scores_std,
+                         test_scores_mean + test_scores_std, alpha=0.2, color="g")
+        plt.legend(loc="best")        # save the plot
+        write_plot(model, 'validation_curve', partition, algo)
