@@ -304,7 +304,7 @@ def generate_team_frame(team, tf, tdict):
 #
 
 def insert_model_data(mf, mpos, mdict, tf, tpos, prefix):
-    team_row = tf.irow(tpos)
+    team_row = tf.iloc[tpos]
     for key, value in mdict.iteritems():
         newkey = key
         if prefix:
@@ -383,7 +383,7 @@ if __name__ == '__main__':
                         help="percentage of data withheld for testing")
     parser.add_argument('-win', dest="window", type=int, default=3,
                         help="sliding window length for rolling calculations")
-    parser.add_argument('-v', dest="verbosity", type=int, default=0,
+    parser.add_argument('-v', dest="verbosity", type=int, default=2,
                         help="verbosity level")
     parser.add_argument("-y", dest="target", action='store', default='won_on_spread',
                         help="target variable [y]")
@@ -458,7 +458,7 @@ if __name__ == '__main__':
     specs['extension'] = 'csv'
     specs['features'] = WILDCARD
     specs['grid_search'] = args.grid_search
-    specs['gs_iters'] = 200
+    specs['gs_iters'] = 100
     specs['interactions'] = True
     specs['n_estimators'] = args.n_estimators
     specs['n_folds'] = args.n_folds
@@ -482,7 +482,7 @@ if __name__ == '__main__':
     specs['text_features'] = None
     specs['train_file'] = 'train'
     specs['target'] = args.target
-    specs['verbosity'] = 0
+    specs['verbosity'] = args.verbosity
 
     #
     # Read in the game frame. This is the feature generation phase.

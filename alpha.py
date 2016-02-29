@@ -288,7 +288,7 @@ if __name__ == '__main__':
                         help="number of folds for cross-validation")
     parser.add_argument('-ngram', dest="ngrams_max", type=int, default=1,
                         help="number of maximum ngrams for text features")
-    parser.add_argument('-ngs', dest="gs_iters", type=int, default=200,
+    parser.add_argument('-ngs', dest="gs_iters", type=int, default=100,
                         help="number of grid search iterations")
     parser.add_argument('-njobs', dest="n_jobs", type=int, default=-1,
                         help="number of jobs to run in parallel (-1 use all cores)")
@@ -318,7 +318,7 @@ if __name__ == '__main__':
                         help='text features')
     parser.add_argument("-train", dest="train_file", default="train",
                         help="training file containing features and labels")
-    parser.add_argument('-v', dest="verbosity", type=int, default=0,
+    parser.add_argument('-v', dest="verbosity", type=int, default=2,
                         help="verbosity level")
     parser.add_argument('-X', dest="features", action='store', default=WILDCARD,
                         help='features [default is all features]')

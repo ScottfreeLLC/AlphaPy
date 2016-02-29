@@ -50,6 +50,8 @@ from sklearn.ensemble.partial_dependence import plot_partial_dependence
 from sklearn.learning_curve import learning_curve
 from sklearn.learning_curve import validation_curve
 from sklearn.metrics import auc
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import roc_curve
 from sklearn.preprocessing import StandardScaler
 from util import remove_list_items
 
@@ -264,7 +266,6 @@ def plot_learning_curve(model, partition):
     # Extract model parameters.
 
     n_folds = model.specs['n_folds']
-    n_iters = model.specs['n_iters']
     seed = model.specs['seed']
     split = model.specs['split']
     verbosity = model.specs['verbosity']
@@ -275,7 +276,7 @@ def plot_learning_curve(model, partition):
 
     # Set cross-validation parameters to get mean train and test curves.
 
-    cv = ShuffleSplit(X.shape[0], n_iter=n_iters, test_size=split,
+    cv = ShuffleSplit(X.shape[0], n_iter=n_folds, test_size=split,
                       random_state=seed)
     ylim = (0.0, 1.01)
 
@@ -433,6 +434,12 @@ def plot_boundary(model):
     """
 
     logger.info("Generating Boundary Plots")
+
+    # For classification only
+
+    if model.specs['regression']:
+        logger.info('Boundary Plots are for classification only')
+        return None
 
     # Extract model parameters
 

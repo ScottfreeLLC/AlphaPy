@@ -242,6 +242,10 @@ def make_predictions(model, algo):
         X_test = model.X_test
     y_train = model.y_train
 
+    # Fit the final model
+
+    est.fit(X_train, y_train)
+
     # Make predictions on original training and test data
 
     model.preds[(algo, 'train')] = est.predict(X_train)

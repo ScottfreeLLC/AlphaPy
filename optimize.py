@@ -166,20 +166,21 @@ def hyper_grid_search(model, estimator):
     # Create the randomized grid search iterator.
 
     if gs_iters > 0:
+        logger.info("Randomized Grid Search")
         gscv = RandomizedSearchCV(est, param_distributions=grid, n_iter=gs_iters,
                                   scoring=scorer, n_jobs=n_jobs, cv=n_folds,
                                   verbose=verbosity)
     else:
+        logger.info("Full Grid Search")
         gscv = GridSearchCV(est, param_grid=grid, scoring=scorer, n_jobs=n_jobs,
                             cv=n_folds, verbose=verbosity)
 
     # Fit the randomized search and time it.
 
-    logger.info("Parameter Grid Search")
     start = time()
     gscv.fit(X_train, y_train)
     if gs_iters > 0:
-        logger.info("Random Grid Search took %.2f seconds for %d iterations",
+        logger.info("Randomized Grid Search took %.2f seconds for %d iterations",
                     (time() - start), gs_iters)
     else:
         logger.info("Full Grid Search took %.2f seconds", (time() - start))

@@ -316,9 +316,9 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
               "subsample" : 0.95,
               "colsample_bytree" : 0.8,
               "nthread" : n_jobs,
-              "silent" : True}
+              "silent" : False}
     est = xgb.XGBClassifier(**params)
-    grid = {"n_estimators" : [21, 51, 101, 201, 501, 1001],
+    grid = {"n_estimators" : [21, 51, 101, 201, 501],
             "max_depth" : [None, 6, 8, 10, 20],
             "learning_rate" : [0.02, 0.05, 0.1],
             "min_child_weight" : [1.0, 1.1],
@@ -337,7 +337,7 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
               "subsample" : 0.85,
               "colsample_bytree" : 0.8,
               "nthread" : n_jobs,
-              "silent" : True}
+              "silent" : False}
     est = xgb.XGBClassifier(**params)
     estimators[algo] = Estimator(algo, model_type, est, grid)
     # XGBoost Regression
@@ -352,7 +352,7 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
               "colsample_bytree" : 0.8,
               "seed" : seed,
               "nthread" : n_jobs,
-              "silent" : True}
+              "silent" : False}
     est = xgb.XGBRegressor(**params)
     estimators[algo] = Estimator(algo, model_type, est, grid)
     # Extra Trees
