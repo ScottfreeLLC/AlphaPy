@@ -15,6 +15,8 @@
 
 import cPickle as pickle
 from datetime import datetime
+from estimators import objective
+from estimators import scorers
 from globs import PSEP, SSEP, USEP
 import logging
 import numpy as np
@@ -23,6 +25,7 @@ from sklearn.cross_validation import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import RidgeCV
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import average_precision_score
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import explained_variance_score
@@ -35,7 +38,9 @@ from sklearn.metrics import precision_score
 from sklearn.metrics import r2_score
 from sklearn.metrics import recall_score
 from sklearn.metrics import roc_auc_score
+from sklearn.metrics.cluster import adjusted_rand_score
 from sklearn.preprocessing import StandardScaler
+import sys
 
 
 #
@@ -272,6 +277,8 @@ def predict_best(model):
     Select the best model based on score.
     """
 
+    logger.info("Selecting Best Model")
+
     # Extract model parameters.
 
     regression = model.specs['regression']
@@ -286,8 +293,12 @@ def predict_best(model):
     # Initialize best parameters.
 
     best_tag = 'BEST'
-    best_score = 0.0
     partition = 'train' if y_test is None else 'test'
+    maximize = True if scorers[scorer][1] == objective.maximize else False
+    if maximize:
+        best_score = -sys.float_info.max
+    else:
+        best_score = sys.float_info.max
 
     # Iterate through the models, getting the best score for each one.
 
@@ -296,10 +307,16 @@ def predict_best(model):
 
     for algorithm in model.algolist:
         top_score = model.metrics[(algorithm, partition, scorer)]
-        # determine the best score from all the estimators
-        if top_score > best_score:
-            best_score = top_score
-            best_algo = algorithm
+        # objective is to either maximize or minimize score
+        if maximize:
+            if top_score > best_score:
+                best_score = top_score
+                best_algo = algorithm
+        else:
+            if top_score < best_score:
+                best_score = top_score
+                best_algo = algorithm
+
 
     # Store predictions of best estimator
 
@@ -328,6 +345,8 @@ def predict_blend(model):
     """
     Make predictions from a blended model.
     """
+
+    logger.info("Blending Models")
 
     # Extract model paramters.
 
@@ -425,25 +444,68 @@ def generate_metrics(model, partition):
         for algo in model.algolist:
             # get predictions for the given algorithm
             predicted = model.preds[(algo, partition)]
-            if not regression:
+            try:
                 model.metrics[(algo, partition, 'accuracy')] = accuracy_score(expected, predicted)
-                model.metrics[(algo, partition, 'precision')] = precision_score(expected, predicted)
-                model.metrics[(algo, partition, 'recall')] = recall_score(expected, predicted)
-                model.metrics[(algo, partition, 'f1')] = f1_score(expected, predicted)
+            except:
+                logger.info("Accuracy Score not calculated")
+            try:
+                model.metrics[(algo, partition, 'adjusted_rand')] = adjusted_rand_score(expected, predicted)
+            except:
+                logger.info("Adjusted Rand Index not calculated")
+            try:
+                model.metrics[(algo, partition, 'average_precision')] = average_precision_score(expected, predicted)
+            except:
+                logger.info("Average Precision Score not calculated")
+            try:
                 model.metrics[(algo, partition, 'confusion_matrix')] = confusion_matrix(expected, predicted)
-                model.metrics[(algo, partition, 'roc_auc')] = roc_auc_score(expected, predicted)
-            else:
-                model.metrics[(algo, partition, 'mse')] = mean_squared_error(expected, predicted)
-                model.metrics[(algo, partition, 'mae')] = mean_absolute_error(expected, predicted)
-                model.metrics[(algo, partition, 'r2')] = r2_score(expected, predicted)
+            except:
+                logger.info("Confusion Matrix not calculated")
+            try:
                 model.metrics[(algo, partition, 'explained_variance')] = explained_variance_score(expected, predicted)
+            except:
+                logger.info("Explained Variance Score not calculated")
+            try:
+                model.metrics[(algo, partition, 'f1')] = f1_score(expected, predicted)
+            except:
+                logger.info("F1 Score not calculated")
+            try:
+                model.metrics[(algo, partition, 'log_loss')] = log_loss(expected, predicted)
+            except:
+                logger.info("Log Loss not calculated")
+            try:
+                model.metrics[(algo, partition, 'mae')] = mean_absolute_error(expected, predicted)
+            except:
+                logger.info("Mean Absolute Error not calculated")
+            try:
                 model.metrics[(algo, partition, 'median_abs_error')] = median_absolute_error(expected, predicted)
+            except:
+                logger.info("Median Absolute Error not calculated")
+            try:
+                model.metrics[(algo, partition, 'mse')] = mean_squared_error(expected, predicted)
+            except:
+                logger.info("Mean Squared Error not calculated")
+            try:
+                model.metrics[(algo, partition, 'precision')] = precision_score(expected, predicted)
+            except:
+                logger.info("Precision Score not calculated")
+            try:
+                model.metrics[(algo, partition, 'r2')] = r2_score(expected, predicted)
+            except:
+                logger.info("R-Squared Score not calculated")
+            try:
+                model.metrics[(algo, partition, 'recall')] = recall_score(expected, predicted)
+            except:
+                logger.info("Recall Score not calculated")
+            try:
+                model.metrics[(algo, partition, 'roc_auc')] = roc_auc_score(expected, predicted)
+            except:
+                logger.info("ROC AUC Score not calculated")
         # log the metrics for each algorithm
         for algo in model.algolist:
             logger.info('-'*80)
             logger.info("Algorithm: %s", algo)
             metrics = [(k[2], v) for k, v in model.metrics.iteritems() if k[0] == algo and k[1] == partition]
-            for key, value in metrics:
+            for key, value in sorted(metrics):
                 svalue = str(value)
                 svalue.replace('\n', ' ')
                 logger.info("%s: %s", key, svalue)

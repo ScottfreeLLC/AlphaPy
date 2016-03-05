@@ -37,6 +37,53 @@ import xgboost as xgb
 
 
 #
+# Enumeration Type
+#
+
+class Enum(set):
+    def __getattr__(self, name):
+        if name in self:
+            return name
+        raise AttributeError
+
+
+#
+# Model Types
+#
+
+model_types = Enum(["classification", "clustering", "multiclass", "regression"])
+
+
+#
+# Objective Functions
+#
+
+objective = Enum(["maximize", "minimize"])
+
+
+#
+# Define scorers
+#
+
+scorers = {'accuracy' : (model_types.classification, objective.maximize),
+           'average_precision' : (model_types.classification, objective.maximize),
+           'f1' : (model_types.classification, objective.maximize),
+           'f1_macro' : (model_types.classification, objective.maximize),
+           'f1_micro' : (model_types.classification, objective.maximize),
+           'f1_samples' : (model_types.classification, objective.maximize),
+           'f1_weighted' : (model_types.classification, objective.maximize),
+           'log_loss' : (model_types.classification, objective.minimize),
+           'precision' : (model_types.classification, objective.maximize),
+           'recall' : (model_types.classification, objective.maximize),
+           'roc_auc' : (model_types.classification, objective.maximize),
+           'adjusted_rand_score' : (model_types.clustering, objective.maximize),
+           'mean_absolute_error' : (model_types.regression, objective.minimize),
+           'mean_squared_error' : (model_types.regression, objective.minimize),
+           'median_absolute_error' : (model_types.regression, objective.minimize),
+           'r2' : (model_types.regression, objective.maximize)}
+
+
+#
 # Classes
 #
 
@@ -59,53 +106,6 @@ class GradientBoostingClassifierCoef(GradientBoostingClassifier):
     def fit(self, *args, **kwargs):
         super(GradientBoostingClassifierCoef, self).fit(*args, **kwargs)
         self.coef_ = self.feature_importances_
-
-#
-# Enumeration Type
-#
-
-class Enum(set):
-    def __getattr__(self, name):
-        if name in self:
-            return name
-        raise AttributeError
-
-
-#
-# Model Types
-#
-
-model_types = Enum(["classification", "clustering", "multiclass", "regression"])
-
-
-#
-# Define scorers
-#
-
-scorers = {'accuracy' : model_types.classification,
-           'average_precision' : model_types.classification,
-           'f1' : model_types.classification,
-           'f1_macro' : model_types.classification,
-           'f1_micro' : model_types.classification,
-           'f1_samples' : model_types.classification,
-           'f1_weighted' : model_types.classification,
-           'log_loss' : model_types.classification,
-           'precision' : model_types.classification,
-           'recall' : model_types.classification,
-           'roc_auc' : model_types.classification,
-           'adjusted_rand_score' : model_types.clustering,
-           'mean_absolute_error' : model_types.regression,
-           'mean_squared_error' : model_types.regression,
-           'median_absolute_error' : model_types.regression,
-           'r2' : model_types.regression}
-
-
-#
-# Function get_scorers
-#
-
-def get_scorers():
-    return scorers
 
 
 #
@@ -266,10 +266,10 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
     model_type = model_types.classification
     params = {"n_estimators" : n_estimators,
               "max_depth" : 10,
-              "min_samples_split" : 2,
-              "min_samples_leaf" : 2,
-              "bootstrap" : True,
-              "criterion" : 'gini',
+              "min_samples_split" : 5,
+              "min_samples_leaf" : 3,
+              "bootstrap" : False,
+              "criterion" : 'entropy',
               "random_state" : seed,
               "n_jobs" : n_jobs,
               "verbose" : verbosity}
@@ -311,12 +311,12 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
     params = {"objective" : 'binary:logistic',
               "n_estimators" : n_estimators,
               "max_depth" : 10,
-              "learning_rate" : 0.1,
-              "min_child_weight" : 1.05,
-              "subsample" : 0.95,
-              "colsample_bytree" : 0.8,
+              "learning_rate" : 0.02,
+              "min_child_weight" : 1.1,
+              "subsample" : 0.9,
+              "colsample_bytree" : 1.0,
               "nthread" : n_jobs,
-              "silent" : False}
+              "silent" : True}
     est = xgb.XGBClassifier(**params)
     grid = {"n_estimators" : [21, 51, 101, 201, 501],
             "max_depth" : [None, 6, 8, 10, 20],
@@ -337,7 +337,7 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
               "subsample" : 0.85,
               "colsample_bytree" : 0.8,
               "nthread" : n_jobs,
-              "silent" : False}
+              "silent" : True}
     est = xgb.XGBClassifier(**params)
     estimators[algo] = Estimator(algo, model_type, est, grid)
     # XGBoost Regression
@@ -352,7 +352,7 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
               "colsample_bytree" : 0.8,
               "seed" : seed,
               "nthread" : n_jobs,
-              "silent" : False}
+              "silent" : True}
     est = xgb.XGBRegressor(**params)
     estimators[algo] = Estimator(algo, model_type, est, grid)
     # Extra Trees

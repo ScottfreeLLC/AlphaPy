@@ -392,25 +392,26 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    print '\nPARAMETERS:\n'
-    print 'algorithms      =', args.algorithms
-    print 'base_dir        =', args.base_dir
-    print 'grid_search     =', args.grid_search
-    print 'n_estimators    =', args.n_estimators
-    print 'n_folds         =', args.n_folds
-    print 'n_step          =', args.n_step
-    print 'plots           =', args.plots
-    print 'points_max      =', args.points_max
-    print 'points_min      =', args.points_min
-    print 'project         =', args.project
-    print 'random_scoring  =', args.random_scoring
-    print 'regression      =', args.regression
-    print 'rfe             =', args.rfe
-    print 'season          =', args.season
-    print 'split           =', args.split
-    print 'target [y]      =', args.target
-    print 'verbosity       =', args.verbosity
-    print 'window          =', args.window
+    logger.info('\nPARAMETERS:\n')
+    logger.info('algorithms      = %s', args.algorithms)
+    logger.info('base_dir        = %s', args.base_dir)
+    logger.info('grid_search     = %r', args.grid_search)
+    logger.info('n_estimators    = %d', args.n_estimators)
+    logger.info('n_folds         = %d', args.n_folds)
+    logger.info('n_step          = %d', args.n_step)
+    logger.info('plots           = %r', args.plots)
+    logger.info('points_max      = %d', args.points_max)
+    logger.info('points_min      = %d', args.points_min)
+    logger.info('project         = %s', args.project)
+    logger.info('random_scoring  = %r', args.random_scoring)
+    logger.info('regression      = %r', args.regression)
+    logger.info('rfe             = %r', args.rfe)
+    logger.info('season          = %d', args.season)
+    logger.info('split           = %f', args.split)
+    logger.info('target [y]      = %s', args.target)
+    logger.info('verbosity       = %d', args.verbosity)
+    logger.info('window          = %d', args.window)
+    logger.info('\n')
 
     # Unpack arguments
 
@@ -452,7 +453,6 @@ if __name__ == '__main__':
     specs['algorithms'] = args.algorithms
     specs['base_dir'] = base_dir
     specs['calibration'] = 'isotonic'
-    specs['categoricals'] = None
     specs['drop'] = ['Unnamed: 0', 'index', 'season', 'date', 'away.team', 'away.score', 'home.team', 'home.score', 'total_points', 'over', 'point_margin_game', 'cover_margin_game', 'lost_on_spread', 'under', 'overunder_margin', 'lost_on_points', 'won_on_points']
     specs['dummy_limit'] = 100
     specs['extension'] = 'csv'
@@ -479,7 +479,6 @@ if __name__ == '__main__':
     specs['subsample_pct'] = 0.2
     specs['test_file'] = 'test'
     specs['test_labels'] = True
-    specs['text_features'] = None
     specs['train_file'] = 'train'
     specs['target'] = args.target
     specs['verbosity'] = args.verbosity

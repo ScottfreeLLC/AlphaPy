@@ -17,7 +17,7 @@ from __future__ import division
 import argparse
 from data import load_data
 from estimators import get_estimators
-from estimators import get_scorers
+from estimators import scorers
 from features import create_features
 from features import drop_features
 from globs import CSEP
@@ -61,7 +61,6 @@ def pipeline(model):
     # Unpack the model specifications
 
     base_dir = model.specs['base_dir']
-    categoricals = model.specs['categoricals']
     drop = model.specs['drop']
     dummy_limit = model.specs['dummy_limit']
     extension = model.specs['extension']
@@ -84,7 +83,6 @@ def pipeline(model):
     target = model.specs['target']
     test_file = model.specs['test_file']
     test_labels = model.specs['test_labels']
-    text_features = model.specs['text_features']
     train_file = model.specs['train_file']
     verbosity = model.specs['verbosity']
 
@@ -119,22 +117,25 @@ def pipeline(model):
     else:
         raise IndexError("The number of training and test columns must match.")
 
-    # Drop features
+    # Feature Statistics
 
-    logger.info("Dropping Features")
-
-    X = drop_features(X, drop)
-
-    # Feature Generation
-
-    logger.info("Generating Features")
+    logger.info("Original Feature Statistics")
     logger.info("Number of Training Rows    : %d", X_train.shape[0])
     logger.info("Number of Training Columns : %d", X_train.shape[1])
     logger.info("Number of Testing Rows    : %d", X_test.shape[0])
     logger.info("Number of Testing Columns : %d", X_test.shape[1])
 
-    X = create_features(X, categoricals, dummy_limit, interactions, poly_degree,
-                        text_features, ngrams_max, separator)
+    # Drop features
+
+    X = drop_features(X, drop)
+
+    # Generate features
+
+    X = create_features(X, dummy_limit, ngrams_max)
+
+    # Generate interactions
+
+    X = create_interactions(X, X_train, y_train, fs_percent, poly_degree, interactions)
 
     # Split the data back into training and test
 
@@ -168,7 +169,6 @@ def pipeline(model):
 
     # Get the available scorers
 
-    scorers = get_scorers()
     if scorer not in scorers:
         raise KeyError("Scorer function %s not found", scorer)
 
@@ -204,7 +204,6 @@ def pipeline(model):
 
     # Create a blended estimator
 
-    logger.info("Blending Multiple Models")
     model = predict_blend(model)
 
     # Generate metrics
@@ -214,18 +213,17 @@ def pipeline(model):
 
     # Store the best estimator
 
-    logger.info("Selecting Best Model")
     model = predict_best(model)
 
     # Generate plots
 
     if plots:
         generate_plots(model, 'train')
-        generate_plots(model, 'test')
+        if test_labels:
+            generate_plots(model, 'test')
 
     # Save best features and predictions
 
-    logger.info("Saving Model")
     save_results(model, 'BEST', 'test')
 
     # Return the completed model
@@ -238,6 +236,11 @@ def pipeline(model):
 #
 
 if __name__ == '__main__':
+
+    # Start the pipeline
+
+    logger.info('='*80)
+    logger.info("START AlphaPy PIPELINE")
 
     # Logging
 
@@ -262,8 +265,6 @@ if __name__ == '__main__':
                         help="base directory location")
     parser.add_argument('-cali', dest="calibration", action='store', default='isotonic',
                         help='calibration: isotonic [default] or sigmoid')
-    parser.add_argument('-cats', dest="categoricals", action='store', default=None,
-                        help='categorical features')
     parser.add_argument('-drop', dest="drop", action='store', default=None,
                         help='features to drop')
     parser.add_argument('-dummy', dest="dummy_limit", type=int, default=100,
@@ -314,8 +315,6 @@ if __name__ == '__main__':
                         help="percentage of data withheld for testing")
     parser.add_argument("-test", dest="test_file", default="test",
                         help="test file containing features and/or labels")
-    parser.add_argument('-text', dest="text_features", action='store', default=None,
-                        help='text features')
     parser.add_argument("-train", dest="train_file", default="train",
                         help="training file containing features and labels")
     parser.add_argument('-v', dest="verbosity", type=int, default=2,
@@ -328,41 +327,40 @@ if __name__ == '__main__':
     # Print the arguments
 
     args = parser.parse_args()
-    print '\nPARAMETERS:\n'
-    print 'algorithms      =', args.algorithms
-    print 'base_dir        =', args.base_dir
-    print 'calibration     =', args.calibration
-    print 'categoricals    =', args.categoricals
-    print 'dummy_limit     =', args.dummy_limit
-    print 'extension       =', args.extension
-    print 'drop            =', args.drop
-    print 'features [X]    =', args.features
-    print 'grid_search     =', args.grid_search
-    print 'gs_iters        =', args.gs_iters
-    print 'interactions    =', args.interactions
-    print 'n_estimators    =', args.n_estimators
-    print 'n_folds         =', args.n_folds
-    print 'n_jobs          =', args.n_jobs
-    print 'n_step          =', args.n_step
-    print 'ngrams_max      =', args.ngrams_max
-    print 'plots           =', args.plots
-    print 'poly_degree     =', args.poly_degree
-    print 'project         =', args.project
-    print 'regression      =', args.regression
-    print 'rfe             =', args.rfe
-    print 'scorer          =', args.scorer
-    print 'seed            =', args.seed
-    print 'separator       =', args.separator
-    print 'shuffle         =', args.shuffle
-    print 'split           =', args.split
-    print 'subsample       =', args.subsample
-    print 'subsample_pct   =', args.subsample_pct
-    print 'test_file       =', args.test_file
-    print 'test_labels     =', args.test_labels
-    print 'text_features   =', args.text_features
-    print 'train_file      =', args.train_file
-    print 'target [y]      =', args.target
-    print 'verbosity       =', args.verbosity
+
+    logger.info('PARAMETERS:')
+    logger.info('algorithms      = %s', args.algorithms)
+    logger.info('base_dir        = %s', args.base_dir)
+    logger.info('calibration     = %s', args.calibration)
+    logger.info('dummy_limit     = %d', args.dummy_limit)
+    logger.info('extension       = %s', args.extension)
+    logger.info('drop            = %s', args.drop)
+    logger.info('features [X]    = %s', args.features)
+    logger.info('grid_search     = %r', args.grid_search)
+    logger.info('gs_iters        = %d', args.gs_iters)
+    logger.info('interactions    = %r', args.interactions)
+    logger.info('n_estimators    = %d', args.n_estimators)
+    logger.info('n_folds         = %d', args.n_folds)
+    logger.info('n_jobs          = %d', args.n_jobs)
+    logger.info('n_step          = %d', args.n_step)
+    logger.info('ngrams_max      = %d', args.ngrams_max)
+    logger.info('plots           = %r', args.plots)
+    logger.info('poly_degree     = %d', args.poly_degree)
+    logger.info('project         = %s', args.project)
+    logger.info('regression      = %r', args.regression)
+    logger.info('rfe             = %r', args.rfe)
+    logger.info('scorer          = %s', args.scorer)
+    logger.info('seed            = %d', args.seed)
+    logger.info('separator       = %s', args.separator)
+    logger.info('shuffle         = %r', args.shuffle)
+    logger.info('split           = %f', args.split)
+    logger.info('subsample       = %r', args.subsample)
+    logger.info('subsample_pct   = %f', args.subsample_pct)
+    logger.info('test_file       = %s', args.test_file)
+    logger.info('test_labels     = %r', args.test_labels)
+    logger.info('train_file      = %s', args.train_file)
+    logger.info('target [y]      = %s', args.target)
+    logger.info('verbosity       = %d', args.verbosity)
 
     # Debug the program
 
@@ -374,10 +372,9 @@ if __name__ == '__main__':
 
     model = Model(vars(args))
 
-    # Call the pipeline
-
-    logger.info("Starting Model Pipeline")
-
     model = pipeline(model)
 
-    logger.info("Completed Model Pipeline")
+    # Complete the pipeline
+
+    logger.info("END AlphaPy PIPELINE")
+    logger.info('='*80)
