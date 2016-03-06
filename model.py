@@ -17,6 +17,7 @@ import cPickle as pickle
 from datetime import datetime
 from estimators import objective
 from estimators import scorers
+from estimators import xgb_score_map
 from globs import PSEP, SSEP, USEP
 import logging
 import numpy as np
@@ -168,6 +169,41 @@ def save_model(model):
 
 
 #
+# Function fit_model
+#
+
+def fit_model(model, algo, est, X1, y1, X2=None, y2=None):
+    """
+    Fit a scikit-learn model.
+    """
+
+    logger.info("Fitting Model for %s", algo)
+
+    # Extract model parameters.
+
+    esr = model.specs['esr']
+    scorer = model.specs['scorer']
+
+    # First Fit
+
+    if 'XGB' in algo:
+        try:
+            if X2 is not None and y2 is not None:
+                eval_set = [(X1, y1), (X2, y2)]
+            else:
+                eval_set = [(X1, y1)]
+            eval_metric = xgb_score_map[scorer]
+            est.fit(X1, y1, eval_set=eval_set, eval_metric=eval_metric,
+                    early_stopping_rounds=esr)
+        except:
+            est.fit(X1, y1)
+    else:
+        est.fit(X1, y1)
+
+    return est
+
+
+#
 # Function first_fit
 #
 
@@ -187,20 +223,14 @@ def first_fit(model, algo, est):
 
     # Extract model data.
 
-    try:
-        support = model.support[algo]
-        X_train = model.X_train[:, support]
-        X_test = model.X_test[:, support]
-    except:
-        X_train = model.X_train
-        X_test = model.X_test
+    X_train = model.X_train
     y_train = model.y_train
 
     # First Fit
 
     X1, X2, y1, y2 = train_test_split(X_train, y_train, test_size=split,
                                       random_state=seed)
-    est.fit(X1, y1)
+    est = fit_model(model, algo, est, X1, y1, X2, y2)
     model.estimators[algo] = est
 
     # Record scores, importances, and coefficients, if available.
@@ -249,7 +279,7 @@ def make_predictions(model, algo):
 
     # Fit the final model
 
-    est.fit(X_train, y_train)
+    est = fit_model(model, algo, est, X_train, y_train)
 
     # Make predictions on original training and test data
 
@@ -262,7 +292,7 @@ def make_predictions(model, algo):
     # Training Log Loss
 
     if not regression:
-        lloss = log_loss(y_train, model.probas[(algo, 'train')], eps=1e-15, normalize=True)
+        lloss = log_loss(y_train, model.probas[(algo, 'train')])
         logger.info("Log Loss for %s: %.6f", algo, lloss)
 
     return model
@@ -444,12 +474,13 @@ def generate_metrics(model, partition):
         for algo in model.algolist:
             # get predictions for the given algorithm
             predicted = model.preds[(algo, partition)]
+            probas = model.probas[(algo, partition)]
             try:
                 model.metrics[(algo, partition, 'accuracy')] = accuracy_score(expected, predicted)
             except:
                 logger.info("Accuracy Score not calculated")
             try:
-                model.metrics[(algo, partition, 'adjusted_rand')] = adjusted_rand_score(expected, predicted)
+                model.metrics[(algo, partition, 'adjusted_rand_score')] = adjusted_rand_score(expected, predicted)
             except:
                 logger.info("Adjusted Rand Index not calculated")
             try:
@@ -469,19 +500,19 @@ def generate_metrics(model, partition):
             except:
                 logger.info("F1 Score not calculated")
             try:
-                model.metrics[(algo, partition, 'log_loss')] = log_loss(expected, predicted)
+                model.metrics[(algo, partition, 'log_loss')] = log_loss(expected, probas)
             except:
                 logger.info("Log Loss not calculated")
             try:
-                model.metrics[(algo, partition, 'mae')] = mean_absolute_error(expected, predicted)
+                model.metrics[(algo, partition, 'mean_absolute_error')] = mean_absolute_error(expected, predicted)
             except:
                 logger.info("Mean Absolute Error not calculated")
             try:
-                model.metrics[(algo, partition, 'median_abs_error')] = median_absolute_error(expected, predicted)
+                model.metrics[(algo, partition, 'median_absolute_error')] = median_absolute_error(expected, predicted)
             except:
                 logger.info("Median Absolute Error not calculated")
             try:
-                model.metrics[(algo, partition, 'mse')] = mean_squared_error(expected, predicted)
+                model.metrics[(algo, partition, 'mean_squared_error')] = mean_squared_error(expected, predicted)
             except:
                 logger.info("Mean Squared Error not calculated")
             try:

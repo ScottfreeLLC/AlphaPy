@@ -19,7 +19,9 @@ from data import load_data
 from estimators import get_estimators
 from estimators import scorers
 from features import create_features
+from features import create_interactions
 from features import drop_features
+from features import save_features
 from globs import CSEP
 from globs import PSEP
 from globs import SSEP
@@ -62,16 +64,12 @@ def pipeline(model):
 
     base_dir = model.specs['base_dir']
     drop = model.specs['drop']
-    dummy_limit = model.specs['dummy_limit']
     extension = model.specs['extension']
     features = model.specs['features']
     grid_search = model.specs['grid_search']
-    interactions = model.specs['interactions']
     n_estimators = model.specs['n_estimators']
     n_jobs = model.specs['n_jobs']
-    ngrams_max = model.specs['ngrams_max']
     plots = model.specs['plots']
-    poly_degree = model.specs['poly_degree']
     project = model.specs['project']
     regression = model.specs['regression']
     rfe = model.specs['rfe']
@@ -129,42 +127,31 @@ def pipeline(model):
 
     X = drop_features(X, drop)
 
-    # Generate features
+    # Create initial features
 
-    X = create_features(X, dummy_limit, ngrams_max)
+    new_features = create_features(X, model)
+    X_train, X_test = np.array_split(new_features, [split_point])
+    model = save_features(model, X_train, X_test, y_train, y_test)
 
     # Generate interactions
 
-    X = create_interactions(X, X_train, y_train, fs_percent, poly_degree, interactions)
-
-    # Split the data back into training and test
-
-    logger.info("Splitting Data")
-
-    X_train, X_test = np.array_split(X, [split_point])
+    all_features = create_interactions(new_features, model)
+    X_train, X_test = np.array_split(all_features, [split_point])
+    model = save_features(model, X_train, X_test, y_train, y_test)
 
     # Shuffle the data if necessary
 
     if shuffle:
-        logger.info("Shuffling Data")
+        logger.info("Shuffling Training Data")
         np.random.seed(seed)
-        new_indices = np.random.permutation(y.size)
+        new_indices = np.random.permutation(y_train.size)
         X_train = X_train[new_indices]
         y_train = y_train[new_indices]
-
-    # Save the new features in the model object
-
-    logger.info("Saving New Features")
-
-    model.X_train = X_train
-    model.X_test = X_test
-    model.y_train = y_train
-    model.y_test = y_test
+        model = save_features(model, X_train, X_test, y_train, y_test)
 
     # Get the available classifiers and regressors 
 
     logger.info("Getting All Estimators")
-
     estimators = get_estimators(n_estimators, seed, n_jobs, verbosity)
 
     # Get the available scorers
@@ -237,11 +224,6 @@ def pipeline(model):
 
 if __name__ == '__main__':
 
-    # Start the pipeline
-
-    logger.info('='*80)
-    logger.info("START AlphaPy PIPELINE")
-
     # Logging
 
     logging.basicConfig(format="[%(asctime)s] %(levelname)s\t%(message)s",
@@ -256,6 +238,12 @@ if __name__ == '__main__':
 
     logger = logging.getLogger(__name__)
 
+    # Start the pipeline
+
+    logger.info('='*80)
+    logger.info("START")
+    logger.info('='*80)
+
     # Argument Parsing
 
     parser = argparse.ArgumentParser(description="Alpha314 Parser")
@@ -269,24 +257,30 @@ if __name__ == '__main__':
                         help='features to drop')
     parser.add_argument('-dummy', dest="dummy_limit", type=int, default=100,
                         help="maximum limit for distinct categorical values")
+    parser.add_argument('-esr', dest="esr", type=int, default=30,
+                        help="early stopping rounds for XGBoost")
     parser.add_argument('-ext', dest="extension", action='store', default='csv',
                         help='file extension for features and predictions')
+    parser.add_argument('-fsp', dest="fsample_pct", type=int, default=10,
+                        help="feature sampling percentage for interactions")
     parser.add_argument('-grid', dest="grid_search", action="store_true",
                         help="perform a grid search [False]")
     parser.add_argument('-gsub', dest="subsample", action="store_true",
                         help="use subsampling to reduce grid search time [False]")
-    parser.add_argument('-gspct', dest="subsample_pct", type=float, default=0.25,
+    parser.add_argument('-gsp', dest="subsample_pct", type=float, default=0.25,
                         help="subsampling percentage for grid search")
-    parser.add_argument('-inter', dest="interactions", action="store_true",
-                        help="compute feature interactions [False]")
     parser.add_argument('-label', dest="test_labels", action="store_true",
                         help="test labels are available [False]")
+    parser.add_argument('-na', dest="na_fill", type=int, default=0,
+                        help="fill value for NA variables [use mean]")
     parser.add_argument("-name", dest="project", default="project",
                         help="unique project name")
     parser.add_argument('-nest', dest="n_estimators", type=int, default=201,
                         help="default number of estimators [201]")
     parser.add_argument('-nfold', dest="n_folds", type=int, default=5,
                         help="number of folds for cross-validation")
+    parser.add_argument('-ngen', dest="gp_learn", type=int, default=0,
+                        help="number of genetic learning features")
     parser.add_argument('-ngram', dest="ngrams_max", type=int, default=1,
                         help="number of maximum ngrams for text features")
     parser.add_argument('-ngs', dest="gs_iters", type=int, default=100,
@@ -297,7 +291,7 @@ if __name__ == '__main__':
                         help="step increment for recursive feature elimination")
     parser.add_argument('-plots', dest="plots", action="store_true",
                         help="show plots [False]")
-    parser.add_argument('-polyd', dest="poly_degree", type=int, default=0,
+    parser.add_argument('-poly', dest="poly_degree", type=int, default=0,
                         help="polynomial degree for interactions")
     parser.add_argument('-reg', dest="regression", action="store_true",
                         help="classification [default] or regression")
@@ -335,14 +329,17 @@ if __name__ == '__main__':
     logger.info('dummy_limit     = %d', args.dummy_limit)
     logger.info('extension       = %s', args.extension)
     logger.info('drop            = %s', args.drop)
+    logger.info('esr             = %d', args.esr)
     logger.info('features [X]    = %s', args.features)
+    logger.info('fsample_pct     = %d', args.fsample_pct)
+    logger.info('gp_learn        = %d', args.gp_learn)
     logger.info('grid_search     = %r', args.grid_search)
     logger.info('gs_iters        = %d', args.gs_iters)
-    logger.info('interactions    = %r', args.interactions)
     logger.info('n_estimators    = %d', args.n_estimators)
     logger.info('n_folds         = %d', args.n_folds)
     logger.info('n_jobs          = %d', args.n_jobs)
     logger.info('n_step          = %d', args.n_step)
+    logger.info('na_fill         = %d', args.na_fill)
     logger.info('ngrams_max      = %d', args.ngrams_max)
     logger.info('plots           = %r', args.plots)
     logger.info('poly_degree     = %d', args.poly_degree)
@@ -372,9 +369,14 @@ if __name__ == '__main__':
 
     model = Model(vars(args))
 
+    # Start the pipeline
+
+    logger.info("Calling Pipeline")
+
     model = pipeline(model)
 
     # Complete the pipeline
 
-    logger.info("END AlphaPy PIPELINE")
+    logger.info('='*80)
+    logger.info("END")
     logger.info('='*80)

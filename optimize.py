@@ -209,6 +209,7 @@ def calibrate_model(model, algo):
     # Extract model parameters
 
     calibration = model.specs['calibration']
+    esr = model.specs['esr']
     grid_search = model.specs['grid_search']
     n_folds = model.specs['n_folds']
     regression = model.specs['regression']
@@ -238,7 +239,7 @@ def calibrate_model(model, algo):
         X1, X2, y1, y2 = train_test_split(X_train, y_train, test_size=split,
                                           random_state=seed)
         es = [(X1, y1), (X2, y2)]
-        clf.fit(X1, y1, eval_set=es, early_stopping_rounds=30)
+        clf.fit(X1, y1, eval_set=es, early_stopping_rounds=esr)
     else:
         clf = CalibratedClassifierCV(clf, method=calibration, cv=n_folds)
         clf.fit(X_train, y_train)

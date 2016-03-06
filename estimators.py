@@ -65,22 +65,33 @@ objective = Enum(["maximize", "minimize"])
 # Define scorers
 #
 
-scorers = {'accuracy' : (model_types.classification, objective.maximize),
-           'average_precision' : (model_types.classification, objective.maximize),
-           'f1' : (model_types.classification, objective.maximize),
-           'f1_macro' : (model_types.classification, objective.maximize),
-           'f1_micro' : (model_types.classification, objective.maximize),
-           'f1_samples' : (model_types.classification, objective.maximize),
-           'f1_weighted' : (model_types.classification, objective.maximize),
-           'log_loss' : (model_types.classification, objective.minimize),
-           'precision' : (model_types.classification, objective.maximize),
-           'recall' : (model_types.classification, objective.maximize),
-           'roc_auc' : (model_types.classification, objective.maximize),
-           'adjusted_rand_score' : (model_types.clustering, objective.maximize),
-           'mean_absolute_error' : (model_types.regression, objective.minimize),
-           'mean_squared_error' : (model_types.regression, objective.minimize),
-           'median_absolute_error' : (model_types.regression, objective.minimize),
-           'r2' : (model_types.regression, objective.maximize)}
+scorers = {'accuracy'              : (model_types.classification, objective.maximize),
+           'average_precision'     : (model_types.classification, objective.maximize),
+           'f1'                    : (model_types.classification, objective.maximize),
+           'f1_macro'              : (model_types.classification, objective.maximize),
+           'f1_micro'              : (model_types.classification, objective.maximize),
+           'f1_samples'            : (model_types.classification, objective.maximize),
+           'f1_weighted'           : (model_types.classification, objective.maximize),
+           'log_loss'              : (model_types.classification, objective.minimize),
+           'precision'             : (model_types.classification, objective.maximize),
+           'recall'                : (model_types.classification, objective.maximize),
+           'roc_auc'               : (model_types.classification, objective.maximize),
+           'adjusted_rand_score'   : (model_types.clustering,     objective.maximize),
+           'mean_absolute_error'   : (model_types.regression,     objective.minimize),
+           'mean_squared_error'    : (model_types.regression,     objective.minimize),
+           'median_absolute_error' : (model_types.regression,     objective.minimize),
+           'r2'                    : (model_types.regression,     objective.maximize)}
+
+
+#
+# Define XGB scoring map
+#
+
+xgb_score_map = {'accuracy'            : 'auc',
+                 'log_loss'            : 'logloss',
+                 'mean_absolute_error' : 'mae',
+                 'mean_squared_error'  : 'rmse',
+                 'precision'           : 'map'}
 
 
 #
@@ -310,8 +321,9 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
     model_type = model_types.classification
     params = {"objective" : 'binary:logistic',
               "n_estimators" : n_estimators,
+              "seed" : seed,
               "max_depth" : 10,
-              "learning_rate" : 0.02,
+              "learning_rate" : 0.01,
               "min_child_weight" : 1.1,
               "subsample" : 0.9,
               "colsample_bytree" : 1.0,
@@ -319,8 +331,8 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
               "silent" : True}
     est = xgb.XGBClassifier(**params)
     grid = {"n_estimators" : [21, 51, 101, 201, 501],
-            "max_depth" : [None, 6, 8, 10, 20],
-            "learning_rate" : [0.02, 0.05, 0.1],
+            "max_depth" : [None, 6, 8, 10],
+            "learning_rate" : [0.01, 0.02, 0.05, 0.1],
             "min_child_weight" : [1.0, 1.1],
             "subsample" : [0.8, 0.9, 1.0],
             "colsample_bytree" : [0.8, 0.9, 1.0]}
@@ -331,8 +343,9 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
     model_type = model_types.multiclass
     params = {"objective" : 'multi:softmax',
               "n_estimators" : n_estimators,
+              "seed" : seed,
               "max_depth" : 10,
-              "learning_rate" : 0.1,
+              "learning_rate" : 0.01,
               "min_child_weight" : 1.05,
               "subsample" : 0.85,
               "colsample_bytree" : 0.8,
@@ -345,8 +358,9 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
     model_type = model_types.regression
     params = {"objective" : 'reg:linear',
               "n_estimators" : n_estimators,
+              "seed" : seed,
               "max_depth" : 10,
-              "learning_rate" : 0.1,
+              "learning_rate" : 0.01,
               "min_child_weight" : 1.05,
               "subsample" : 0.85,
               "colsample_bytree" : 0.8,

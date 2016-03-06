@@ -171,6 +171,7 @@ def plot_calibration(model, partition):
 
     ax1.plot([0, 1], [0, 1], "k:", label="Perfectly Calibrated")
     for algo in model.algolist:
+        logger.info("Calibration for Algorithm: %s", algo)
         clf = model.estimators[algo]
         if hasattr(clf, "predict_proba"):
             prob_pos = model.probas[(algo, partition)]
@@ -223,7 +224,7 @@ def plot_importance(model, partition):
 
     n_top = 10
     for algo in model.algolist:
-        logger.info("Algorithm: %s", algo)
+        logger.info("Feature Importances for Algorithm: %s", algo)
         try:
             importances = model.importances[algo]
             # forest was input parameter
@@ -281,7 +282,7 @@ def plot_learning_curve(model, partition):
     ylim = (0.0, 1.01)
 
     for algo in model.algolist:
-        logger.info("Algorithm: %s", algo)
+        logger.info("Learning Curve for Algorithm: %s", algo)
         # get estimator
         estimator = model.estimators[algo]
         # plot learning curve
@@ -347,7 +348,7 @@ def plot_roc_curve(model, partition):
     # Plot a ROC Curve for each algorithm.
 
     for algo in model.algolist:
-        logger.info("Algorithm: %s", algo)
+        logger.info("ROC Curve for Algorithm: %s", algo)
         # get estimator
         estimator = model.estimators[algo]
         # initialize true and false positive rates
@@ -399,6 +400,7 @@ def plot_confusion_matrix(model, partition):
     X, y = get_partition_data(model, partition)
 
     for algo in model.algolist:
+        logger.info("Confusion Matrix for Algorithm: %s", algo)
         # get predictions for this partition
         y_pred = model.preds[(algo, partition)]
         # compute confusion matrix
