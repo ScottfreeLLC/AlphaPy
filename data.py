@@ -13,7 +13,7 @@
 # Imports
 #
 
-import cPickle as pickle
+import _pickle as pickle
 from datetime import datetime
 from datetime import timedelta
 from frame import Frame
@@ -46,7 +46,7 @@ def load_data(directory, filename, extension, separator,
     """
     Read in data from the given directory in a given format.
     """
-    logging.debug("Loading data from %s", file)
+    logger.info("Loading data from: %s", filename)
     # read in file
     df = read_frame(directory, filename, extension, separator)
     # assign target and drop it if necessary
@@ -55,7 +55,7 @@ def load_data(directory, filename, extension, separator,
         y = LabelEncoder().fit_transform(y)
         df = df.drop([target], axis=1)
     elif return_labels:
-        logging.debug("Target %s not found", target)
+        logger.info("Target ", target, " not found")
         raise Exception('Target not found')
     # extract features
     if features == WILDCARD:
@@ -79,7 +79,7 @@ def get_remote_data(group,
     gam = group.all_members()
     feed = FEEDS[group.space.subject]
     for item in gam:
-        print "Getting %s data from %s to %s" % (item, start, end)
+        logger.info("Getting ", item, " data from ", start, " to ", end)
         df = web.DataReader(item, feed, start, end)
         df.reset_index(level=0, inplace=True)
         df = df.rename(columns = lambda x: x.lower().replace(' ',''))

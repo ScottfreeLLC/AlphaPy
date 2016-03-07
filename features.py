@@ -18,6 +18,7 @@ from gplearn.genetic import SymbolicTransformer
 import logging
 import numpy as np
 import pandas as pd
+import scipy.stats as sps
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_selection import f_classif
@@ -38,11 +39,16 @@ logger = logging.getLogger(__name__)
 # Function get_numerical_feature
 #
 
-def get_numerical_feature(fname, feature, dt, na_fill=0):
+def get_numerical_feature(fname, feature, dt, nvalues, na_fill=0):
     """
     Get numerical features by looking for float and integer values.
     """
-    logger.info("Feature %s is a feature of type %s", fname, dt)
+    if len(feature) == nvalues:
+        logger.info("Feature %s is a text feature with maximum number of values %d",
+                    fname, nvalues)
+    else:
+        logger.info("Feature %s is a feature of type %s with %d unique values",
+                    fname, dt, nvalues)
     if na_fill == 0:
         if dt == 'int64':
             fill = feature.value_counts().index[0]
@@ -73,13 +79,21 @@ def get_polynomials(features, poly_degree):
 # Function get_categorical
 #
 
-def get_categorical(fname, feature, nvalues):
+def get_categorical(fname, feature, nvalues, na_fill):
     """
     Convert a categorical feature to one-hot encoding.
     """
-    logger.info("Feature %s is a categorical feature with %d unique values", fname, nvalues)
-    value = feature.value_counts().index[0]
-    feature.fillna(value, inplace=True)
+    if len(feature) == nvalues:
+        logger.info("Feature %s is a text feature with maximum number of values %d",
+                    fname, nvalues)
+    else:
+        logger.info("Feature %s is a categorical feature with %d unique values",
+                    fname, nvalues)
+    if na_fill == 0:
+        fill = feature.value_counts().index[0]
+    else:
+        fill = na_fill
+    feature.fillna(fill, inplace=True)
     dummies = pd.get_dummies(feature)
     return dummies
 
@@ -88,11 +102,15 @@ def get_categorical(fname, feature, nvalues):
 # Function get_text_feature
 #
 
-def get_text_feature(fname, feature, ngrams_max):
+def get_text_feature(fname, feature, nvalues, ngrams_max):
     """
     Vectorize a text feature and transform to TF-IDF format.
     """
-    logger.info("Feature %s is a text feature", fname)
+    if len(feature) == nvalues:
+        logger.info("Feature %s is a text feature with maximum number of values %d",
+                    fname, nvalues)
+    else:
+        logger.info("Feature %s is a text feature with %d unique values", fname, nvalues)
     feature.fillna('', inplace=True)
     hashed_feature = feature.apply(hash)
     return hashed_feature
@@ -113,8 +131,6 @@ def create_features(X, model):
     Extract features from the training and test set.
     """
 
-    logger.info("Creating Features")
-
     # Extract model parameters
 
     dummy_limit = model.specs['dummy_limit']
@@ -130,29 +146,83 @@ def create_features(X, model):
 
     # Count zero and NaN values
 
+    logger.info("Creating Count Features")
+
+    logger.info("Zero Counts")
     X['zero_count'] = (X == 0).astype(int).sum(axis=1)
+    logger.info("NA Counts")
     X['nan_count'] = X.count(axis=1)
 
     # Iterate through columns, dispatching and transforming each feature.
 
+    logger.info("Creating Base Features")
+
     all_features = pd.DataFrame()
     for fc in X:
         dtype = X[fc].dtypes
+        nunique = len(X[fc].unique())
         if dtype == 'float64' or dtype == 'int64':
-            feature = get_numerical_feature(fc, X[fc], dtype, na_fill)
+            feature = get_numerical_feature(fc, X[fc], dtype, nunique, na_fill)
         elif dtype == 'object':
-            nunique = len(X[fc].unique())
             if nunique <= dummy_limit:
-                feature = get_categorical(fc, X[fc], nunique)
+                feature = get_categorical(fc, X[fc], nunique, na_fill)
             else:
-                feature = get_text_feature(fc, X[fc], ngrams_max)
+                feature = get_text_feature(fc, X[fc], nunique, ngrams_max)
         else:
             raise TypeError("The pandas column type %s is unrecognized", dtype)
         all_features = pd.concat([all_features, feature], axis=1)
 
     # Call standard scaler for all features
 
+    logger.info("Scaling Base Features")
+
     all_features = StandardScaler().fit_transform(all_features)
+    base_features = all_features
+
+    # Calculate the total, mean, standard deviation, and variance
+
+    logger.info("Creating NumPy Features")
+
+    logger.info("NumPy Feature: sum")
+    row_sum = np.sum(base_features, axis=1)
+    logger.info("NumPy Feature: mean")
+    row_mean = np.mean(base_features, axis=1)
+    logger.info("NumPy Feature: standard deviation")
+    row_std = np.std(base_features, axis=1)
+    logger.info("NumPy Feature: variance")
+    row_var = np.var(base_features, axis=1)
+    all_features = np.column_stack((all_features, row_sum, row_mean,
+                                    row_std, row_var))
+
+    # Generate scipy features
+
+    logger.info("Creating SciPy Features")
+
+    logger.info("SciPy Feature: geometric mean")
+    row_gmean = sps.gmean(base_features, axis=1)
+    logger.info("SciPy Feature: kurtosis")
+    row_kurtosis = sps.kurtosis(base_features, axis=1)
+    logger.info("SciPy Feature: kurtosis test")
+    row_ktest = sps.kurtosistest(base_features, axis=1)
+    logger.info("SciPy Feature: mode")
+    row_mode = sps.mode(base_features, axis=1)
+    logger.info("SciPy Feature: normal test")
+    row_normal = sps.normaltest(base_features, axis=1)
+    logger.info("SciPy Feature: skew")
+    row_skew = sps.skew(base_features, axis=1)
+    logger.info("SciPy Feature: skew test")
+    row_stest = sps.skewtest(base_features, axis=1)
+    logger.info("SciPy Feature: variation")
+    row_var = sps.variation(base_features, axis=1)
+    logger.info("SciPy Feature: signal-to-noise ratio")
+    row_stn = sps.signaltonoise(base_features, axis=1)
+    logger.info("SciPy Feature: standard error of mean")
+    row_sem = sps.sem(base_features, axis=1)
+    logger.info("SciPy Feature: z-score")
+    row_zscore = sps.zscore(base_features, axis=1)
+    all_features = np.column_stack((all_features, row_gmean, row_kurtosis, row_ktest,
+                                    row_mode, row_normal, row_skew, row_stest,
+                                    row_var, row_stn, row_sem, row_zscore))
 
     # Return all transformed training and test features
 
@@ -210,7 +280,6 @@ def create_interactions(X, model):
 
     logger.info("Initial Feature Count : %d", X.shape[1])
     logger.info("Selection Percentage  : %d", fsample_pct)
-    logger.info("Interactions          : %r", interactions)
     logger.info("Polynomial Degree     : %d", poly_degree)
     logger.info("Genetic Features      : %r", gp_learn)
 
@@ -268,7 +337,7 @@ def drop_features(X, drop):
     Drop the given features.
     """
 
-    logger.info("Dropping Features")
+    logger.info("Dropping Features: %s", drop)
 
     X.drop(drop, axis=1, inplace=True, errors='ignore')
     return X

@@ -217,6 +217,12 @@ def calibrate_model(model, algo):
     split = model.specs['split']
     clf = model.estimators[algo]
 
+    # For classification only
+
+    if regression:
+        logger.info('Calibration is for classification only')
+        return model
+
     # Extract model data.
 
     try:
@@ -237,7 +243,7 @@ def calibrate_model(model, algo):
 
     if 'XGB' in algo:
         X1, X2, y1, y2 = train_test_split(X_train, y_train, test_size=split,
-                                          random_state=seed)
+                                          random_state=seed, stratify=y_train)
         es = [(X1, y1), (X2, y2)]
         clf.fit(X1, y1, eval_set=es, early_stopping_rounds=esr)
     else:

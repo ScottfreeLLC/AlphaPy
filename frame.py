@@ -61,9 +61,9 @@ class Frame(object):
                 # add frame to frames list
                 Frame.frames[fn] = self
             else:
-                print "Frame %s already exists" % fn
+                print ("Frame ", fn, " already exists")
         else:
-            print "dframe must be of type DataFrame"
+            print ("df must be of type DataFrame")
         
     # __str__
 
@@ -90,12 +90,12 @@ def load_frames(group, directory, extension, separator, splits=False):
         for gn in gnames:
             fname = frame_name(gn, gspace)
             if fname in Frame.frames:
-                logger.info("Found Data Frame for %s", fname)
+                logger.info("Found Data Frame for ", fname)
                 df = Frame.frames[fname].df
             else:
-                logger.info("Data Frame for %s not found", fname)
+                logger.info("Data Frame for ", fname, " not found")
                 # read file for corresponding frame
-                logger.info("Load Data Frame %s from file", fname)
+                logger.info("Load Data Frame ", fname, " from file")
                 df = read_frame(directory, fname, extension, separator)
             # add this frame to the consolidated frame list
             if df is not None:

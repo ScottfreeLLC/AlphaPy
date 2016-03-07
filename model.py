@@ -13,7 +13,7 @@
 # Imports
 #
 
-import cPickle as pickle
+import _pickle as pickle
 from datetime import datetime
 from estimators import objective
 from estimators import scorers
@@ -76,7 +76,7 @@ class Model:
         if not mn in Model.models:
             return super(Model, cls).__new__(cls)
         else:
-            print "Model %s already exists" % mn
+            print ("Model ", mn, " already exists")
             
     # __init__
             

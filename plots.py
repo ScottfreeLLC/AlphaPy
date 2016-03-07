@@ -119,14 +119,17 @@ def write_plot(model, plot_type, partition, algo):
     """
 
     # Extract model parameters
+
     base_dir = model.specs['base_dir']
     project = model.specs['project']
 
     # Create output file specification
+
     file_only = ''.join([plot_type, USEP, partition, USEP, algo, '.png'])
     file_all = SSEP.join([base_dir, project, file_only])
 
-    # Save plot    
+    # Save plot
+
     logger.info("Writing plot to %s", file_all)
     plt.tight_layout()
     plt.savefig(file_all)

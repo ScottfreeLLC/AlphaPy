@@ -71,7 +71,6 @@ def pipeline(model):
     n_jobs = model.specs['n_jobs']
     plots = model.specs['plots']
     project = model.specs['project']
-    regression = model.specs['regression']
     rfe = model.specs['rfe']
     scorer = model.specs['scorer']
     seed = model.specs['seed']
@@ -180,12 +179,13 @@ def pipeline(model):
                 model = rfecv_search(model, algo)
             elif hasattr(est, "coef_"):
                 model = rfe_search(model, algo)
+            else:
+                logger.info("No RFE Available for %s", algo)
         # grid search
         if grid_search:
             model = hyper_grid_search(model, estimator)
         # calibration
-        if not regression:
-            model = calibrate_model(model, algo)
+        model = calibrate_model(model, algo)
         # predictions
         model = make_predictions(model, algo)
 
@@ -240,9 +240,9 @@ if __name__ == '__main__':
 
     # Start the pipeline
 
-    logger.info('='*80)
-    logger.info("START")
-    logger.info('='*80)
+    logger.info('*'*80)
+    logger.info("START PIPELINE")
+    logger.info('*'*80)
 
     # Argument Parsing
 
@@ -377,6 +377,6 @@ if __name__ == '__main__':
 
     # Complete the pipeline
 
-    logger.info('='*80)
-    logger.info("END")
-    logger.info('='*80)
+    logger.info('*'*80)
+    logger.info("END PIPELINE")
+    logger.info('*'*80)
