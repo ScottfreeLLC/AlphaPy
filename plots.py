@@ -131,7 +131,6 @@ def write_plot(model, plot_type, partition, algo):
     # Save plot
 
     logger.info("Writing plot to %s", file_all)
-    plt.tight_layout()
     plt.savefig(file_all)
 
 

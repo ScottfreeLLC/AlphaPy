@@ -19,11 +19,13 @@ import logging
 import numpy as np
 import pandas as pd
 import scipy.stats as sps
+from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_selection import f_classif
 from sklearn.feature_selection import f_regression
 from sklearn.feature_selection import SelectPercentile
+from sklearn.preprocessing import Imputer
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.preprocessing import StandardScaler
 
@@ -36,27 +38,39 @@ logger = logging.getLogger(__name__)
 
 
 #
+# Function impute_values
+#
+
+def impute_values(features, dt):
+    try:
+        nfeatures = features.shape[1]
+    except:
+        features = features.reshape(-1, 1)
+    if dt == 'float64':
+        imp = Imputer(missing_values='NaN', strategy='median', axis=0)
+    elif dt == 'int64':
+        imp = Imputer(missing_values='NaN', strategy='most_frequent', axis=0)
+    else:
+        raise TypeError('Data Type %s is invalid for imputation', dt)
+    imputed = imp.fit_transform(features)
+    return imputed
+
+
+#
 # Function get_numerical_feature
 #
 
-def get_numerical_feature(fname, feature, dt, nvalues, na_fill=0):
+def get_numerical_feature(fnum, fname, feature, dt, nvalues):
     """
     Get numerical features by looking for float and integer values.
     """
     if len(feature) == nvalues:
-        logger.info("Feature %s is a text feature with maximum number of values %d",
-                    fname, nvalues)
+        logger.info("Feature %d: %s is a text feature with maximum number of values %d",
+                    fnum, fname, nvalues)
     else:
-        logger.info("Feature %s is a feature of type %s with %d unique values",
-                    fname, dt, nvalues)
-    if na_fill == 0:
-        if dt == 'int64':
-            fill = feature.value_counts().index[0]
-        elif dt == 'float64':
-            fill = feature.mean()
-    else:
-        fill = na_fill 
-    feature.fillna(fill, inplace=True)
+        logger.info("Feature %d: %s is a feature of type %s with %d unique values",
+                    fnum, fname, dt, nvalues)
+    feature = impute_values(feature, dt)
     return feature
 
 
@@ -79,21 +93,17 @@ def get_polynomials(features, poly_degree):
 # Function get_categorical
 #
 
-def get_categorical(fname, feature, nvalues, na_fill):
+def get_categorical(fnum, fname, feature, nvalues):
     """
     Convert a categorical feature to one-hot encoding.
     """
     if len(feature) == nvalues:
-        logger.info("Feature %s is a text feature with maximum number of values %d",
-                    fname, nvalues)
+        logger.info("Feature %d: %s is a text feature with maximum number of values %d",
+                    fnum, fname, nvalues)
     else:
-        logger.info("Feature %s is a categorical feature with %d unique values",
-                    fname, nvalues)
-    if na_fill == 0:
-        fill = feature.value_counts().index[0]
-    else:
-        fill = na_fill
-    feature.fillna(fill, inplace=True)
+        logger.info("Feature %d: %s is a categorical feature with %d unique values",
+                    fnum, fname, nvalues)
+    feature.fillna(value=0, inplace=True)
     dummies = pd.get_dummies(feature)
     return dummies
 
@@ -102,16 +112,17 @@ def get_categorical(fname, feature, nvalues, na_fill):
 # Function get_text_feature
 #
 
-def get_text_feature(fname, feature, nvalues, ngrams_max):
+def get_text_feature(fnum, fname, feature, nvalues, ngrams_max):
     """
     Vectorize a text feature and transform to TF-IDF format.
     """
     if len(feature) == nvalues:
-        logger.info("Feature %s is a text feature with maximum number of values %d",
-                    fname, nvalues)
+        logger.info("Feature %d: %s is a text feature with maximum number of values %d",
+                    fnum, fname, nvalues)
     else:
-        logger.info("Feature %s is a text feature with %d unique values", fname, nvalues)
-    feature.fillna('', inplace=True)
+        logger.info("Feature %d: %s is a text feature with %d unique values",
+                    fnum, fname, nvalues)
+    feature.fillna(value='', inplace=True)
     hashed_feature = feature.apply(hash)
     return hashed_feature
 
@@ -120,6 +131,124 @@ def get_text_feature(fname, feature, nvalues, ngrams_max):
 #   tfidf_transformer = TfidfTransformer()
 #   tfidf_feature = tfidf_transformer.fit_transform(count_feature)
 #   return tfidf_feature
+
+
+#
+# Function create_numpy_features
+#
+
+def create_numpy_features(base_features):
+    """
+    Create NumPy features.
+    """
+
+    logger.info("Creating NumPy Features")
+
+    # Calculate the total, mean, standard deviation, and variance.
+
+    logger.info("NumPy Feature: sum")
+    row_sum = np.sum(base_features, axis=1)
+    logger.info("NumPy Feature: mean")
+    row_mean = np.mean(base_features, axis=1)
+    logger.info("NumPy Feature: standard deviation")
+    row_std = np.std(base_features, axis=1)
+    logger.info("NumPy Feature: variance")
+    row_var = np.var(base_features, axis=1)
+
+    # Impute, scale, and stack all new features.
+
+    np_features = np.column_stack((row_sum, row_mean, row_std, row_var))
+    np_features = impute_values(np_features, 'float64')
+    np_features = StandardScaler().fit_transform(np_features)
+
+    # Return new NumPy features
+
+    logger.info("NumPy Feature Count : %d", np_features.shape[1])
+    return np_features
+
+
+#
+# Function create_scipy_features
+#
+
+def create_scipy_features(base_features):
+    """
+    Create SciPy features.
+    """
+
+    logger.info("Creating SciPy Features")
+
+    # Generate scipy features
+
+    logger.info("SciPy Feature: geometric mean")
+    row_gmean = sps.gmean(base_features, axis=1)
+    logger.info("SciPy Feature: kurtosis")
+    row_kurtosis = sps.kurtosis(base_features, axis=1)
+    logger.info("SciPy Feature: kurtosis test")
+    row_ktest, pvalue = sps.kurtosistest(base_features, axis=1)
+    logger.info("SciPy Feature: normal test")
+    row_normal, pvalue = sps.normaltest(base_features, axis=1)
+    logger.info("SciPy Feature: skew")
+    row_skew = sps.skew(base_features, axis=1)
+    logger.info("SciPy Feature: skew test")
+    row_stest, pvalue = sps.skewtest(base_features, axis=1)
+    logger.info("SciPy Feature: variation")
+    row_var = sps.variation(base_features, axis=1)
+    logger.info("SciPy Feature: signal-to-noise ratio")
+    row_stn = sps.signaltonoise(base_features, axis=1)
+    logger.info("SciPy Feature: standard error of mean")
+    row_sem = sps.sem(base_features, axis=1)
+
+    sp_features = np.column_stack((row_gmean, row_kurtosis, row_ktest,
+                                   row_normal, row_skew, row_stest,
+                                   row_var, row_stn, row_sem))
+    sp_features = impute_values(sp_features, 'float64')
+    sp_features = StandardScaler().fit_transform(sp_features)
+
+    # Return new SciPy features
+
+    logger.info("SciPy Feature Count : %d", sp_features.shape[1])
+    return sp_features
+
+
+#
+# Function create_clusters
+#
+
+def create_clusters(features, model):
+    """
+    Create clustering features.
+    """
+
+    logger.info("Creating Clustering Features")
+
+    # Extract model parameters
+
+    cluster_max = model.specs['cluster_max']
+    cluster_min = model.specs['cluster_min']
+    n_jobs = model.specs['n_jobs']
+    seed = model.specs['seed']
+
+    # Log model parameters
+
+    logger.info("Cluster Minimum : %d", cluster_min)
+    logger.info("Cluster Maximum : %d", cluster_max)
+
+    # Generate clustering features
+
+    cfeatures = np.zeros((features.shape[0], 1))
+    for i in range(cluster_min, cluster_max+1):
+        logger.info("k = %d", i)
+        km = KMeans(n_clusters=i, random_state=seed, n_jobs=n_jobs).fit(features)
+        labels = km.predict(features)
+        labels = labels.reshape(-1, 1)
+        cfeatures = np.column_stack((cfeatures, labels))
+    cfeatures = np.delete(cfeatures, 0, axis=1)
+
+    # Return new clustering features
+
+    logger.info("Clustering Feature Count : %d", cfeatures.shape[1])
+    return cfeatures
 
 
 #
@@ -133,8 +262,9 @@ def create_features(X, model):
 
     # Extract model parameters
 
+    cluster_max = model.specs['cluster_max']
+    cluster_min = model.specs['cluster_min']
     dummy_limit = model.specs['dummy_limit']
-    na_fill = model.specs['na_fill']
     ngrams_max = model.specs['ngrams_max']
 
     # Log input parameters
@@ -153,24 +283,30 @@ def create_features(X, model):
     logger.info("NA Counts")
     X['nan_count'] = X.count(axis=1)
 
+    logger.info("New Feature Count : %d", X.shape[1])
+
     # Iterate through columns, dispatching and transforming each feature.
 
     logger.info("Creating Base Features")
 
-    all_features = pd.DataFrame()
-    for fc in X:
+    all_features = np.zeros((X.shape[0], 1))
+    for i, fc in enumerate(X):
+        fnum = i + 1
         dtype = X[fc].dtypes
         nunique = len(X[fc].unique())
         if dtype == 'float64' or dtype == 'int64':
-            feature = get_numerical_feature(fc, X[fc], dtype, nunique, na_fill)
+            feature = get_numerical_feature(fnum, fc, X[fc], dtype, nunique)
         elif dtype == 'object':
             if nunique <= dummy_limit:
-                feature = get_categorical(fc, X[fc], nunique, na_fill)
+                feature = get_categorical(fnum, fc, X[fc], nunique)
             else:
-                feature = get_text_feature(fc, X[fc], nunique, ngrams_max)
+                feature = get_text_feature(fnum, fc, X[fc], nunique, ngrams_max)
         else:
             raise TypeError("The pandas column type %s is unrecognized", dtype)
-        all_features = pd.concat([all_features, feature], axis=1)
+        all_features = np.column_stack((all_features, feature))
+    all_features = np.delete(all_features, 0, axis=1)
+
+    logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Call standard scaler for all features
 
@@ -181,52 +317,23 @@ def create_features(X, model):
 
     # Calculate the total, mean, standard deviation, and variance
 
-    logger.info("Creating NumPy Features")
-
-    logger.info("NumPy Feature: sum")
-    row_sum = np.sum(base_features, axis=1)
-    logger.info("NumPy Feature: mean")
-    row_mean = np.mean(base_features, axis=1)
-    logger.info("NumPy Feature: standard deviation")
-    row_std = np.std(base_features, axis=1)
-    logger.info("NumPy Feature: variance")
-    row_var = np.var(base_features, axis=1)
-    all_features = np.column_stack((all_features, row_sum, row_mean,
-                                    row_std, row_var))
+    np_features = create_numpy_features(base_features)
+    all_features = np.column_stack((all_features, np_features))
+    logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Generate scipy features
 
-    logger.info("Creating SciPy Features")
+    sp_features = create_scipy_features(base_features)
+    all_features = np.column_stack((all_features, sp_features))
+    logger.info("New Feature Count : %d", all_features.shape[1])
 
-    logger.info("SciPy Feature: geometric mean")
-    row_gmean = sps.gmean(base_features, axis=1)
-    logger.info("SciPy Feature: kurtosis")
-    row_kurtosis = sps.kurtosis(base_features, axis=1)
-    logger.info("SciPy Feature: kurtosis test")
-    row_ktest = sps.kurtosistest(base_features, axis=1)
-    logger.info("SciPy Feature: mode")
-    row_mode = sps.mode(base_features, axis=1)
-    logger.info("SciPy Feature: normal test")
-    row_normal = sps.normaltest(base_features, axis=1)
-    logger.info("SciPy Feature: skew")
-    row_skew = sps.skew(base_features, axis=1)
-    logger.info("SciPy Feature: skew test")
-    row_stest = sps.skewtest(base_features, axis=1)
-    logger.info("SciPy Feature: variation")
-    row_var = sps.variation(base_features, axis=1)
-    logger.info("SciPy Feature: signal-to-noise ratio")
-    row_stn = sps.signaltonoise(base_features, axis=1)
-    logger.info("SciPy Feature: standard error of mean")
-    row_sem = sps.sem(base_features, axis=1)
-    logger.info("SciPy Feature: z-score")
-    row_zscore = sps.zscore(base_features, axis=1)
-    all_features = np.column_stack((all_features, row_gmean, row_kurtosis, row_ktest,
-                                    row_mode, row_normal, row_skew, row_stest,
-                                    row_var, row_stn, row_sem, row_zscore))
+    # Create clustering features
+
+    cfeatures = create_clusters(all_features, model)
+    all_features = np.column_stack((all_features, cfeatures))
+    logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Return all transformed training and test features
-
-    logger.info("Extracted Feature Count : %d", all_features.shape[1])
 
     return all_features
 
@@ -278,10 +385,9 @@ def create_interactions(X, model):
 
     # Log parameters
 
-    logger.info("Initial Feature Count : %d", X.shape[1])
-    logger.info("Selection Percentage  : %d", fsample_pct)
-    logger.info("Polynomial Degree     : %d", poly_degree)
-    logger.info("Genetic Features      : %r", gp_learn)
+    logger.info("Initial Feature Count  : %d", X.shape[1])
+    logger.info("Interaction Percentage : %d", fsample_pct)
+    logger.info("Polynomial Degree      : %d", poly_degree)
 
     # Initialize all features
 
@@ -309,6 +415,7 @@ def create_interactions(X, model):
 
     if gp_learn > 0:
         logger.info("Generating Genetic Features")
+        logger.info("Genetic Features : %r", gp_learn)
         gp = SymbolicTransformer(generations=20, population_size=2000,
                                  hall_of_fame=100, n_components=gp_learn,
                                  parsimony_coefficient=0.0005,
@@ -337,7 +444,32 @@ def drop_features(X, drop):
     Drop the given features.
     """
 
-    logger.info("Dropping Features: %s", drop)
+    # Drop specified features
 
+    logger.info("Dropping Features: %s", drop)
     X.drop(drop, axis=1, inplace=True, errors='ignore')
+
+    # Remove constant columns
+
+    remove = []
+    for col in X.columns:
+        if X[col].std() == 0:
+            remove.append(col)
+    logger.info("Removing Constant Columns: %s", remove)
+    X.drop(remove, axis=1, inplace=True)
+    logger.info("Removed %d Constant Features", len(remove))
+
+    # Remove duplicated columns
+
+    remove = []
+    c = X.columns
+    for i in range(len(c)-1):
+        v = X[c[i]].values
+        for j in range(i+1, len(c)):
+            if np.array_equal(v, X[c[j]].values):
+                remove.append(c[j])
+    logger.info("Removing Duplicated Columns: %s", remove)
+    X.drop(remove, axis=1, inplace=True)
+    logger.info("Removed %d Duplicated Features", len(remove))
+
     return X

@@ -196,7 +196,7 @@ def add_features(frame, fdict, flen, prefix=''):
     seqfloat = [0.0] * flen
     seqbool = [False] * flen
     # initialize new fields in frame
-    for key, value in fdict.iteritems():
+    for key, value in fdict.items():
         newkey = key
         if prefix:
             newkey = PSEP.join([prefix, newkey])
@@ -305,7 +305,7 @@ def generate_team_frame(team, tf, tdict):
 
 def insert_model_data(mf, mpos, mdict, tf, tpos, prefix):
     team_row = tf.iloc[tpos]
-    for key, value in mdict.iteritems():
+    for key, value in mdict.items():
         newkey = key
         if prefix:
             newkey = PSEP.join([prefix, newkey])
@@ -318,7 +318,7 @@ def insert_model_data(mf, mpos, mdict, tf, tpos, prefix):
 #
 
 def generate_delta_data(frame, fdict, prefix1, prefix2):
-    for key, value in fdict.iteritems():
+    for key, value in fdict.items():
         newkey = PSEP.join(['delta', key])
         key1 = PSEP.join([prefix1, key])
         key2 = PSEP.join([prefix2, key])
@@ -453,16 +453,17 @@ if __name__ == '__main__':
     specs['algorithms'] = args.algorithms
     specs['base_dir'] = base_dir
     specs['calibration'] = 'isotonic'
+    specs['cluster_max'] = 12
+    specs['cluster_min'] = 3
     specs['drop'] = ['Unnamed: 0', 'index', 'season', 'date', 'away.team', 'away.score', 'home.team', 'home.score', 'total_points', 'over', 'point_margin_game', 'cover_margin_game', 'lost_on_spread', 'under', 'overunder_margin', 'lost_on_points', 'won_on_points']
     specs['dummy_limit'] = 100
     specs['esr'] = 30
     specs['extension'] = 'csv'
     specs['features'] = WILDCARD
-    specs['fsample_pct'] = 10
-    specs['gp_learn'] = 0
+    specs['fsample_pct'] = 5
+    specs['gp_learn'] = 20
     specs['grid_search'] = args.grid_search
     specs['gs_iters'] = 100
-    specs['na_fill'] = 0
     specs['n_estimators'] = args.n_estimators
     specs['n_folds'] = args.n_folds
     specs['n_jobs'] = -1
@@ -570,7 +571,7 @@ if __name__ == '__main__':
         team_frames = []
         for team, data in teams:
             team_frame = USEP.join([organization, team.lower(), series, str(season)])
-            print "Generating team frame: %s" % team_frame
+            logger.info("Generating team frame: %s", team_frame)
             command = "tf = gf[(gf[home_team] == '%s') | (gf[away_team] == '%s')]" % (team, team)
             exec(command)
             tf = tf.reset_index(level=0)
@@ -581,7 +582,7 @@ if __name__ == '__main__':
 
         # Create the model frame, initializing the home and away frames
 
-        mdict = {k:v for (k,v) in sports_dict.iteritems() if v != bool}
+        mdict = {k:v for (k,v) in sports_dict.items() if v != bool}
         team1_frame = pd.DataFrame()
         team1_frame = add_features(team1_frame, mdict, gf.shape[0], prefix=team1_prefix)
         team2_frame = pd.DataFrame()
@@ -597,7 +598,7 @@ if __name__ == '__main__':
 
         for team, data in teams:
             team_frame = USEP.join([organization, team.lower(), series, str(season)])
-            print "Merging team frame %s into model frame" % team_frame
+            logger.info("Merging team frame %s into model frame", team_frame)
             command = "tf = %s" % team_frame
             exec(command)
             for index in range(0, tf.shape[0]-1):
@@ -667,11 +668,11 @@ if __name__ == '__main__':
     #
 
     for algo in model.algolist:
-        print "Algorithm: %s" % algo
-        print "Predictions:"
-        print model.preds[(algo, 'test')]
-        print "Probabilities:"
-        print model.probas[(algo, 'test')]
+        logger.info("Algorithm: %s", algo)
+        logger.info("Predictions:")
+        logger.info(model.preds[(algo, 'test')])
+        logger.info("Probabilities:")
+        logger.info(model.probas[(algo, 'test')])
 
     #
     # End of Program

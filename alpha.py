@@ -236,8 +236,6 @@ if __name__ == '__main__':
     console.setLevel(logging.INFO)
     logging.getLogger().addHandler(console)
 
-    logger = logging.getLogger(__name__)
-
     # Start the pipeline
 
     logger.info('*'*80)
@@ -253,6 +251,10 @@ if __name__ == '__main__':
                         help="base directory location")
     parser.add_argument('-cali', dest="calibration", action='store', default='isotonic',
                         help='calibration: isotonic [default] or sigmoid')
+    parser.add_argument('-cmax', dest="cluster_max", type=int, default=12,
+                        help="maximum number of clusters")
+    parser.add_argument('-cmin', dest="cluster_min", type=int, default=3,
+                        help="minimum number of clusters")
     parser.add_argument('-drop', dest="drop", action='store', default=None,
                         help='features to drop')
     parser.add_argument('-dummy', dest="dummy_limit", type=int, default=100,
@@ -261,7 +263,7 @@ if __name__ == '__main__':
                         help="early stopping rounds for XGBoost")
     parser.add_argument('-ext', dest="extension", action='store', default='csv',
                         help='file extension for features and predictions')
-    parser.add_argument('-fsp', dest="fsample_pct", type=int, default=10,
+    parser.add_argument('-fsp', dest="fsample_pct", type=int, default=5,
                         help="feature sampling percentage for interactions")
     parser.add_argument('-grid', dest="grid_search", action="store_true",
                         help="perform a grid search [False]")
@@ -271,8 +273,6 @@ if __name__ == '__main__':
                         help="subsampling percentage for grid search")
     parser.add_argument('-label', dest="test_labels", action="store_true",
                         help="test labels are available [False]")
-    parser.add_argument('-na', dest="na_fill", type=int, default=0,
-                        help="fill value for NA variables [use mean]")
     parser.add_argument("-name", dest="project", default="project",
                         help="unique project name")
     parser.add_argument('-nest', dest="n_estimators", type=int, default=201,
@@ -326,7 +326,8 @@ if __name__ == '__main__':
     logger.info('algorithms      = %s', args.algorithms)
     logger.info('base_dir        = %s', args.base_dir)
     logger.info('calibration     = %s', args.calibration)
-    logger.info('dummy_limit     = %d', args.dummy_limit)
+    logger.info('cluster_max     = %d', args.cluster_max)
+    logger.info('cluster_min     = %d', args.cluster_min)
     logger.info('extension       = %s', args.extension)
     logger.info('drop            = %s', args.drop)
     logger.info('esr             = %d', args.esr)
@@ -339,7 +340,6 @@ if __name__ == '__main__':
     logger.info('n_folds         = %d', args.n_folds)
     logger.info('n_jobs          = %d', args.n_jobs)
     logger.info('n_step          = %d', args.n_step)
-    logger.info('na_fill         = %d', args.na_fill)
     logger.info('ngrams_max      = %d', args.ngrams_max)
     logger.info('plots           = %r', args.plots)
     logger.info('poly_degree     = %d', args.poly_degree)

@@ -46,7 +46,6 @@ def load_data(directory, filename, extension, separator,
     """
     Read in data from the given directory in a given format.
     """
-    logger.info("Loading data from: %s", filename)
     # read in file
     df = read_frame(directory, filename, extension, separator)
     # assign target and drop it if necessary

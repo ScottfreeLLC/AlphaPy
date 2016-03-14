@@ -322,11 +322,11 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
     params = {"objective" : 'binary:logistic',
               "n_estimators" : n_estimators,
               "seed" : seed,
-              "max_depth" : 10,
+              "max_depth" : 8,
               "learning_rate" : 0.01,
               "min_child_weight" : 1.1,
               "subsample" : 0.9,
-              "colsample_bytree" : 1.0,
+              "colsample_bytree" : 0.9,
               "nthread" : n_jobs,
               "silent" : True}
     est = xgb.XGBClassifier(**params)

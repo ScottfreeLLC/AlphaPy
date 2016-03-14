@@ -133,8 +133,8 @@ def load_model():
 
     # Open model object
 
-    f = file('model.save', 'rb')
-    model = pickle.load(f)
+    with open ('model.save', 'rb') as f:
+        model = pickle.load(f)
     f.close()
 
     return model
@@ -163,8 +163,8 @@ def save_model(model):
 
     # Save model object
 
-    f = file(full_path, 'wb')
-    pickle.dump(model, f, protocol=pickle.HIGHEST_PROTOCOL)
+    with open(full_path, 'wb') as f:
+        pickle.dump(model, f)
     f.close()
 
 
@@ -172,7 +172,7 @@ def save_model(model):
 # Function fit_model
 #
 
-def fit_model(model, algo, est, X1, y1, X2=None, y2=None):
+def fit_model(model, algo, est, X, y):
     """
     Fit a scikit-learn model.
     """
@@ -184,21 +184,29 @@ def fit_model(model, algo, est, X1, y1, X2=None, y2=None):
     esr = model.specs['esr']
     scorer = model.specs['scorer']
 
+    # Extract model data.
+
+    try:
+        support = model.support[algo]
+        X_train = model.X_train[:, support]
+        X_test = model.X_test[:, support]
+    except:
+        X_train = model.X_train
+        X_test = model.X_test
+    y_train = model.y_train
+
     # First Fit
 
     if 'XGB' in algo:
         try:
-            if X2 is not None and y2 is not None:
-                eval_set = [(X1, y1), (X2, y2)]
-            else:
-                eval_set = [(X1, y1)]
+            eval_set = [(X, y)]
             eval_metric = xgb_score_map[scorer]
-            est.fit(X1, y1, eval_set=eval_set, eval_metric=eval_metric,
+            est.fit(X_train, y_train, eval_set=eval_set, eval_metric=eval_metric,
                     early_stopping_rounds=esr)
         except:
-            est.fit(X1, y1)
+            est.fit(X_train, y_train)
     else:
-        est.fit(X1, y1)
+        est.fit(X_train, y_train)
 
     return est
 
@@ -230,7 +238,7 @@ def first_fit(model, algo, est):
 
     X1, X2, y1, y2 = train_test_split(X_train, y_train, test_size=split,
                                       random_state=seed)
-    est = fit_model(model, algo, est, X1, y1, X2, y2)
+    est = fit_model(model, algo, est, X2, y2)
     model.estimators[algo] = est
 
     # Record scores, importances, and coefficients, if available.
@@ -264,6 +272,8 @@ def make_predictions(model, algo):
     # Extract model parameters.
 
     regression = model.specs['regression']
+    seed = model.specs['seed']
+    split = model.specs['split']
     est = model.estimators[algo]
 
     # Extract model data.
@@ -279,7 +289,9 @@ def make_predictions(model, algo):
 
     # Fit the final model
 
-    est = fit_model(model, algo, est, X_train, y_train)
+    X1, X2, y1, y2 = train_test_split(X_train, y_train, test_size=split,
+                                      random_state=seed)
+    est = fit_model(model, algo, est, X2, y2)
 
     # Make predictions on original training and test data
 
@@ -346,7 +358,6 @@ def predict_best(model):
             if top_score < best_score:
                 best_score = top_score
                 best_algo = algorithm
-
 
     # Store predictions of best estimator
 
@@ -474,7 +485,6 @@ def generate_metrics(model, partition):
         for algo in model.algolist:
             # get predictions for the given algorithm
             predicted = model.preds[(algo, partition)]
-            probas = model.probas[(algo, partition)]
             try:
                 model.metrics[(algo, partition, 'accuracy')] = accuracy_score(expected, predicted)
             except:
@@ -483,10 +493,6 @@ def generate_metrics(model, partition):
                 model.metrics[(algo, partition, 'adjusted_rand_score')] = adjusted_rand_score(expected, predicted)
             except:
                 logger.info("Adjusted Rand Index not calculated")
-            try:
-                model.metrics[(algo, partition, 'average_precision')] = average_precision_score(expected, predicted)
-            except:
-                logger.info("Average Precision Score not calculated")
             try:
                 model.metrics[(algo, partition, 'confusion_matrix')] = confusion_matrix(expected, predicted)
             except:
@@ -499,10 +505,6 @@ def generate_metrics(model, partition):
                 model.metrics[(algo, partition, 'f1')] = f1_score(expected, predicted)
             except:
                 logger.info("F1 Score not calculated")
-            try:
-                model.metrics[(algo, partition, 'log_loss')] = log_loss(expected, probas)
-            except:
-                logger.info("Log Loss not calculated")
             try:
                 model.metrics[(algo, partition, 'mean_absolute_error')] = mean_absolute_error(expected, predicted)
             except:
@@ -527,15 +529,26 @@ def generate_metrics(model, partition):
                 model.metrics[(algo, partition, 'recall')] = recall_score(expected, predicted)
             except:
                 logger.info("Recall Score not calculated")
-            try:
-                model.metrics[(algo, partition, 'roc_auc')] = roc_auc_score(expected, predicted)
-            except:
-                logger.info("ROC AUC Score not calculated")
+            # Probability-Based Metrics
+            if not regression:
+                predicted = model.probas[(algo, partition)]
+                try:
+                    model.metrics[(algo, partition, 'average_precision')] = average_precision_score(expected, predicted)
+                except:
+                    logger.info("Average Precision Score not calculated")
+                try:
+                    model.metrics[(algo, partition, 'log_loss')] = log_loss(expected, predicted)
+                except:
+                    logger.info("Log Loss not calculated")
+                try:
+                    model.metrics[(algo, partition, 'roc_auc')] = roc_auc_score(expected, predicted)
+                except:
+                    logger.info("ROC AUC Score not calculated")
         # log the metrics for each algorithm
         for algo in model.algolist:
             logger.info('-'*80)
             logger.info("Algorithm: %s", algo)
-            metrics = [(k[2], v) for k, v in model.metrics.iteritems() if k[0] == algo and k[1] == partition]
+            metrics = [(k[2], v) for k, v in model.metrics.items() if k[0] == algo and k[1] == partition]
             for key, value in sorted(metrics):
                 svalue = str(value)
                 svalue.replace('\n', ' ')
