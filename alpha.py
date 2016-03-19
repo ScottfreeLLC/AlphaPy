@@ -271,6 +271,8 @@ if __name__ == '__main__':
                         help="use subsampling to reduce grid search time [False]")
     parser.add_argument('-gsp', dest="subsample_pct", type=float, default=0.25,
                         help="subsampling percentage for grid search")
+    parser.add_argument('-kag', dest="kaggle", action="store_true",
+                        help="generate Kaggle submission [False]")
     parser.add_argument('-label', dest="test_labels", action="store_true",
                         help="test labels are available [False]")
     parser.add_argument("-name", dest="project", default="project",
@@ -336,6 +338,7 @@ if __name__ == '__main__':
     logger.info('gp_learn        = %d', args.gp_learn)
     logger.info('grid_search     = %r', args.grid_search)
     logger.info('gs_iters        = %d', args.gs_iters)
+    logger.info('kaggle          = %r', args.kaggle)
     logger.info('n_estimators    = %d', args.n_estimators)
     logger.info('n_folds         = %d', args.n_folds)
     logger.info('n_jobs          = %d', args.n_jobs)

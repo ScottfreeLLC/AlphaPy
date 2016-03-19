@@ -573,10 +573,12 @@ def save_results(model, tag, partition):
     # Extract model parameters.
 
     base_dir = model.specs['base_dir']
-    project = model.specs['project']
     extension = model.specs['extension']
-    separator = model.specs['separator']
+    kaggle = model.specs['kaggle']
+    project = model.specs['project']
     regression = model.specs['regression']
+    separator = model.specs['separator']
+    target = model.specs['target']
 
     # Extract model data.
 
@@ -586,7 +588,7 @@ def save_results(model, tag, partition):
     # Get date stamp to record file creation
 
     d = datetime.now()
-    f = "%m%d%y"
+    f = "%Y%m%d"
 
     # Save the model
 
@@ -624,3 +626,14 @@ def save_results(model, tag, partition):
     output_file = PSEP.join([output_file, extension])
     output = SSEP.join([output_dir, output_file])
     np.savetxt(output, preds, delimiter=separator)
+
+    # Generate Kaggle submission file
+
+    if kaggle:
+        sample_file = SSEP.join([output_dir, 'sample_submission.csv'])
+        ss = pd.read_csv(sample_file)
+        ss[target] = preds
+        kaggle_base = USEP.join(['kaggle', 'submission', d.strftime(f)])
+        kaggle_file = PSEP.join([kaggle_base, 'csv'])
+        kaggle_output = SSEP.join([output_dir, kaggle_file])
+        ss.to_csv(kaggle_output, index=False)
