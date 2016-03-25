@@ -15,7 +15,8 @@
 
 import _pickle as pickle
 from datetime import datetime
-from estimators import objective
+from estimators import Objective
+from estimators import ModelType
 from estimators import scorers
 from estimators import xgb_score_map
 from globs import PSEP, SSEP, USEP
@@ -90,11 +91,7 @@ class Model:
         self.y_train = None
         self.y_test = None
         try:
-            separator = self.specs['separator']
-        except:
-            raise KeyError("Model specs must include the key: separator")
-        try:
-            self.algolist = self.specs['algorithms'].upper().split(separator)
+            self.algolist = self.specs['algorithms']
         except:
             raise KeyError("Model specs must include the key: algorithms")
         # Key: (algorithm)
@@ -224,8 +221,6 @@ def first_fit(model, algo, est):
 
     # Extract model parameters.
 
-    n_folds = model.specs['n_folds']
-    regression = model.specs['regression']
     seed = model.specs['seed']
     split = model.specs['split']
 
@@ -271,7 +266,7 @@ def make_predictions(model, algo):
 
     # Extract model parameters.
 
-    regression = model.specs['regression']
+    model_type = model.specs['model_type']
     seed = model.specs['seed']
     split = model.specs['split']
     est = model.estimators[algo]
@@ -297,13 +292,13 @@ def make_predictions(model, algo):
 
     model.preds[(algo, 'train')] = est.predict(X_train)
     model.preds[(algo, 'test')] = est.predict(X_test)
-    if not regression:
+    if model_type == ModelType.classification:
         model.probas[(algo, 'train')] = est.predict_proba(X_train)[:, 1]
         model.probas[(algo, 'test')] = est.predict_proba(X_test)[:, 1]
 
     # Training Log Loss
 
-    if not regression:
+    if model_type == ModelType.classification:
         lloss = log_loss(y_train, model.probas[(algo, 'train')])
         logger.info("Log Loss for %s: %.6f", algo, lloss)
 
@@ -323,7 +318,7 @@ def predict_best(model):
 
     # Extract model parameters.
 
-    regression = model.specs['regression']
+    model_type = model.specs['model_type']
     scorer = model.specs['scorer']
 
     # Extract model data.
@@ -336,7 +331,7 @@ def predict_best(model):
 
     best_tag = 'BEST'
     partition = 'train' if y_test is None else 'test'
-    maximize = True if scorers[scorer][1] == objective.maximize else False
+    maximize = True if scorers[scorer][1] == Objective.maximize else False
     if maximize:
         best_score = -sys.float_info.max
     else:
@@ -365,7 +360,7 @@ def predict_best(model):
     model.estimators[best_tag] = model.estimators[best_algo]
     model.preds[(best_tag, 'train')] = model.preds[(best_algo, 'train')]
     model.preds[(best_tag, 'test')] = model.preds[(best_algo, 'test')]
-    if not regression:
+    if model_type == ModelType.classification:
         model.probas[(best_tag, 'train')] = model.probas[(best_algo, 'train')]
         model.probas[(best_tag, 'test')] = model.probas[(best_algo, 'test')]
 
@@ -391,8 +386,8 @@ def predict_blend(model):
 
     # Extract model paramters.
 
-    n_folds = model.specs['n_folds']
-    regression = model.specs['regression']
+    model_type = model.specs['model_type']
+    cv_folds = model.specs['cv_folds']
 
     # Extract model data.
 
@@ -423,7 +418,7 @@ def predict_blend(model):
         if hasattr(estimator, "feature_importances_"):
             model.importances[algorithm] = estimator.feature_importances_
         # store predictions in the blended training set
-        if not regression:
+        if model_type == ModelType.classification:
             X_blend_train[:, i] = model.probas[(algorithm, 'train')]
             X_blend_test[:, i] = model.probas[(algorithm, 'test')]
         else:
@@ -432,7 +427,7 @@ def predict_blend(model):
 
     # Use the blended estimator to make predictions
 
-    if not regression:
+    if model_type == ModelType.classification:
         clf = LogisticRegression()
         clf.fit(X_blend_train, y_train)
         model.estimators[blend_tag] = clf
@@ -443,7 +438,7 @@ def predict_blend(model):
     else:
         alphas = [0.0001, 0.005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5,
                   1.0, 5.0, 10.0, 50.0, 100.0, 500.0, 1000.0]    
-        rcvr = RidgeCV(alphas=alphas, normalize=True, cv=n_folds)
+        rcvr = RidgeCV(alphas=alphas, normalize=True, cv=cv_folds)
         rcvr.fit(X_blend_train, y_train)
         model.estimators[blend_tag] = rcvr
         model.preds[(blend_tag, 'train')] = rcvr.predict(X_blend_train)
@@ -469,7 +464,7 @@ def generate_metrics(model, partition):
 
     # Extract model paramters.
 
-    regression = model.specs['regression']
+    model_type = model.specs['model_type']
 
     # Extract model data.
 
@@ -530,7 +525,7 @@ def generate_metrics(model, partition):
             except:
                 logger.info("Recall Score not calculated")
             # Probability-Based Metrics
-            if not regression:
+            if model_type == ModelType.classification:
                 predicted = model.probas[(algo, partition)]
                 try:
                     model.metrics[(algo, partition, 'average_precision')] = average_precision_score(expected, predicted)
@@ -575,8 +570,8 @@ def save_results(model, tag, partition):
     base_dir = model.specs['base_dir']
     extension = model.specs['extension']
     kaggle = model.specs['kaggle']
+    model_type = model.specs['model_type']
     project = model.specs['project']
-    regression = model.specs['regression']
     separator = model.specs['separator']
     target = model.specs['target']
 
@@ -592,7 +587,8 @@ def save_results(model, tag, partition):
 
     # Save the model
 
-    save_model(model)
+    # Pickle can no longer dump the object
+    # save_model(model)
 
     # Save predictions and final features
 
@@ -617,7 +613,7 @@ def save_results(model, tag, partition):
     # probabilities
 
     output_dir = SSEP.join([base_dir, project])
-    if not regression:
+    if model_type == ModelType.classification:
         output_file = USEP.join(['probas', d.strftime(f)])
         preds = model.probas[(tag, partition)]
     else:

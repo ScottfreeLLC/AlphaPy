@@ -14,6 +14,7 @@
 #
 
 from __future__ import division
+from estimators import ModelType
 from gplearn.genetic import SymbolicTransformer
 import logging
 import numpy as np
@@ -112,7 +113,7 @@ def get_categorical(fnum, fname, feature, nvalues):
 # Function get_text_feature
 #
 
-def get_text_feature(fnum, fname, feature, nvalues, ngrams_max):
+def get_text_feature(fnum, fname, feature, nvalues, vectorize, ngrams_max):
     """
     Vectorize a text feature and transform to TF-IDF format.
     """
@@ -122,15 +123,16 @@ def get_text_feature(fnum, fname, feature, nvalues, ngrams_max):
     else:
         logger.info("Feature %d: %s is a text feature with %d unique values",
                     fnum, fname, nvalues)
-    feature.fillna(value='', inplace=True)
-    hashed_feature = feature.apply(hash)
-    return hashed_feature
-
-#   count_vect = CountVectorizer(ngram_range=[1, ngrams_max])
-#   count_feature = count_vect.fit_transform(feature)
-#   tfidf_transformer = TfidfTransformer()
-#   tfidf_feature = tfidf_transformer.fit_transform(count_feature)
-#   return tfidf_feature
+    if text:
+        count_vect = CountVectorizer(ngram_range=[1, ngrams_max])
+        count_feature = count_vect.fit_transform(feature)
+        tfidf_transformer = TfidfTransformer()
+        tfidf_feature = tfidf_transformer.fit_transform(count_feature)
+        return tfidf_feature
+    else:
+        feature.fillna(value='', inplace=True)
+        hashed_feature = feature.apply(hash)
+        return hashed_feature
 
 
 #
@@ -262,10 +264,12 @@ def create_features(X, model):
 
     # Extract model parameters
 
+    clustering = model.specs['clustering']
     cluster_max = model.specs['cluster_max']
     cluster_min = model.specs['cluster_min']
     dummy_limit = model.specs['dummy_limit']
     ngrams_max = model.specs['ngrams_max']
+    text = model.specs['text']
 
     # Log input parameters
 
@@ -300,7 +304,7 @@ def create_features(X, model):
             if nunique <= dummy_limit:
                 feature = get_categorical(fnum, fc, X[fc], nunique)
             else:
-                feature = get_text_feature(fnum, fc, X[fc], nunique, ngrams_max)
+                feature = get_text_feature(fnum, fc, X[fc], nunique, text, ngrams_max)
         else:
             raise TypeError("The pandas column type %s is unrecognized", dtype)
         all_features = np.column_stack((all_features, feature))
@@ -329,9 +333,10 @@ def create_features(X, model):
 
     # Create clustering features
 
-    cfeatures = create_clusters(all_features, model)
-    all_features = np.column_stack((all_features, cfeatures))
-    logger.info("New Feature Count : %d", all_features.shape[1])
+    if clustering:
+        cfeatures = create_clusters(all_features, model)
+        all_features = np.column_stack((all_features, cfeatures))
+        logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Return all transformed training and test features
 
@@ -370,11 +375,13 @@ def create_interactions(X, model):
 
     # Extract model parameters
 
-    fsample_pct = model.specs['fsample_pct']
-    gp_learn = model.specs['gp_learn']
+    genetic = model.specs['genetic']
+    gfeatures = model.specs['gfeatures']
+    interactions = model.specs['interactions']
+    isample_pct = model.specs['isample_pct']
+    model_type = model.specs['model_type']
     n_jobs = model.specs['n_jobs']
     poly_degree = model.specs['poly_degree']
-    regression = model.specs['regression']
     seed = model.specs['seed']
     verbosity = model.specs['verbosity']
 
@@ -386,7 +393,7 @@ def create_interactions(X, model):
     # Log parameters
 
     logger.info("Initial Feature Count  : %d", X.shape[1])
-    logger.info("Interaction Percentage : %d", fsample_pct)
+    logger.info("Interaction Percentage : %d", isample_pct)
     logger.info("Polynomial Degree      : %d", poly_degree)
 
     # Initialize all features
@@ -395,12 +402,14 @@ def create_interactions(X, model):
 
     # Get polynomial features
 
-    if poly_degree > 0:
+    if interactions:
         logger.info("Generating Polynomial Features")
-        if regression:
-            selector = SelectPercentile(f_regression, percentile=fsample_pct)
+        if model_type == ModelType.regression:
+            selector = SelectPercentile(f_regression, percentile=isample_pct)
+        elif model_type == ModelType.classification:
+            selector = SelectPercentile(f_classif, percentile=isample_pct)
         else:
-            selector = SelectPercentile(f_classif, percentile=fsample_pct)
+            raise TypeError("Unknown model type when creating interactions")
         selector.fit(X_train, y_train)
         support = selector.get_support()
         pfeatures = get_polynomials(X[:, support], poly_degree)
@@ -413,11 +422,11 @@ def create_interactions(X, model):
 
     # Generate genetic features
 
-    if gp_learn > 0:
+    if genetic:
         logger.info("Generating Genetic Features")
-        logger.info("Genetic Features : %r", gp_learn)
+        logger.info("Genetic Features : %r", gfeatures)
         gp = SymbolicTransformer(generations=20, population_size=2000,
-                                 hall_of_fame=100, n_components=gp_learn,
+                                 hall_of_fame=100, n_components=gfeatures,
                                  parsimony_coefficient=0.0005,
                                  max_samples=0.9, verbose=verbosity,
                                  random_state=seed, n_jobs=n_jobs)

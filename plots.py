@@ -30,6 +30,7 @@ print(__doc__)
 # Imports
 #
 
+from estimators import ModelType
 from globs import BSEP, PSEP, SSEP, USEP
 import logging
 import numpy as np
@@ -95,14 +96,27 @@ def generate_plots(model, partition):
 
     logger.info("Generating Plots for Partition: %s", partition)
 
+    # Extract model parameters
+
+    calibration_plot = model.specs['calibration_plot']
+    confusion_matrix = model.specs['confusion_matrix']
+    importances = model.specs['importances']
+    learning_curve = model.specs['learning_curve']
+    roc_curve = model.specs['roc_curve']
+
     # Generate plots
 
-    plot_calibration(model, partition)
-    if partition == 'train':
+    if calibration_plot:
+        plot_calibration(model, partition)
+    if confusion_matrix:
+        plot_confusion_matrix(model, partition)
+    if importances and partition == 'train':
         plot_importance(model, partition)
-    plot_learning_curve(model, partition)
-    plot_roc_curve(model, partition)
-    plot_confusion_matrix(model, partition)
+    if learning_curve:
+        plot_learning_curve(model, partition)
+    if roc_curve:
+        plot_roc_curve(model, partition)
+
     # plot_boundary(model)
     # plot_scatterplot(model)
     # plot_partial_dependence(model, partition)
@@ -154,7 +168,7 @@ def plot_calibration(model, partition):
 
     # For classification only
 
-    if model.specs['regression']:
+    if model.specs['model_type'] != ModelType.classification:
         logger.info('Calibration plot is for classification only')
         return None
 
@@ -268,7 +282,7 @@ def plot_learning_curve(model, partition):
 
     # Extract model parameters.
 
-    n_folds = model.specs['n_folds']
+    cv_folds = model.specs['cv_folds']
     seed = model.specs['seed']
     split = model.specs['split']
     verbosity = model.specs['verbosity']
@@ -279,7 +293,7 @@ def plot_learning_curve(model, partition):
 
     # Set cross-validation parameters to get mean train and test curves.
 
-    cv = ShuffleSplit(X.shape[0], n_iter=n_folds, test_size=split,
+    cv = ShuffleSplit(X.shape[0], n_iter=cv_folds, test_size=split,
                       random_state=seed)
     ylim = (0.0, 1.01)
 
@@ -331,13 +345,13 @@ def plot_roc_curve(model, partition):
 
     # For classification only
 
-    if model.specs['regression']:
+    if model.specs['model_type'] != ModelType.classification:
         logger.info('ROC Curves are for classification only')
         return None
 
     # Extract model parameters.
 
-    n_folds = model.specs['n_folds']
+    cv_folds = model.specs['cv_folds']
 
     # Get X, Y for correct partition.
 
@@ -345,7 +359,7 @@ def plot_roc_curve(model, partition):
 
     # Set up for K-fold validation.
 
-    cv = StratifiedKFold(y, n_folds=n_folds)
+    cv = StratifiedKFold(y, n_folds=cv_folds)
 
     # Plot a ROC Curve for each algorithm.
 
@@ -441,7 +455,7 @@ def plot_boundary(model):
 
     # For classification only
 
-    if model.specs['regression']:
+    if model.specs['model_type'] != ModelType.classification:
         logger.info('Boundary Plots are for classification only')
         return None
 
@@ -662,7 +676,7 @@ def plot_validation_curve(model, partition, pname, prange):
 
     # Extract model parameters.
 
-    n_folds = model.specs['n_folds']
+    cv_folds = model.specs['cv_folds']
     n_jobs = model.specs['n_jobs']
     scorer = model.specs['scorer']
     verbosity = model.specs['verbosity']
@@ -670,7 +684,6 @@ def plot_validation_curve(model, partition, pname, prange):
     # Get X, Y for correct partition.
 
     X, y = get_partition_data(model, partition)
-
     
     for algo in model.algolist:
         logger.info("Algorithm: %s", algo)
@@ -679,7 +692,7 @@ def plot_validation_curve(model, partition, pname, prange):
         # set up plot
         train_scores, test_scores = validation_curve(
             estimator, X, y, param_name=pname, param_range=prange,
-            cv=n_folds, scoring=scorer, n_jobs=n_jobs)
+            cv=cv_folds, scoring=scorer, n_jobs=n_jobs)
         train_scores_mean = np.mean(train_scores, axis=1)
         train_scores_std = np.std(train_scores, axis=1)
         test_scores_mean = np.mean(test_scores, axis=1)

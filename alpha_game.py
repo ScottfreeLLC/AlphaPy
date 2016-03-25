@@ -18,6 +18,7 @@ print(__doc__)
 from alpha import pipeline
 import argparse
 import datetime
+from estimators import ModelType
 from frame import read_frame
 from frame import write_frame
 from globs import PSEP
@@ -32,6 +33,7 @@ import numpy as np
 from numpy.random import randn
 import pandas as pd
 from space import Space
+import yaml
 
 
 #
@@ -348,80 +350,169 @@ if __name__ == '__main__':
 
     # Argument Parsing
 
-    algos = 'XGB'
-
     parser = argparse.ArgumentParser(description="Alpha314 Game Parser")
-    parser.add_argument('-algos', dest="algorithms", action='store', default=algos,
-                        help='algorithms for either classification or regression')
-    parser.add_argument('-base', dest="base_dir", default="/Users/markconway/Projects/AlphaPy_Projects",
-                        help="base directory location")
-    parser.add_argument('-grid', dest="grid_search", action="store_true",
-                        help="perform a grid search [False]")
-    parser.add_argument("-name", dest="project", default="NBA",
-                        help="unique project name")
-    parser.add_argument('-nest', dest="n_estimators", type=int, default=201,
-                        help="default number of estimators [201]")
-    parser.add_argument('-nfold', dest="n_folds", type=int, default=5,
-                        help="number of folds for cross-validation")
-    parser.add_argument('-nstep', dest="n_step", type=int, default=5,
-                        help="step increment for recursive feature elimination")
-    parser.add_argument('-plots', dest="plots", action="store_true",
-                        help="show plots [False]")
-    parser.add_argument('-pmax', dest="points_max", type=int, default=45,
-                        help="maximum points for simulation")
-    parser.add_argument('-pmin', dest="points_min", type=int, default=3,
-                        help="minimum points for simulation")
-    parser.add_argument('-rand', dest="random_scoring", action="store_true",
-                        help="generate random scores for simulation [False]")
-    parser.add_argument('-reg', dest="regression", action="store_true",
-                        help="classification [default] or regression")
-    parser.add_argument('-rfe', dest="rfe", action="store_true",
-                        help="recursive feature elimination [False]")
-    parser.add_argument('-seas', dest="season", type=int, default=0,
-                        help="season [default is all seasons]")
-    parser.add_argument('-split', dest="split", type=float, default=0.3,
-                        help="percentage of data withheld for testing")
-    parser.add_argument('-win', dest="window", type=int, default=3,
-                        help="sliding window length for rolling calculations")
-    parser.add_argument('-v', dest="verbosity", type=int, default=2,
-                        help="verbosity level")
-    parser.add_argument("-y", dest="target", action='store', default='won_on_spread',
-                        help="target variable [y]")
-
-    # Print the arguments
-
+    parser.add_argument("-d", dest="cfg_dir", default=".",
+                        help="directory location of game model configuration file")
+    parser.add_argument("-f", dest="cfg_file", default="game.yml",
+                        help="name of game model configuration file")
     args = parser.parse_args()
 
-    logger.info('\nPARAMETERS:\n')
-    logger.info('algorithms      = %s', args.algorithms)
-    logger.info('base_dir        = %s', args.base_dir)
-    logger.info('grid_search     = %r', args.grid_search)
-    logger.info('n_estimators    = %d', args.n_estimators)
-    logger.info('n_folds         = %d', args.n_folds)
-    logger.info('n_step          = %d', args.n_step)
-    logger.info('plots           = %r', args.plots)
-    logger.info('points_max      = %d', args.points_max)
-    logger.info('points_min      = %d', args.points_min)
-    logger.info('project         = %s', args.project)
-    logger.info('random_scoring  = %r', args.random_scoring)
-    logger.info('regression      = %r', args.regression)
-    logger.info('rfe             = %r', args.rfe)
-    logger.info('season          = %d', args.season)
-    logger.info('split           = %f', args.split)
-    logger.info('target [y]      = %s', args.target)
-    logger.info('verbosity       = %d', args.verbosity)
-    logger.info('window          = %d', args.window)
-    logger.info('\n')
+    # Read configuration file
 
-    # Unpack arguments
+    full_path = SSEP.join([args.cfg_dir, args.cfg_file])
+    with open(full_path, 'r') as ymlfile:
+        cfg = yaml.load(ymlfile)
 
-    base_dir = args.base_dir
-    points_max = args.points_max
-    points_min = args.points_min
-    organization = args.project
-    random_scoring = args.random_scoring
-    season = args.season
-    window = args.window    
+    # Section: game
+
+    points_max = cfg['game']['points_max']
+    points_min = cfg['game']['points_min']
+    random_scoring = cfg['game']['random_scoring']
+    season = cfg['game']['season']
+    window = cfg['game']['rolling_window']   
+
+    # Log the game parameters
+
+    logger.info('GAME PARAMETERS:')
+    logger.info('points_max       = %d', points_max)
+    logger.info('points_min       = %d', points_min)
+    logger.info('random_scoring   = %r', random_scoring)
+    logger.info('season           = %d', season)
+    logger.info('window           = %d', window)
+
+    # Store model configuration parameters in dictionary
+
+    specs = {}
+
+    # Section: data
+
+    specs['drop'] = cfg['data']['drop']
+    specs['dummy_limit'] = cfg['data']['dummy_limit']
+    specs['features'] = cfg['data']['features']
+    specs['separator'] = cfg['data']['separator']
+    specs['shuffle'] = cfg['data']['shuffle']
+    specs['split'] = cfg['data']['split']
+    specs['target'] = cfg['data']['target']
+    specs['test_file'] = cfg['data']['test']
+    specs['test_labels'] = cfg['data']['test_labels']
+    specs['train_file'] = cfg['data']['train']
+    # interactions
+    specs['interactions'] = cfg['data']['interactions']['option']
+    specs['isample_pct'] = cfg['data']['interactions']['sampling_pct']
+    specs['poly_degree'] = cfg['data']['interactions']['poly_degree']
+
+    # Section: files
+
+    specs['base_dir'] = cfg['files']['base_directory']
+    specs['extension'] = cfg['files']['file_extension']
+    specs['kaggle'] = cfg['files']['kaggle_submission']
+    specs['project'] = cfg['files']['project_name']
+
+    # Section: model
+
+    specs['algorithms'] = cfg['model']['algorithms']
+    specs['cv_folds'] = cfg['model']['cv_folds']
+    specs['model_type'] = ModelType(cfg['model']['type'])
+    specs['n_estimators'] = cfg['model']['estimators']
+    specs['scorer'] = cfg['model']['scoring_function']
+    # calibration
+    specs['calibration'] = cfg['model']['calibration']['option']
+    specs['cal_type'] = cfg['model']['calibration']['type']
+    # grid search
+    specs['grid_search'] = cfg['model']['grid_search']['option']
+    specs['gs_iters'] = cfg['model']['grid_search']['iterations']
+    specs['gs_random'] = cfg['model']['grid_search']['random']
+    specs['gs_sample'] = cfg['model']['grid_search']['subsample']
+    specs['gs_sample_pct'] = cfg['model']['grid_search']['sampling_pct']
+    # rfe
+    specs['rfe'] = cfg['model']['rfe']['option']
+    specs['rfe_step'] = cfg['model']['rfe']['step']
+
+    # Section: pipeline
+
+    specs['n_jobs'] = cfg['pipeline']['number_jobs']
+    specs['seed'] = cfg['pipeline']['seed']
+    specs['verbosity'] = cfg['pipeline']['verbosity']
+
+    # Section: plots
+
+    specs['calibration_plot'] = cfg['plots']['calibration']
+    specs['confusion_matrix'] = cfg['plots']['confusion_matrix']
+    specs['importances'] = cfg['plots']['importances']
+    specs['learning_curve'] = cfg['plots']['learning_curve']
+    specs['roc_curve'] = cfg['plots']['roc_curve']
+
+    # Section: treatments
+
+    specs['genetic'] = cfg['treatments']['genetic']['option']
+    specs['gfeatures'] = cfg['treatments']['genetic']['features']
+    specs['clustering'] = cfg['treatments']['clustering']['option']
+    specs['cluster_min'] = cfg['treatments']['clustering']['minimum']
+    specs['cluster_max'] = cfg['treatments']['clustering']['maximum']
+    specs['cluster_inc'] = cfg['treatments']['clustering']['increment']
+    specs['text'] = cfg['treatments']['text']['option']
+    specs['ngrams_max'] = cfg['treatments']['text']['ngrams']
+
+    # Section: xgboost
+
+    specs['esr'] = cfg['xgboost']['stopping_rounds']
+
+    # Log the model parameters
+
+    logger.info('MODEL PARAMETERS:')
+    logger.info('algorithms       = %s', specs['algorithms'])
+    logger.info('base_dir         = %s', specs['base_dir'])
+    logger.info('calibration      = %r', specs['calibration'])
+    logger.info('cal_type         = %s', specs['cal_type'])
+    logger.info('calibration_plot = %r', specs['calibration'])
+    logger.info('clustering       = %r', specs['clustering'])
+    logger.info('cluster_inc      = %d', specs['cluster_inc'])
+    logger.info('cluster_max      = %d', specs['cluster_max'])
+    logger.info('cluster_min      = %d', specs['cluster_min'])
+    logger.info('confusion_matrix = %r', specs['confusion_matrix'])
+    logger.info('cv_folds         = %d', specs['cv_folds'])
+    logger.info('extension        = %s', specs['extension'])
+    logger.info('drop             = %s', specs['drop'])
+    logger.info('dummy_limit      = %d', specs['dummy_limit'])
+    logger.info('esr              = %d', specs['esr'])
+    logger.info('features [X]     = %s', specs['features'])
+    logger.info('genetic          = %r', specs['genetic'])
+    logger.info('gfeatures        = %d', specs['gfeatures'])
+    logger.info('grid_search      = %r', specs['grid_search'])
+    logger.info('gs_iters         = %d', specs['gs_iters'])
+    logger.info('gs_random        = %r', specs['gs_random'])
+    logger.info('gs_sample        = %r', specs['gs_sample'])
+    logger.info('gs_sample_pct    = %f', specs['gs_sample_pct'])
+    logger.info('importances      = %r', specs['importances'])
+    logger.info('interactions     = %r', specs['interactions'])
+    logger.info('isample_pct      = %d', specs['isample_pct'])
+    logger.info('kaggle           = %r', specs['kaggle'])
+    logger.info('learning_curve   = %r', specs['learning_curve'])
+    logger.info('model_type       = %r', specs['model_type'])
+    logger.info('n_estimators     = %d', specs['n_estimators'])
+    logger.info('n_jobs           = %d', specs['n_jobs'])
+    logger.info('ngrams_max       = %d', specs['ngrams_max'])
+    logger.info('poly_degree      = %d', specs['poly_degree'])
+    logger.info('project          = %s', specs['project'])
+    logger.info('rfe              = %r', specs['rfe'])
+    logger.info('rfe_step         = %d', specs['rfe_step'])
+    logger.info('roc_curve        = %r', specs['roc_curve'])
+    logger.info('scorer           = %s', specs['scorer'])
+    logger.info('seed             = %d', specs['seed'])
+    logger.info('separator        = %s', specs['separator'])
+    logger.info('shuffle          = %r', specs['shuffle'])
+    logger.info('split            = %f', specs['split'])
+    logger.info('target [y]       = %s', specs['target'])
+    logger.info('test_file        = %s', specs['test_file'])
+    logger.info('test_labels      = %r', specs['test_labels'])
+    logger.info('text             = %r', specs['text'])
+    logger.info('train_file       = %s', specs['train_file'])
+    logger.info('verbosity        = %d', specs['verbosity'])
+
+    # Unpack model arguments
+
+    base_dir = specs['base_dir']
+    organization = specs['project']
 
     # Debug the program
 
@@ -444,48 +535,6 @@ if __name__ == '__main__':
     team2_prefix = 'away'
     home_team = PSEP.join([team1_prefix, 'team'])
     away_team = PSEP.join([team2_prefix, 'team'])
-
-    #
-    # Create the model from specifications
-    #
-
-    specs = {}
-    specs['algorithms'] = args.algorithms
-    specs['base_dir'] = base_dir
-    specs['calibration'] = 'isotonic'
-    specs['cluster_max'] = 12
-    specs['cluster_min'] = 3
-    specs['drop'] = ['Unnamed: 0', 'index', 'season', 'date', 'away.team', 'away.score', 'home.team', 'home.score', 'total_points', 'over', 'point_margin_game', 'cover_margin_game', 'lost_on_spread', 'under', 'overunder_margin', 'lost_on_points', 'won_on_points']
-    specs['dummy_limit'] = 100
-    specs['esr'] = 30
-    specs['extension'] = 'csv'
-    specs['features'] = WILDCARD
-    specs['fsample_pct'] = 5
-    specs['gp_learn'] = 20
-    specs['grid_search'] = args.grid_search
-    specs['gs_iters'] = 100
-    specs['n_estimators'] = args.n_estimators
-    specs['n_folds'] = args.n_folds
-    specs['n_jobs'] = -1
-    specs['n_step'] = args.n_step
-    specs['ngrams_max'] = 2
-    specs['plots'] = args.plots
-    specs['poly_degree'] = 2
-    specs['project'] = organization
-    specs['regression'] = args.regression
-    specs['rfe'] = args.rfe
-    specs['scorer'] = 'roc_auc'
-    specs['seed'] = 13201
-    specs['separator'] = ','
-    specs['shuffle'] = False
-    specs['split'] = args.split
-    specs['subsample'] = False
-    specs['subsample_pct'] = 0.2
-    specs['test_file'] = 'test'
-    specs['test_labels'] = True
-    specs['train_file'] = 'train'
-    specs['target'] = args.target
-    specs['verbosity'] = args.verbosity
 
     #
     # Read in the game frame. This is the feature generation phase.
