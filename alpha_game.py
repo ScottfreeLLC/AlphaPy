@@ -28,6 +28,7 @@ from globs import WILDCARD
 from itertools import groupby
 import logging
 import math
+from model import get_model_config
 from model import Model
 import numpy as np
 from numpy.random import randn
@@ -114,6 +115,44 @@ game_dict = {'point_margin_game' : int,
              'overunder_margin' : float,
              'over' : bool,
              'under' : bool}
+
+
+#
+# Function get_game_config
+#
+
+def get_game_config(cfg_dir):
+
+    # Read the configuration file
+
+    full_path = SSEP.join([cfg_dir, 'game.yml'])
+    with open(full_path, 'r') as ymlfile:
+        cfg = yaml.load(ymlfile)
+
+    # Store configuration parameters in dictionary
+
+    specs = {}
+
+    # Section: game
+
+    specs['points_max'] = cfg['game']['points_max']
+    specs['points_min'] = cfg['game']['points_min']
+    specs['random_scoring'] = cfg['game']['random_scoring']
+    specs['rolling_window'] = cfg['game']['rolling_window']   
+    specs['season'] = cfg['game']['season']
+
+    # Log the game parameters
+
+    logger.info('GAME PARAMETERS:')
+    logger.info('points_max       = %d', specs['points_max'])
+    logger.info('points_min       = %d', specs['points_min'])
+    logger.info('random_scoring   = %r', specs['random_scoring'])
+    logger.info('rolling_window   = %d', specs['rolling_window'])
+    logger.info('season           = %d', specs['season'])
+
+    # Game Specifications
+
+    return specs
 
 
 #
@@ -352,162 +391,24 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="Alpha314 Game Parser")
     parser.add_argument("-d", dest="cfg_dir", default=".",
-                        help="directory location of game model configuration file")
-    parser.add_argument("-f", dest="cfg_file", default="game.yml",
-                        help="name of game model configuration file")
+                        help="directory location of configuration files")
     args = parser.parse_args()
 
-    # Read configuration file
+    # Read game configuration file
 
-    full_path = SSEP.join([args.cfg_dir, args.cfg_file])
-    with open(full_path, 'r') as ymlfile:
-        cfg = yaml.load(ymlfile)
+    game_specs = get_game_config(args.cfg_dir)
 
     # Section: game
 
-    points_max = cfg['game']['points_max']
-    points_min = cfg['game']['points_min']
-    random_scoring = cfg['game']['random_scoring']
-    season = cfg['game']['season']
-    window = cfg['game']['rolling_window']   
+    points_max = game_specs['points_max']
+    points_min = game_specs['points_min']
+    random_scoring = game_specs['random_scoring']
+    window = game_specs['rolling_window']   
+    season = game_specs['season']
 
-    # Log the game parameters
+    # Read model configuration file
 
-    logger.info('GAME PARAMETERS:')
-    logger.info('points_max       = %d', points_max)
-    logger.info('points_min       = %d', points_min)
-    logger.info('random_scoring   = %r', random_scoring)
-    logger.info('season           = %d', season)
-    logger.info('window           = %d', window)
-
-    # Store model configuration parameters in dictionary
-
-    specs = {}
-
-    # Section: data
-
-    specs['drop'] = cfg['data']['drop']
-    specs['dummy_limit'] = cfg['data']['dummy_limit']
-    specs['features'] = cfg['data']['features']
-    specs['separator'] = cfg['data']['separator']
-    specs['shuffle'] = cfg['data']['shuffle']
-    specs['split'] = cfg['data']['split']
-    specs['target'] = cfg['data']['target']
-    specs['test_file'] = cfg['data']['test']
-    specs['test_labels'] = cfg['data']['test_labels']
-    specs['train_file'] = cfg['data']['train']
-    # interactions
-    specs['interactions'] = cfg['data']['interactions']['option']
-    specs['isample_pct'] = cfg['data']['interactions']['sampling_pct']
-    specs['poly_degree'] = cfg['data']['interactions']['poly_degree']
-
-    # Section: files
-
-    specs['base_dir'] = cfg['files']['base_directory']
-    specs['extension'] = cfg['files']['file_extension']
-    specs['kaggle'] = cfg['files']['kaggle_submission']
-    specs['project'] = cfg['files']['project_name']
-
-    # Section: model
-
-    specs['algorithms'] = cfg['model']['algorithms']
-    specs['cv_folds'] = cfg['model']['cv_folds']
-    specs['model_type'] = ModelType(cfg['model']['type'])
-    specs['n_estimators'] = cfg['model']['estimators']
-    specs['scorer'] = cfg['model']['scoring_function']
-    # calibration
-    specs['calibration'] = cfg['model']['calibration']['option']
-    specs['cal_type'] = cfg['model']['calibration']['type']
-    # grid search
-    specs['grid_search'] = cfg['model']['grid_search']['option']
-    specs['gs_iters'] = cfg['model']['grid_search']['iterations']
-    specs['gs_random'] = cfg['model']['grid_search']['random']
-    specs['gs_sample'] = cfg['model']['grid_search']['subsample']
-    specs['gs_sample_pct'] = cfg['model']['grid_search']['sampling_pct']
-    # rfe
-    specs['rfe'] = cfg['model']['rfe']['option']
-    specs['rfe_step'] = cfg['model']['rfe']['step']
-
-    # Section: pipeline
-
-    specs['n_jobs'] = cfg['pipeline']['number_jobs']
-    specs['seed'] = cfg['pipeline']['seed']
-    specs['verbosity'] = cfg['pipeline']['verbosity']
-
-    # Section: plots
-
-    specs['calibration_plot'] = cfg['plots']['calibration']
-    specs['confusion_matrix'] = cfg['plots']['confusion_matrix']
-    specs['importances'] = cfg['plots']['importances']
-    specs['learning_curve'] = cfg['plots']['learning_curve']
-    specs['roc_curve'] = cfg['plots']['roc_curve']
-
-    # Section: treatments
-
-    specs['genetic'] = cfg['treatments']['genetic']['option']
-    specs['gfeatures'] = cfg['treatments']['genetic']['features']
-    specs['clustering'] = cfg['treatments']['clustering']['option']
-    specs['cluster_min'] = cfg['treatments']['clustering']['minimum']
-    specs['cluster_max'] = cfg['treatments']['clustering']['maximum']
-    specs['cluster_inc'] = cfg['treatments']['clustering']['increment']
-    specs['text'] = cfg['treatments']['text']['option']
-    specs['ngrams_max'] = cfg['treatments']['text']['ngrams']
-
-    # Section: xgboost
-
-    specs['esr'] = cfg['xgboost']['stopping_rounds']
-
-    # Log the model parameters
-
-    logger.info('MODEL PARAMETERS:')
-    logger.info('algorithms       = %s', specs['algorithms'])
-    logger.info('base_dir         = %s', specs['base_dir'])
-    logger.info('calibration      = %r', specs['calibration'])
-    logger.info('cal_type         = %s', specs['cal_type'])
-    logger.info('calibration_plot = %r', specs['calibration'])
-    logger.info('clustering       = %r', specs['clustering'])
-    logger.info('cluster_inc      = %d', specs['cluster_inc'])
-    logger.info('cluster_max      = %d', specs['cluster_max'])
-    logger.info('cluster_min      = %d', specs['cluster_min'])
-    logger.info('confusion_matrix = %r', specs['confusion_matrix'])
-    logger.info('cv_folds         = %d', specs['cv_folds'])
-    logger.info('extension        = %s', specs['extension'])
-    logger.info('drop             = %s', specs['drop'])
-    logger.info('dummy_limit      = %d', specs['dummy_limit'])
-    logger.info('esr              = %d', specs['esr'])
-    logger.info('features [X]     = %s', specs['features'])
-    logger.info('genetic          = %r', specs['genetic'])
-    logger.info('gfeatures        = %d', specs['gfeatures'])
-    logger.info('grid_search      = %r', specs['grid_search'])
-    logger.info('gs_iters         = %d', specs['gs_iters'])
-    logger.info('gs_random        = %r', specs['gs_random'])
-    logger.info('gs_sample        = %r', specs['gs_sample'])
-    logger.info('gs_sample_pct    = %f', specs['gs_sample_pct'])
-    logger.info('importances      = %r', specs['importances'])
-    logger.info('interactions     = %r', specs['interactions'])
-    logger.info('isample_pct      = %d', specs['isample_pct'])
-    logger.info('kaggle           = %r', specs['kaggle'])
-    logger.info('learning_curve   = %r', specs['learning_curve'])
-    logger.info('model_type       = %r', specs['model_type'])
-    logger.info('n_estimators     = %d', specs['n_estimators'])
-    logger.info('n_jobs           = %d', specs['n_jobs'])
-    logger.info('ngrams_max       = %d', specs['ngrams_max'])
-    logger.info('poly_degree      = %d', specs['poly_degree'])
-    logger.info('project          = %s', specs['project'])
-    logger.info('rfe              = %r', specs['rfe'])
-    logger.info('rfe_step         = %d', specs['rfe_step'])
-    logger.info('roc_curve        = %r', specs['roc_curve'])
-    logger.info('scorer           = %s', specs['scorer'])
-    logger.info('seed             = %d', specs['seed'])
-    logger.info('separator        = %s', specs['separator'])
-    logger.info('shuffle          = %r', specs['shuffle'])
-    logger.info('split            = %f', specs['split'])
-    logger.info('target [y]       = %s', specs['target'])
-    logger.info('test_file        = %s', specs['test_file'])
-    logger.info('test_labels      = %r', specs['test_labels'])
-    logger.info('text             = %r', specs['text'])
-    logger.info('train_file       = %s', specs['train_file'])
-    logger.info('verbosity        = %d', specs['verbosity'])
+    specs = get_model_config(args.cfg_dir)
 
     # Unpack model arguments
 

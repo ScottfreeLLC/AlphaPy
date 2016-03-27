@@ -58,21 +58,38 @@ def impute_values(features, dt):
 
 
 #
-# Function get_numerical_feature
+# Function cat_target_pct
 #
 
-def get_numerical_feature(fnum, fname, feature, dt, nvalues):
+def cat_target_pct(df, feature, ct, value):
+    """
+    Get the categorical percentage value for the target variable
+    """
+    index = int(df[feature])
+    try:
+        tp = ct.ix[index][value]
+    except:
+        tp = 0.0
+    return tp
+
+
+#
+# Function get_numerical_features
+#
+
+def get_numerical_features(fnum, fname, df, nvalues, dt):
     """
     Get numerical features by looking for float and integer values.
     """
+    feature = df[fname]
     if len(feature) == nvalues:
         logger.info("Feature %d: %s is a text feature with maximum number of values %d",
                     fnum, fname, nvalues)
     else:
         logger.info("Feature %d: %s is a feature of type %s with %d unique values",
                     fnum, fname, dt, nvalues)
-    feature = impute_values(feature, dt)
-    return feature
+    new_values = impute_values(feature, dt)
+    return new_values
 
 
 #
@@ -91,48 +108,69 @@ def get_polynomials(features, poly_degree):
 
 
 #
-# Function get_categorical
+# Function get_categoricals
 #
 
-def get_categorical(fnum, fname, feature, nvalues):
+def get_categoricals(fnum, fname, df, nvalues, sentinel):
     """
     Convert a categorical feature to one-hot encoding.
     """
-    if len(feature) == nvalues:
-        logger.info("Feature %d: %s is a text feature with maximum number of values %d",
-                    fnum, fname, nvalues)
-    else:
-        logger.info("Feature %d: %s is a categorical feature with %d unique values",
-                    fnum, fname, nvalues)
-    feature.fillna(value=0, inplace=True)
+    feature = df[fname]
+    logger.info("Feature %d: %s is a categorical feature with %d unique values",
+                fnum, fname, nvalues)
+    # convert categorical to dummy features
+    feature.fillna(value=sentinel, inplace=True)
     dummies = pd.get_dummies(feature)
     return dummies
 
 
 #
-# Function get_text_feature
+# Function get_text_features
 #
 
-def get_text_feature(fnum, fname, feature, nvalues, vectorize, ngrams_max):
+def get_text_features(fnum, fname, df, nvalues, ngrams_max):
     """
     Vectorize a text feature and transform to TF-IDF format.
     """
+    feature = df[fname]
     if len(feature) == nvalues:
         logger.info("Feature %d: %s is a text feature with maximum number of values %d",
                     fnum, fname, nvalues)
     else:
         logger.info("Feature %d: %s is a text feature with %d unique values",
                     fnum, fname, nvalues)
-    if text:
-        count_vect = CountVectorizer(ngram_range=[1, ngrams_max])
-        count_feature = count_vect.fit_transform(feature)
-        tfidf_transformer = TfidfTransformer()
-        tfidf_feature = tfidf_transformer.fit_transform(count_feature)
-        return tfidf_feature
+    # vectorize text
+    count_vect = CountVectorizer(ngram_range=[1, ngrams_max])
+    count_feature = count_vect.fit_transform(feature)
+    tfidf_transformer = TfidfTransformer()
+    tfidf_feature = tfidf_transformer.fit_transform(count_feature)
+    return tfidf_feature
+
+
+#
+# Function get_factors
+#
+
+def get_factors(fnum, fname, df, nvalues, dtype, sentinel,
+                target_value, X, y):
+    """
+    Factorize a feature.
+    """
+    logger.info("Feature %d: %s is a factor with %d unique values",
+                fnum, fname, nvalues)
+    feature = X[fname]
+    # will need to factorize anything other than integer
+    if dtype == 'int64':
+        labels = feature
+    elif dtype == 'object':
+        labels, uniques = pd.factorize(feature, na_sentinel=sentinel)
     else:
-        feature.fillna(value='', inplace=True)
-        hashed_feature = feature.apply(hash)
-        return hashed_feature
+        raise TypeError("Unknown data type for factorization")
+    # get the crosstab between feature labels and target
+    ct = pd.crosstab(labels, y).apply(lambda r : r / r.sum(), axis=1)
+    # calculate the categorical target percentage
+    ctp = df.apply(cat_target_pct, axis=1, args=[fname, ct, target_value])
+    return ctp
 
 
 #
@@ -226,6 +264,7 @@ def create_clusters(features, model):
 
     # Extract model parameters
 
+    cluster_inc = model.specs['cluster_inc']
     cluster_max = model.specs['cluster_max']
     cluster_min = model.specs['cluster_min']
     n_jobs = model.specs['n_jobs']
@@ -233,13 +272,14 @@ def create_clusters(features, model):
 
     # Log model parameters
 
-    logger.info("Cluster Minimum : %d", cluster_min)
-    logger.info("Cluster Maximum : %d", cluster_max)
+    logger.info("Cluster Minimum   : %d", cluster_min)
+    logger.info("Cluster Maximum   : %d", cluster_max)
+    logger.info("Cluster Increment : %d", cluster_inc)
 
     # Generate clustering features
 
     cfeatures = np.zeros((features.shape[0], 1))
-    for i in range(cluster_min, cluster_max+1):
+    for i in range(cluster_min, cluster_max+1, cluster_inc):
         logger.info("k = %d", i)
         km = KMeans(n_clusters=i, random_state=seed, n_jobs=n_jobs).fit(features)
         labels = km.predict(features)
@@ -257,7 +297,7 @@ def create_clusters(features, model):
 # Function create_features
 #
 
-def create_features(X, model):
+def create_features(X, model, X_train, y_train):
     """
     Extract features from the training and test set.
     """
@@ -269,14 +309,13 @@ def create_features(X, model):
     cluster_min = model.specs['cluster_min']
     dummy_limit = model.specs['dummy_limit']
     ngrams_max = model.specs['ngrams_max']
-    text = model.specs['text']
+    sentinel = model.specs['sentinel']
+    target_value = model.specs['target_value']
 
     # Log input parameters
 
     logger.info("Original Features : %s", X.columns)
     logger.info("Feature Count     : %d", X.shape[1])
-    logger.info("Dummy Limit       : %d", dummy_limit)
-    logger.info("N-Grams           : %d", ngrams_max)
 
     # Count zero and NaN values
 
@@ -298,16 +337,25 @@ def create_features(X, model):
         fnum = i + 1
         dtype = X[fc].dtypes
         nunique = len(X[fc].unique())
+        # process numerical, categorical, and text features
         if dtype == 'float64' or dtype == 'int64':
-            feature = get_numerical_feature(fnum, fc, X[fc], dtype, nunique)
+            features = get_numerical_features(fnum, fc, X, nunique, dtype)
         elif dtype == 'object':
             if nunique <= dummy_limit:
-                feature = get_categorical(fnum, fc, X[fc], nunique)
+                features = get_categoricals(fnum, fc, X, nunique, sentinel)
             else:
-                feature = get_text_feature(fnum, fc, X[fc], nunique, text, ngrams_max)
+                features = get_text_features(fnum, fc, X, nunique, ngrams_max)
         else:
             raise TypeError("The pandas column type %s is unrecognized", dtype)
-        all_features = np.column_stack((all_features, feature))
+        all_features = np.column_stack((all_features, features))
+        # factorization
+        condition1 = nunique <= dummy_limit
+        condition2 = (dtype == 'int64' or dtype == 'object')
+        condition3 = fc in X_train.columns
+        if condition1 and condition2 and condition3:
+            features = get_factors(fnum, fc, X, nunique, dtype, sentinel,
+                                   target_value, X_train, y_train)
+            all_features = np.column_stack((all_features, features))
     all_features = np.delete(all_features, 0, axis=1)
 
     logger.info("New Feature Count : %d", all_features.shape[1])

@@ -349,12 +349,12 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
               "nthread" : n_jobs,
               "silent" : True}
     est = xgb.XGBClassifier(**params)
-    grid = {"n_estimators" : [21, 51, 101, 201, 501],
-            "max_depth" : [None, 6, 8, 10],
+    grid = {"n_estimators" : [51, 101, 201, 501, 1001],
+            "max_depth" : [None, 6, 7, 8, 10, 20],
             "learning_rate" : [0.01, 0.02, 0.05, 0.1],
             "min_child_weight" : [1.0, 1.1],
-            "subsample" : [0.8, 0.9, 1.0],
-            "colsample_bytree" : [0.8, 0.9, 1.0]}
+            "subsample" : [0.7, 0.8, 0.9, 1.0],
+            "colsample_bytree" : [0.7, 0.8, 0.9, 1.0]}
     scoring = False
     estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
     # XGBoost Multiclass
