@@ -15,10 +15,12 @@
 
 from __future__ import division
 from estimators import ModelType
+from globs import NULL
 from gplearn.genetic import SymbolicTransformer
 import logging
 import numpy as np
 import pandas as pd
+from scipy import sparse
 import scipy.stats as sps
 from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import CountVectorizer
@@ -58,37 +60,29 @@ def impute_values(features, dt):
 
 
 #
-# Function cat_target_pct
-#
-
-def cat_target_pct(df, feature, ct, value):
-    """
-    Get the categorical percentage value for the target variable
-    """
-    index = int(df[feature])
-    try:
-        tp = ct.ix[index][value]
-    except:
-        tp = 0.0
-    return tp
-
-
-#
 # Function get_numerical_features
 #
 
-def get_numerical_features(fnum, fname, df, nvalues, dt):
+def get_numerical_features(fnum, fname, df, nvalues, dt, plevel):
     """
     Get numerical features by looking for float and integer values.
     """
     feature = df[fname]
     if len(feature) == nvalues:
-        logger.info("Feature %d: %s is a text feature with maximum number of values %d",
-                    fnum, fname, nvalues)
-    else:
-        logger.info("Feature %d: %s is a feature of type %s with %d unique values",
+        logger.info("Feature %d: %s is a numerical feature of type %s with maximum number of values %d",
                     fnum, fname, dt, nvalues)
+    else:
+        logger.info("Feature %d: %s is a numerical feature of type %s with %d unique values",
+                    fnum, fname, dt, nvalues)
+    # imputer for float or integer values
     new_values = impute_values(feature, dt)
+    # log-transform any values that do not fit a normal distribution
+    if np.all(new_values > 0):
+        stat, pvalue = sps.normaltest(new_values)
+        if pvalue <= plevel:
+            logger.info("Feature %d: %s is not normally distributed [p-value: %f]",
+                        fnum, fname, pvalue)
+            new_values = np.log(new_values)
     return new_values
 
 
@@ -120,15 +114,14 @@ def get_categoricals(fnum, fname, df, nvalues, sentinel):
                 fnum, fname, nvalues)
     # convert categorical to dummy features
     feature.fillna(value=sentinel, inplace=True)
-    dummies = pd.get_dummies(feature)
-    return dummies
 
 
 #
 # Function get_text_features
 #
 
-def get_text_features(fnum, fname, df, nvalues, ngrams_max):
+def get_text_features(fnum, fname, df, nvalues, dummy_limit,
+                      vectorize, ngrams_max):
     """
     Vectorize a text feature and transform to TF-IDF format.
     """
@@ -139,12 +132,27 @@ def get_text_features(fnum, fname, df, nvalues, ngrams_max):
     else:
         logger.info("Feature %d: %s is a text feature with %d unique values",
                     fnum, fname, nvalues)
-    # vectorize text
-    count_vect = CountVectorizer(ngram_range=[1, ngrams_max])
-    count_feature = count_vect.fit_transform(feature)
-    tfidf_transformer = TfidfTransformer()
-    tfidf_feature = tfidf_transformer.fit_transform(count_feature)
-    return tfidf_feature
+    # remove any NA values
+    feature.fillna(value=NULL, inplace=True)
+    # vectorization creates many columns, otherwise just factorize
+    if nvalues >= dummy_limit:
+        logger.info("Feature %d: %s => Factorization", fnum, fname)
+        new_features, uniques = pd.factorize(feature)
+    elif vectorize:
+        logger.info("Feature %d: %s => Attempting Vectorization", fnum, fname)
+        count_vect = CountVectorizer(ngram_range=[1, ngrams_max])
+        try:
+            count_feature = count_vect.fit_transform(feature)
+            tfidf_transformer = TfidfTransformer()
+            new_features = tfidf_transformer.fit_transform(count_feature).todense()
+            logger.info("Feature %d: %s => Vectorization Succeeded", fnum, fname)
+        except:
+            logger.info("Feature %d: %s => Factorization Instead", fnum, fname)
+            new_features, uniques = pd.factorize(feature)
+    else:
+        logger.info("Feature %d: %s => One-Hot Encoding", fnum, fname)
+        new_features = pd.get_dummies(feature)
+    return new_features
 
 
 #
@@ -168,9 +176,12 @@ def get_factors(fnum, fname, df, nvalues, dtype, sentinel,
         raise TypeError("Unknown data type for factorization")
     # get the crosstab between feature labels and target
     ct = pd.crosstab(labels, y).apply(lambda r : r / r.sum(), axis=1)
-    # calculate the categorical target percentage
-    ctp = df.apply(cat_target_pct, axis=1, args=[fname, ct, target_value])
-    return ctp
+    # map target percentages to the new feature
+    ct_map = ct.to_dict()[target_value]
+    new_feature = df[[fname]].applymap(ct_map.get)
+    # impute sentinel for any values that could not be mapped
+    new_feature.fillna(value=sentinel, inplace=True)
+    return new_feature
 
 
 #
@@ -309,8 +320,10 @@ def create_features(X, model, X_train, y_train):
     cluster_min = model.specs['cluster_min']
     dummy_limit = model.specs['dummy_limit']
     ngrams_max = model.specs['ngrams_max']
+    pvalue_level = model.specs['pvalue_level']
     sentinel = model.specs['sentinel']
     target_value = model.specs['target_value']
+    vectorize = model.specs['vectorize']
 
     # Log input parameters
 
@@ -339,12 +352,11 @@ def create_features(X, model, X_train, y_train):
         nunique = len(X[fc].unique())
         # process numerical, categorical, and text features
         if dtype == 'float64' or dtype == 'int64':
-            features = get_numerical_features(fnum, fc, X, nunique, dtype)
+            features = get_numerical_features(fnum, fc, X, nunique, dtype,
+                                              pvalue_level)
         elif dtype == 'object':
-            if nunique <= dummy_limit:
-                features = get_categoricals(fnum, fc, X, nunique, sentinel)
-            else:
-                features = get_text_features(fnum, fc, X, nunique, ngrams_max)
+            features = get_text_features(fnum, fc, X, nunique, dummy_limit,
+                                         vectorize, ngrams_max)
         else:
             raise TypeError("The pandas column type %s is unrecognized", dtype)
         all_features = np.column_stack((all_features, features))
@@ -510,8 +522,10 @@ def drop_features(X, drop):
 
     remove = []
     for col in X.columns:
-        if X[col].std() == 0:
-            remove.append(col)
+        dtype = X[col].dtypes
+        if dtype == 'float64' or dtype == 'int64':
+            if X[col].std() == 0:
+                remove.append(col)
     logger.info("Removing Constant Columns: %s", remove)
     X.drop(remove, axis=1, inplace=True)
     logger.info("Removed %d Constant Features", len(remove))

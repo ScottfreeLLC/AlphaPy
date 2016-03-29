@@ -166,6 +166,7 @@ def get_model_config(cfg_dir):
     specs['cv_folds'] = cfg['model']['cv_folds']
     specs['model_type'] = ModelType(cfg['model']['type'])
     specs['n_estimators'] = cfg['model']['estimators']
+    specs['pvalue_level'] = cfg['model']['pvalue_level']
     specs['scorer'] = cfg['model']['scoring_function']
     # calibration
     specs['calibration'] = cfg['model']['calibration']['option']
@@ -203,6 +204,7 @@ def get_model_config(cfg_dir):
     specs['genetic'] = cfg['treatments']['genetic']['option']
     specs['gfeatures'] = cfg['treatments']['genetic']['features']
     specs['ngrams_max'] = cfg['treatments']['text']['ngrams']
+    specs['vectorize'] = cfg['treatments']['text']['vectorize']
 
     # Section: xgboost
 
@@ -245,6 +247,7 @@ def get_model_config(cfg_dir):
     logger.info('ngrams_max       = %d', specs['ngrams_max'])
     logger.info('poly_degree      = %d', specs['poly_degree'])
     logger.info('project          = %s', specs['project'])
+    logger.info('pvalue_level     = %f', specs['pvalue_level'])
     logger.info('rfe              = %r', specs['rfe'])
     logger.info('rfe_step         = %d', specs['rfe_step'])
     logger.info('roc_curve        = %r', specs['roc_curve'])
@@ -259,6 +262,7 @@ def get_model_config(cfg_dir):
     logger.info('test_file        = %s', specs['test_file'])
     logger.info('test_labels      = %r', specs['test_labels'])
     logger.info('train_file       = %s', specs['train_file'])
+    logger.info('vectorize        = %r', specs['vectorize'])
     logger.info('verbosity        = %d', specs['verbosity'])
 
     # Specifications to create the model
