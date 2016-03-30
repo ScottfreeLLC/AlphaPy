@@ -10,6 +10,45 @@
 
 
 #
+# Variables
+# ---------
+#
+# Numeric substitution is allowed for any number in the expression.
+# Offsets are allowed in event expressions but cannot be substituted.
+#
+# Examples
+# --------
+#
+# Variable('rrunder', 'rr_3_20 <= 0.9')
+#
+# 'rrunder_2_10_0.7'
+# 'rrunder_2_10_0.9'
+# 'xmaup_20_50_20_200'
+# 'xmaup_10_50_20_50'
+#
+# Variable('xmaup', 'cma_20 > cma_50', 'runs', 50) generates:
+#     xmaup_20_50
+#     xmaup_20_50_runs_50
+#
+# Variable('xmaup', 'cma_20 > cma_50', ['streak', 'zscore'], 50) generates:
+#     xmaup_20_50
+#     xmaup_20_50_streak_50
+#     xmaup_20_50_zscore_50
+#
+# Variable('xmaup', 'cma_20 > cma_50', 'rtotal', 50) generates:
+#     xmaup_20_50
+#     xmaup_20_50_rtotal_50
+#
+# Variable('xmaup', 'cma_20 > cma_50', 'all', 50) generates:
+#     xmaup_20_50
+#     xmaup_20_50_runs_50
+#     xmaup_20_50_rtotal_50
+#     xmaup_20_50_streak_50
+#     xmaup_20_50_zscore_50
+#
+
+
+#
 # Imports
 #
 
@@ -17,13 +56,24 @@ from alias import get_alias
 from collections import OrderedDict
 from frame import Frame
 from frame import frame_name
-from globs import LOFF, ROFF, USEP
+from globs import BSEP
+from globs import LOFF
+from globs import ROFF
+from globs import USEP
+import logging
 import numpy as np
 import pandas as pd
 import parser
 import re
 import sys
 from util import valid_name
+
+
+#
+# Initialize logger
+#
+
+logger = logging.getLogger(__name__)
 
 
 #
@@ -48,21 +98,21 @@ class Variable(object):
         efound = expr in [Variable.variables[key].expr for key in Variable.variables]
         if efound:
             key = [key for key in Variable.variables if expr in Variable.variables[key].expr]
-            print "Expression '%s' already exists for key %s" % (expr, key)
+            logger.info("Expression '%s' already exists for key %s", expr, key)
             return
         else:
             if replace or not name in Variable.variables:
                 if not valid_name(name):
-                    print "Invalid variable key: %s" % name
+                    logger.info("Invalid variable key: %s", name)
                     return
                 try:
                     result = parser.expr(expr)
                 except:
-                    print "Invalid expression: %s" % expr
+                    logger.info("Invalid expression: %s", expr)
                     return
                 return super(Variable, cls).__new__(cls)
             else:
-                print "Key %s already exists" % name
+                logger.info("Key %s already exists", name)
 
     # function __init__
 
@@ -182,7 +232,7 @@ def vsub(v, expr):
         enlocs.append((index, eloc[0]))
         index = eloc[1]
     # build new expression
-    newexpr = ''
+    newexpr = str()
     for i, enloc in enumerate(enlocs):
         if i < len(vlocs):
             newexpr += expr[enloc[0]:enloc[1]] + v[vlocs[i][0]:vlocs[i][1]]
@@ -215,19 +265,23 @@ def vquote(param):
 
 def vexec(f, v):
     vxlag, root, plist, lag = vparse(v)
-    print vxlag, root, plist, lag
+    logger.info("vexec : %s", v)
+    logger.info("vxlag : %s", vxlag)
+    logger.info("root  : %s", root)
+    logger.info("plist : %s", plist)
+    logger.info("lag   : %s", lag)
     if vxlag not in f.columns:
         if root in Variable.variables:
-            print "Found variable %s: " % root
+            logger.info("Found variable %s: ", root)
             expr = Variable.variables[root].expr
             expr_new = vsub(vxlag, expr)
             estr = "%s" % expr_new
-            estr = ' '.join([vxlag, '=', estr])
-            print estr
+            estr = BSEP.join([vxlag, '=', estr])
+            logger.info("Expression: %s", estr)
             # pandas eval
             f.eval(estr)
         else:
-            print "Did not find variable %s: " % root
+            logger.info("Did not find variable: %s", root)
             # must be a function call
             fname = root
             modname = globals()['__name__']
@@ -237,7 +291,7 @@ def vexec(f, v):
                 if plist:
                     params = [vquote(p) for p in plist]
                     fcall = fname + '(f, ' + ', '.join(params) + ')'
-                    print fcall
+                    logger.info("Function Call: %s", fcall)
                 else:
                     fcall = fname + '(f)'    
                 estr = "%s" % fcall
@@ -245,10 +299,12 @@ def vexec(f, v):
                 estr = vstr + estr
                 exec(estr)
             else:
-                print "Could not find function %s" % fname
+                logger.info("Could not find function %s", fname)
     # if necessary, add the lagged variable
     if lag > 0 and vxlag in f.columns:
         f[v] = f[vxlag].shift(lag)
+    # output frame
+    return f
 
 
 #
@@ -266,10 +322,12 @@ def vapply(group, vname):
         if fname in Frame.frames:
             f = Frame.frames[fname].df
             for v in allv:
-                print "Applying variable %s to %s" % (v, g)
+                logger.info("Applying variable %s to %s", v, g)
                 vexec(f, v)
         else:
-            print "Frame not found: %s" % fname
+            logger.info("Frame not found: %s", fname)
+    # output frame
+    return f
                 
 
 #
@@ -293,15 +351,15 @@ def vunapply(group, vname):
         fname = frame_name(g, group.space)
         if fname in Frame.frames:
             f = Frame.frames[fname].df
-            print "Unapplying variable %s from %s" % (vname, g)
+            logger.info("Unapplying variable %s from %s", vname, g)
             if vname not in f.columns:
-                print "Variable %s not in %s frame" % (vname, g)
+                logger.info("Variable %s not in %s frame", vname, g)
             else:
                 estr = "Frame.frames['%s'].df = f.df.drop('%s', axis=1)" \
                         % (fname, vname)
                 exec(estr)
         else:
-            print "Frame not found: %s" % fname
+            logger.info("Frame not found: %s", fname)
             
 
 #

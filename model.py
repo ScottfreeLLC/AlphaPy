@@ -14,15 +14,19 @@
 #
 
 import _pickle as pickle
+from alias import Alias
 from datetime import datetime
 from estimators import Objective
 from estimators import ModelType
 from estimators import scorers
 from estimators import xgb_score_map
-from globs import PSEP, SSEP, USEP
+from globs import PSEP
+from globs import SSEP
+from globs import USEP
 import logging
 import numpy as np
 import pandas as pd
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.cross_validation import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import RidgeCV
@@ -43,6 +47,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.metrics.cluster import adjusted_rand_score
 from sklearn.preprocessing import StandardScaler
 import sys
+from var import Variable
 import yaml
 
 
@@ -153,6 +158,17 @@ def get_model_config(cfg_dir):
     specs['isample_pct'] = cfg['data']['interactions']['sampling_pct']
     specs['poly_degree'] = cfg['data']['interactions']['poly_degree']
 
+    # Section: features
+
+    specs['clustering'] = cfg['features']['clustering']['option']
+    specs['cluster_min'] = cfg['features']['clustering']['minimum']
+    specs['cluster_max'] = cfg['features']['clustering']['maximum']
+    specs['cluster_inc'] = cfg['features']['clustering']['increment']
+    specs['genetic'] = cfg['features']['genetic']['option']
+    specs['gfeatures'] = cfg['features']['genetic']['features']
+    specs['ngrams_max'] = cfg['features']['text']['ngrams']
+    specs['vectorize'] = cfg['features']['text']['vectorize']
+
     # Section: files
 
     specs['base_dir'] = cfg['files']['base_directory']
@@ -197,14 +213,11 @@ def get_model_config(cfg_dir):
 
     # Section: treatments
 
-    specs['clustering'] = cfg['treatments']['clustering']['option']
-    specs['cluster_min'] = cfg['treatments']['clustering']['minimum']
-    specs['cluster_max'] = cfg['treatments']['clustering']['maximum']
-    specs['cluster_inc'] = cfg['treatments']['clustering']['increment']
-    specs['genetic'] = cfg['treatments']['genetic']['option']
-    specs['gfeatures'] = cfg['treatments']['genetic']['features']
-    specs['ngrams_max'] = cfg['treatments']['text']['ngrams']
-    specs['vectorize'] = cfg['treatments']['text']['vectorize']
+    try:
+        specs['treatments'] = cfg['treatments']
+    except:
+        specs['treatments'] = None
+        logger.info("No Treatments Found")
 
     # Section: xgboost
 
@@ -262,8 +275,23 @@ def get_model_config(cfg_dir):
     logger.info('test_file        = %s', specs['test_file'])
     logger.info('test_labels      = %r', specs['test_labels'])
     logger.info('train_file       = %s', specs['train_file'])
+    logger.info('treatments       = %s', specs['treatments'])
     logger.info('vectorize        = %r', specs['vectorize'])
     logger.info('verbosity        = %d', specs['verbosity'])
+
+    # Define variables and aliases
+
+    try:
+        for k, v in cfg['variables'].items():
+            Variable(k, v)
+    except:
+        logger.info("No Variables Found")
+
+    try:
+        for k, v in cfg['aliases'].items():
+            Alias(k, v)
+    except:
+        logger.info("No Aliases Found")
 
     # Specifications to create the model
 
@@ -416,15 +444,17 @@ def first_fit(model, algo, est):
 # Function make_predictions
 #
 
-def make_predictions(model, algo):
+def make_predictions(model, algo, calibrate):
     """
     Make predictions for training and test set.
     """
 
+    start_time = datetime.now()
     logger.info("Final Model Predictions for %s", algo)
 
     # Extract model parameters.
 
+    cal_type = model.specs['cal_type']
     model_type = model.specs['model_type']
     seed = model.specs['seed']
     split = model.specs['split']
@@ -441,13 +471,23 @@ def make_predictions(model, algo):
         X_test = model.X_test
     y_train = model.y_train
 
-    # Fit the final model
+    # Fit the final model.
 
     X1, X2, y1, y2 = train_test_split(X_train, y_train, test_size=split,
                                       random_state=seed)
     est = fit_model(model, algo, est, X2, y2)
+    model.estimators[algo] = est
 
-    # Make predictions on original training and test data
+    # Calibration
+
+    if calibrate and model_type == ModelType.classification:
+        logger.info("Calibration")
+        est = CalibratedClassifierCV(est, method=cal_type, cv="prefit")
+        est.fit(X_train, y_train)
+    else:
+        logger.info("Skipping Calibration")
+
+    # Make predictions on original training and test data.
 
     model.preds[(algo, 'train')] = est.predict(X_train)
     model.preds[(algo, 'test')] = est.predict(X_test)
@@ -455,11 +495,23 @@ def make_predictions(model, algo):
         model.probas[(algo, 'train')] = est.predict_proba(X_train)[:, 1]
         model.probas[(algo, 'test')] = est.predict_proba(X_test)[:, 1]
 
+    # Record the final score.
+
+    score = est.score(X_train, y_train)
+    logger.info("Final Score: %.6f", score)
+    model.scores[algo] = score
+
     # Training Log Loss
 
     if model_type == ModelType.classification:
-        lloss = log_loss(y_train, model.probas[(algo, 'train')])
-        logger.info("Log Loss for %s: %.6f", algo, lloss)
+        loss = log_loss(y_train, model.probas[(algo, 'train')])
+        logger.info("Log Loss for %s: %.6f", algo, loss)
+
+    # Return the model.
+
+    end_time = datetime.now()
+    time_taken = end_time - start_time
+    logger.info("Final Predictions Complete: %s", time_taken)
 
     return model
 

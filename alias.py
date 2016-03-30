@@ -13,8 +13,16 @@
 # Imports
 #
 
+import logging
 import parser
 import re
+
+
+#
+# Initialize logger
+#
+
+logger = logging.getLogger(__name__)
 
 
 #
@@ -37,22 +45,22 @@ class Alias(object):
         efound = expr in [Alias.aliases[key] for key in Alias.aliases]
         if efound == True:
             key = [key for key, aexpr in Alias.aliases.items() if aexpr == expr]
-            print "Expression %s already exists for key %s" % (expr, key)
+            logger.info("Expression %s already exists for key %s", expr, key)
             return
         else:
             if replace == True or not name in Alias.aliases:
                 identifier = re.compile(r"^[^\d\W]\w*\Z", re.UNICODE)
                 result1 = re.match(identifier, name)
                 if result1 is None:
-                    print "Invalid alias key: %s" % name
+                    logger.info("Invalid alias key: %s", name)
                     return
                 result2 = re.match(identifier, expr)
                 if result2 is None:
-                    print "Invalid alias expression: %s" % expr
+                    logger.info("Invalid alias expression: %s", expr)
                     return
                 return super(Alias, cls).__new__(cls)
             else:
-                print "Key %s already exists" % name
+                logger.info("Key %s already exists", name)
 
     # function __init__
 

@@ -15,7 +15,7 @@
 
 from __future__ import division
 from estimators import ModelType
-from globs import NULL
+from globs import BSEP
 from gplearn.genetic import SymbolicTransformer
 import logging
 import numpy as np
@@ -28,9 +28,12 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_selection import f_classif
 from sklearn.feature_selection import f_regression
 from sklearn.feature_selection import SelectPercentile
+from sklearn.feature_selection import VarianceThreshold
 from sklearn.preprocessing import Imputer
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.preprocessing import StandardScaler
+from var import Variable
+from var import vquote
 
 
 #
@@ -38,6 +41,40 @@ from sklearn.preprocessing import StandardScaler
 #
 
 logger = logging.getLogger(__name__)
+
+
+#
+# Function texplode
+#
+
+def texplode(f, c):
+    fc = f[c]
+    maxlen = fc.str.len().max()
+    fc.fillna(maxlen * BSEP, inplace=True)
+    fpad = str().join(['{:', BSEP, '<', str(maxlen), '}'])
+    fcpad = fc.apply(fpad.format)
+    fcex = fcpad.apply(lambda x: pd.Series(list(x)))
+    return pd.get_dummies(fcex)
+
+
+#
+# Function apply_treatment
+#
+
+def apply_treatment(df, feature, fparams):
+    """
+    Process any special treatments from the configuration file.
+    """
+    func = fparams[0]
+    plist = fparams[1:]
+    logger.info("Applying function %s to feature %s", func, feature)
+    if plist:
+        params = [vquote(p) for p in plist]
+        fcall = func + '(df, \'' + feature + '\'' + ', '.join(params) + ')'
+    else:
+        fcall = func + '(df, \'' + feature + '\'' + ')'
+    logger.info("Function Call: %s", fcall)
+    return eval(fcall)
 
 
 #
@@ -102,21 +139,6 @@ def get_polynomials(features, poly_degree):
 
 
 #
-# Function get_categoricals
-#
-
-def get_categoricals(fnum, fname, df, nvalues, sentinel):
-    """
-    Convert a categorical feature to one-hot encoding.
-    """
-    feature = df[fname]
-    logger.info("Feature %d: %s is a categorical feature with %d unique values",
-                fnum, fname, nvalues)
-    # convert categorical to dummy features
-    feature.fillna(value=sentinel, inplace=True)
-
-
-#
 # Function get_text_features
 #
 
@@ -126,14 +148,16 @@ def get_text_features(fnum, fname, df, nvalues, dummy_limit,
     Vectorize a text feature and transform to TF-IDF format.
     """
     feature = df[fname]
+    min_length = int(feature.str.len().min())
+    max_length = int(feature.str.len().max())
     if len(feature) == nvalues:
-        logger.info("Feature %d: %s is a text feature with maximum number of values %d",
-                    fnum, fname, nvalues)
+        logger.info("Feature %d: %s is a text feature [%d:%d] with maximum number of values %d",
+                    fnum, fname, min_length, max_length, nvalues)
     else:
-        logger.info("Feature %d: %s is a text feature with %d unique values",
-                    fnum, fname, nvalues)
+        logger.info("Feature %d: %s is a text feature [%d:%d] with %d unique values",
+                    fnum, fname, min_length, max_length, nvalues)
     # remove any NA values
-    feature.fillna(value=NULL, inplace=True)
+    feature.fillna(value=str(), inplace=True)
     # vectorization creates many columns, otherwise just factorize
     if nvalues >= dummy_limit:
         logger.info("Feature %d: %s => Factorization", fnum, fname)
@@ -323,6 +347,7 @@ def create_features(X, model, X_train, y_train):
     pvalue_level = model.specs['pvalue_level']
     sentinel = model.specs['sentinel']
     target_value = model.specs['target_value']
+    treatments = model.specs['treatments']
     vectorize = model.specs['vectorize']
 
     # Log input parameters
@@ -350,7 +375,7 @@ def create_features(X, model, X_train, y_train):
         fnum = i + 1
         dtype = X[fc].dtypes
         nunique = len(X[fc].unique())
-        # process numerical, categorical, and text features
+        # standard processing of numerical, categorical, and text features
         if dtype == 'float64' or dtype == 'int64':
             features = get_numerical_features(fnum, fc, X, nunique, dtype,
                                               pvalue_level)
@@ -371,6 +396,17 @@ def create_features(X, model, X_train, y_train):
     all_features = np.delete(all_features, 0, axis=1)
 
     logger.info("New Feature Count : %d", all_features.shape[1])
+
+    # Iterate through the treatments from the configuration file
+
+    if treatments:
+        logger.info("Special Feature Treatment")
+        for feature, fcall in treatments.items():
+            features = apply_treatment(X, feature, fcall)
+            all_features = np.column_stack((all_features, features))
+        logger.info("New Feature Count : %d", all_features.shape[1])
+    else:
+        logger.info("No Treatments")
 
     # Call standard scaler for all features
 
@@ -495,7 +531,7 @@ def create_interactions(X, model):
         logger.info("Genetic Feature Count : %d", gp_features.shape[1])
         gp_features = StandardScaler().fit_transform(gp_features)
         all_features = np.hstack((all_features, gp_features))
-        logger.info("New Total Feature Count  : %d", all_features.shape[1])
+        logger.info("New Total Feature Count : %d", all_features.shape[1])
     else:
         logger.info("Skipping Genetic Features")
 
@@ -510,10 +546,8 @@ def create_interactions(X, model):
 
 def drop_features(X, drop):
     """
-    Drop the given features.
+    Drop the given features and any constant or duplicate features.
     """
-
-    # Drop specified features
 
     logger.info("Dropping Features: %s", drop)
     X.drop(drop, axis=1, inplace=True, errors='ignore')
@@ -544,3 +578,24 @@ def drop_features(X, drop):
     logger.info("Removed %d Duplicated Features", len(remove))
 
     return X
+
+
+#
+# Function remove_lv_features
+#
+
+def remove_lv_features(X):
+    """
+    Remove low-variance features.
+    """
+
+    logger.info("Removing Low-Variance Features")
+    logger.info("Original Feature Count  : %d", X.shape[1])
+
+    # Remove duplicated columns
+
+    selector = VarianceThreshold()
+    X_reduced = selector.fit_transform(X)
+    logger.info("Reduced Feature Count   : %d", X_reduced.shape[1])
+
+    return X_reduced

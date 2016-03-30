@@ -31,7 +31,10 @@ print(__doc__)
 #
 
 from estimators import ModelType
-from globs import BSEP, PSEP, SSEP, USEP
+from globs import BSEP
+from globs import PSEP
+from globs import SSEP
+from globs import USEP
 import logging
 import numpy as np
 import pandas as pd
@@ -284,6 +287,8 @@ def plot_learning_curve(model, partition):
     # Extract model parameters.
 
     cv_folds = model.specs['cv_folds']
+    n_jobs = model.specs['n_jobs']
+    scorer = model.specs['scorer']
     seed = model.specs['seed']
     split = model.specs['split']
     verbosity = model.specs['verbosity']
@@ -311,8 +316,9 @@ def plot_learning_curve(model, partition):
             plt.ylim(*ylim)
         plt.xlabel("Training Examples")
         plt.ylabel("Score")
-        train_sizes, train_scores, test_scores = learning_curve(
-                                                 estimator, X, y, cv=cv)
+        train_sizes, train_scores, test_scores = \
+            learning_curve(estimator, X, y, cv=cv, scoring=scorer,
+                           n_jobs=n_jobs, verbose=verbosity)
         train_scores_mean = np.mean(train_scores, axis=1)
         train_scores_std = np.std(train_scores, axis=1)
         test_scores_mean = np.mean(test_scores, axis=1)
@@ -353,6 +359,7 @@ def plot_roc_curve(model, partition):
     # Extract model parameters.
 
     cv_folds = model.specs['cv_folds']
+    seed = model.specs['seed']
 
     # Get X, Y for correct partition.
 
@@ -360,7 +367,7 @@ def plot_roc_curve(model, partition):
 
     # Set up for K-fold validation.
 
-    cv = StratifiedKFold(y, n_folds=cv_folds)
+    cv = StratifiedKFold(y, n_folds=cv_folds, random_state=seed)
 
     # Plot a ROC Curve for each algorithm.
 
@@ -375,6 +382,7 @@ def plot_roc_curve(model, partition):
         plt.figure()
         # cross-validation
         for i, (train, test) in enumerate(cv):
+            logger.info("Cross-Validation Fold: %d of %d", i+1, cv_folds)
             probas_ = estimator.fit(X[train], y[train]).predict_proba(X[test])
             # compute ROC curve and area the curve
             fpr, tpr, thresholds = roc_curve(y[test], probas_[:, 1])

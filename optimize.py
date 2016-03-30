@@ -19,7 +19,6 @@ from estimators import ModelType
 import logging
 import numpy as np
 from scoring import report_scores
-from sklearn.calibration import CalibratedClassifierCV
 from sklearn.cross_validation import train_test_split
 from sklearn.feature_selection import RFE
 from sklearn.feature_selection import RFECV
@@ -199,74 +198,5 @@ def hyper_grid_search(model, estimator):
     model.scores[algo] = gscv.best_score_
 
     # Return the model with Grid Search estimators
-
-    return model
-
-
-#
-# Function calibrate_model
-#
-
-def calibrate_model(model, algo):
-    """
-    Calibrate a classifier.
-    """
-
-    # Extract model parameters
-
-    cal_type = model.specs['cal_type']
-    cv_folds = model.specs['cv_folds']
-    esr = model.specs['esr']
-    grid_search = model.specs['grid_search']
-    model_type = model.specs['model_type']
-    seed = model.specs['seed']
-    split = model.specs['split']
-    clf = model.estimators[algo]
-
-    # For classification only
-
-    if model_type != ModelType.classification:
-        logger.info('Calibration is for classification only')
-        return model
-
-    # Extract model data.
-
-    try:
-        support = model.support[algo]
-        X_train = model.X_train[:, support]
-        X_test = model.X_test[:, support]
-    except:
-        X_train = model.X_train
-        X_test = model.X_test
-    y_train = model.y_train
-
-    # Iterate through the models, getting the best score for each one.
-
-    start_time = datetime.now()
-    logger.info("Calibration Start: %s", start_time)
-
-    # Calibration
-
-    if 'XGB' in algo:
-        X1, X2, y1, y2 = train_test_split(X_train, y_train, test_size=split,
-                                          random_state=seed, stratify=y_train)
-        es = [(X1, y1), (X2, y2)]
-        clf.fit(X1, y1, eval_set=es, early_stopping_rounds=esr)
-    else:
-        clf = CalibratedClassifierCV(clf, method=cal_type, cv=cv_folds)
-        clf.fit(X_train, y_train)
-
-    # Record the training score
-
-    model.estimators[algo] = clf
-    score = clf.score(X_train, y_train)
-    model.scores[algo] = score
-    logger.info("Calibrated Score: %.6f", score)
-
-    # Return the model with the calibrated classifier.
-
-    end_time = datetime.now()
-    time_taken = end_time - start_time
-    logger.info("Calibration Complete: %s", time_taken)
 
     return model

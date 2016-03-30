@@ -19,7 +19,6 @@ PSEP = '.'
 SSEP = '/'
 USEP = '_'
 LOFF = '['
-NULL = ''
 ROFF = ']'
 WILDCARD = '*'
 FEEDS = {'stock' : 'yahoo', 'future' : 'quandl', 'forex' : 'quandl'}

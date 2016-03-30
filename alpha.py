@@ -22,6 +22,7 @@ from estimators import scorers
 from features import create_features
 from features import create_interactions
 from features import drop_features
+from features import remove_lv_features
 from features import save_features
 from globs import CSEP
 from globs import PSEP
@@ -37,7 +38,6 @@ from model import predict_best
 from model import predict_blend
 from model import save_results
 import numpy as np
-from optimize import calibrate_model
 from optimize import hyper_grid_search
 from optimize import rfe_search
 from optimize import rfecv_search
@@ -59,7 +59,7 @@ logger = logging.getLogger(__name__)
 
 def pipeline(model):
     """
-    AlphaPy Main Program
+    AlphaPy Main Pipeline
     :rtype : object
     """
 
@@ -141,6 +141,12 @@ def pipeline(model):
     X_train, X_test = np.array_split(all_features, [split_point])
     model = save_features(model, X_train, X_test, y_train, y_test)
 
+    # Remove low-variance features
+
+    sig_features = remove_lv_features(all_features)
+    X_train, X_test = np.array_split(sig_features, [split_point])
+    model = save_features(model, X_train, X_test, y_train, y_test)
+
     # Shuffle the data if necessary
 
     if shuffle:
@@ -187,11 +193,8 @@ def pipeline(model):
         # grid search
         if grid_search:
             model = hyper_grid_search(model, estimator)
-        # calibration
-        if calibration:
-            model = calibrate_model(model, algo)
         # predictions
-        model = make_predictions(model, algo)
+        model = make_predictions(model, algo, calibration)
 
     # Create a blended estimator
 
