@@ -86,11 +86,11 @@ scorers = {'accuracy'              : (ModelType.classification, Objective.maximi
 # Define XGB scoring map
 #
 
-xgb_score_map = {'accuracy'            : 'auc',
-                 'log_loss'            : 'logloss',
+xgb_score_map = {'log_loss'            : 'logloss',
                  'mean_absolute_error' : 'mae',
                  'mean_squared_error'  : 'rmse',
-                 'precision'           : 'map'}
+                 'precision'           : 'map',
+                 'roc_auc'             : 'auc'}
 
 
 #
@@ -284,7 +284,7 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
               "n_jobs" : n_jobs,
               "verbose" : verbosity}
     est = RandomForestClassifierCoef(**params)
-    grid = {"n_estimators" : [21, 51, 101, 201, 501],
+    grid = {"n_estimators" : [21, 51, 101, 201, 501, 1001, 2001],
             "max_depth" : [5, 10, None],
             "min_samples_split" : [1, 3, 5, 10],
             "min_samples_leaf" : [1, 2, 3],
@@ -341,20 +341,20 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
     params = {"objective" : 'binary:logistic',
               "n_estimators" : n_estimators,
               "seed" : seed,
-              "max_depth" : 8,
-              "learning_rate" : 0.01,
-              "min_child_weight" : 1.1,
-              "subsample" : 0.9,
-              "colsample_bytree" : 0.9,
+              "max_depth" : 10,
+              "learning_rate" : 0.05,
+              "min_child_weight" : 1.0,
+              "subsample" : 1.0,
+              "colsample_bytree" : 0.5,
               "nthread" : n_jobs,
               "silent" : True}
     est = xgb.XGBClassifier(**params)
-    grid = {"n_estimators" : [51, 101, 201, 501, 1001],
-            "max_depth" : [None, 6, 7, 8, 10, 20],
-            "learning_rate" : [0.01, 0.02, 0.05, 0.1],
+    grid = {"n_estimators" : [21, 51, 101, 201, 501, 1001, 2001],
+            "max_depth" : [None, 5, 6, 7, 8, 9, 10, 11, 12, 15, 20],
+            "learning_rate" : [0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.07, 0.1],
             "min_child_weight" : [1.0, 1.1],
-            "subsample" : [0.7, 0.8, 0.9, 1.0],
-            "colsample_bytree" : [0.7, 0.8, 0.9, 1.0]}
+            "subsample" : [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+            "colsample_bytree" : [0.5, 0.6, 0.7, 0.8, 0.9, 1.0]}
     scoring = False
     estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
     # XGBoost Multiclass
@@ -396,9 +396,9 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
               "n_jobs" : n_jobs,
               "verbose" : verbosity}
     est = ExtraTreesClassifierCoef(**params)
-    grid = {"n_estimators" : [10, 50, 100, 150, 200],
+    grid = {"n_estimators" : [21, 51, 101, 201, 501, 1001, 2001],
             "max_features" : ['auto', 'sqrt', 'log2', None],
-            "max_depth" : [3, 5, None],
+            "max_depth" : [3, 5, 7, 10, 20, 30, None],
             "min_samples_split" : [1, 2, 3],
             "min_samples_leaf" : [1, 2],
             "bootstrap" : [True, False],

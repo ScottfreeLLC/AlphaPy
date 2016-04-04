@@ -20,6 +20,7 @@ SSEP = '/'
 USEP = '_'
 LOFF = '['
 ROFF = ']'
+NULLTEXT = 'NULLTEXT'
 WILDCARD = '*'
 FEEDS = {'stock' : 'yahoo', 'future' : 'quandl', 'forex' : 'quandl'}
 MULTIPLIERS = {'stocks' : 1.0}

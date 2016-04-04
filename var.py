@@ -265,23 +265,23 @@ def vquote(param):
 
 def vexec(f, v):
     vxlag, root, plist, lag = vparse(v)
-    logger.info("vexec : %s", v)
-    logger.info("vxlag : %s", vxlag)
-    logger.info("root  : %s", root)
-    logger.info("plist : %s", plist)
-    logger.info("lag   : %s", lag)
+    logger.debug("vexec : %s", v)
+    logger.debug("vxlag : %s", vxlag)
+    logger.debug("root  : %s", root)
+    logger.debug("plist : %s", plist)
+    logger.debug("lag   : %s", lag)
     if vxlag not in f.columns:
         if root in Variable.variables:
-            logger.info("Found variable %s: ", root)
+            logger.debug("Found variable %s: ", root)
             expr = Variable.variables[root].expr
             expr_new = vsub(vxlag, expr)
             estr = "%s" % expr_new
             estr = BSEP.join([vxlag, '=', estr])
-            logger.info("Expression: %s", estr)
+            logger.debug("Expression: %s", estr)
             # pandas eval
             f.eval(estr)
         else:
-            logger.info("Did not find variable: %s", root)
+            logger.debug("Did not find variable: %s", root)
             # must be a function call
             fname = root
             modname = globals()['__name__']
@@ -291,7 +291,7 @@ def vexec(f, v):
                 if plist:
                     params = [vquote(p) for p in plist]
                     fcall = fname + '(f, ' + ', '.join(params) + ')'
-                    logger.info("Function Call: %s", fcall)
+                    logger.debug("Function Call: %s", fcall)
                 else:
                     fcall = fname + '(f)'    
                 estr = "%s" % fcall
@@ -299,7 +299,7 @@ def vexec(f, v):
                 estr = vstr + estr
                 exec(estr)
             else:
-                logger.info("Could not find function %s", fname)
+                logger.debug("Could not find function %s", fname)
     # if necessary, add the lagged variable
     if lag > 0 and vxlag in f.columns:
         f[v] = f[vxlag].shift(lag)
@@ -313,7 +313,7 @@ def vexec(f, v):
 
 def vapply(group, vname):
     # get all frame names to apply variables
-    gnames = [item.lower() for item in group.all_members()]
+    gnames = [item.lower() for item in group.members]
     # get all the precedent variables
     allv = vtree(vname)
     # apply the variables to each frame

@@ -14,7 +14,6 @@
 #
 
 import _pickle as pickle
-from alias import Alias
 from datetime import datetime
 from estimators import Objective
 from estimators import ModelType
@@ -23,11 +22,14 @@ from estimators import xgb_score_map
 from globs import PSEP
 from globs import SSEP
 from globs import USEP
+from group import Group
 import logging
 import numpy as np
 import pandas as pd
 from sklearn.calibration import CalibratedClassifierCV
+from sklearn.cross_validation import cross_val_score
 from sklearn.cross_validation import train_test_split
+from sklearn.cross_validation import ShuffleSplit
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import RidgeCV
 from sklearn.metrics import accuracy_score
@@ -47,7 +49,6 @@ from sklearn.metrics import roc_auc_score
 from sklearn.metrics.cluster import adjusted_rand_score
 from sklearn.preprocessing import StandardScaler
 import sys
-from var import Variable
 import yaml
 
 
@@ -129,6 +130,8 @@ class Model:
 
 def get_model_config(cfg_dir):
 
+    logger.info("Model Configuration")
+
     # Read the configuration file
 
     full_path = SSEP.join([cfg_dir, 'model.yml'])
@@ -138,6 +141,13 @@ def get_model_config(cfg_dir):
     # Store configuration parameters in dictionary
 
     specs = {}
+
+    # Section: project [this section must be first]
+
+    specs['base_dir'] = cfg['project']['base_directory']
+    specs['extension'] = cfg['project']['file_extension']
+    specs['kaggle'] = cfg['project']['kaggle_submission']
+    specs['project'] = cfg['project']['project_name']
 
     # Section: data
 
@@ -168,13 +178,6 @@ def get_model_config(cfg_dir):
     specs['gfeatures'] = cfg['features']['genetic']['features']
     specs['ngrams_max'] = cfg['features']['text']['ngrams']
     specs['vectorize'] = cfg['features']['text']['vectorize']
-
-    # Section: files
-
-    specs['base_dir'] = cfg['files']['base_directory']
-    specs['extension'] = cfg['files']['file_extension']
-    specs['kaggle'] = cfg['files']['kaggle_submission']
-    specs['project'] = cfg['files']['project_name']
 
     # Section: model
 
@@ -279,20 +282,6 @@ def get_model_config(cfg_dir):
     logger.info('vectorize        = %r', specs['vectorize'])
     logger.info('verbosity        = %d', specs['verbosity'])
 
-    # Define variables and aliases
-
-    try:
-        for k, v in cfg['variables'].items():
-            Variable(k, v)
-    except:
-        logger.info("No Variables Found")
-
-    try:
-        for k, v in cfg['aliases'].items():
-            Alias(k, v)
-    except:
-        logger.info("No Aliases Found")
-
     # Specifications to create the model
 
     return specs
@@ -353,49 +342,6 @@ def save_model(model):
 
 
 #
-# Function fit_model
-#
-
-def fit_model(model, algo, est, X, y):
-    """
-    Fit a scikit-learn model.
-    """
-
-    logger.info("Fitting Model for %s", algo)
-
-    # Extract model parameters.
-
-    esr = model.specs['esr']
-    scorer = model.specs['scorer']
-
-    # Extract model data.
-
-    try:
-        support = model.support[algo]
-        X_train = model.X_train[:, support]
-        X_test = model.X_test[:, support]
-    except:
-        X_train = model.X_train
-        X_test = model.X_test
-    y_train = model.y_train
-
-    # First Fit
-
-    if 'XGB' in algo:
-        try:
-            eval_set = [(X, y)]
-            eval_metric = xgb_score_map[scorer]
-            est.fit(X_train, y_train, eval_set=eval_set, eval_metric=eval_metric,
-                    early_stopping_rounds=esr)
-        except:
-            est.fit(X_train, y_train)
-    else:
-        est.fit(X_train, y_train)
-
-    return est
-
-
-#
 # Function first_fit
 #
 
@@ -408,6 +354,9 @@ def first_fit(model, algo, est):
 
     # Extract model parameters.
 
+    cv_folds = model.specs['cv_folds']
+    esr = model.specs['esr']
+    scorer = model.specs['scorer']
     seed = model.specs['seed']
     split = model.specs['split']
 
@@ -416,20 +365,45 @@ def first_fit(model, algo, est):
     X_train = model.X_train
     y_train = model.y_train
 
+    # Get initial estimates of our score.
+
+    n_samples = X_train.shape[0]
+    cv = ShuffleSplit(n_samples, n_iter=cv_folds, test_size=split,
+                      random_state=seed)
+
     # First Fit
 
-    X1, X2, y1, y2 = train_test_split(X_train, y_train, test_size=split,
-                                      random_state=seed)
-    est = fit_model(model, algo, est, X2, y2)
+    cv_flag = False
+    if 'XGB' in algo:
+        if scorer in xgb_score_map:
+            X1, X2, y1, y2 = train_test_split(X_train, y_train, test_size=split,
+                                              random_state=seed)
+            eval_set = [(X1, y1), (X2, y2)]
+            eval_metric = xgb_score_map[scorer]
+            est.fit(X1, y1, eval_set=eval_set, eval_metric=eval_metric,
+                    early_stopping_rounds=esr)
+        else:
+            cv_flag = True
+            scores = cross_val_score(est, X_train, y_train, cv=cv, scoring=scorer)
+    else:
+        cv_flag = True
+        scores = cross_val_score(est, X_train, y_train, cv=cv, scoring=scorer)
+
+    # Save the estimator in the model.
+
     model.estimators[algo] = est
 
-    # Record scores, importances, and coefficients, if available.
+    # Record scores
 
-    score = est.score(X1, y1)
-    logger.info("Training Score: %.6f", score)
+    if cv_flag:
+        logger.info("CV Scores: %s", scores)
+    else:
+        score = est.score(X1, y1)
+        logger.info("Training Score: %.6f", score)
+        score = est.score(X2, y2)
+        logger.info("Testing Score: %.6f", score)
 
-    score = est.score(X2, y2)
-    logger.info("Testing Score: %.6f", score)
+    # Record importances and coefficients, if available.
 
     if hasattr(est, "feature_importances_"):
         model.importances[algo] = est.feature_importances_
@@ -455,6 +429,7 @@ def make_predictions(model, algo, calibrate):
     # Extract model parameters.
 
     cal_type = model.specs['cal_type']
+    cv_folds = model.specs['cv_folds']
     model_type = model.specs['model_type']
     seed = model.specs['seed']
     split = model.specs['split']
@@ -473,16 +448,14 @@ def make_predictions(model, algo, calibrate):
 
     # Fit the final model.
 
-    X1, X2, y1, y2 = train_test_split(X_train, y_train, test_size=split,
-                                      random_state=seed)
-    est = fit_model(model, algo, est, X2, y2)
+    est.fit(X_train, y_train)
     model.estimators[algo] = est
 
     # Calibration
 
     if calibrate and model_type == ModelType.classification:
         logger.info("Calibration")
-        est = CalibratedClassifierCV(est, method=cal_type, cv="prefit")
+        est = CalibratedClassifierCV(est, cv=cv_folds, method=cal_type)
         est.fit(X_train, y_train)
     else:
         logger.info("Skipping Calibration")
@@ -784,7 +757,6 @@ def save_results(model, tag, partition):
     model_type = model.specs['model_type']
     project = model.specs['project']
     separator = model.specs['separator']
-    target = model.specs['target']
 
     # Extract model data.
 
@@ -838,7 +810,7 @@ def save_results(model, tag, partition):
     if kaggle:
         sample_file = SSEP.join([output_dir, 'sample_submission.csv'])
         ss = pd.read_csv(sample_file)
-        ss[target] = preds
+        ss[ss.columns[1]] = preds
         kaggle_base = USEP.join(['kaggle', 'submission', d.strftime(f)])
         kaggle_file = PSEP.join([kaggle_base, 'csv'])
         kaggle_output = SSEP.join([output_dir, kaggle_file])

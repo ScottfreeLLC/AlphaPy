@@ -16,6 +16,8 @@
 from __future__ import division
 from estimators import ModelType
 from globs import BSEP
+from globs import NULLTEXT
+from globs import USEP
 from gplearn.genetic import SymbolicTransformer
 import logging
 import numpy as np
@@ -33,7 +35,6 @@ from sklearn.preprocessing import Imputer
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.preprocessing import StandardScaler
 from var import Variable
-from var import vquote
 
 
 #
@@ -44,6 +45,22 @@ logger = logging.getLogger(__name__)
 
 
 #
+# Function split_to_letters
+#
+
+def split_to_letters(f, c):
+    fc = f[c]
+    new_feature = None
+    dtype = fc.dtypes
+    if dtype == 'object':
+        fc.fillna(NULLTEXT, inplace=True)
+        maxlen = fc.str.len().max()
+        if maxlen > 1:
+            new_feature = fc.apply(lambda x: BSEP.join(list(x)))
+    return new_feature
+
+
+#
 # Function texplode
 #
 
@@ -51,28 +68,43 @@ def texplode(f, c):
     fc = f[c]
     maxlen = fc.str.len().max()
     fc.fillna(maxlen * BSEP, inplace=True)
-    fpad = str().join(['{:', BSEP, '<', str(maxlen), '}'])
+    fpad = str().join(['{:', BSEP, '>', str(maxlen), '}'])
     fcpad = fc.apply(fpad.format)
     fcex = fcpad.apply(lambda x: pd.Series(list(x)))
     return pd.get_dummies(fcex)
 
 
 #
+# Function cvectorize
+#
+
+def cvectorize(f, c, n):
+    fc = f[c]
+    fc.fillna(BSEP, inplace=True)
+    cvect = CountVectorizer(ngram_range=[1, n], analyzer='char')
+    cfeat = cvect.fit_transform(fc)
+    tfidf_transformer = TfidfTransformer()
+    return tfidf_transformer.fit_transform(cfeat).toarray()
+
+
+#
 # Function apply_treatment
 #
 
-def apply_treatment(df, feature, fparams):
+def apply_treatment(fnum, fname, df, nvalues, fparams):
     """
     Process any special treatments from the configuration file.
     """
+    logger.info("Feature %d: %s is a special treatment with %d unique values",
+                fnum, fname, nvalues)
     func = fparams[0]
     plist = fparams[1:]
-    logger.info("Applying function %s to feature %s", func, feature)
+    logger.info("Applying function %s to feature %s", func, fname)
     if plist:
-        params = [vquote(p) for p in plist]
-        fcall = func + '(df, \'' + feature + '\'' + ', '.join(params) + ')'
+        params = [str(p) for p in plist]
+        fcall = func + '(df, \'' + fname + '\', ' + ', '.join(params) + ')'
     else:
-        fcall = func + '(df, \'' + feature + '\'' + ')'
+        fcall = func + '(df, \'' + fname + '\', ' + ')'
     logger.info("Function Call: %s", fcall)
     return eval(fcall)
 
@@ -88,7 +120,7 @@ def impute_values(features, dt):
         features = features.reshape(-1, 1)
     if dt == 'float64':
         imp = Imputer(missing_values='NaN', strategy='median', axis=0)
-    elif dt == 'int64':
+    elif dt == 'int64' or dt == 'bool':
         imp = Imputer(missing_values='NaN', strategy='most_frequent', axis=0)
     else:
         raise TypeError('Data Type %s is invalid for imputation', dt)
@@ -111,7 +143,7 @@ def get_numerical_features(fnum, fname, df, nvalues, dt, plevel):
     else:
         logger.info("Feature %d: %s is a numerical feature of type %s with %d unique values",
                     fnum, fname, dt, nvalues)
-    # imputer for float or integer values
+    # imputer for float, integer, or boolean data types
     new_values = impute_values(feature, dt)
     # log-transform any values that do not fit a normal distribution
     if np.all(new_values > 0):
@@ -156,8 +188,8 @@ def get_text_features(fnum, fname, df, nvalues, dummy_limit,
     else:
         logger.info("Feature %d: %s is a text feature [%d:%d] with %d unique values",
                     fnum, fname, min_length, max_length, nvalues)
-    # remove any NA values
-    feature.fillna(value=str(), inplace=True)
+    # need a null text placeholder for vectorization
+    feature.fillna(value=NULLTEXT, inplace=True)
     # vectorization creates many columns, otherwise just factorize
     if nvalues >= dummy_limit:
         logger.info("Feature %d: %s => Factorization", fnum, fname)
@@ -359,10 +391,12 @@ def create_features(X, model, X_train, y_train):
 
     logger.info("Creating Count Features")
 
-    logger.info("Zero Counts")
-    X['zero_count'] = (X == 0).astype(int).sum(axis=1)
     logger.info("NA Counts")
     X['nan_count'] = X.count(axis=1)
+    logger.info("Number Counts")
+    for i in range(10):
+        fc = USEP.join(['count', str(i)])
+        X[fc] = (X == i).astype(int).sum(axis=1)
 
     logger.info("New Feature Count : %d", X.shape[1])
 
@@ -376,7 +410,9 @@ def create_features(X, model, X_train, y_train):
         dtype = X[fc].dtypes
         nunique = len(X[fc].unique())
         # standard processing of numerical, categorical, and text features
-        if dtype == 'float64' or dtype == 'int64':
+        if treatments and fc in treatments:
+            features = apply_treatment(fnum, fc, X, nunique, treatments[fc])
+        elif dtype == 'float64' or dtype == 'int64' or dtype == 'bool':
             features = get_numerical_features(fnum, fc, X, nunique, dtype,
                                               pvalue_level)
         elif dtype == 'object':
@@ -384,7 +420,8 @@ def create_features(X, model, X_train, y_train):
                                          vectorize, ngrams_max)
         else:
             raise TypeError("The pandas column type %s is unrecognized", dtype)
-        all_features = np.column_stack((all_features, features))
+        if features is not None:
+            all_features = np.column_stack((all_features, features))
         # factorization
         condition1 = nunique <= dummy_limit
         condition2 = (dtype == 'int64' or dtype == 'object')
@@ -392,21 +429,11 @@ def create_features(X, model, X_train, y_train):
         if condition1 and condition2 and condition3:
             features = get_factors(fnum, fc, X, nunique, dtype, sentinel,
                                    target_value, X_train, y_train)
-            all_features = np.column_stack((all_features, features))
+            if features is not None:
+                all_features = np.column_stack((all_features, features))
     all_features = np.delete(all_features, 0, axis=1)
 
     logger.info("New Feature Count : %d", all_features.shape[1])
-
-    # Iterate through the treatments from the configuration file
-
-    if treatments:
-        logger.info("Special Feature Treatment")
-        for feature, fcall in treatments.items():
-            features = apply_treatment(X, feature, fcall)
-            all_features = np.column_stack((all_features, features))
-        logger.info("New Feature Count : %d", all_features.shape[1])
-    else:
-        logger.info("No Treatments")
 
     # Call standard scaler for all features
 

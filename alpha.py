@@ -122,8 +122,8 @@ def pipeline(model):
     logger.info("Original Feature Statistics")
     logger.info("Number of Training Rows    : %d", X_train.shape[0])
     logger.info("Number of Training Columns : %d", X_train.shape[1])
-    logger.info("Number of Testing Rows    : %d", X_test.shape[0])
-    logger.info("Number of Testing Columns : %d", X_test.shape[1])
+    logger.info("Number of Testing Rows     : %d", X_test.shape[0])
+    logger.info("Number of Testing Columns  : %d", X_test.shape[1])
 
     # Drop features
 

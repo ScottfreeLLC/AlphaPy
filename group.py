@@ -14,7 +14,15 @@
 #
 
 from globs import USEP
+import logging
 from space import Space
+
+
+#
+# Initialize logger
+#
+
+logger = logging.getLogger(__name__)
 
 
 #
@@ -49,12 +57,7 @@ class Group(object):
             # add group to groups list
             Group.groups[name] = self
         else:
-            print "Group %s already exists" % name
-        
-    # function __repr__
-
-    def __repr__(self):
-        return self.name
+            logger.info("Group already %s exists", name)
         
     # function __str__
 
@@ -71,18 +74,18 @@ class Group(object):
             if self.dynamic:
                 gflat = all({type(item) is str for item in self.members})
                 if gflat == False and self.recursive == False:
-                    print "Cannot add members to non-recursive groups"
+                    logger.info("Cannot add members to non-recursive groups")
                 else:
                     if newset.issubset(self.members):
-                        print "New members already in set"
+                        logger.info("New members already in set")
                     else:
                         madd = newset - self.members
                         self.members = self.members | newset
-                        print "Added: ", madd
+                        logger.info("Added: ", madd)
             else:
-                print "Cannot add members to a non-dynamic group"
+                logger.info("Cannot add members to a non-dynamic group")
         else:
-            print "All new members must be of type str"
+            logger.info("All new members must be of type str")
             
     # function member
             
@@ -97,16 +100,16 @@ class Group(object):
         if self.dynamic:
             nonefound = not any([self.member(item) for item in remlist])
             if nonefound == True:
-                print "Members to remove not found"
+                logger.info("Members to remove not found")
             else:
                 removed = []
                 for item in remlist:
                     if self.member(item):
                         self.members.remove(item)
                         removed += [item]
-                print "Removed: ", removed
+                logger.info("Removed: ", removed)
         else:
-            print "Cannot remove members from a non-dynamic group"
+            logger.info("Cannot remove members from a non-dynamic group")
             
     # function allgroups
 

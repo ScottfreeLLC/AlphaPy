@@ -14,14 +14,13 @@
 #
 
 from alpha import pipeline
-import datetime
-from datetime import date
 from frame import load_frames
 from frame import write_frame
 from globs import SSEP
 from globs import USEP
 import logging
 import pandas as pd
+from pandas.tseries.offsets import BDay
 
 
 #
@@ -54,8 +53,8 @@ class Analysis(object):
     def __new__(cls,
                 model,
                 group,
-                train_date = datetime.date(1900, 1, 1),
-                predict_date = date.today()):
+                train_date = pd.datetime(1900, 1, 1),
+                predict_date = pd.datetime.today() - BDay(1)):
         # verify that dates are in sequence
         if train_date >= predict_date:
             raise ValueError("Training date must be before prediction date")
@@ -73,8 +72,8 @@ class Analysis(object):
     def __init__(self,
                  model,
                  group,
-                 train_date = datetime.date(1900, 1, 1),
-                 predict_date = date.today()):
+                 train_date = pd.datetime(1900, 1, 1),
+                 predict_date = pd.datetime.today() - BDay(1)):
         # set analysis name
         name = model.specs['project']
         target = model.specs['target']
@@ -137,16 +136,17 @@ def run_analysis(analysis, forecast_period, leaders, splits=True):
             # drop any rows with NA
             df.dropna(inplace=True)
             # split data into train and test
+            logger.info("Prediction Date: %s", predict_date)
             new_train_frame = df.loc[(df.date >= train_date) & (df.date < predict_date)]
             if len(new_train_frame) > 0:
                 train_frame = train_frame.append(new_train_frame)
             else:
-                logger.info("Training frame has length 0")
+                raise Exception("Training frame has length 0. Adjust training date.")
             new_test_frame = df.loc[df.date >= predict_date]
             if len(new_test_frame) > 0:
                 test_frame = test_frame.append(new_test_frame)
             else:
-                logger.info("Test frame has length 0")
+                raise Exception("Test frame has length 0. Adjust prediction date.")
         # write out the training and test files
         write_frame(train_frame, directory, train_file, extension, separator)
         write_frame(test_frame, directory, test_file, extension, separator)

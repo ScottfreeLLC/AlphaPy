@@ -15,9 +15,17 @@
 
 from frame import frame_name
 from frame import Frame
+import logging
 from math import trunc
 import portfolio
 import position
+
+
+#
+# Initialize logger
+#
+
+logger = logging.getLogger(__name__)
 
 
 #
@@ -68,7 +76,8 @@ def allocate_trade(p, pos, trade):
         cashreserve = mincash * cash
         freemargin = (cash - cashreserve) / margin
         if addedvalue > freemargin:
-            print "Required free margin: %d < added value: %d" % (freemargin, addedvalue)
+            logger.info("Required free margin: %d < added value: %d",
+                        freemargin, addedvalue)
             allocation = 0
         else:
             freecash = cash - addedvalue

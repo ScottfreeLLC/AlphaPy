@@ -15,10 +15,18 @@
 
 from frame import Frame
 from frame import frame_name
+import logging
 from pandas import DataFrame
 from space import Space
 from trade import Trade
 from var import vexec
+
+
+#
+# Initialize logger
+#
+
+logger = logging.getLogger(__name__)
 
 
 #
@@ -43,7 +51,7 @@ class System(object):
         if name not in System.systems:
             return super(System, cls).__new__(cls)
         else:
-            print "System %s already exists" % name
+            logger.info("System %s already exists", name)
     
     # __init__
     

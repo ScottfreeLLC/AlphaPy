@@ -17,18 +17,22 @@ from alias import Alias
 from alpha import pipeline
 from analysis import Analysis
 from analysis import run_analysis
+import argparse
 from datetime import datetime
 from datetime import timedelta
 from data import get_remote_data
 from frame import Frame
+from globs import SSEP
 from globs import WILDCARD
 from group import Group
 import logging
+from model import get_model_config
 from model import Model
 from space import Space
 from system import System
 from var import Variable
 from var import vmapply
+import yaml
 
 
 #
@@ -39,43 +43,103 @@ logger = logging.getLogger(__name__)
 
 
 #
+# Function get_stock_config
+#
+
+def get_stock_config(cfg_dir):
+
+    logger.info("Stock Configuration")
+
+    # Read the configuration file
+
+    full_path = SSEP.join([cfg_dir, 'stock.yml'])
+    with open(full_path, 'r') as ymlfile:
+        cfg = yaml.load(ymlfile)
+
+    # Store configuration parameters in dictionary
+
+    specs = {}
+
+    # Section: stock [this section must be first]
+
+    specs['forecast_period'] = cfg['stock']['forecast_period']
+    specs['fractal'] = cfg['stock']['fractal']
+    specs['leaders'] = cfg['stock']['leaders']
+    specs['schema'] = cfg['stock']['schema']
+    specs['study_period'] = cfg['stock']['study_period']
+    specs['target_group'] = cfg['stock']['target_group']
+
+    # Create the subject/schema/fractal namespace
+
+    sspecs = ['stock', specs['schema'], specs['fractal']]    
+    space = Space(*sspecs)
+
+    # Section: groups
+
+    try:
+        for g, m in cfg['groups'].items():
+            command = 'Group(\'' + g + '\', space)'
+            exec(command)
+            Group.groups[g].add(m)
+    except:
+        logger.info("No Groups Found")
+
+    # Section: aliases
+
+    try:
+        for k, v in cfg['aliases'].items():
+            Alias(k, v)
+    except:
+        logger.info("No Aliases Found")
+
+    # Section: variables
+
+    try:
+        for k, v in cfg['variables'].items():
+            Variable(k, v)
+    except:
+        logger.info("No Variables Found")
+
+    # Log the stock parameters
+
+    logger.info('STOCK PARAMETERS:')
+    logger.info('forecast_period = %s', specs['fractal'])
+    logger.info('fractal         = %s', specs['fractal'])
+    logger.info('leaders         = %s', specs['leaders'])
+    logger.info('schema          = %s', specs['schema'])
+    logger.info('study_period    = %d', specs['study_period'])
+    logger.info('target_group    = %s', specs['target_group'])
+
+    # Stock Specifications
+
+    return specs
+
+
+#
 # Function pipeline
 #
 
-def pipeline(model):
+def pipeline(model, stock_specs):
     """
     AlphaPy Stock Pipeline
     :rtype : object
     """
 
-    # Unpack the model specifications
+    # Get any model specifications
 
-    base_dir = model.specs['base_dir']
+    forecast_period = stock_specs['forecast_period']
+    leaders = stock_specs['leaders']
+    study_period = stock_specs['study_period']
+    target_group = stock_specs['target_group']
 
-    # Create default space stock_prices_1d
+    # Set the target group
 
-    space = Space()
-
-    # Create groups for each genre of stock
-
-    gs = Group('my', space)
-    ge = Group('psp', space)
-    gt = Group('tech', space)
-
-    # Populate groups with members and other groups
-
-    gs.add([repr(ge), repr(gt)])
-    ge.add(['qqq', 'spy', 'tna', 'tza', 'nugt', 'dust', 'fas', 'faz', 'eem', 'iwm', \
-            'tvix', 'vxx', 'tlt', 'tbt', 'edc', 'edz'])
-    gt.add(['aapl', 'amzn', 'fb', 'goog', 'lnkd', 'nflx', 'yhoo'])
-
-    # Display all members
-
-    print gs.all_members()
+    gs = Group.groups[target_group]
+    logger.info("All Members: %s", gs.members)
 
     # Get stock data
 
-    get_remote_data(gs, datetime.now() - timedelta(1000))
+    get_remote_data(gs, datetime.now() - timedelta(study_period))
 
     # Define feature sets
 
@@ -102,11 +166,8 @@ def pipeline(model):
 
     # Run the analysis, including the model pipeline
 
-    a = Analysis(m, gs)
-
-    forecast_period = 1
-    leaders = ['open', 'gap', 'gapbadown', 'gapbaup', 'gapdown', 'gapup']
-    a = run_analysis(a, forecast_period, leaders)
+    a = Analysis(model, gs)
+    results = run_analysis(a, forecast_period, leaders)
 
     # Create and run systems
 
@@ -156,6 +217,10 @@ if __name__ == '__main__':
                         help="directory location of configuration file")
     args = parser.parse_args()
 
+    # Read stock configuration file
+
+    stock_specs = get_stock_config(args.cfg_dir)
+
     # Read configuration file
 
     specs = get_model_config(args.cfg_dir)
@@ -174,7 +239,7 @@ if __name__ == '__main__':
 
     logger.info("Calling Pipeline")
 
-    model = pipeline(model)
+    model = pipeline(model, stock_specs)
 
     # Complete the pipeline
 

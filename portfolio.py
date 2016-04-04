@@ -15,6 +15,7 @@
 
 from frame import Frame
 from frame import frame_name
+import logging
 import math
 from pandas import DataFrame
 from pandas import date_range
@@ -22,6 +23,13 @@ from pandas import Series
 import position
 from space import Space
 import trade
+
+
+#
+# Initialize logger
+#
+
+logger = logging.getLogger(__name__)
 
 
 #
@@ -72,7 +80,7 @@ class Portfolio():
         if not pn in Portfolio.portfolios:
             return super(Portfolio, cls).__new__(cls)
         else:
-            print "Portfolio %s already exists" % pn
+            logger.info("Portfolio %s already exists", pn)
     
     # __init__
     
@@ -176,7 +184,7 @@ def withdraw_portfolio(p, cash, tdate):
     currentcash = p.cash
     availcash = currentcash - (p.mincash * p.value)
     if cash > availcash:
-        print "Withdrawal of %s would exceed reserve amount" % cash
+        logger.info("Withdrawal of %s would exceed reserve amount", cash)
     else:
         p.cash = currentcash - cash
         valuate_portfolio(p, tdate)
@@ -476,7 +484,7 @@ def gen_portfolio(system, group, startcap=100000, posby='close'):
                     if pos.status == 'closed':
                         pstats2(p, pstat, pos)
                 else:
-                    print "Trade could not be allocated"
+                    logger.info("Trade could not be allocated")
         # update the portfolio valuation
         valuate_portfolio(p, d)
         ps.append((d, [p.value, p.profit, p.netreturn]))

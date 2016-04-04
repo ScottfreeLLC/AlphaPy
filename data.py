@@ -76,10 +76,10 @@ def load_data(directory, filename, extension, separator,
 def get_remote_data(group,
                     start = datetime.now() - timedelta(365),
                     end = datetime.now()):
-    gam = group.all_members()
+    gam = group.members
     feed = FEEDS[group.space.subject]
     for item in gam:
-        logger.info("Getting ", item, " data from ", start, " to ", end)
+        logger.info("Getting %s data from %s to %s", item, start, end)
         df = web.DataReader(item, feed, start, end)
         df.reset_index(level=0, inplace=True)
         df = df.rename(columns = lambda x: x.lower().replace(' ',''))
