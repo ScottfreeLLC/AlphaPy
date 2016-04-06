@@ -30,6 +30,7 @@ from sklearn.calibration import CalibratedClassifierCV
 from sklearn.cross_validation import cross_val_score
 from sklearn.cross_validation import train_test_split
 from sklearn.cross_validation import ShuffleSplit
+from sklearn.cross_validation import StratifiedShuffleSplit
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import RidgeCV
 from sklearn.metrics import accuracy_score
@@ -367,9 +368,8 @@ def first_fit(model, algo, est):
 
     # Get initial estimates of our score.
 
-    n_samples = X_train.shape[0]
-    cv = ShuffleSplit(n_samples, n_iter=cv_folds, test_size=split,
-                      random_state=seed)
+    sss = StratifiedShuffleSplit(y_train, n_iter=cv_folds, test_size=split,
+                                 random_state=0)
 
     # First Fit
 
@@ -384,12 +384,12 @@ def first_fit(model, algo, est):
                     early_stopping_rounds=esr)
         else:
             cv_flag = True
-            scores = cross_val_score(est, X_train, y_train, cv=cv, scoring=scorer)
+            scores = cross_val_score(est, X_train, y_train, cv=sss, scoring=scorer)
     else:
         cv_flag = True
-        scores = cross_val_score(est, X_train, y_train, cv=cv, scoring=scorer)
+        scores = cross_val_score(est, X_train, y_train, cv=sss, scoring=scorer)
 
-    # Save the estimator in the model.
+    # Save the estimator in the model
 
     model.estimators[algo] = est
 

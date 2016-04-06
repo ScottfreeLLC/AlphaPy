@@ -65,9 +65,11 @@ def get_stock_config(cfg_dir):
     specs['forecast_period'] = cfg['stock']['forecast_period']
     specs['fractal'] = cfg['stock']['fractal']
     specs['leaders'] = cfg['stock']['leaders']
+    specs['lookback_period'] = cfg['stock']['lookback_period']
+    specs['predict_date'] = cfg['stock']['predict_date']
     specs['schema'] = cfg['stock']['schema']
-    specs['study_period'] = cfg['stock']['study_period']
     specs['target_group'] = cfg['stock']['target_group']
+    specs['train_date'] = cfg['stock']['train_date']
 
     # Create the subject/schema/fractal namespace
 
@@ -103,12 +105,14 @@ def get_stock_config(cfg_dir):
     # Log the stock parameters
 
     logger.info('STOCK PARAMETERS:')
-    logger.info('forecast_period = %s', specs['fractal'])
+    logger.info('forecast_period = %d', specs['forecast_period'])
     logger.info('fractal         = %s', specs['fractal'])
     logger.info('leaders         = %s', specs['leaders'])
+    logger.info('lookback_period = %d', specs['lookback_period'])
+    logger.info('predict_date    = %s', specs['predict_date'])
     logger.info('schema          = %s', specs['schema'])
-    logger.info('study_period    = %d', specs['study_period'])
     logger.info('target_group    = %s', specs['target_group'])
+    logger.info('train_date      = %s', specs['train_date'])
 
     # Stock Specifications
 
@@ -127,10 +131,16 @@ def pipeline(model, stock_specs):
 
     # Get any model specifications
 
+    target = model.specs['target']
+
+    # Get any stock specifications
+
     forecast_period = stock_specs['forecast_period']
     leaders = stock_specs['leaders']
-    study_period = stock_specs['study_period']
+    lookback_period = stock_specs['lookback_period']
+    predict_date = stock_specs['predict_date']
     target_group = stock_specs['target_group']
+    train_date = stock_specs['train_date']
 
     # Set the target group
 
@@ -139,7 +149,7 @@ def pipeline(model, stock_specs):
 
     # Get stock data
 
-    get_remote_data(gs, datetime.now() - timedelta(study_period))
+    get_remote_data(gs, datetime.now() - timedelta(lookback_period))
 
     # Define feature sets
 
@@ -160,13 +170,12 @@ def pipeline(model, stock_specs):
 
     # Apply the features to all of the frames
 
-    vmapply(gs, features_simple)
-    vmapply(gs, features_gap)
-    vmapply(gs, ['sephigh'])
+    vmapply(gs, features_all)
+    vmapply(gs, [target])
 
     # Run the analysis, including the model pipeline
 
-    a = Analysis(model, gs)
+    a = Analysis(model, gs, train_date, predict_date)
     results = run_analysis(a, forecast_period, leaders)
 
     # Create and run systems

@@ -81,7 +81,7 @@ class Group(object):
                     else:
                         madd = newset - self.members
                         self.members = self.members | newset
-                        logger.info("Added: ", madd)
+                        logger.info("Added: %s", madd)
             else:
                 logger.info("Cannot add members to a non-dynamic group")
         else:
@@ -107,7 +107,7 @@ class Group(object):
                     if self.member(item):
                         self.members.remove(item)
                         removed += [item]
-                logger.info("Removed: ", removed)
+                logger.info("Removed: %s", removed)
         else:
             logger.info("Cannot remove members from a non-dynamic group")
             

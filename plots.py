@@ -47,6 +47,7 @@ from sklearn.calibration import calibration_curve
 from sklearn.cross_validation import cross_val_score
 from sklearn.cross_validation import ShuffleSplit
 from sklearn.cross_validation import StratifiedKFold
+from sklearn.cross_validation import StratifiedShuffleSplit
 from sklearn.cross_validation import train_test_split
 from sklearn.decomposition import PCA
 from sklearn.ensemble.partial_dependence import partial_dependence
@@ -290,6 +291,7 @@ def plot_learning_curve(model, partition):
     n_jobs = model.specs['n_jobs']
     scorer = model.specs['scorer']
     seed = model.specs['seed']
+    shuffle = model.specs['shuffle']
     split = model.specs['split']
     verbosity = model.specs['verbosity']
 
@@ -299,10 +301,16 @@ def plot_learning_curve(model, partition):
 
     # Set cross-validation parameters to get mean train and test curves.
 
-    cv = ShuffleSplit(X.shape[0], n_iter=cv_folds, test_size=split,
-                      random_state=seed)
-    ylim = (0.0, 1.01)
+    if shuffle:
+        cv = StratifiedShuffleSplit(y, n_iter=cv_folds, test_size=split,
+                                    random_state=seed)
+    else:
+        cv = StratifiedKFold(y, n_folds=cv_folds, shuffle=False,
+                             random_state=seed)
 
+    # Plot a learning curve for each algorithm.   
+
+    ylim = (0.0, 1.01)
     for algo in model.algolist:
         logger.info("Learning Curve for Algorithm: %s", algo)
         # get estimator
@@ -360,14 +368,20 @@ def plot_roc_curve(model, partition):
 
     cv_folds = model.specs['cv_folds']
     seed = model.specs['seed']
+    shuffle = model.specs['shuffle']
 
     # Get X, Y for correct partition.
 
     X, y = get_partition_data(model, partition)
 
-    # Set up for K-fold validation.
+    # Set up for stratified validation.
 
-    cv = StratifiedKFold(y, n_folds=cv_folds, random_state=seed)
+    if shuffle:
+        cv = StratifiedShuffleSplit(y, n_iter=cv_folds, test_size=split,
+                                    random_state=seed)
+    else:
+        cv = StratifiedKFold(y, n_folds=cv_folds, shuffle=False,
+                             random_state=seed)    
 
     # Plot a ROC Curve for each algorithm.
 
@@ -383,7 +397,8 @@ def plot_roc_curve(model, partition):
         # cross-validation
         for i, (train, test) in enumerate(cv):
             logger.info("Cross-Validation Fold: %d of %d", i+1, cv_folds)
-            probas_ = estimator.fit(X[train], y[train]).predict_proba(X[test])
+            estimator.fit(X[train], y[train])
+            probas_ = estimator.predict_proba(X[test])
             # compute ROC curve and area the curve
             fpr, tpr, thresholds = roc_curve(y[test], probas_[:, 1])
             mean_tpr += interp(mean_fpr, fpr, tpr)

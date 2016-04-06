@@ -54,7 +54,7 @@ class Analysis(object):
                 model,
                 group,
                 train_date = pd.datetime(1900, 1, 1),
-                predict_date = pd.datetime.today() - BDay(1)):
+                predict_date = pd.datetime.today() - BDay(2)):
         # verify that dates are in sequence
         if train_date >= predict_date:
             raise ValueError("Training date must be before prediction date")
@@ -73,7 +73,7 @@ class Analysis(object):
                  model,
                  group,
                  train_date = pd.datetime(1900, 1, 1),
-                 predict_date = pd.datetime.today() - BDay(1)):
+                 predict_date = pd.datetime.today() - BDay(2)):
         # set analysis name
         name = model.specs['project']
         target = model.specs['target']
@@ -136,7 +136,6 @@ def run_analysis(analysis, forecast_period, leaders, splits=True):
             # drop any rows with NA
             df.dropna(inplace=True)
             # split data into train and test
-            logger.info("Prediction Date: %s", predict_date)
             new_train_frame = df.loc[(df.date >= train_date) & (df.date < predict_date)]
             if len(new_train_frame) > 0:
                 train_frame = train_frame.append(new_train_frame)
