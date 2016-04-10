@@ -53,6 +53,7 @@ def load_data(directory, filename, extension, separator,
     if target in df.columns:
         y = df[target].values
         y = LabelEncoder().fit_transform(y)
+        logger.info("Dropping target %s from data frame", target)
         df = df.drop([target], axis=1)
     elif return_labels:
         logger.info("Target ", target, " not found")

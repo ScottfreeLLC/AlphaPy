@@ -124,6 +124,9 @@ def pipeline(model):
     logger.info("Number of Training Columns : %d", X_train.shape[1])
     logger.info("Number of Testing Rows     : %d", X_test.shape[0])
     logger.info("Number of Testing Columns  : %d", X_test.shape[1])
+    uv, uc = np.unique(y_train, return_counts=True)
+    logger.info("Unique Values for %s : %s", target, uv)
+    logger.info("Unique Counts for %s : %s", target, uc)
 
     # Drop features
 

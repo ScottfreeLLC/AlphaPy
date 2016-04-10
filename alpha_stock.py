@@ -154,7 +154,7 @@ def pipeline(model, stock_specs):
     # Define feature sets
 
     features_gap = ['gap', 'gapbadown', 'gapbaup', 'gapdown', 'gapup']
-    features_ma = ['cma_10', 'cma_20', 'cma_50']
+    features_ma = ['cma_5', 'cma_10', 'cma_20', 'cma_50', 'madelta']
     features_range = ['net', 'netup', 'netdown', 'rr', 'rr_2', 'rr_3', 'rr_4', 'rr_5', \
                       'rr_6', 'rr_7', 'rrunder', 'rrover']
     features_roi = ['roi', 'roi_2', 'roi_3', 'roi_4', 'roi_5', 'roi_10', 'roi_20']
