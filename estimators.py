@@ -34,6 +34,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import LinearSVC
+from sklearn.svm import OneClassSVM
 from sklearn.svm import SVC
 import xgboost as xgb
 
@@ -47,7 +48,8 @@ class ModelType(Enum):
     classification = 1
     clustering = 2
     multiclass = 3
-    regression = 4
+    oneclass = 4
+    regression = 5
 
 
 #
@@ -256,6 +258,18 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
             "fit_prior" : [True, False]}
     scoring = True
     estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
+    # One-Class SVM
+    algo = 'OC_SVM'
+    model_type = ModelType.oneclass
+    params = {"kernel" : 'rbf',
+              "gamma" : 'auto',
+              "nu" : 0.5,
+              "verbose" : verbosity,
+              "random_state" : seed}
+    est = OneClassSVM(**params)
+    grid = None
+    scoring = False
+    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
     # Radial Basis Function
     algo = 'RBF'
     model_type = ModelType.classification
@@ -315,11 +329,11 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
             "decision_function_shape" : ['ovo', 'ovr', None]}
     scoring = False
     estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
-    # Google TensorFlow
+    # Google TensorFlow Deep Neural Network
     algo = 'TF_DNN'
     model_type = ModelType.classification
     params = {"n_classes" : 2,
-              "hidden_units" : [10, 20, 10],
+              "hidden_units" : [20, 40, 20],
               "tf_master" : '',
               "batch_size" : 32,
               "steps" : 200,
@@ -341,11 +355,11 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
     params = {"objective" : 'binary:logistic',
               "n_estimators" : n_estimators,
               "seed" : seed,
-              "max_depth" : 10,
-              "learning_rate" : 0.05,
-              "min_child_weight" : 1.0,
-              "subsample" : 1.0,
-              "colsample_bytree" : 0.5,
+              "max_depth" : 6,
+              "learning_rate" : 0.03,
+              "min_child_weight" : 1.1,
+              "subsample" : 0.7,
+              "colsample_bytree" : 0.7,
               "nthread" : n_jobs,
               "silent" : True}
     est = xgb.XGBClassifier(**params)

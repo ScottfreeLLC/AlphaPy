@@ -32,6 +32,7 @@ import logging
 from model import first_fit
 from model import generate_metrics
 from model import get_model_config
+from model import get_sample_weights
 from model import make_predictions
 from model import Model
 from model import predict_best
@@ -169,6 +170,10 @@ def pipeline(model):
 
     if scorer not in scorers:
         raise KeyError("Scorer function %s not found", scorer)
+
+    # Get sample weights
+
+    model = get_sample_weights(model)
 
     # Model Selection
 

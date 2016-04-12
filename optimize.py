@@ -156,6 +156,7 @@ def hyper_grid_search(model, estimator):
     gs_sample = model.specs['gs_sample']
     gs_sample_pct = model.specs['gs_sample_pct']
     n_jobs = model.specs['n_jobs']
+    sample_weights = model.specs['sample_weights']
     scorer = model.specs['scorer']
     verbosity = model.specs['verbosity']
 
@@ -172,13 +173,15 @@ def hyper_grid_search(model, estimator):
 
     if gs_random:
         logger.info("Randomized Grid Search")
-        gscv = RandomizedSearchCV(est, param_distributions=grid, n_iter=gs_iters,
-                                  scoring=scorer, n_jobs=n_jobs, cv=cv_folds,
-                                  verbose=verbosity)
+        gscv = RandomizedSearchCV(est, param_distributions=grid,
+                                  n_iter=gs_iters, scoring=scorer,
+                                  fit_params={'sample_weight': sample_weights},
+                                  n_jobs=n_jobs, cv=cv_folds, verbose=verbosity)
     else:
         logger.info("Full Grid Search")
-        gscv = GridSearchCV(est, param_grid=grid, scoring=scorer, n_jobs=n_jobs,
-                            cv=cv_folds, verbose=verbosity)
+        gscv = GridSearchCV(est, param_grid=grid, scoring=scorer,
+                            fit_params={'sample_weight': sample_weights},
+                            n_jobs=n_jobs, cv=cv_folds, verbose=verbosity)
 
     # Fit the randomized search and time it.
 

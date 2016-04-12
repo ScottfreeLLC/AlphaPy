@@ -183,6 +183,7 @@ def get_model_config(cfg_dir):
     # Section: model
 
     specs['algorithms'] = cfg['model']['algorithms']
+    specs['balance_classes'] = cfg['model']['balance_classes']
     specs['cv_folds'] = cfg['model']['cv_folds']
     specs['model_type'] = ModelType(cfg['model']['type'])
     specs['n_estimators'] = cfg['model']['estimators']
@@ -231,6 +232,7 @@ def get_model_config(cfg_dir):
 
     logger.info('MODEL PARAMETERS:')
     logger.info('algorithms       = %s', specs['algorithms'])
+    logger.info('balance_classes  = %s', specs['balance_classes'])
     logger.info('base_dir         = %s', specs['base_dir'])
     logger.info('calibration      = %r', specs['calibration'])
     logger.info('cal_type         = %s', specs['cal_type'])
@@ -343,6 +345,43 @@ def save_model(model):
 
 
 #
+# Function get_sample_weights
+#
+
+def get_sample_weights(model):
+    """
+    Set sample weights for fitting the model
+    """
+
+    logger.info("Getting Sample Weights")
+
+    # Extract model parameters.
+
+    balance_classes = model.specs['balance_classes']
+    target = model.specs['target']
+    target_value = model.specs['target_value']
+
+    # Extract model data.
+
+    y_train = model.y_train
+
+    # Calculate sample weights
+
+    sw = None
+    if balance_classes:
+        uv, uc = np.unique(y_train, return_counts=True)
+        weight = uc[not target_value] / uc[target_value]
+        logger.info("Sample Weight for target %s [%r]: %f",
+                    target, target_value, weight)
+        sw = [weight if x==target_value else 1.0 for x in y_train]    
+
+    # Set weights
+
+    model.specs['sample_weights'] = sw
+    return model
+
+
+#
 # Function first_fit
 #
 
@@ -360,6 +399,7 @@ def first_fit(model, algo, est):
     scorer = model.specs['scorer']
     seed = model.specs['seed']
     split = model.specs['split']
+    sample_weights = model.specs['sample_weights']
 
     # Extract model data.
 
@@ -369,7 +409,7 @@ def first_fit(model, algo, est):
     # Get initial estimates of our score.
 
     sss = StratifiedShuffleSplit(y_train, n_iter=cv_folds, test_size=split,
-                                 random_state=0)
+                                 random_state=seed)
 
     # First Fit
 
@@ -380,14 +420,16 @@ def first_fit(model, algo, est):
                                               random_state=seed)
             eval_set = [(X1, y1), (X2, y2)]
             eval_metric = xgb_score_map[scorer]
-            est.fit(X1, y1, eval_set=eval_set, eval_metric=eval_metric,
-                    early_stopping_rounds=esr)
+            est.fit(X1, y1, sample_weight=sample_weights, eval_set=eval_set,
+                    eval_metric=eval_metric, early_stopping_rounds=esr)
         else:
             cv_flag = True
-            scores = cross_val_score(est, X_train, y_train, cv=sss, scoring=scorer)
+            scores = cross_val_score(est, X_train, y_train, cv=sss, scoring=scorer,
+                                     fit_params={'sample_weight': sample_weights})
     else:
         cv_flag = True
-        scores = cross_val_score(est, X_train, y_train, cv=sss, scoring=scorer)
+        scores = cross_val_score(est, X_train, y_train, cv=sss, scoring=scorer,
+                                 fit_params={'sample_weight': sample_weights})
 
     # Save the estimator in the model
 
@@ -429,8 +471,8 @@ def make_predictions(model, algo, calibrate):
     # Extract model parameters.
 
     cal_type = model.specs['cal_type']
-    cv_folds = model.specs['cv_folds']
     model_type = model.specs['model_type']
+    sample_weights = model.specs['sample_weights']
     seed = model.specs['seed']
     split = model.specs['split']
     est = model.estimators[algo]
@@ -448,14 +490,14 @@ def make_predictions(model, algo, calibrate):
 
     # Fit the final model.
 
-    est.fit(X_train, y_train)
+    est.fit(X_train, y_train, sample_weight=sample_weights)
     model.estimators[algo] = est
 
     # Calibration
 
     if calibrate and model_type == ModelType.classification:
         logger.info("Calibration")
-        est = CalibratedClassifierCV(est, cv=cv_folds, method=cal_type)
+        est = CalibratedClassifierCV(est, cv="prefit", method=cal_type)
         est.fit(X_train, y_train)
     else:
         logger.info("Skipping Calibration")

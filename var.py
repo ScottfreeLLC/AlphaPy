@@ -322,7 +322,7 @@ def vapply(group, vname):
         if fname in Frame.frames:
             f = Frame.frames[fname].df
             for v in allv:
-                logger.info("Applying variable %s to %s", v, g)
+                logger.debug("Applying variable %s to %s", v, g)
                 vexec(f, v)
         else:
             logger.info("Frame not found: %s", fname)
@@ -336,6 +336,7 @@ def vapply(group, vname):
 
 def vmapply(group, vs):
     for v in vs:
+        logger.info("Applying variable: %s", v)
         vapply(group, v)
 
         
