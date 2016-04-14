@@ -14,6 +14,7 @@
 #
 
 import _pickle as pickle
+from data import SamplingMethod
 from datetime import datetime
 from estimators import Objective
 from estimators import ModelType
@@ -168,15 +169,28 @@ def get_model_config(cfg_dir):
     specs['interactions'] = cfg['data']['interactions']['option']
     specs['isample_pct'] = cfg['data']['interactions']['sampling_pct']
     specs['poly_degree'] = cfg['data']['interactions']['poly_degree']
+    # sampling
+    specs['sampling'] = cfg['data']['sampling']['option']
+    specs['sampling_method'] = SamplingMethod(cfg['data']['sampling']['method'])
+    specs['sampling_ratio'] = cfg['data']['sampling']['ratio']
 
     # Section: features
 
+    # clustering
     specs['clustering'] = cfg['features']['clustering']['option']
     specs['cluster_min'] = cfg['features']['clustering']['minimum']
     specs['cluster_max'] = cfg['features']['clustering']['maximum']
     specs['cluster_inc'] = cfg['features']['clustering']['increment']
+    # genetic
     specs['genetic'] = cfg['features']['genetic']['option']
     specs['gfeatures'] = cfg['features']['genetic']['features']
+    # pca
+    specs['pca'] = cfg['features']['pca']['option']
+    specs['pca_min'] = cfg['features']['pca']['minimum']
+    specs['pca_max'] = cfg['features']['pca']['maximum']
+    specs['pca_inc'] = cfg['features']['pca']['increment']
+    specs['pca_whiten'] = cfg['features']['pca']['whiten']
+    # text
     specs['ngrams_max'] = cfg['features']['text']['ngrams']
     specs['vectorize'] = cfg['features']['text']['vectorize']
 
@@ -264,12 +278,20 @@ def get_model_config(cfg_dir):
     logger.info('n_estimators     = %d', specs['n_estimators'])
     logger.info('n_jobs           = %d', specs['n_jobs'])
     logger.info('ngrams_max       = %d', specs['ngrams_max'])
+    logger.info('pca              = %r', specs['pca'])
+    logger.info('pca_inc          = %d', specs['pca_inc'])
+    logger.info('pca_max          = %d', specs['pca_max'])
+    logger.info('pca_min          = %d', specs['pca_min'])
+    logger.info('pca_whiten       = %r', specs['pca_whiten'])
     logger.info('poly_degree      = %d', specs['poly_degree'])
     logger.info('project          = %s', specs['project'])
     logger.info('pvalue_level     = %f', specs['pvalue_level'])
     logger.info('rfe              = %r', specs['rfe'])
     logger.info('rfe_step         = %d', specs['rfe_step'])
     logger.info('roc_curve        = %r', specs['roc_curve'])
+    logger.info('sampling         = %r', specs['sampling'])
+    logger.info('sampling_method  = %r', specs['sampling_method'])
+    logger.info('sampling_ratio   = %f', specs['sampling_ratio'])
     logger.info('scorer           = %s', specs['scorer'])
     logger.info('seed             = %d', specs['seed'])
     logger.info('sentinel         = %d', specs['sentinel'])
@@ -396,10 +418,12 @@ def first_fit(model, algo, est):
 
     cv_folds = model.specs['cv_folds']
     esr = model.specs['esr']
+    n_jobs = model.specs['n_jobs']
     scorer = model.specs['scorer']
     seed = model.specs['seed']
     split = model.specs['split']
     sample_weights = model.specs['sample_weights']
+    verbosity = model.specs['verbosity']
 
     # Extract model data.
 
@@ -411,25 +435,9 @@ def first_fit(model, algo, est):
     sss = StratifiedShuffleSplit(y_train, n_iter=cv_folds, test_size=split,
                                  random_state=seed)
 
-    # First Fit
-
-    cv_flag = False
-    if 'XGB' in algo:
-        if scorer in xgb_score_map:
-            X1, X2, y1, y2 = train_test_split(X_train, y_train, test_size=split,
-                                              random_state=seed)
-            eval_set = [(X1, y1), (X2, y2)]
-            eval_metric = xgb_score_map[scorer]
-            est.fit(X1, y1, sample_weight=sample_weights, eval_set=eval_set,
-                    eval_metric=eval_metric, early_stopping_rounds=esr)
-        else:
-            cv_flag = True
-            scores = cross_val_score(est, X_train, y_train, cv=sss, scoring=scorer,
-                                     fit_params={'sample_weight': sample_weights})
-    else:
-        cv_flag = True
-        scores = cross_val_score(est, X_train, y_train, cv=sss, scoring=scorer,
-                                 fit_params={'sample_weight': sample_weights})
+    scores = cross_val_score(est, X_train, y_train, cv=sss, scoring=scorer,
+                             n_jobs=n_jobs, verbose=verbosity,
+                             fit_params={'sample_weight': sample_weights})
 
     # Save the estimator in the model
 
@@ -437,13 +445,7 @@ def first_fit(model, algo, est):
 
     # Record scores
 
-    if cv_flag:
-        logger.info("CV Scores: %s", scores)
-    else:
-        score = est.score(X1, y1)
-        logger.info("Training Score: %.6f", score)
-        score = est.score(X2, y2)
-        logger.info("Testing Score: %.6f", score)
+    logger.info("CV Scores: %s", scores)
 
     # Record importances and coefficients, if available.
 

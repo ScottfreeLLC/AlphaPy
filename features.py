@@ -25,6 +25,7 @@ import pandas as pd
 from scipy import sparse
 import scipy.stats as sps
 from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_selection import f_classif
@@ -361,6 +362,46 @@ def create_clusters(features, model):
 
 
 #
+# Function create_clusters
+#
+
+def create_pca_features(features, model):
+    """
+    Create PCA features.
+    """
+
+    logger.info("Creating PCA Features")
+
+    # Extract model parameters
+
+    pca_inc = model.specs['pca_inc']
+    pca_max = model.specs['pca_max']
+    pca_min = model.specs['pca_min']
+    pca_whiten = model.specs['pca_whiten']
+
+    # Log model parameters
+
+    logger.info("PCA Minimum   : %d", pca_min)
+    logger.info("PCA Maximum   : %d", pca_max)
+    logger.info("PCA Increment : %d", pca_inc)
+    logger.info("PCA Whitening : %r", pca_whiten)
+
+    # Generate clustering features
+
+    pfeatures = np.zeros((features.shape[0], 1))
+    for i in range(pca_min, pca_max+1, pca_inc):
+        logger.info("n_components = %d", i)
+        X_pca = PCA(n_components=i, whiten=pca_whiten).fit_transform(features)
+        pfeatures = np.column_stack((pfeatures, X_pca))
+    pfeatures = np.delete(pfeatures, 0, axis=1)
+
+    # Return new clustering features
+
+    logger.info("PCA Feature Count : %d", pfeatures.shape[1])
+    return pfeatures
+
+
+#
 # Function create_features
 #
 
@@ -372,10 +413,10 @@ def create_features(X, model, X_train, y_train):
     # Extract model parameters
 
     clustering = model.specs['clustering']
-    cluster_max = model.specs['cluster_max']
-    cluster_min = model.specs['cluster_min']
     dummy_limit = model.specs['dummy_limit']
+    model_type = model.specs['model_type']
     ngrams_max = model.specs['ngrams_max']
+    pca = model.specs['pca']
     pvalue_level = model.specs['pvalue_level']
     sentinel = model.specs['sentinel']
     target_value = model.specs['target_value']
@@ -461,6 +502,13 @@ def create_features(X, model, X_train, y_train):
         all_features = np.column_stack((all_features, cfeatures))
         logger.info("New Feature Count : %d", all_features.shape[1])
 
+    # Create PCA features
+
+    if pca:
+        pfeatures = create_pca_features(all_features, model)
+        all_features = np.column_stack((all_features, pfeatures))
+        logger.info("New Feature Count : %d", all_features.shape[1])
+
     # Return all transformed training and test features
 
     return all_features
@@ -470,7 +518,7 @@ def create_features(X, model, X_train, y_train):
 # Function save_features
 #
 
-def save_features(model, X_train, X_test, y_train, y_test):
+def save_features(model, X_train, X_test, y_train=None, y_test=None):
     """
     Save new features in model.
     """
@@ -479,8 +527,10 @@ def save_features(model, X_train, X_test, y_train, y_test):
 
     model.X_train = X_train
     model.X_test = X_test
-    model.y_train = y_train
-    model.y_test = y_test
+    if y_train is not None:
+        model.y_train = y_train
+    if y_test is not None:
+        model.y_test = y_test
 
     return model
 

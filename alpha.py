@@ -16,6 +16,8 @@
 from __future__ import division
 import argparse
 from data import load_data
+from data import sample_data
+from data import shuffle_data
 from estimators import get_estimators
 from estimators import ModelType
 from estimators import scorers
@@ -76,6 +78,7 @@ def pipeline(model):
     n_jobs = model.specs['n_jobs']
     project = model.specs['project']
     rfe = model.specs['rfe']
+    sampling = model.specs['sampling']
     scorer = model.specs['scorer']
     seed = model.specs['seed']
     separator = model.specs['separator']
@@ -95,8 +98,6 @@ def pipeline(model):
     y_test = None    
 
     # Load data based on whether there are 1 or 2 files
-
-    logger.info("Loading Data")
 
     directory = SSEP.join([base_dir, project])
     # load training data
@@ -143,23 +144,28 @@ def pipeline(model):
 
     all_features = create_interactions(new_features, model)
     X_train, X_test = np.array_split(all_features, [split_point])
-    model = save_features(model, X_train, X_test, y_train, y_test)
+    model = save_features(model, X_train, X_test)
 
     # Remove low-variance features
 
     sig_features = remove_lv_features(all_features)
     X_train, X_test = np.array_split(sig_features, [split_point])
-    model = save_features(model, X_train, X_test, y_train, y_test)
+    model = save_features(model, X_train, X_test)
 
-    # Shuffle the data if necessary
+    # Shuffle the data [if specified]
 
-    if shuffle:
-        logger.info("Shuffling Training Data")
-        np.random.seed(seed)
-        new_indices = np.random.permutation(y_train.size)
-        X_train = X_train[new_indices]
-        y_train = y_train[new_indices]
-        model = save_features(model, X_train, X_test, y_train, y_test)
+    model = shuffle_data(model)
+
+    # Oversampling or Undersampling [if specified]
+
+    if sampling:
+        model = sample_data(model)
+    else:
+        logger.info("Skipping Sampling")
+
+    # Get sample weights
+
+    model = get_sample_weights(model)
 
     # Get the available classifiers and regressors 
 
@@ -170,10 +176,6 @@ def pipeline(model):
 
     if scorer not in scorers:
         raise KeyError("Scorer function %s not found", scorer)
-
-    # Get sample weights
-
-    model = get_sample_weights(model)
 
     # Model Selection
 

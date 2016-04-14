@@ -301,12 +301,12 @@ def plot_learning_curve(model, partition):
 
     # Set cross-validation parameters to get mean train and test curves.
 
-    if shuffle:
-        cv = StratifiedShuffleSplit(y, n_iter=cv_folds, test_size=split,
-                                    random_state=seed)
-    else:
-        cv = StratifiedKFold(y, n_folds=cv_folds, shuffle=False,
-                             random_state=seed)
+#    if shuffle:
+    cv = StratifiedShuffleSplit(y, n_iter=cv_folds, test_size=split,
+                                random_state=seed)
+#    else:
+#        cv = StratifiedKFold(y, n_folds=cv_folds, shuffle=False,
+#                             random_state=seed)
 
     # Plot a learning curve for each algorithm.   
 
