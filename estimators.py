@@ -352,10 +352,10 @@ def get_estimators(model):
               "n_estimators" : n_estimators,
               "seed" : seed,
               "max_depth" : 5,
-              "learning_rate" : 0.0202048,
+              "learning_rate" : 0.02,
               "min_child_weight" : 1.0,
-              "subsample" : 0.6815,
-              "colsample_bytree" : 0.701,
+              "subsample" : 0.7,
+              "colsample_bytree" : 0.7,
               "nthread" : n_jobs,
               "silent" : True}
     est = xgb.XGBClassifier(**params)
