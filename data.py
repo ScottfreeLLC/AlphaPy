@@ -165,8 +165,11 @@ def sample_data(model):
 
     # Calculate the sampling ratio if one is not provided.
 
-    uv, uc = np.unique(y_train, return_counts=True)
-    ratio = (uc[not target_value] / uc[target_value]) - 1.0
+    if sampling_ratio > 0.0:
+        ratio = sampling_ratio
+    else:
+        uv, uc = np.unique(y_train, return_counts=True)
+        ratio = (uc[not target_value] / uc[target_value]) - 1.0
     logger.info("Sampling Ratio for target %s [%r]: %f",
                 target, target_value, ratio)
 

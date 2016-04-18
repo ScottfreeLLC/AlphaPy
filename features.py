@@ -28,8 +28,13 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.feature_selection import chi2
 from sklearn.feature_selection import f_classif
 from sklearn.feature_selection import f_regression
+from sklearn.feature_selection import SelectFdr
+from sklearn.feature_selection import SelectFpr
+from sklearn.feature_selection import SelectFwe
+from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import SelectPercentile
 from sklearn.feature_selection import VarianceThreshold
 from sklearn.preprocessing import Imputer
@@ -43,6 +48,19 @@ from var import Variable
 #
 
 logger = logging.getLogger(__name__)
+
+
+#
+# Define feature scoring functions
+#
+
+feature_scorers = {'f_classif'    : f_classif,
+                   'chi2'         : chi2,
+                   'f_regression' : f_regression,
+                   'SelectKBest'  : SelectKBest,
+                   'SelectFpr'    : SelectFpr,
+                   'SelectFdr'    : SelectFdr,
+                   'SelectFwe'    : SelectFwe}
 
 
 #
@@ -512,6 +530,50 @@ def create_features(X, model, X_train, y_train):
     # Return all transformed training and test features
 
     return all_features
+
+
+#
+# Function select_features
+#
+
+def select_features(model):
+    """
+    Select features with univariate selection.
+    """
+
+    logger.info("Feature Selection")
+
+    # Extract model data.
+
+    X_train = model.X_train
+    y_train = model.y_train
+
+    # Extract model parameters.
+
+    fs_percentage = model.specs['fs_percentage']
+    fs_score_func = model.specs['fs_score_func']
+
+    # Select top features based on percentile.
+
+    fs = SelectPercentile(score_func=fs_score_func,
+                          percentile=fs_percentage)
+
+    # Use combined features to transform dataset.
+
+    X = fs.fit(X_train, y_train).transform(X_train)
+
+    # Count the number of new features.
+
+    logger.info("Old Feature Count : %d", X_train.shape[1])
+    logger.info("New Feature Count : %d", X.shape[1])
+
+    # Store the new features in the model.
+
+    model.X_train = X
+
+    # Return the model with the support vector
+
+    return model
 
 
 #

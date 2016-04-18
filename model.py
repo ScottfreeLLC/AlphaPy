@@ -20,6 +20,7 @@ from estimators import Objective
 from estimators import ModelType
 from estimators import scorers
 from estimators import xgb_score_map
+from features import feature_scorers
 from globs import PSEP
 from globs import SSEP
 from globs import USEP
@@ -109,7 +110,6 @@ class Model:
         self.coefs = {}
         self.support = {}
         # Keys: (algorithm, partition)
-        self.scores = {}
         self.preds = {}
         self.probas = {}
         # Keys: (algorithm, partition, metric)
@@ -165,10 +165,6 @@ def get_model_config(cfg_dir):
     specs['test_file'] = cfg['data']['test']
     specs['test_labels'] = cfg['data']['test_labels']
     specs['train_file'] = cfg['data']['train']
-    # interactions
-    specs['interactions'] = cfg['data']['interactions']['option']
-    specs['isample_pct'] = cfg['data']['interactions']['sampling_pct']
-    specs['poly_degree'] = cfg['data']['interactions']['poly_degree']
     # sampling
     specs['sampling'] = cfg['data']['sampling']['option']
     specs['sampling_method'] = SamplingMethod(cfg['data']['sampling']['method'])
@@ -184,6 +180,10 @@ def get_model_config(cfg_dir):
     # genetic
     specs['genetic'] = cfg['features']['genetic']['option']
     specs['gfeatures'] = cfg['features']['genetic']['features']
+    # interactions
+    specs['interactions'] = cfg['features']['interactions']['option']
+    specs['isample_pct'] = cfg['features']['interactions']['sampling_pct']
+    specs['poly_degree'] = cfg['features']['interactions']['poly_degree']
     # pca
     specs['pca'] = cfg['features']['pca']['option']
     specs['pca_min'] = cfg['features']['pca']['minimum']
@@ -206,6 +206,16 @@ def get_model_config(cfg_dir):
     # calibration
     specs['calibration'] = cfg['model']['calibration']['option']
     specs['cal_type'] = cfg['model']['calibration']['type']
+    # feature selection
+    specs['feature_selection'] = cfg['model']['feature_selection']['option']
+    specs['fs_percentage'] = cfg['model']['feature_selection']['percentage']
+    specs['fs_uni_grid'] = cfg['model']['feature_selection']['uni_grid']
+    score_func = cfg['model']['feature_selection']['score_func']
+    if score_func in feature_scorers:
+        specs['fs_score_func'] = feature_scorers[score_func]
+    else:
+        raise ValueError('Invalid feature selection scoring function: %s',
+                         score_func)
     # grid search
     specs['grid_search'] = cfg['model']['grid_search']['option']
     specs['gs_iters'] = cfg['model']['grid_search']['iterations']
@@ -245,67 +255,71 @@ def get_model_config(cfg_dir):
     # Log the configuration parameters
 
     logger.info('MODEL PARAMETERS:')
-    logger.info('algorithms       = %s', specs['algorithms'])
-    logger.info('balance_classes  = %s', specs['balance_classes'])
-    logger.info('base_dir         = %s', specs['base_dir'])
-    logger.info('calibration      = %r', specs['calibration'])
-    logger.info('cal_type         = %s', specs['cal_type'])
-    logger.info('calibration_plot = %r', specs['calibration'])
-    logger.info('clustering       = %r', specs['clustering'])
-    logger.info('cluster_inc      = %d', specs['cluster_inc'])
-    logger.info('cluster_max      = %d', specs['cluster_max'])
-    logger.info('cluster_min      = %d', specs['cluster_min'])
-    logger.info('confusion_matrix = %r', specs['confusion_matrix'])
-    logger.info('cv_folds         = %d', specs['cv_folds'])
-    logger.info('extension        = %s', specs['extension'])
-    logger.info('drop             = %s', specs['drop'])
-    logger.info('dummy_limit      = %d', specs['dummy_limit'])
-    logger.info('esr              = %d', specs['esr'])
-    logger.info('features [X]     = %s', specs['features'])
-    logger.info('genetic          = %r', specs['genetic'])
-    logger.info('gfeatures        = %d', specs['gfeatures'])
-    logger.info('grid_search      = %r', specs['grid_search'])
-    logger.info('gs_iters         = %d', specs['gs_iters'])
-    logger.info('gs_random        = %r', specs['gs_random'])
-    logger.info('gs_sample        = %r', specs['gs_sample'])
-    logger.info('gs_sample_pct    = %f', specs['gs_sample_pct'])
-    logger.info('importances      = %r', specs['importances'])
-    logger.info('interactions     = %r', specs['interactions'])
-    logger.info('isample_pct      = %d', specs['isample_pct'])
-    logger.info('kaggle           = %r', specs['kaggle'])
-    logger.info('learning_curve   = %r', specs['learning_curve'])
-    logger.info('model_type       = %r', specs['model_type'])
-    logger.info('n_estimators     = %d', specs['n_estimators'])
-    logger.info('n_jobs           = %d', specs['n_jobs'])
-    logger.info('ngrams_max       = %d', specs['ngrams_max'])
-    logger.info('pca              = %r', specs['pca'])
-    logger.info('pca_inc          = %d', specs['pca_inc'])
-    logger.info('pca_max          = %d', specs['pca_max'])
-    logger.info('pca_min          = %d', specs['pca_min'])
-    logger.info('pca_whiten       = %r', specs['pca_whiten'])
-    logger.info('poly_degree      = %d', specs['poly_degree'])
-    logger.info('project          = %s', specs['project'])
-    logger.info('pvalue_level     = %f', specs['pvalue_level'])
-    logger.info('rfe              = %r', specs['rfe'])
-    logger.info('rfe_step         = %d', specs['rfe_step'])
-    logger.info('roc_curve        = %r', specs['roc_curve'])
-    logger.info('sampling         = %r', specs['sampling'])
-    logger.info('sampling_method  = %r', specs['sampling_method'])
-    logger.info('sampling_ratio   = %f', specs['sampling_ratio'])
-    logger.info('scorer           = %s', specs['scorer'])
-    logger.info('seed             = %d', specs['seed'])
-    logger.info('sentinel         = %d', specs['sentinel'])
-    logger.info('separator        = %s', specs['separator'])
-    logger.info('shuffle          = %r', specs['shuffle'])
-    logger.info('split            = %f', specs['split'])
-    logger.info('target [y]       = %s', specs['target'])
-    logger.info('target_value     = %d', specs['target_value'])
-    logger.info('test_file        = %s', specs['test_file'])
-    logger.info('test_labels      = %r', specs['test_labels'])
-    logger.info('train_file       = %s', specs['train_file'])
-    logger.info('treatments       = %s', specs['treatments'])
-    logger.info('vectorize        = %r', specs['vectorize'])
-    logger.info('verbosity        = %d', specs['verbosity'])
+    logger.info('algorithms        = %s', specs['algorithms'])
+    logger.info('balance_classes   = %s', specs['balance_classes'])
+    logger.info('base_dir          = %s', specs['base_dir'])
+    logger.info('calibration       = %r', specs['calibration'])
+    logger.info('cal_type          = %s', specs['cal_type'])
+    logger.info('calibration_plot  = %r', specs['calibration'])
+    logger.info('clustering        = %r', specs['clustering'])
+    logger.info('cluster_inc       = %d', specs['cluster_inc'])
+    logger.info('cluster_max       = %d', specs['cluster_max'])
+    logger.info('cluster_min       = %d', specs['cluster_min'])
+    logger.info('confusion_matrix  = %r', specs['confusion_matrix'])
+    logger.info('cv_folds          = %d', specs['cv_folds'])
+    logger.info('extension         = %s', specs['extension'])
+    logger.info('drop              = %s', specs['drop'])
+    logger.info('dummy_limit       = %d', specs['dummy_limit'])
+    logger.info('esr               = %d', specs['esr'])
+    logger.info('features [X]      = %s', specs['features'])
+    logger.info('feature_selection = %r', specs['feature_selection'])
+    logger.info('fs_percentage     = %d', specs['fs_percentage'])
+    logger.info('fs_score_func     = %s', specs['fs_score_func'])
+    logger.info('fs_uni_grid       = %s', specs['fs_uni_grid'])
+    logger.info('genetic           = %r', specs['genetic'])
+    logger.info('gfeatures         = %d', specs['gfeatures'])
+    logger.info('grid_search       = %r', specs['grid_search'])
+    logger.info('gs_iters          = %d', specs['gs_iters'])
+    logger.info('gs_random         = %r', specs['gs_random'])
+    logger.info('gs_sample         = %r', specs['gs_sample'])
+    logger.info('gs_sample_pct     = %f', specs['gs_sample_pct'])
+    logger.info('importances       = %r', specs['importances'])
+    logger.info('interactions      = %r', specs['interactions'])
+    logger.info('isample_pct       = %d', specs['isample_pct'])
+    logger.info('kaggle            = %r', specs['kaggle'])
+    logger.info('learning_curve    = %r', specs['learning_curve'])
+    logger.info('model_type        = %r', specs['model_type'])
+    logger.info('n_estimators      = %d', specs['n_estimators'])
+    logger.info('n_jobs            = %d', specs['n_jobs'])
+    logger.info('ngrams_max        = %d', specs['ngrams_max'])
+    logger.info('pca               = %r', specs['pca'])
+    logger.info('pca_inc           = %d', specs['pca_inc'])
+    logger.info('pca_max           = %d', specs['pca_max'])
+    logger.info('pca_min           = %d', specs['pca_min'])
+    logger.info('pca_whiten        = %r', specs['pca_whiten'])
+    logger.info('poly_degree       = %d', specs['poly_degree'])
+    logger.info('project           = %s', specs['project'])
+    logger.info('pvalue_level      = %f', specs['pvalue_level'])
+    logger.info('rfe               = %r', specs['rfe'])
+    logger.info('rfe_step          = %d', specs['rfe_step'])
+    logger.info('roc_curve         = %r', specs['roc_curve'])
+    logger.info('sampling          = %r', specs['sampling'])
+    logger.info('sampling_method   = %r', specs['sampling_method'])
+    logger.info('sampling_ratio    = %f', specs['sampling_ratio'])
+    logger.info('scorer            = %s', specs['scorer'])
+    logger.info('seed              = %d', specs['seed'])
+    logger.info('sentinel          = %d', specs['sentinel'])
+    logger.info('separator         = %s', specs['separator'])
+    logger.info('shuffle           = %r', specs['shuffle'])
+    logger.info('split             = %f', specs['split'])
+    logger.info('target [y]        = %s', specs['target'])
+    logger.info('target_value      = %d', specs['target_value'])
+    logger.info('test_file         = %s', specs['test_file'])
+    logger.info('test_labels       = %r', specs['test_labels'])
+    logger.info('train_file        = %s', specs['train_file'])
+    logger.info('treatments        = %s', specs['treatments'])
+    logger.info('vectorize         = %r', specs['vectorize'])
+    logger.info('verbosity         = %d', specs['verbosity'])
 
     # Specifications to create the model
 
@@ -375,8 +389,6 @@ def get_sample_weights(model):
     Set sample weights for fitting the model
     """
 
-    logger.info("Getting Sample Weights")
-
     # Extract model parameters.
 
     balance_classes = model.specs['balance_classes']
@@ -391,11 +403,14 @@ def get_sample_weights(model):
 
     sw = None
     if balance_classes:
+        logger.info("Getting Sample Weights")
         uv, uc = np.unique(y_train, return_counts=True)
         weight = uc[not target_value] / uc[target_value]
         logger.info("Sample Weight for target %s [%r]: %f",
                     target, target_value, weight)
-        sw = [weight if x==target_value else 1.0 for x in y_train]    
+        sw = [weight if x==target_value else 1.0 for x in y_train]
+    else:
+        logger.info("Skipping Sample Weights")  
 
     # Set weights
 
@@ -439,21 +454,13 @@ def first_fit(model, algo, est):
                              n_jobs=n_jobs, verbose=verbosity,
                              fit_params={'sample_weight': sample_weights})
 
+    # Record scores
+
+    logger.info("Initial CV Scores for %s: %s", scorer, scores)
+
     # Save the estimator in the model
 
     model.estimators[algo] = est
-
-    # Record scores
-
-    logger.info("CV Scores: %s", scores)
-
-    # Record importances and coefficients, if available.
-
-    if hasattr(est, "feature_importances_"):
-        model.importances[algo] = est.feature_importances_
-
-    if hasattr(est, "coef_"):
-        model.coefs[algo] = est.coef_
 
     return model
 
@@ -474,9 +481,9 @@ def make_predictions(model, algo, calibrate):
 
     cal_type = model.specs['cal_type']
     model_type = model.specs['model_type']
-    sample_weights = model.specs['sample_weights']
-    seed = model.specs['seed']
-    split = model.specs['split']
+
+    # Get the estimator
+
     est = model.estimators[algo]
 
     # Extract model data.
@@ -490,10 +497,10 @@ def make_predictions(model, algo, calibrate):
         X_test = model.X_test
     y_train = model.y_train
 
-    # Fit the final model.
+    # Final Fit
 
-    est.fit(X_train, y_train, sample_weight=sample_weights)
-    model.estimators[algo] = est
+    logger.info("Final Fitting")
+    est.fit(X_train, y_train)
 
     # Calibration
 
@@ -512,19 +519,19 @@ def make_predictions(model, algo, calibrate):
         model.probas[(algo, 'train')] = est.predict_proba(X_train)[:, 1]
         model.probas[(algo, 'test')] = est.predict_proba(X_test)[:, 1]
 
-    # Record the final score.
+    # Record importances and coefficients, if available.
 
-    score = est.score(X_train, y_train)
-    logger.info("Final Score: %.6f", score)
-    model.scores[algo] = score
+    if hasattr(est, "feature_importances_"):
+        model.importances[algo] = est.feature_importances_
 
-    # Training Log Loss
+    if hasattr(est, "coef_"):
+        model.coefs[algo] = est.coef_
 
-    if model_type == ModelType.classification:
-        loss = log_loss(y_train, model.probas[(algo, 'train')])
-        logger.info("Log Loss for %s: %.6f", algo, loss)
+    # Save the estimator in the model
 
-    # Return the model.
+    model.estimators[algo] = est
+
+    # Return the model
 
     end_time = datetime.now()
     time_taken = end_time - start_time
@@ -584,7 +591,7 @@ def predict_best(model):
 
     # Store predictions of best estimator
 
-    logger.info("Best Model is %s with a %s score of %.6f", best_algo, scorer, best_score)
+    logger.info("Best Model is %s with a %s score of %.4f", best_algo, scorer, best_score)
     model.estimators[best_tag] = model.estimators[best_algo]
     model.preds[(best_tag, 'train')] = model.preds[(best_algo, 'train')]
     model.preds[(best_tag, 'test')] = model.preds[(best_algo, 'test')]

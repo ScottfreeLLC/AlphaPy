@@ -26,6 +26,7 @@ from features import create_interactions
 from features import drop_features
 from features import remove_lv_features
 from features import save_features
+from features import select_features
 from globs import CSEP
 from globs import PSEP
 from globs import SSEP
@@ -73,14 +74,12 @@ def pipeline(model):
     drop = model.specs['drop']
     extension = model.specs['extension']
     features = model.specs['features']
+    feature_selection = model.specs['feature_selection']
     grid_search = model.specs['grid_search']
-    n_estimators = model.specs['n_estimators']
-    n_jobs = model.specs['n_jobs']
     project = model.specs['project']
     rfe = model.specs['rfe']
     sampling = model.specs['sampling']
     scorer = model.specs['scorer']
-    seed = model.specs['seed']
     separator = model.specs['separator']
     shuffle = model.specs['shuffle']
     split = model.specs['split']
@@ -88,7 +87,6 @@ def pipeline(model):
     test_file = model.specs['test_file']
     test_labels = model.specs['test_labels']
     train_file = model.specs['train_file']
-    verbosity = model.specs['verbosity']
 
     # Initialize feature variables
 
@@ -170,7 +168,7 @@ def pipeline(model):
     # Get the available classifiers and regressors 
 
     logger.info("Getting All Estimators")
-    estimators = get_estimators(n_estimators, seed, n_jobs, verbosity)
+    estimators = get_estimators(model)
 
     # Get the available scorers
 
@@ -193,6 +191,9 @@ def pipeline(model):
         # initial fit
         model = first_fit(model, algo, est)
         # feature selection
+        if feature_selection and not grid_search:
+            model = select_features(model)
+        # recursive feature elimination
         if rfe:
             if scoring:
                 model = rfecv_search(model, algo)

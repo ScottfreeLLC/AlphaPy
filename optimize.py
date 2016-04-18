@@ -18,12 +18,12 @@ from datetime import datetime
 from estimators import ModelType
 import logging
 import numpy as np
-from scoring import report_scores
-from sklearn.cross_validation import train_test_split
 from sklearn.feature_selection import RFE
 from sklearn.feature_selection import RFECV
+from sklearn.feature_selection import SelectPercentile
 from sklearn.grid_search import GridSearchCV
 from sklearn.grid_search import RandomizedSearchCV
+from sklearn.pipeline import Pipeline
 from time import time
 
 
@@ -151,12 +151,15 @@ def hyper_grid_search(model, estimator):
     # Extract model parameters.
 
     cv_folds = model.specs['cv_folds']
+    feature_selection = model.specs['feature_selection']
+    fs_percentage = model.specs['fs_percentage']
+    fs_score_func = model.specs['fs_score_func']
+    fs_uni_grid = model.specs['fs_uni_grid']
     gs_iters = model.specs['gs_iters']
     gs_random = model.specs['gs_random']
     gs_sample = model.specs['gs_sample']
     gs_sample_pct = model.specs['gs_sample_pct']
     n_jobs = model.specs['n_jobs']
-    sample_weights = model.specs['sample_weights']
     scorer = model.specs['scorer']
     verbosity = model.specs['verbosity']
 
@@ -169,18 +172,37 @@ def hyper_grid_search(model, estimator):
         X_train = X_train[indices]
         y_train = y_train[indices]
 
+    # Convert the grid to pipeline format
+
+    grid_new = {}
+    for k, v in grid.items():
+        new_key = '__'.join(['est', k])
+        grid_new[new_key] = grid[k]
+
+    # Create the pipeline for grid search
+
+    if feature_selection:
+        # Augment the grid for feature selection.
+        fs = SelectPercentile(score_func=fs_score_func,
+                              percentile=fs_percentage)
+        # Combine the feature selection and estimator grids.
+        fs_grid = dict(fs__percentile=fs_uni_grid)
+        grid_new.update(fs_grid)
+        # Create a pipeline with the selected features and estimator.
+        pipeline = Pipeline([("fs", fs), ("est", est)])
+    else:
+        pipeline = Pipeline([("est", est)])
+
     # Create the randomized grid search iterator.
 
     if gs_random:
         logger.info("Randomized Grid Search")
-        gscv = RandomizedSearchCV(est, param_distributions=grid,
+        gscv = RandomizedSearchCV(pipeline, param_distributions=grid_new,
                                   n_iter=gs_iters, scoring=scorer,
-                                  fit_params={'sample_weight': sample_weights},
                                   n_jobs=n_jobs, cv=cv_folds, verbose=verbosity)
     else:
         logger.info("Full Grid Search")
-        gscv = GridSearchCV(est, param_grid=grid, scoring=scorer,
-                            fit_params={'sample_weight': sample_weights},
+        gscv = GridSearchCV(pipeline, param_grid=grid_new, scoring=scorer,
                             n_jobs=n_jobs, cv=cv_folds, verbose=verbosity)
 
     # Fit the randomized search and time it.
@@ -192,13 +214,23 @@ def hyper_grid_search(model, estimator):
                     (time() - start), gs_iters)
     else:
         logger.info("Full Grid Search took %.2f seconds", (time() - start))
+
+    # Log the grid search scoring statistics.
+
+    mean_scores = []
+    for params, mean_score, scores in gscv.grid_scores_:
+        mean_scores.extend([mean_score])
+
+    logger.info("All Scores: Mean %.4f, StdDev %.4f, Min %.4f, Max %.4f",
+                np.mean(mean_scores), np.std(mean_scores),
+                np.min(mean_scores), np.max(mean_scores))
+
     logger.info("Algorithm: %s, Best Score: %.4f, Best Parameters: %s",
                 algo, gscv.best_score_, gscv.best_params_)
 
     # Assign the Grid Search estimator for this algorithm
 
     model.estimators[algo] = gscv.best_estimator_
-    model.scores[algo] = gscv.best_score_
 
     # Return the model with Grid Search estimators
 

@@ -140,9 +140,17 @@ class GradientBoostingClassifierCoef(GradientBoostingClassifier):
 # Random Forest (feature_importances_)
 # Randomized Lasso
 
-def get_estimators(n_estimators, seed, n_jobs, verbosity):
-    # initialize estimator dictionary
+def get_estimators(model):
+
+    # Extract model data
+    n_estimators = model.specs['n_estimators']
+    n_jobs = model.specs['n_jobs']
+    verbosity = model.specs['verbosity']
+    seed = model.specs['seed']
+
+    # Initialize estimator dictionary
     estimators = {}
+
     # AdaBoost
     algo = 'AB'
     model_type = ModelType.classification
@@ -165,7 +173,7 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
     grid = {"loss" : ['deviance', 'exponential'],
             "learning_rate" : [0.05, 0.1, 0.15],
             "n_estimators" : [50, 100, 200],
-            "max_depth" : [3, None],
+            "max_depth" : [3, 5, 10],
             "min_samples_split" : [1, 2, 3],
             "min_samples_leaf" : [1, 2]
             }
@@ -225,7 +233,7 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
             "gamma" : np.logspace(-9, 3, 13),
             "shrinking" : [True, False],
             "tol" : [0.0005, 0.001, 0.005],
-            "decision_function_shape" : ['ovo', 'ovr', None]}
+            "decision_function_shape" : ['ovo', 'ovr']}
     scoring = False
     estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
     # Logistic Regression
@@ -270,7 +278,7 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
             "gamma" : np.logspace(-9, 3, 13),
             "shrinking" : [True, False],
             "tol" : [0.0005, 0.001, 0.005],
-            "decision_function_shape" : ['ovo', 'ovr', None]}
+            "decision_function_shape" : ['ovo', 'ovr']}
     scoring = False
     estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
     # Random Forest
@@ -287,7 +295,7 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
               "verbose" : verbosity}
     est = RandomForestClassifierCoef(**params)
     grid = {"n_estimators" : [21, 51, 101, 201, 501, 1001, 2001],
-            "max_depth" : [5, 10, None],
+            "max_depth" : [5, 7, 10, 20],
             "min_samples_split" : [1, 3, 5, 10],
             "min_samples_leaf" : [1, 2, 3],
             "bootstrap" : [True, False],
@@ -314,7 +322,7 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
             "gamma" : np.logspace(-9, 3, 13),
             "shrinking" : [True, False],
             "tol" : [0.0005, 0.001, 0.005],
-            "decision_function_shape" : ['ovo', 'ovr', None]}
+            "decision_function_shape" : ['ovo', 'ovr']}
     scoring = False
     estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
     # Google TensorFlow Deep Neural Network
@@ -343,16 +351,16 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
     params = {"objective" : 'binary:logistic',
               "n_estimators" : n_estimators,
               "seed" : seed,
-              "max_depth" : 10,
-              "learning_rate" : 0.01,
+              "max_depth" : 5,
+              "learning_rate" : 0.0202048,
               "min_child_weight" : 1.0,
-              "subsample" : 1.0,
-              "colsample_bytree" : 1.0,
+              "subsample" : 0.6815,
+              "colsample_bytree" : 0.701,
               "nthread" : n_jobs,
               "silent" : True}
     est = xgb.XGBClassifier(**params)
-    grid = {"n_estimators" : [21, 51, 101, 201, 501, 1001, 2001],
-            "max_depth" : [None, 5, 6, 7, 8, 9, 10, 11, 12, 15, 20],
+    grid = {"n_estimators" : [21, 51, 101, 201, 501, 1001],
+            "max_depth" : [5, 6, 7, 8, 9, 10, 11, 12, 15, 20],
             "learning_rate" : [0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.07, 0.1],
             "min_child_weight" : [1.0, 1.1],
             "subsample" : [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
@@ -399,8 +407,8 @@ def get_estimators(n_estimators, seed, n_jobs, verbosity):
               "verbose" : verbosity}
     est = ExtraTreesClassifierCoef(**params)
     grid = {"n_estimators" : [21, 51, 101, 201, 501, 1001, 2001],
-            "max_features" : ['auto', 'sqrt', 'log2', None],
-            "max_depth" : [3, 5, 7, 10, 20, 30, None],
+            "max_features" : ['auto', 'sqrt', 'log2'],
+            "max_depth" : [3, 5, 7, 10, 20, 30],
             "min_samples_split" : [1, 2, 3],
             "min_samples_leaf" : [1, 2],
             "bootstrap" : [True, False],

@@ -114,12 +114,13 @@ def generate_plots(model, partition):
         plot_calibration(model, partition)
     if confusion_matrix:
         plot_confusion_matrix(model, partition)
-    if importances and partition == 'train':
-        plot_importance(model, partition)
-    if learning_curve:
-        plot_learning_curve(model, partition)
-    if roc_curve:
-        plot_roc_curve(model, partition)
+    if partition == 'train':
+        if importances:
+            plot_importance(model, partition)
+        if learning_curve:
+            plot_learning_curve(model, partition)
+        if roc_curve:
+            plot_roc_curve(model, partition)
 
     # plot_boundary(model)
     # plot_scatterplot(model)
@@ -273,7 +274,7 @@ def plot_importance(model, partition):
 
 def plot_learning_curve(model, partition):
     """
-    Generate training and test learning curves.
+    Generate learning curves for a given partition.
 
     Parameters
     ----------
@@ -301,12 +302,8 @@ def plot_learning_curve(model, partition):
 
     # Set cross-validation parameters to get mean train and test curves.
 
-#    if shuffle:
     cv = StratifiedShuffleSplit(y, n_iter=cv_folds, test_size=split,
                                 random_state=seed)
-#    else:
-#        cv = StratifiedKFold(y, n_folds=cv_folds, shuffle=False,
-#                             random_state=seed)
 
     # Plot a learning curve for each algorithm.   
 
@@ -353,7 +350,7 @@ def plot_learning_curve(model, partition):
 
 def plot_roc_curve(model, partition):
     """
-    Display feature importances
+    Display ROC Curves with Cross-Validation
     """
 
     logger.info("Generating ROC Curves")
