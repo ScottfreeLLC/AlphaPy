@@ -26,26 +26,6 @@
 # 'xmaup_20_50_20_200'
 # 'xmaup_10_50_20_50'
 #
-# Variable('xmaup', 'cma_20 > cma_50', 'runs', 50) generates:
-#     xmaup_20_50
-#     xmaup_20_50_runs_50
-#
-# Variable('xmaup', 'cma_20 > cma_50', ['streak', 'zscore'], 50) generates:
-#     xmaup_20_50
-#     xmaup_20_50_streak_50
-#     xmaup_20_50_zscore_50
-#
-# Variable('xmaup', 'cma_20 > cma_50', 'rtotal', 50) generates:
-#     xmaup_20_50
-#     xmaup_20_50_rtotal_50
-#
-# Variable('xmaup', 'cma_20 > cma_50', 'all', 50) generates:
-#     xmaup_20_50
-#     xmaup_20_50_runs_50
-#     xmaup_20_50_rtotal_50
-#     xmaup_20_50_streak_50
-#     xmaup_20_50_zscore_50
-#
 
 
 #
@@ -91,8 +71,6 @@ class Variable(object):
     def __new__(cls,
                 name,
                 expr,
-                window = 0,
-                wfunc = [],
                 replace = False):
         # code
         efound = expr in [Variable.variables[key].expr for key in Variable.variables]
@@ -119,14 +97,10 @@ class Variable(object):
     def __init__(self,
                  name,
                  expr,
-                 window = 0,
-                 wfunc = [],
                  replace = False):
         # code
         self.name = name;
         self.expr = expr;
-        self.window = window;
-        self.wfunc = wfunc;
         # add key with expression
         Variable.variables[name] = self
             
@@ -273,13 +247,14 @@ def vexec(f, v):
     if vxlag not in f.columns:
         if root in Variable.variables:
             logger.debug("Found variable %s: ", root)
-            expr = Variable.variables[root].expr
+            vroot = Variable.variables[root]
+            expr = vroot.expr
             expr_new = vsub(vxlag, expr)
             estr = "%s" % expr_new
             estr = BSEP.join([vxlag, '=', estr])
             logger.debug("Expression: %s", estr)
             # pandas eval
-            f.eval(estr)
+            f.eval(estr, inplace=True)
         else:
             logger.debug("Did not find variable: %s", root)
             # must be a function call
@@ -323,7 +298,7 @@ def vapply(group, vname):
             f = Frame.frames[fname].df
             for v in allv:
                 logger.debug("Applying variable %s to %s", v, g)
-                vexec(f, v)
+                f = vexec(f, v)
         else:
             logger.info("Frame not found: %s", fname)
     # output frame
@@ -378,25 +353,22 @@ def vmunapply(group, vs):
 #
 # 1. datetime functions
 #
-#   date, datetime, time, timedelta
+#    date, datetime, time, timedelta
 #
 # 2. numpy unary ufuncs (PDA p. 96)
 #
-#   abs, ceil, cos, exp, floor, log, log10, log2, modf, rint, sign,
-#   sin, square, sqrt, tan
+#    abs, ceil, cos, exp, floor, log, log10, log2, modf, rint, sign,
+#    sin, square, sqrt, tan
 #
 # 3. moving window and exponential functions (PDA p. 323)
 #
-#   ewma, ewmcorr, ewmcov, ewmstd, ewmvar, rolling_apply, rolling_corr,
-#   rolling_cov, rolling_count, rolling_kurt, rolling_max, rolling_mean,
-#   rolling_median, rolling_min, rolling_quantile, rolling_skew, rolling_std,
-#   rolling_sum, rolling_var
+#    rolling, ewm
 #
 # 5. pandas descriptive and summary statistical functions (PDA p. 139)
 #
-#   argmin, argmax, count, cummax, cummin, cumprod, cumsum, describe,
-#   diff, idxmin, idxmax, kurt, mad, max, mean, median, min, pct_change,
-#   quantile, skew, std, sum, var
+#    argmin, argmax, count, cummax, cummin, cumprod, cumsum, describe,
+#    diff, idxmin, idxmax, kurt, mad, max, mean, median, min, pct_change,
+#    quantile, skew, std, sum, var
 #
 # 6. time series (PDA p. 289-328)
 #
@@ -471,7 +443,7 @@ def higher(f, c, o = 1):
 #
 
 def highest(f, c, p = 20):
-    return pd.rolling_max(f[c], p)
+    return f[c].rolling(p).max()
 
 
 #
@@ -487,7 +459,7 @@ def lower(f, c, o = 1):
 #
 
 def lowest(f, c, p = 20):
-    return pd.rolling_min(f[c], p)
+    return f[c].rolling(p).min()
 
 
 #
@@ -495,7 +467,7 @@ def lowest(f, c, p = 20):
 #
 
 def ma(f, c, p = 20):
-    return pd.rolling_mean(f[c], p)
+    return f[c].rolling(p).mean()
 
 
 #
@@ -724,7 +696,7 @@ def diplus(f, p = 14):
     vexec(f, atr)
     dmp = 'dmplus'
     vexec(f, dmp)
-    return 100 * pd.ewma(f[dmp], span=p) / f[atr]
+    return 100 * f[dmp].ewm(span=p).mean() / f[atr]
 
 
 #
@@ -738,7 +710,7 @@ def diminus(f, p = 14):
     vexec(f, atr)
     dmm = 'dmminus'
     f[dmm] = dminus(f)
-    return 100 * pd.ewma(dminus(f), span=p) / f[atr]
+    return 100 * dminus(f).ewm(span=p).mean() / f[atr]
 
 
 #
@@ -755,7 +727,7 @@ def adx(f, p = 14):
     dim = f[c2]
     didiff = abs(dip - dim)
     disum = dip + dim
-    return 100 * pd.ewma(didiff, span=p) / disum
+    return 100 * didiff.ewm(span=p).mean() / disum
 
 
 #

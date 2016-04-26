@@ -22,6 +22,16 @@ import re
 
 
 #
+# Function valid_name
+#
+
+def valid_name(name):
+    identifier = re.compile(r"^[^\d\W]\w*\Z", re.UNICODE)
+    result = re.match(identifier, name)
+    return result is not None
+
+
+#
 # Function remove_list_items
 #
 
@@ -72,67 +82,3 @@ def list_files(path, s, extension):
             if match:
                 final_set.append(f)
     return final_set
-
-
-#
-# Function rtotal
-#
-# Example: pd.rolling_apply(rvec, 20, rtotal)
-#
-
-def rtotal(vec):
-    tcount = np.count_nonzero(vec)
-    fcount = len(vec) - tcount
-    return tcount - fcount
-
-
-#
-# Function runs
-#
-# Example: pd.rolling_apply(rvec, 20, runs)
-#
-
-def runs(vec):
-    return len(list(groupby(vec)))
-
-
-#
-# Function streak
-#
-# Example: pd.rolling_apply(rvec, 20, streak)
-#
-
-def streak(vec):
-    return [len(list(g)) for k, g in groupby(vec)][-1]
-
-
-#
-# Function valid_name
-#
-
-def valid_name(name):
-    identifier = re.compile(r"^[^\d\W]\w*\Z", re.UNICODE)
-    result = re.match(identifier, name)
-    return result is not None
-
-
-#
-# Function zscore
-#
-# Example: pd.rolling_apply(rvec, 20, zscore)
-#
-
-def zscore(vec):
-    n1 = np.count_nonzero(vec)
-    n2 = len(vec) - n1
-    fac1 = float(2 * n1 * n2)
-    fac2 = float(n1 + n2)
-    rbar = fac1 / fac2 + 1
-    sr2num = fac1 * (fac1 - n1 - n2)
-    sr2den = math.pow(fac2, 2) * (fac2 - 1)
-    sr = math.sqrt(sr2num / sr2den)
-    if sr2den and sr:
-        zscore = (runs(vec) - rbar) / sr
-    else:
-        zscore = 0
-    return zscore

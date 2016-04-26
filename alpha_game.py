@@ -464,8 +464,7 @@ if __name__ == '__main__':
     train_date = datetime.date(1900, 1, 1)
     train_date = train_date.strftime('%Y-%m-%d')
     predict_date = datetime.datetime.now()
-    predict_date = '2016-01-01' # predict_date.strftime("%Y-%m-%d")
-
+    predict_date = '2016-03-01' # predict_date.strftime("%Y-%m-%d")
 
     #
     # Run the game pipeline on a seasonal loop

@@ -366,6 +366,7 @@ def plot_roc_curve(model, partition):
     cv_folds = model.specs['cv_folds']
     seed = model.specs['seed']
     shuffle = model.specs['shuffle']
+    split = model.specs['split']
 
     # Get X, Y for correct partition.
 

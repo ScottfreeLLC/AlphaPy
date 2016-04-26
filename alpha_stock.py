@@ -76,6 +76,13 @@ def get_stock_config(cfg_dir):
     sspecs = ['stock', specs['schema'], specs['fractal']]    
     space = Space(*sspecs)
 
+    # Section: features
+
+    try:
+        specs['features'] = cfg['features']
+    except:
+        logger.info("No Features Found")
+
     # Section: groups
 
     try:
@@ -105,6 +112,7 @@ def get_stock_config(cfg_dir):
     # Log the stock parameters
 
     logger.info('STOCK PARAMETERS:')
+    logger.info('features        = %d', specs['features'])
     logger.info('forecast_period = %d', specs['forecast_period'])
     logger.info('fractal         = %s', specs['fractal'])
     logger.info('leaders         = %s', specs['leaders'])
@@ -135,6 +143,7 @@ def pipeline(model, stock_specs):
 
     # Get any stock specifications
 
+    features = stock_specs['features']
     forecast_period = stock_specs['forecast_period']
     leaders = stock_specs['leaders']
     lookback_period = stock_specs['lookback_period']
@@ -151,26 +160,9 @@ def pipeline(model, stock_specs):
 
     get_remote_data(gs, datetime.now() - timedelta(lookback_period))
 
-    # Define feature sets
-
-    features_gap = ['gap', 'gapbadown', 'gapbaup', 'gapdown', 'gapup']
-    features_ma = ['cma_5', 'cma_10', 'cma_20', 'cma_50', 'madelta']
-    features_range = ['net', 'netup', 'netdown', 'rr', 'rr_2', 'rr_3', 'rr_4', 'rr_5', \
-                      'rr_6', 'rr_7', 'rrunder', 'rrover']
-    features_roi = ['roi', 'roi_2', 'roi_3', 'roi_4', 'roi_5', 'roi_10', 'roi_20']
-    features_sep = ['sepa', 'sepa_2', 'sepa_3', 'sepa_4', 'sepa_5', 'sepa_6', 'sepa_7', \
-                    'sephigh', 'seplow', 'sepover', 'sepunder']
-    features_simple = ['hc', 'hh', 'ho', 'hl', 'lc', 'lh', 'll', 'lo']
-    features_trend = ['adx', 'diplus', 'diminus', 'trend', 'rsi_8', 'rsi_14', 'bigdown', 'bigup']
-    features_volatility = ['atr', 'volatility', 'nr_4', 'nr_7', 'nr_10', 'wr_4', 'wr_7', 'wr_10']
-    features_volume = ['vmover', 'vmunder', 'vma', 'vmratio']
-    features_all = features_gap + features_ma + features_range + features_roi + \
-                   features_sep + features_simple + features_trend + features_volatility + \
-                   features_volume
-
     # Apply the features to all of the frames
 
-    vmapply(gs, features_all)
+    vmapply(gs, features)
     vmapply(gs, [target])
 
     # Run the analysis, including the model pipeline

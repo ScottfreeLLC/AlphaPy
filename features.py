@@ -19,12 +19,14 @@ from globs import BSEP
 from globs import NULLTEXT
 from globs import USEP
 from gplearn.genetic import SymbolicTransformer
+from itertools import groupby
 import logging
+import math
 import numpy as np
 import pandas as pd
 from scipy import sparse
 import scipy.stats as sps
-from sklearn.cluster import KMeans
+from sklearn.cluster import MiniBatchKMeans
 from sklearn.decomposition import PCA
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
@@ -61,6 +63,86 @@ feature_scorers = {'f_classif'    : f_classif,
                    'SelectFpr'    : SelectFpr,
                    'SelectFdr'    : SelectFdr,
                    'SelectFwe'    : SelectFwe}
+
+
+#
+# Function rtotal
+#
+# Example: rvec.rolling(window=20).apply(rtotal)
+#
+
+def rtotal(vec):
+    tcount = np.count_nonzero(vec)
+    fcount = len(vec) - tcount
+    return tcount - fcount
+
+
+#
+# Function runs
+#
+# Example: rvec.rolling(window=20).apply(runs)
+#
+
+def runs(vec):
+    return len(list(groupby(vec)))
+
+
+#
+# Function streak
+#
+# Example: rvec.rolling(window=20).apply(streak)
+#
+
+def streak(vec):
+    return [len(list(g)) for k, g in groupby(vec)][-1]
+
+
+#
+# Function zscore
+#
+# Example: rvec.rolling(window=20).apply(zscore)
+#
+
+def zscore(vec):
+    n1 = np.count_nonzero(vec)
+    n2 = len(vec) - n1
+    fac1 = float(2 * n1 * n2)
+    fac2 = float(n1 + n2)
+    rbar = fac1 / fac2 + 1
+    sr2num = fac1 * (fac1 - n1 - n2)
+    sr2den = math.pow(fac2, 2) * (fac2 - 1)
+    sr = math.sqrt(sr2num / sr2den)
+    if sr2den and sr:
+        zscore = (runs(vec) - rbar) / sr
+    else:
+        zscore = 0
+    return zscore
+
+    
+#
+# Function runs_test
+#
+
+def runs_test(f, c, wfuncs, window):
+    fc = f[c]
+    all_funcs = {'runs'   : runs,
+                 'streak' : streak,
+                 'rtotal' : rtotal,
+                 'zscore' : zscore}
+    # use all functions
+    if 'all' in wfuncs:
+        wfuncs = all_funcs.keys()
+    # apply each of the runs functions
+    new_features = pd.DataFrame()
+    for w in wfuncs:
+        if w in all_funcs:
+            new_feature = fc.rolling(window=window).apply(all_funcs[w])
+            new_feature.fillna(0, inplace=True)
+            frames = [new_features, new_feature]
+            new_features = pd.concat(frames, axis=1)
+        else:
+            logger.info("Runs Function %s not found", w)
+    return new_features
 
 
 #
@@ -367,7 +449,8 @@ def create_clusters(features, model):
     cfeatures = np.zeros((features.shape[0], 1))
     for i in range(cluster_min, cluster_max+1, cluster_inc):
         logger.info("k = %d", i)
-        km = KMeans(n_clusters=i, random_state=seed, n_jobs=n_jobs).fit(features)
+        km = MiniBatchKMeans(n_clusters=i, random_state=seed)
+        km.fit(features)
         labels = km.predict(features)
         labels = labels.reshape(-1, 1)
         cfeatures = np.column_stack((cfeatures, labels))
