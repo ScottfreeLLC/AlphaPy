@@ -116,8 +116,6 @@ def shuffle_data(model):
     Shuffle training data
     """
 
-    logger.info("Shuffling Training Data")
-
     # Extract model parameters.
 
     seed = model.specs['seed']
@@ -131,10 +129,13 @@ def shuffle_data(model):
     # Shuffle data
 
     if shuffle:
+        logger.info("Shuffling Training Data")
         np.random.seed(seed)
         new_indices = np.random.permutation(y_train.size)
         model.X_train = X_train[new_indices]
         model.y_train = y_train[new_indices]
+    else:
+        logger.info("Skipping Shuffling")
 
     return model
 
@@ -202,7 +203,7 @@ def sample_data(model):
     elif sampling_method == SamplingMethod.ensemble_bc:
         sampler = BalanceCascade(verbose=verbosity)
     else:
-        raise TypeError("Unknown Sampling Method")
+        raise ValueError("Unknown Sampling Method %s", sampling_method)
 
     # Get the newly sampled features.
 

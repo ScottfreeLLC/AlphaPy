@@ -134,7 +134,7 @@ def pipeline(model):
 
     # Create initial features
 
-    new_features = create_features(X, model, X_train, y_train)
+    new_features = create_features(X, model, split_point, y_train)
     X_train, X_test = np.array_split(new_features, [split_point])
     model = save_features(model, X_train, X_test, y_train, y_test)
 

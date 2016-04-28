@@ -20,11 +20,11 @@ from estimators import Objective
 from estimators import ModelType
 from estimators import scorers
 from estimators import xgb_score_map
+from features import Encoders
 from features import feature_scorers
 from globs import PSEP
 from globs import SSEP
 from globs import USEP
-from group import Group
 import logging
 import numpy as np
 import pandas as pd
@@ -167,7 +167,15 @@ def get_model_config(cfg_dir):
     specs['train_file'] = cfg['data']['train']
     # sampling
     specs['sampling'] = cfg['data']['sampling']['option']
-    specs['sampling_method'] = SamplingMethod(cfg['data']['sampling']['method'])
+    # determine whether or not sampling method is valid
+    samplers = {x.name: x.value for x in SamplingMethod}
+    sampling_method = cfg['data']['sampling']['method']
+    if sampling_method in samplers:
+        specs['sampling_method'] = SamplingMethod(samplers[sampling_method])
+    else:
+        raise ValueError(".yml data:sampling:method %s unrecognized",
+                         sampling_method)
+    # end of sampling method
     specs['sampling_ratio'] = cfg['data']['sampling']['ratio']
 
     # Section: features
@@ -177,6 +185,15 @@ def get_model_config(cfg_dir):
     specs['cluster_min'] = cfg['features']['clustering']['minimum']
     specs['cluster_max'] = cfg['features']['clustering']['maximum']
     specs['cluster_inc'] = cfg['features']['clustering']['increment']
+    # encoding
+    specs['rounding'] = cfg['features']['encoding']['rounding']
+    # determine whether or not encoder is valid
+    encoders = {x.name: x.value for x in Encoders}
+    encoder = cfg['features']['encoding']['type']
+    if encoder in encoders:
+        specs['encoder'] = Encoders(encoders[encoder])
+    else:
+        raise ValueError(".yml features:encoding:type %s unrecognized", encoder)
     # genetic
     specs['genetic'] = cfg['features']['genetic']['option']
     specs['gfeatures'] = cfg['features']['genetic']['features']
@@ -199,7 +216,14 @@ def get_model_config(cfg_dir):
     specs['algorithms'] = cfg['model']['algorithms']
     specs['balance_classes'] = cfg['model']['balance_classes']
     specs['cv_folds'] = cfg['model']['cv_folds']
-    specs['model_type'] = ModelType(cfg['model']['type'])
+    # determine whether or not model type is valid
+    model_types = {x.name: x.value for x in ModelType}
+    model_type = cfg['model']['type']
+    if model_type in model_types:
+        specs['model_type'] = ModelType(model_types[model_type])
+    else:
+        raise ValueError(".yml model:type %s unrecognized", model_type)
+    # end of model type
     specs['n_estimators'] = cfg['model']['estimators']
     specs['pvalue_level'] = cfg['model']['pvalue_level']
     specs['scorer'] = cfg['model']['scoring_function']
@@ -214,7 +238,7 @@ def get_model_config(cfg_dir):
     if score_func in feature_scorers:
         specs['fs_score_func'] = feature_scorers[score_func]
     else:
-        raise ValueError('Invalid feature selection scoring function: %s',
+        raise ValueError('.yml model:feature_selection:score_func %s unrecognized',
                          score_func)
     # grid search
     specs['grid_search'] = cfg['model']['grid_search']['option']
@@ -270,6 +294,7 @@ def get_model_config(cfg_dir):
     logger.info('extension         = %s', specs['extension'])
     logger.info('drop              = %s', specs['drop'])
     logger.info('dummy_limit       = %d', specs['dummy_limit'])
+    logger.info('encoder           = %r', specs['encoder'])
     logger.info('esr               = %d', specs['esr'])
     logger.info('features [X]      = %s', specs['features'])
     logger.info('feature_selection = %r', specs['feature_selection'])
@@ -303,6 +328,7 @@ def get_model_config(cfg_dir):
     logger.info('rfe               = %r', specs['rfe'])
     logger.info('rfe_step          = %d', specs['rfe_step'])
     logger.info('roc_curve         = %r', specs['roc_curve'])
+    logger.info('rounding          = %d', specs['rounding'])
     logger.info('sampling          = %r', specs['sampling'])
     logger.info('sampling_method   = %r', specs['sampling_method'])
     logger.info('sampling_ratio    = %f', specs['sampling_ratio'])

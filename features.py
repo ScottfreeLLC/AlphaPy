@@ -13,7 +13,8 @@
 # Imports
 #
 
-from __future__ import division
+import category_encoders as ce
+from enum import Enum, unique
 from estimators import ModelType
 from globs import BSEP
 from globs import NULLTEXT
@@ -24,6 +25,7 @@ import logging
 import math
 import numpy as np
 import pandas as pd
+import re
 from scipy import sparse
 import scipy.stats as sps
 from sklearn.cluster import MiniBatchKMeans
@@ -50,6 +52,22 @@ from var import Variable
 #
 
 logger = logging.getLogger(__name__)
+
+
+#
+# Encoder Types
+#
+
+@unique
+class Encoders(Enum):
+    onehot = 1
+    ordinal = 2
+    hashing = 3
+    binary = 4
+    helmert = 5
+    sumcont = 6
+    polynomial = 7
+    backdiff = 8
 
 
 #
@@ -207,6 +225,7 @@ def apply_treatment(fnum, fname, df, nvalues, fparams):
     else:
         fcall = func + '(df, \'' + fname + '\', ' + ')'
     logger.info("Function Call: %s", fcall)
+    # Apply the treatment
     return eval(fcall)
 
 
@@ -292,10 +311,7 @@ def get_text_features(fnum, fname, df, nvalues, dummy_limit,
     # need a null text placeholder for vectorization
     feature.fillna(value=NULLTEXT, inplace=True)
     # vectorization creates many columns, otherwise just factorize
-    if nvalues >= dummy_limit:
-        logger.info("Feature %d: %s => Factorization", fnum, fname)
-        new_features, uniques = pd.factorize(feature)
-    elif vectorize:
+    if vectorize:
         logger.info("Feature %d: %s => Attempting Vectorization", fnum, fname)
         count_vect = CountVectorizer(ngram_range=[1, ngrams_max])
         try:
@@ -304,41 +320,71 @@ def get_text_features(fnum, fname, df, nvalues, dummy_limit,
             new_features = tfidf_transformer.fit_transform(count_feature).todense()
             logger.info("Feature %d: %s => Vectorization Succeeded", fnum, fname)
         except:
-            logger.info("Feature %d: %s => Factorization Instead", fnum, fname)
+            logger.info("Feature %d: %s => Vectorization Failed", fnum, fname)
             new_features, uniques = pd.factorize(feature)
     else:
-        logger.info("Feature %d: %s => One-Hot Encoding", fnum, fname)
-        new_features = pd.get_dummies(feature)
+        logger.info("Feature %d: %s => Factorization", fnum, fname)
+        new_features, uniques = pd.factorize(feature)
     return new_features
+
+
+#
+# Function float_factor
+#
+
+def float_factor(x, rounding):
+    num2str = '{0:.{1}f}'.format
+    return int(re.sub("[^0-9]", "", num2str(x, rounding)))
 
 
 #
 # Function get_factors
 #
 
-def get_factors(fnum, fname, df, nvalues, dtype, sentinel,
-                target_value, X, y):
+def get_factors(fnum, fname, df, nvalues, dtype, encoder, rounding,
+                sentinel, target_value, X, y):
     """
     Factorize a feature.
     """
-    logger.info("Feature %d: %s is a factor with %d unique values",
-                fnum, fname, nvalues)
-    feature = X[fname]
-    # will need to factorize anything other than integer
-    if dtype == 'int64':
-        labels = feature
-    elif dtype == 'object':
-        labels, uniques = pd.factorize(feature, na_sentinel=sentinel)
+    logger.info("Feature %d: %s is a factor of type %s with %d unique values",
+                fnum, fname, dtype, nvalues)
+    logger.info("Encoding: %s", encoder)
+    feature = df[fname]
+    if dtype == 'float64':
+        logger.info("Rounding: %d", rounding)
+        feature = feature.apply(float_factor, args=[rounding])
+    # encoders
+    ef = pd.DataFrame(feature)
+    if encoder == Encoders.onehot:
+        enc = ce.OneHotEncoder(cols=[fname])
+    elif encoder == Encoders.ordinal:
+        enc = ce.OrdinalEncoder(cols=[fname])
+    elif encoder == Encoders.hashing:
+        enc = ce.HashingEncoder(cols=[fname])
+    elif encoder == Encoders.binary:
+        enc = ce.BinaryEncoder(cols=[fname])
+    elif encoder == Encoders.helmert:
+        enc = ce.HelmertEncoder(cols=[fname])
+    elif encoder == Encoders.sumcont:
+        enc = ce.SumEncoder(cols=[fname])
+    elif encoder == Encoders.polynomial:
+        enc = ce.PolynomialEncoder(cols=[fname])
+    elif encoder == Encoders.backdiff:
+        enc = ce.BackwardDifferenceEncoder(cols=[fname])
     else:
-        raise TypeError("Unknown data type for factorization")
+        raise ValueError("Unknown Encoder %s", encoder)
+    ce_features = enc.fit_transform(ef, None)
     # get the crosstab between feature labels and target
-    ct = pd.crosstab(labels, y).apply(lambda r : r / r.sum(), axis=1)
+    logger.info("Calculating target percentages")
+    ct = pd.crosstab(X[fname], y).apply(lambda r : r / r.sum(), axis=1)
     # map target percentages to the new feature
     ct_map = ct.to_dict()[target_value]
-    new_feature = df[[fname]].applymap(ct_map.get)
+    ct_feature = df[[fname]].applymap(ct_map.get)
     # impute sentinel for any values that could not be mapped
-    new_feature.fillna(value=sentinel, inplace=True)
-    return new_feature
+    ct_feature.fillna(value=sentinel, inplace=True)
+    # concatenate all generated features
+    all_features = np.column_stack((ce_features, ct_feature))
+    return all_features
 
 
 #
@@ -506,7 +552,7 @@ def create_pca_features(features, model):
 # Function create_features
 #
 
-def create_features(X, model, X_train, y_train):
+def create_features(X, model, split_point, y_train):
     """
     Extract features from the training and test set.
     """
@@ -515,10 +561,12 @@ def create_features(X, model, X_train, y_train):
 
     clustering = model.specs['clustering']
     dummy_limit = model.specs['dummy_limit']
+    encoder = model.specs['encoder']
     model_type = model.specs['model_type']
     ngrams_max = model.specs['ngrams_max']
     pca = model.specs['pca']
     pvalue_level = model.specs['pvalue_level']
+    rounding = model.specs['rounding']
     sentinel = model.specs['sentinel']
     target_value = model.specs['target_value']
     treatments = model.specs['treatments']
@@ -546,14 +594,21 @@ def create_features(X, model, X_train, y_train):
 
     logger.info("Creating Base Features")
 
+    X_train, X_test = np.array_split(X, [split_point])
     all_features = np.zeros((X.shape[0], 1))
+
     for i, fc in enumerate(X):
         fnum = i + 1
         dtype = X[fc].dtypes
         nunique = len(X[fc].unique())
-        # standard processing of numerical, categorical, and text features
+        # treatments
         if treatments and fc in treatments:
             features = apply_treatment(fnum, fc, X, nunique, treatments[fc])
+            all_features = np.column_stack((all_features, features))
+        # standard processing of numerical, categorical, and text features
+        if nunique <= dummy_limit:
+            features = get_factors(fnum, fc, X, nunique, dtype, encoder, rounding,
+                                   sentinel, target_value, X_train, y_train)            
         elif dtype == 'float64' or dtype == 'int64' or dtype == 'bool':
             features = get_numerical_features(fnum, fc, X, nunique, dtype,
                                               pvalue_level)
@@ -561,18 +616,9 @@ def create_features(X, model, X_train, y_train):
             features = get_text_features(fnum, fc, X, nunique, dummy_limit,
                                          vectorize, ngrams_max)
         else:
-            raise TypeError("The pandas column type %s is unrecognized", dtype)
+            raise TypeError("Base Feature Error with unrecognized type %s", dtype)
         if features is not None:
             all_features = np.column_stack((all_features, features))
-        # factorization
-        condition1 = nunique <= dummy_limit
-        condition2 = (dtype == 'int64' or dtype == 'object')
-        condition3 = fc in X_train.columns
-        if condition1 and condition2 and condition3:
-            features = get_factors(fnum, fc, X, nunique, dtype, sentinel,
-                                   target_value, X_train, y_train)
-            if features is not None:
-                all_features = np.column_stack((all_features, features))
     all_features = np.delete(all_features, 0, axis=1)
 
     logger.info("New Feature Count : %d", all_features.shape[1])
