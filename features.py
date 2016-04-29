@@ -356,7 +356,7 @@ def get_factors(fnum, fname, df, nvalues, dtype, encoder, rounding,
     # encoders
     ef = pd.DataFrame(feature)
     if encoder == Encoders.onehot:
-        enc = ce.OneHotEncoder(cols=[fname])
+        ce_features = pd.get_dummies(feature)
     elif encoder == Encoders.ordinal:
         enc = ce.OrdinalEncoder(cols=[fname])
     elif encoder == Encoders.hashing:
@@ -373,7 +373,8 @@ def get_factors(fnum, fname, df, nvalues, dtype, encoder, rounding,
         enc = ce.BackwardDifferenceEncoder(cols=[fname])
     else:
         raise ValueError("Unknown Encoder %s", encoder)
-    ce_features = enc.fit_transform(ef, None)
+    if encoder != Encoders.onehot:
+        ce_features = enc.fit_transform(ef, None)
     # get the crosstab between feature labels and target
     logger.info("Calculating target percentages")
     ct = pd.crosstab(X[fname], y).apply(lambda r : r / r.sum(), axis=1)
@@ -820,18 +821,6 @@ def drop_features(X, drop):
     logger.info("Dropping Features: %s", drop)
     X.drop(drop, axis=1, inplace=True, errors='ignore')
 
-    # Remove constant columns
-
-    remove = []
-    for col in X.columns:
-        dtype = X[col].dtypes
-        if dtype == 'float64' or dtype == 'int64':
-            if X[col].std() == 0:
-                remove.append(col)
-    logger.info("Removing Constant Columns: %s", remove)
-    X.drop(remove, axis=1, inplace=True)
-    logger.info("Removed %d Constant Features", len(remove))
-
     # Remove duplicated columns
 
     remove = []
@@ -844,6 +833,18 @@ def drop_features(X, drop):
     logger.info("Removing Duplicated Columns: %s", remove)
     X.drop(remove, axis=1, inplace=True)
     logger.info("Removed %d Duplicated Features", len(remove))
+
+    # Remove constant columns
+
+    remove = []
+    for col in X.columns:
+        dtype = X[col].dtypes
+        if dtype == 'float64' or dtype == 'int64':
+            if X[col].std() == 0:
+                remove.append(col)
+    logger.info("Removing Constant Columns: %s", remove)
+    X.drop(remove, axis=1, inplace=True)
+    logger.info("Removed %d Constant Features", len(remove))
 
     return X
 
