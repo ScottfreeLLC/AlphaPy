@@ -188,11 +188,11 @@ def pipeline(model):
             est = estimator.estimator
         except KeyError:
             logger.info("Algorithm %s not found", algo)
-        # initial fit
-        model = first_fit(model, algo, est)
         # feature selection
         if feature_selection and not grid_search:
             model = select_features(model)
+        # initial fit
+        model = first_fit(model, algo, est)
         # recursive feature elimination
         if rfe:
             if scoring:

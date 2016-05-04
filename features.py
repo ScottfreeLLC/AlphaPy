@@ -25,6 +25,7 @@ import logging
 import math
 import numpy as np
 import pandas as pd
+from pandas.core.common import array_equivalent
 import re
 from scipy import sparse
 import scipy.stats as sps
@@ -60,9 +61,9 @@ logger = logging.getLogger(__name__)
 
 @unique
 class Encoders(Enum):
-    onehot = 1
-    ordinal = 2
-    hashing = 3
+    factorize = 1
+    onehot = 2
+    ordinal = 3
     binary = 4
     helmert = 5
     sumcont = 6
@@ -354,13 +355,14 @@ def get_factors(fnum, fname, df, nvalues, dtype, encoder, rounding,
         logger.info("Rounding: %d", rounding)
         feature = feature.apply(float_factor, args=[rounding])
     # encoders
+    enc = None
     ef = pd.DataFrame(feature)
-    if encoder == Encoders.onehot:
+    if encoder == Encoders.factorize:
+        ce_features, uniques = pd.factorize(feature)
+    elif encoder == Encoders.onehot:
         ce_features = pd.get_dummies(feature)
     elif encoder == Encoders.ordinal:
         enc = ce.OrdinalEncoder(cols=[fname])
-    elif encoder == Encoders.hashing:
-        enc = ce.HashingEncoder(cols=[fname])
     elif encoder == Encoders.binary:
         enc = ce.BinaryEncoder(cols=[fname])
     elif encoder == Encoders.helmert:
@@ -373,7 +375,7 @@ def get_factors(fnum, fname, df, nvalues, dtype, encoder, rounding,
         enc = ce.BackwardDifferenceEncoder(cols=[fname])
     else:
         raise ValueError("Unknown Encoder %s", encoder)
-    if encoder != Encoders.onehot:
+    if enc is not None:
         ce_features = enc.fit_transform(ef, None)
     # get the crosstab between feature labels and target
     logger.info("Calculating target percentages")
@@ -810,29 +812,51 @@ def create_interactions(X, model):
 
 
 #
+# Function duplicate_columns
+#
+
+def duplicate_columns(frame):
+    """
+    Identify any duplicate columns.
+    """
+
+    logger.info("Identifying Duplicate Columns")
+
+    groups = frame.columns.to_series().groupby(frame.dtypes).groups
+    dups = []
+    for t, v in groups.items():
+        cs = frame[v].columns
+        vs = frame[v]
+        lcs = len(cs)
+        for i in range(lcs):
+            ia = vs.iloc[:,i].values
+            for j in range(i+1, lcs):
+                ja = vs.iloc[:,j].values
+                if array_equivalent(ia, ja):
+                    dups.append(cs[i])
+                    break
+    logger.info("Duplicate Columns %s", dups)
+    return dups
+
+
+#
 # Function drop_features
 #
 
 def drop_features(X, drop):
     """
-    Drop the given features and any constant or duplicate features.
+    Drop any specified features and duplicate or constant columns.
     """
 
     logger.info("Dropping Features: %s", drop)
     X.drop(drop, axis=1, inplace=True, errors='ignore')
 
-    # Remove duplicated columns
+    # Remove duplicate columns
 
-    remove = []
-    c = X.columns
-    for i in range(len(c)-1):
-        v = X[c[i]].values
-        for j in range(i+1, len(c)):
-            if np.array_equal(v, X[c[j]].values):
-                remove.append(c[j])
-    logger.info("Removing Duplicated Columns: %s", remove)
-    X.drop(remove, axis=1, inplace=True)
-    logger.info("Removed %d Duplicated Features", len(remove))
+    logger.info("Removing Duplicate Columns")
+    dups = duplicate_columns(X)
+    X = X.drop(dups, axis=1)
+    logger.info("Removed %d Duplicate Columns", len(dups))
 
     # Remove constant columns
 

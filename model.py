@@ -36,6 +36,7 @@ from sklearn.cross_validation import StratifiedShuffleSplit
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import RidgeCV
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import auc
 from sklearn.metrics import average_precision_score
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
@@ -49,6 +50,7 @@ from sklearn.metrics import precision_score
 from sklearn.metrics import r2_score
 from sklearn.metrics import recall_score
 from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_curve
 from sklearn.metrics.cluster import adjusted_rand_score
 from sklearn.preprocessing import StandardScaler
 import sys
@@ -797,7 +799,8 @@ def generate_metrics(model, partition):
                 except:
                     logger.info("Log Loss not calculated")
                 try:
-                    model.metrics[(algo, partition, 'roc_auc')] = roc_auc_score(expected, predicted)
+                    fpr, tpr, thresholds = roc_curve(expected, predicted)
+                    model.metrics[(algo, partition, 'roc_auc')] = auc(fpr, tpr)
                 except:
                     logger.info("ROC AUC Score not calculated")
         # log the metrics for each algorithm
