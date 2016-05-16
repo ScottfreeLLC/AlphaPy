@@ -3,11 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="c5790f48-797b-4b3d-9134-1e107c5be668" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alpha_game.py" afterPath="$PROJECT_DIR$/alpha_game.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alpha_stock.py" afterPath="$PROJECT_DIR$/alpha_stock.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/features.py" afterPath="$PROJECT_DIR$/features.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/plots.py" afterPath="$PROJECT_DIR$/plots.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/util.py" afterPath="$PROJECT_DIR$/util.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/model.py" afterPath="$PROJECT_DIR$/model.py" />
     </list>
     <ignored path="AlphaPy.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -35,9 +31,15 @@
       <file leaf-file-name="alpha_stock.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/alpha_stock.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="155">
-              <caret line="172" column="0" selection-start-line="172" selection-start-column="0" selection-end-line="172" selection-end-column="0" />
-              <folding />
+            <state relative-caret-position="2465">
+              <caret line="164" column="0" selection-start-line="164" selection-start-column="0" selection-end-line="164" selection-end-column="0" />
+              <folding>
+                <marker date="1461614365000" expanded="false" signature="272:779" placeholder="import ..." />
+                <marker date="1461614365000" expanded="true" signature="782:805" placeholder="..." />
+                <marker date="1461614365000" expanded="true" signature="846:877" placeholder="..." />
+                <marker date="1461614365000" expanded="true" signature="909:1820" placeholder="..." />
+                <marker date="1461614365000" expanded="true" signature="3988:4467" placeholder="..." />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -45,37 +47,10 @@
       <file leaf-file-name="var.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/var.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1256">
+            <state relative-caret-position="17">
               <caret line="229" column="0" selection-start-line="229" selection-start-column="0" selection-end-line="229" selection-end-column="0" />
               <folding>
                 <marker date="1461613634000" expanded="true" signature="5907:5908" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="5907:6724" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="5907:6874" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="5922:6724" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="6222:6640" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="6248:6434" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="6877:6898" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="6925:7487" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="7147:7455" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="7224:7387" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="7290:7387" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="7506:7528" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="7553:7643" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="7570:7643" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="7654:7677" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="7706:8393" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="7872:8393" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="7949:8325" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="8182:8325" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="8408:8432" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="8459:8503" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="8506:9181" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="9898:9930" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="9933:9954" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="10057:10091" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="10136:10169" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="13009:13200" placeholder="..." />
-                <marker date="1461613634000" expanded="true" signature="13242:13465" placeholder="..." />
               </folding>
             </state>
           </provider>
@@ -265,6 +240,12 @@
       <method />
     </configuration>
     <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
+      <node-interpreter>project</node-interpreter>
+      <node-options />
+      <gulpfile />
+      <tasks />
+      <arguments />
+      <envs />
       <method />
     </configuration>
     <configuration default="true" type="js.build_tools.npm" factoryName="npm">
@@ -414,16 +395,16 @@
     <frame x="0" y="23" width="1440" height="832" extended-state="6" />
     <editor active="false" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3298611" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3298611" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32971507" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -459,11 +440,27 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/../Her/her.py">
+    <entry file="file://$PROJECT_DIR$/alpha_stock.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2601">
+          <caret line="172" column="0" selection-start-line="172" selection-start-column="0" selection-end-line="172" selection-end-column="0" />
+          <folding>
+            <marker date="1461614365000" expanded="false" signature="272:779" placeholder="import ..." />
+            <marker date="1461614365000" expanded="true" signature="782:805" placeholder="..." />
+            <marker date="1461614365000" expanded="true" signature="846:877" placeholder="..." />
+            <marker date="1461614365000" expanded="true" signature="909:1820" placeholder="..." />
+            <marker date="1461614365000" expanded="true" signature="3988:4467" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/var.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <marker date="1461613634000" expanded="true" signature="5907:5908" placeholder="..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -471,7 +468,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Her/her.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -479,7 +482,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1107">
           <caret line="405" column="0" selection-start-line="405" selection-start-column="0" selection-end-line="405" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -487,51 +489,29 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="155">
           <caret line="190" column="0" selection-start-line="190" selection-start-column="0" selection-end-line="190" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/alpha_stock.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="155">
-          <caret line="172" column="0" selection-start-line="172" selection-start-column="0" selection-end-line="172" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="2465">
+          <caret line="164" column="0" selection-start-line="164" selection-start-column="0" selection-end-line="164" selection-end-column="0" />
+          <folding>
+            <marker date="1461614365000" expanded="false" signature="272:779" placeholder="import ..." />
+            <marker date="1461614365000" expanded="true" signature="782:805" placeholder="..." />
+            <marker date="1461614365000" expanded="true" signature="846:877" placeholder="..." />
+            <marker date="1461614365000" expanded="true" signature="909:1820" placeholder="..." />
+            <marker date="1461614365000" expanded="true" signature="3988:4467" placeholder="..." />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/var.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1256">
+        <state relative-caret-position="17">
           <caret line="229" column="0" selection-start-line="229" selection-start-column="0" selection-end-line="229" selection-end-column="0" />
           <folding>
             <marker date="1461613634000" expanded="true" signature="5907:5908" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="5907:6724" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="5907:6874" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="5922:6724" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="6222:6640" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="6248:6434" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="6877:6898" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="6925:7487" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="7147:7455" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="7224:7387" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="7290:7387" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="7506:7528" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="7553:7643" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="7570:7643" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="7654:7677" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="7706:8393" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="7872:8393" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="7949:8325" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="8182:8325" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="8408:8432" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="8459:8503" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="8506:9181" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="9898:9930" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="9933:9954" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="10057:10091" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="10136:10169" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="13009:13200" placeholder="..." />
-            <marker date="1461613634000" expanded="true" signature="13242:13465" placeholder="..." />
           </folding>
         </state>
       </provider>

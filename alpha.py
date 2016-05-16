@@ -40,7 +40,7 @@ from model import make_predictions
 from model import Model
 from model import predict_best
 from model import predict_blend
-from model import save_results
+from model import save_model
 import numpy as np
 from optimize import hyper_grid_search
 from optimize import rfe_search
@@ -228,7 +228,7 @@ def pipeline(model):
 
     # Save best features and predictions
 
-    save_results(model, 'BEST', 'test')
+    save_model(model, 'BEST', 'test')
 
     # Return the completed model
 

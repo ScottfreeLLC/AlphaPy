@@ -127,6 +127,11 @@ class Model:
     def __str__(self):
         return self.name
 
+    # __getnewargs__
+
+    def __getnewargs__(self):
+        return (self.specs,)
+
 
 #
 # Function get_model_config
@@ -355,10 +360,10 @@ def get_model_config(cfg_dir):
 
 
 #
-# Function load_model
+# Function load_model_object
 #
 
-def load_model():
+def load_model_object():
     """
     Load the model from storage.
     """
@@ -367,7 +372,7 @@ def load_model():
 
     # Open model object
 
-    with open ('model.save', 'rb') as f:
+    with open('model.save', 'rb') as f:
         model = pickle.load(f)
     f.close()
 
@@ -375,15 +380,15 @@ def load_model():
 
 
 #
-# Function save_model
+# Function save_model_object
 #
 
-def save_model(model):
+def save_model_object(model):
     """
     Save the model to storage.
     """
 
-    logger.info("Saving Model")
+    logger.info("Saving Model Object")
 
     # Extract model parameters.
 
@@ -395,17 +400,11 @@ def save_model(model):
     directory = SSEP.join([base_dir, project])
     full_path = SSEP.join([directory, 'model.save'])
 
-    # Save the model object to a YAML representation.
-
-    # with open(full_path, 'wb') as f:
-    #     yaml.dump(model, f)
-    # f.close()
-
     # Save model object (previously saved in Pickle format)
 
-    # with open(full_path, 'wb') as f:
-    #     pickle.dump(model, f)
-    # f.close()
+    with open(full_path, 'wb') as f:
+        pickle.dump(model, f)
+    f.close()
 
 
 #
@@ -821,12 +820,26 @@ def generate_metrics(model, partition):
 
 
 #
-# Function save_results
+# Function np_store_data
 #
 
-def save_results(model, tag, partition):
+def np_store_data(data, dir_name, file_name, extension, separator):
     """
-    Save results in the given output file.
+    Store NumPy data in a file.
+    """
+
+    output_file = PSEP.join([file_name, extension])
+    output = SSEP.join([dir_name, output_file])
+    np.savetxt(output, data, delimiter=separator)
+
+
+#
+# Function save_model
+#
+
+def save_model(model, tag, partition):
+    """
+    Save the results in the model file.
     """
 
     # Extract model parameters.
@@ -848,46 +861,41 @@ def save_results(model, tag, partition):
     d = datetime.now()
     f = "%Y%m%d"
 
-    # Save the model
+    # Dump the model object itself
 
-    save_model(model)
+    save_model_object(model)
 
-    # Save predictions and final features
-
-    # training data
-    # output_dir = SSEP.join([base_dir, project])
-    # output_file = USEP.join(['train', d.strftime(f)])
-    # output_file = PSEP.join([output_file, extension])
-    # output = SSEP.join([output_dir, output_file])
-    # np.savetxt(output, X_train, delimiter=separator)
-    # test data
-    # output_dir = SSEP.join([base_dir, project])
-    # output_file = USEP.join(['test', d.strftime(f)])
-    # output_file = PSEP.join([output_file, extension])
-    # output = SSEP.join([output_dir, output_file])
-    # np.savetxt(output, X_test, delimiter=separator)
-    # predictions
-    # output_dir = SSEP.join([base_dir, project])
-    # output_file = USEP.join(['predictions', d.strftime(f)])
-    # output_file = PSEP.join([output_file, extension])
-    # output = SSEP.join([output_dir, output_file])
-    # np.savetxt(output, preds, delimiter=separator)
-    # probabilities
+    # Save final features for training and testing data
 
     output_dir = SSEP.join([base_dir, project])
+
+    logger.info("Saving New Training Data")
+    output_file = USEP.join(['train', d.strftime(f)])
+    np_store_data(X_train, output_dir, output_file, extension, separator)
+
+    logger.info("Saving New Testing Data")
+    output_file = USEP.join(['test', d.strftime(f)])
+    np_store_data(X_test, output_dir, output_file, extension, separator)
+
+    # Save probabilities for classification projects
+
     if model_type == ModelType.classification:
-        output_file = USEP.join(['probas', d.strftime(f)])
-        preds = model.probas[(tag, partition)]
-    else:
-        output_file = USEP.join(['preds', d.strftime(f)])
-        preds = model.preds[(tag, partition)]
-    output_file = PSEP.join([output_file, extension])
-    output = SSEP.join([output_dir, output_file])
-    np.savetxt(output, preds, delimiter=separator)
+        logger.info("Saving Probabilities")
+        output_file = USEP.join(['probabilities', d.strftime(f)])
+        probas = model.probas[(tag, partition)]
+        np_store_data(probas, output_dir, output_file, extension, separator)
+
+    # Save predictions for all projects
+
+    logger.info("Saving Predictions")
+    output_file = USEP.join(['predictions', d.strftime(f)])
+    preds = model.preds[(tag, partition)]
+    np_store_data(preds, output_dir, output_file, extension, separator)
 
     # Generate Kaggle submission file
 
     if kaggle:
+        logger.info("Saving Kaggle Submission")
         sample_file = SSEP.join([output_dir, 'sample_submission.csv'])
         ss = pd.read_csv(sample_file)
         ss[ss.columns[1]] = preds
