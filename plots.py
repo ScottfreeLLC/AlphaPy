@@ -706,6 +706,13 @@ def plot_validation_curve(model, partition, pname, prange):
     # Get X, Y for correct partition.
 
     X, y = get_partition_data(model, partition)
+
+    # Define plotting constants.
+
+    spacing = 0.5
+    alpha = 0.2
+
+    # Calculate a validation curve for each algorithm.
     
     for algo in model.algolist:
         logger.info("Algorithm: %s", algo)
@@ -719,18 +726,23 @@ def plot_validation_curve(model, partition, pname, prange):
         train_scores_std = np.std(train_scores, axis=1)
         test_scores_mean = np.mean(test_scores, axis=1)
         test_scores_std = np.std(test_scores, axis=1)
-        # plot learning curve
+        # plot learning curves
         title = BSEP.join([algo, "Validation Curve [", partition, "]"])
         plt.title(title)
-        plt.xlabel("$\pname$")
+        # x-axis
+        x_min, x_max = min(prange) - spacing, max(prange) + spacing
+        plt.xlabel(pname)
+        plt.xlim(x_min, x_max)
+        # y-axis
         plt.ylabel("Score")
         plt.ylim(0.0, 1.1)
-        plt.semilogx(prange, train_scores_mean, label="Training Score", color="r")
+        # plot scores
+        plt.plot(prange, train_scores_mean, label="Training Score", color="r")
         plt.fill_between(prange, train_scores_mean - train_scores_std,
-                         train_scores_mean + train_scores_std, alpha=0.2, color="r")
-        plt.semilogx(prange, test_scores_mean, label="Cross-Validation Score",
-                     color="g")
+                         train_scores_mean + train_scores_std, alpha=alpha, color="r")
+        plt.plot(prange, test_scores_mean, label="Cross-Validation Score",
+                 color="g")
         plt.fill_between(prange, test_scores_mean - test_scores_std,
-                         test_scores_mean + test_scores_std, alpha=0.2, color="g")
+                         test_scores_mean + test_scores_std, alpha=alpha, color="g")
         plt.legend(loc="best")        # save the plot
         write_plot(model, 'validation_curve', partition, algo)
