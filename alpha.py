@@ -15,7 +15,7 @@
 
 from __future__ import division
 import argparse
-from data import load_data
+from data import get_data
 from data import sample_data
 from data import shuffle_data
 from estimators import get_estimators
@@ -69,55 +69,32 @@ def pipeline(model):
 
     # Unpack the model specifications
 
-    base_dir = model.specs['base_dir']
     calibration = model.specs['calibration']
     drop = model.specs['drop']
-    extension = model.specs['extension']
-    features = model.specs['features']
     feature_selection = model.specs['feature_selection']
     grid_search = model.specs['grid_search']
-    project = model.specs['project']
     rfe = model.specs['rfe']
     sampling = model.specs['sampling']
     scorer = model.specs['scorer']
-    separator = model.specs['separator']
     shuffle = model.specs['shuffle']
     split = model.specs['split']
     target = model.specs['target']
-    test_file = model.specs['test_file']
     test_labels = model.specs['test_labels']
-    train_file = model.specs['train_file']
 
-    # Initialize feature variables
+    # Get train and test data
 
-    X_train = None
-    X_test = None
-    y_train = None
-    y_test = None    
+    X_train, y_train = get_data(model, 'train')
+    X_test, y_test = get_data(model, 'test')
 
-    # Load data based on whether there are 1 or 2 files
+    # Merge training and test data
 
-    directory = SSEP.join([base_dir, project])
-    # load training data
-    X_train, y_train = load_data(directory, train_file, extension,
-                                 separator, features, target)
-    # load test data
-    if test_labels:
-        X_test, y_test = load_data(directory, test_file, extension,
-                                   separator, features, target,
-                                   return_labels=test_labels)
-    else:
-        X_test = load_data(directory, test_file, extension,
-                           separator, features, target,
-                           return_labels=test_labels)
-    # merge training and test data
     if X_train.shape[1] == X_test.shape[1]:
         split_point = X_train.shape[0]
         X = pd.concat([X_train, X_test])
     else:
         raise IndexError("The number of training and test columns must match.")
 
-    # Feature Statistics
+    # Log feature statistics
 
     logger.info("Original Feature Statistics")
     logger.info("Number of Training Rows    : %d", X_train.shape[0])

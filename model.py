@@ -363,16 +363,20 @@ def get_model_config(cfg_dir):
 # Function load_model_object
 #
 
-def load_model_object():
+def load_model_object(directory):
     """
     Load the model from storage.
     """
 
     logger.info("Loading Model")
 
+    # Create path name
+
+    full_path = SSEP.join([directory, 'model.save'])
+
     # Open model object
 
-    with open('model.save', 'rb') as f:
+    with open(full_path, 'rb') as f:
         model = pickle.load(f)
     f.close()
 

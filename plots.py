@@ -10,17 +10,29 @@
 
 
 #
-# Plots
+# Model Plots
 #
 #     1. Calibration
 #     2. Feature Importance
 #     3. Learning Curve
 #     4. ROC Curve
 #     5. Confusion Matrix
+#     6. Validation Curve
+#
+# EDA Plots
+#
+#     1. Scatter Plot Matrix
+#     2. Facet Grid
+#     3. Distribution Plot
+#     4. Box Plot
+#     5. Swarm Plot
 #     6. Decision Boundary
-#     7. Scatter Plot
-#     8. Partial Dependence
-#     9. Validation Curve
+#     7. Partial Dependence
+#
+# Time Series
+#
+#     1. Time Series
+#     2. Candlestick
 #
 
 print(__doc__)
@@ -36,11 +48,12 @@ from globs import PSEP
 from globs import SSEP
 from globs import USEP
 import logging
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+import pandas as pd
 from scipy import interp
+import seaborn as sns
 from sklearn import cross_validation
 from sklearn import metrics
 from sklearn.calibration import calibration_curve
@@ -122,17 +135,12 @@ def generate_plots(model, partition):
         if roc_curve:
             plot_roc_curve(model, partition)
 
-    # plot_boundary(model)
-    # plot_scatterplot(model)
-    # plot_partial_dependence(model, partition)
-    # plot_validation_curve(model, partition)
-
 
 #
 # Function write_plot
 #
 
-def write_plot(model, plot_type, partition, algo):
+def write_plot(model, vizlib, plot, plot_type, partition, tag):
     """
     Save plot to a file.
     """
@@ -144,14 +152,22 @@ def write_plot(model, plot_type, partition, algo):
 
     # Create output file specification
 
-    file_only = ''.join([plot_type, USEP, partition, USEP, algo, '.png'])
+    file_only = ''.join([plot_type, USEP, partition, USEP, tag, '.png'])
     file_all = SSEP.join([base_dir, project, file_only])
 
     # Save plot
 
     logger.info("Writing plot to %s", file_all)
-    plt.tight_layout()
-    plt.savefig(file_all)
+
+    if vizlib == 'matplotlib':
+        plt.tight_layout()
+        plt.savefig(file_all)
+    elif vizlib == 'seaborn':
+        plot.savefig(file_all)
+    elif vizlib == 'plotly' or vizlib == 'bokeh':
+        raise ValueError("Unsupported data visualization library: %s", vizlib)
+    else:
+        raise ValueError("Unrecognized data visualization library: %s", vizlib)
 
 
 #
@@ -217,7 +233,7 @@ def plot_calibration(model, partition):
     ax2.set_ylabel("Count")
     ax2.legend(loc="upper center", ncol=2)
 
-    write_plot(model, 'calibration', partition, 'ALL')
+    write_plot(model, 'matplotlib', None, 'calibration', partition, 'ALL')
 
 
 #
@@ -263,7 +279,7 @@ def plot_importance(model, partition):
             plt.xticks(range(n_top), indices[:n_top])
             plt.xlim([-1, n_top])
             # save the plot
-            write_plot(model, 'feature_importance', partition, algo)
+            write_plot(model, 'matplotlib', None, 'feature_importance', partition, algo)
         except:
             logger.info("%s does not have feature importances", algo)
 
@@ -341,7 +357,7 @@ def plot_learning_curve(model, partition):
                  label="Cross-Validation Score")
         plt.legend(loc="best")
         # save the plot
-        write_plot(model, 'learning_curve', partition, algo)
+        write_plot(model, 'matplotlib', None, 'learning_curve', partition, algo)
 
 
 #
@@ -419,7 +435,7 @@ def plot_roc_curve(model, partition):
         plt.title(title)
         plt.legend(loc="lower right")
         # save chart
-        write_plot(model, 'roc_curve', partition, algo)
+        write_plot(model, 'matplotlib', None, 'roc_curve', partition, algo)
 
 
 #
@@ -461,219 +477,7 @@ def plot_confusion_matrix(model, partition):
         plt.ylabel('True Label')
         plt.xlabel('Predicted Label')
         # save the chart
-        write_plot(model, 'confusion', partition, algo)
-
-
-#
-# Function plot_boundary
-#
-
-def plot_boundary(model):
-    """
-    Display a comparison of classifiers
-    """
-
-    logger.info("Generating Boundary Plots")
-
-    # For classification only
-
-    if model.specs['model_type'] != ModelType.classification:
-        logger.info('Boundary Plots are for classification only')
-        return None
-
-    # Extract model parameters
-
-    # Get X, Y for correct partition
-
-    X, y = get_partition_data(model, partition)
-
-    h = .02  # step size in the mesh
-
-    f1 = 3 * (len(classifiers) + 1)
-    f2 = f1 / len(classifiers)
-    figure = plt.figure(figsize=(f1, f2))
-
-    X, y = ds
-    X = StandardScaler().fit_transform(X)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.4)
-
-    x_min, x_max = X[:, 0].min() - .5, X[:, 0].max() + .5
-    y_min, y_max = X[:, 1].min() - .5, X[:, 1].max() + .5
-    xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
-                         np.arange(y_min, y_max, h))
-
-    # Plot the dataset first
-    i = 1
-    cm = plt.cm.RdBu
-    cm_bright = ListedColormap(['#FF0000', '#0000FF'])
-    ax = plt.subplot(1, len(classifiers) + 1, i)
-    # Plot the training and testing points
-    ax.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap=cm_bright)
-    ax.scatter(X_test[:, 0], X_test[:, 1], c=y_test, cmap=cm_bright, alpha=0.6)
-    ax.set_xlim(xx.min(), xx.max())
-    ax.set_ylim(yy.min(), yy.max())
-    ax.set_xticks(())
-    ax.set_yticks(())
-    i += 1
-
-    # iterate over classifiers
-    for name, clf in zip(names, classifiers):
-        ax = plt.subplot(1, len(classifiers) + 1, i)
-        clf.fit(X_train, y_train)
-        score = clf.score(X_test, y_test)
-
-        # Plot the decision boundary. For that, we will assign a color to each
-        # point in the mesh [x_min, m_max]x[y_min, y_max].
-
-        if hasattr(clf, "decision_function"):
-            Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
-        else:
-            Z = clf.predict_proba(np.c_[xx.ravel(), yy.ravel()])[:, 1]
-
-        # Put the result into a color plot
-        Z = Z.reshape(xx.shape)
-        ax.contourf(xx, yy, Z, cmap=cm, alpha=.8)
-
-        # Plot the training and testing points
-        ax.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap=cm_bright)
-        ax.scatter(X_test[:, 0], X_test[:, 1], c=y_test, cmap=cm_bright,
-                   alpha=0.6)
-
-        ax.set_xlim(xx.min(), xx.max())
-        ax.set_ylim(yy.min(), yy.max())
-        ax.set_xticks(())
-        ax.set_yticks(())
-        ax.set_title(name)
-        ax.text(xx.max() - .3, yy.min() + .3, ('%.2f' % score).lstrip('0'),
-                size=15, horizontalalignment='right')
-        i += 1
-
-    figure.subplots_adjust(left=.02, right=.98)
-    write_plot(model, 'boundary', partition, algo)
-
-
-#
-# Function plot_scatterplot
-#
-
-def plot_scatterplot(model, partition, feature1, feature2):
-    """
-    Plot a scatterplot of two variables
-    """
-
-    logger.info("Generating Scatter Plot")
-
-    # Get X, Y for correct partition
-
-    X, y = get_partition_data(model, partition)
-
-    # import some data to play with
-    iris = datasets.load_iris()
-    X = iris.data[:, :2]  # we only take the first two features.
-    Y = iris.target
-
-    x_min, x_max = X[:, 0].min() - .5, X[:, 0].max() + .5
-    y_min, y_max = X[:, 1].min() - .5, X[:, 1].max() + .5
-
-    plt.figure(2, figsize=(8, 6))
-    plt.clf()
-
-    # Plot the training points
-    plt.scatter(X[:, 0], X[:, 1], c=Y, cmap=plt.cm.Paired)
-    plt.xlabel('Sepal length')
-    plt.ylabel('Sepal width')
-
-    plt.xlim(x_min, x_max)
-    plt.ylim(y_min, y_max)
-    plt.xticks(())
-    plt.yticks(())
-
-    # To getter a better understanding of interaction of the dimensions
-    # plot the first three PCA dimensions
-    fig = plt.figure(1, figsize=(8, 6))
-    ax = Axes3D(fig, elev=-150, azim=110)
-    X_reduced = PCA(n_components=3).fit_transform(iris.data)
-    ax.scatter(X_reduced[:, 0], X_reduced[:, 1], X_reduced[:, 2], c=Y,
-               cmap=plt.cm.Paired)
-    ax.set_title("First three PCA directions")
-    ax.set_xlabel("1st eigenvector")
-    ax.w_xaxis.set_ticklabels([])
-    ax.set_ylabel("2nd eigenvector")
-    ax.w_yaxis.set_ticklabels([])
-    ax.set_zlabel("3rd eigenvector")
-    ax.w_zaxis.set_ticklabels([])
-
-    write_plot(model, 'scatter', partition)
-
-
-#
-# Function plot_partial_dependence
-#
-
-
-def plot_partial_dependence(model, partition):
-    """
-    Plot partial dependence
-    """
-
-    logger.info("Generating Partial Dependence Plot")
-
-    # Get X, Y for correct partition
-
-    X, y = get_partition_data(model, partition)
-
-    # fetch California housing dataset
-    cal_housing = fetch_california_housing()
-
-    # split 80/20 train-test
-    X_train, X_test, y_train, y_test = train_test_split(cal_housing.data,
-                                                        cal_housing.target,
-                                                        test_size=0.2,
-                                                        random_state=1)
-    names = cal_housing.feature_names
-
-    print('_' * 80)
-    print("Training GBRT...")
-    clf = GradientBoostingRegressor(n_estimators=100, max_depth=4,
-                                    learning_rate=0.1, loss='huber',
-                                    random_state=1)
-    clf.fit(X_train, y_train)
-    print("done.")
-
-    print('_' * 80)
-    print('Convenience plot with ``partial_dependence_plots``')
-    print
-
-    features = [0, 5, 1, 2, (5, 1)]
-    fig, axs = plot_partial_dependence(clf, X_train, features, feature_names=names,
-                                       n_jobs=3, grid_resolution=50)
-    fig.suptitle('Partial dependence of house value on nonlocation features\n'
-                 'for the California housing dataset')
-    plt.subplots_adjust(top=0.9)  # tight_layout causes overlap with suptitle
-
-    print('_' * 80)
-    print('Custom 3d plot via ``partial_dependence``')
-    print
-    fig = plt.figure()
-
-    target_feature = (1, 5)
-    pdp, (x_axis, y_axis) = partial_dependence(clf, target_feature,
-                                               X=X_train, grid_resolution=50)
-    XX, YY = np.meshgrid(x_axis, y_axis)
-    Z = pdp.T.reshape(XX.shape).T
-    ax = Axes3D(fig)
-    surf = ax.plot_surface(XX, YY, Z, rstride=1, cstride=1, cmap=plt.cm.BuPu)
-    ax.set_xlabel(names[target_feature[0]])
-    ax.set_ylabel(names[target_feature[1]])
-    ax.set_zlabel('Partial dependence')
-    #  pretty init view
-    ax.view_init(elev=22, azim=122)
-    plt.colorbar(surf)
-    plt.suptitle('Partial dependence of house value on median age and '
-                'average occupancy')
-    plt.subplots_adjust(top=0.9)
-
-    plt.show()
+        write_plot(model, 'matplotlib', None, 'confusion', partition, algo)
 
 
 #
@@ -745,4 +549,226 @@ def plot_validation_curve(model, partition, pname, prange):
         plt.fill_between(prange, test_scores_mean - test_scores_std,
                          test_scores_mean + test_scores_std, alpha=alpha, color="g")
         plt.legend(loc="best")        # save the plot
-        write_plot(model, 'validation_curve', partition, algo)
+        write_plot(model, 'matplotlib', None, 'validation_curve', partition, algo)
+
+
+#
+# EDA Plots
+#
+
+
+#
+# Function plot_scatter
+#
+
+def plot_scatter(model, partition, X, features, target, tag='eda'):
+    """
+    Plot a scatterplot matrix
+    """
+
+    logger.info("Generating Scatter Plot")
+
+    # Get the feature subset
+
+    features.append(target)
+    Xf = X[features]
+
+    # Generate the pair plot
+
+    sns.set()
+    sns_plot = sns.pairplot(Xf, hue=target)
+
+    # Save the plot
+
+    write_plot(model, 'seaborn', sns_plot, 'scatter', partition, tag)
+
+
+#
+# Function plot_facet_grid
+#
+
+def plot_facet_grid(model, partition, X, features, target, tag='eda'):
+    """
+    Plot a Seaborn faceted histogram grid
+    """
+
+    logger.info("Generating Facet Grid")
+
+    # Get the feature subset
+
+    features.append(target)
+    Xf = X[features]
+
+    # Generate the pair plot
+
+    sns.set()
+    sns_plot = sns.pairplot(Xf, hue=target)
+
+    # Save the plot
+
+    write_plot(model, 'seaborn', sns_plot, 'scatter', partition, tag)
+
+
+#
+# Function plot_partial_dependence
+#
+
+def plot_partial_dependence(model, partition, targets):
+    """
+    Plot partial dependence
+    """
+
+    logger.info("Generating Partial Dependence Plot")
+
+    # Get X, Y for correct partition
+
+    X, y = get_partition_data(model, partition)
+
+    # fetch California housing dataset
+    cal_housing = fetch_california_housing()
+
+    # split 80/20 train-test
+    X_train, X_test, y_train, y_test = train_test_split(cal_housing.data,
+                                                        cal_housing.target,
+                                                        test_size=0.2,
+                                                        random_state=1)
+    names = cal_housing.feature_names
+
+    print('_' * 80)
+    print("Training GBRT...")
+    clf = GradientBoostingRegressor(n_estimators=100, max_depth=4,
+                                    learning_rate=0.1, loss='huber',
+                                    random_state=1)
+    clf.fit(X_train, y_train)
+    print("done.")
+
+    print('_' * 80)
+    print('Convenience plot with ``partial_dependence_plots``')
+    print
+
+    features = [0, 5, 1, 2, (5, 1)]
+    fig, axs = plot_partial_dependence(clf, X_train, features, feature_names=names,
+                                       n_jobs=3, grid_resolution=50)
+    fig.suptitle('Partial dependence of house value on nonlocation features\n'
+                 'for the California housing dataset')
+    plt.subplots_adjust(top=0.9)  # tight_layout causes overlap with suptitle
+
+    print('_' * 80)
+    print('Custom 3d plot via ``partial_dependence``')
+    print
+    fig = plt.figure()
+
+    target_feature = (1, 5)
+    pdp, (x_axis, y_axis) = partial_dependence(clf, target_feature,
+                                               X=X_train, grid_resolution=50)
+    XX, YY = np.meshgrid(x_axis, y_axis)
+    Z = pdp.T.reshape(XX.shape).T
+    ax = Axes3D(fig)
+    surf = ax.plot_surface(XX, YY, Z, rstride=1, cstride=1, cmap=plt.cm.BuPu)
+    ax.set_xlabel(names[target_feature[0]])
+    ax.set_ylabel(names[target_feature[1]])
+    ax.set_zlabel('Partial dependence')
+    # pretty init view
+    ax.view_init(elev=22, azim=122)
+    plt.colorbar(surf)
+    plt.suptitle('Partial dependence of house value on median age and '
+                'average occupancy')
+    plt.subplots_adjust(top=0.9)
+
+    plt.show()
+
+
+#
+# Function plot_boundary
+#
+
+def plot_boundary(model, partition, f1, f2):
+    """
+    Display a comparison of classifiers
+    """
+
+    logger.info("Generating Boundary Plots")
+
+    # For classification only
+
+    if model.specs['model_type'] != ModelType.classification:
+        logger.info('Boundary Plots are for classification only')
+        return None
+
+    # Get X, Y for correct partition
+
+    X, y = get_partition_data(model, partition)
+
+    # Define plotting constants.
+
+    spacing = 0.5
+    tspacing = 0.3
+    # step size in the mesh
+    h = .02
+
+    xdim = 3 * (len(classifiers) + 1)
+    ydim = xdim / len(classifiers)
+    figure = plt.figure(figsize=(xdim, ydim))
+
+    X, y = ds
+    X = StandardScaler().fit_transform(X)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.4)
+
+    x_min, x_max = X[:, f1].min() - spacing, X[:, f1].max() + spacing
+    y_min, y_max = X[:, f2].min() - spacing, X[:, f2].max() + spacing
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
+                         np.arange(y_min, y_max, h))
+
+    # Plot the dataset first
+    i = 1
+    cm = plt.cm.RdBu
+    cm_bright = ListedColormap(['#FF0000', '#0000FF'])
+    ax = plt.subplot(1, len(classifiers) + 1, i)
+    # Plot the training and testing points
+    ax.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap=cm_bright)
+    ax.scatter(X_test[:, 0], X_test[:, 1], c=y_test, cmap=cm_bright, alpha=0.6)
+    ax.set_xlim(xx.min(), xx.max())
+    ax.set_ylim(yy.min(), yy.max())
+    ax.set_xticks(())
+    ax.set_yticks(())
+    i += 1
+
+    # iterate over classifiers
+    for name, clf in zip(names, classifiers):
+        ax = plt.subplot(1, len(classifiers) + 1, i)
+        clf.fit(X_train, y_train)
+        score = clf.score(X_test, y_test)
+
+        # Plot the decision boundary. For that, we will assign a color to each
+        # point in the mesh [x_min, m_max]x[y_min, y_max].
+
+        if hasattr(clf, "decision_function"):
+            Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
+        else:
+            Z = clf.predict_proba(np.c_[xx.ravel(), yy.ravel()])[:, 1]
+
+        # Put the result into a color plot
+        Z = Z.reshape(xx.shape)
+        ax.contourf(xx, yy, Z, cmap=cm, alpha=.8)
+
+        # Plot the training and testing points
+        ax.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap=cm_bright)
+        ax.scatter(X_test[:, 0], X_test[:, 1], c=y_test, cmap=cm_bright,
+                   alpha=0.6)
+
+        ax.set_xlim(xx.min(), xx.max())
+        ax.set_ylim(yy.min(), yy.max())
+        ax.set_xticks(())
+        ax.set_yticks(())
+        ax.set_title(name)
+        ax.text(xx.max() - tspacing, yy.min() + tspacing, ('%.2f' % score).lstrip('0'),
+                size=15, horizontalalignment='right')
+        i += 1
+
+    figure.subplots_adjust(left=.02, right=.98)
+    write_plot(model, 'boundary', partition, algo)
+
+
+#
+# Time Series Plots
+#

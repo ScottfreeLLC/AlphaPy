@@ -43,7 +43,6 @@ from unbalanced_dataset import TomekLinks
 from unbalanced_dataset import UnderSampler
 
 
-
 #
 # Initialize logger
 #
@@ -76,8 +75,8 @@ class SamplingMethod(Enum):
 # Function load_data
 #
 
-def load_data(directory, filename, extension, separator,
-              features, target, return_labels=True):
+def load_data(directory, filename, extension, separator, features, target,
+              return_labels=True, drop_target=True):
     """
     Read in data from the given directory in a given format.
     """
@@ -91,7 +90,8 @@ def load_data(directory, filename, extension, separator,
         y = df[target].values
         y = LabelEncoder().fit_transform(y)
         logger.info("Dropping target %s from data frame", target)
-        df = df.drop([target], axis=1)
+        if drop_target:
+            df = df.drop([target], axis=1)
     elif return_labels:
         logger.info("Target ", target, " not found")
         raise Exception('Target not found')
@@ -104,7 +104,56 @@ def load_data(directory, filename, extension, separator,
     if return_labels:
         return X, y
     else:
-        return X
+        return X, None
+
+
+#
+# Function get_data
+#
+
+def get_data(model, partition):
+    """
+    Read in training or testing data.
+    """
+
+    # Extract the model data
+
+    base_dir = model.specs['base_dir']
+    extension = model.specs['extension']
+    features = model.specs['features']
+    project = model.specs['project']
+    separator = model.specs['separator']
+    target = model.specs['target']
+    test_file = model.specs['test_file']
+    test_labels = model.specs['test_labels']
+    train_file = model.specs['train_file']
+
+    # Load the data
+
+    directory = SSEP.join([base_dir, project])
+
+    if partition == 'train':
+        # load training data
+        X, y = load_data(directory, train_file, extension,
+                         separator, features, target,
+                         drop_target=False)
+    elif partition == 'test':
+        # load test data
+        if test_labels:
+            X, y = load_data(directory, test_file, extension,
+                             separator, features, target,
+                             return_labels=test_labels,
+                             drop_target=False)
+        else:
+            X, y = load_data(directory, test_file, extension,
+                             separator, features, target,
+                             return_labels=test_labels,
+                             drop_target=False)
+    else:
+        raise ValueError("Unrecognized partition: %s", partition)
+
+    # Return the data
+    return X, y
 
 
 #
