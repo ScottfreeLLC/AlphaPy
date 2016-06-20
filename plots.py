@@ -43,11 +43,10 @@ print(__doc__)
 #
 
 from estimators import ModelType
-from globs import BSEP
-from globs import PSEP
-from globs import SSEP
-from globs import USEP
+from globs import BSEP, PSEP, SSEP, USEP
+from globs import Q1, Q3
 import logging
+import math
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
@@ -140,7 +139,7 @@ def generate_plots(model, partition):
 # Function write_plot
 #
 
-def write_plot(model, vizlib, plot, plot_type, partition, tag):
+def write_plot(model, vizlib, plot, plot_type, tag):
     """
     Save plot to a file.
     """
@@ -152,7 +151,7 @@ def write_plot(model, vizlib, plot, plot_type, partition, tag):
 
     # Create output file specification
 
-    file_only = ''.join([plot_type, USEP, partition, USEP, tag, '.png'])
+    file_only = ''.join([plot_type, USEP, tag, '.png'])
     file_all = SSEP.join([base_dir, project, file_only])
 
     # Save plot
@@ -233,7 +232,7 @@ def plot_calibration(model, partition):
     ax2.set_ylabel("Count")
     ax2.legend(loc="upper center", ncol=2)
 
-    write_plot(model, 'matplotlib', None, 'calibration', partition, 'ALL')
+    write_plot(model, 'matplotlib', None, 'calibration', 'ALL')
 
 
 #
@@ -279,7 +278,7 @@ def plot_importance(model, partition):
             plt.xticks(range(n_top), indices[:n_top])
             plt.xlim([-1, n_top])
             # save the plot
-            write_plot(model, 'matplotlib', None, 'feature_importance', partition, algo)
+            write_plot(model, 'matplotlib', None, 'feature_importance', algo)
         except:
             logger.info("%s does not have feature importances", algo)
 
@@ -357,7 +356,7 @@ def plot_learning_curve(model, partition):
                  label="Cross-Validation Score")
         plt.legend(loc="best")
         # save the plot
-        write_plot(model, 'matplotlib', None, 'learning_curve', partition, algo)
+        write_plot(model, 'matplotlib', None, 'learning_curve', algo)
 
 
 #
@@ -435,7 +434,7 @@ def plot_roc_curve(model, partition):
         plt.title(title)
         plt.legend(loc="lower right")
         # save chart
-        write_plot(model, 'matplotlib', None, 'roc_curve', partition, algo)
+        write_plot(model, 'matplotlib', None, 'roc_curve', algo)
 
 
 #
@@ -477,7 +476,7 @@ def plot_confusion_matrix(model, partition):
         plt.ylabel('True Label')
         plt.xlabel('Predicted Label')
         # save the chart
-        write_plot(model, 'matplotlib', None, 'confusion', partition, algo)
+        write_plot(model, 'matplotlib', None, 'confusion', algo)
 
 
 #
@@ -549,7 +548,7 @@ def plot_validation_curve(model, partition, pname, prange):
         plt.fill_between(prange, test_scores_mean - test_scores_std,
                          test_scores_mean + test_scores_std, alpha=alpha, color="g")
         plt.legend(loc="best")        # save the plot
-        write_plot(model, 'matplotlib', None, 'validation_curve', partition, algo)
+        write_plot(model, 'matplotlib', None, 'validation_curve', algo)
 
 
 #
@@ -561,7 +560,7 @@ def plot_validation_curve(model, partition, pname, prange):
 # Function plot_scatter
 #
 
-def plot_scatter(model, partition, X, features, target, tag='eda'):
+def plot_scatter(model, data, features, target, tag='eda'):
     """
     Plot a scatterplot matrix
     """
@@ -571,42 +570,114 @@ def plot_scatter(model, partition, X, features, target, tag='eda'):
     # Get the feature subset
 
     features.append(target)
-    Xf = X[features]
+    df = data[features]
 
     # Generate the pair plot
 
     sns.set()
-    sns_plot = sns.pairplot(Xf, hue=target)
+    sns_plot = sns.pairplot(df, hue=target)
 
     # Save the plot
 
-    write_plot(model, 'seaborn', sns_plot, 'scatter', partition, tag)
+    write_plot(model, 'seaborn', sns_plot, 'scatter_plot', tag)
 
 
 #
 # Function plot_facet_grid
 #
 
-def plot_facet_grid(model, partition, X, features, target, tag='eda'):
+def plot_facet_grid(model, data, target, frow, fcol, tag='eda'):
     """
     Plot a Seaborn faceted histogram grid
     """
 
     logger.info("Generating Facet Grid")
 
-    # Get the feature subset
+    # Calculate the number of bins using the Freedman-Diaconis rule.
 
-    features.append(target)
-    Xf = X[features]
+    tlen = len(data[target])
+    tmax = data[target].max()
+    tmin = data[target].min()
+    trange = tmax - tmin
+    iqr = data[target].quantile(Q3) - data[target].quantile(Q1)
+    h = 2 * iqr * (tlen ** (-1/3))
+    nbins = math.ceil(trange / h)
 
     # Generate the pair plot
 
-    sns.set()
-    sns_plot = sns.pairplot(Xf, hue=target)
+    sns.set(style="darkgrid")
+
+    fg = sns.FacetGrid(data, row=frow, col=fcol, margin_titles=True)
+    bins = np.linspace(tmin, tmax, nbins)
+    fg.map(plt.hist, target, color="steelblue", bins=bins, lw=0)
 
     # Save the plot
 
-    write_plot(model, 'seaborn', sns_plot, 'scatter', partition, tag)
+    write_plot(model, 'seaborn', fg, 'facet_grid', tag)
+
+
+#
+# Function plot_distribution
+#
+
+def plot_distribution(model, data, target, tag='eda'):
+    """
+    Distribution Plot
+    """
+
+    logger.info("Generating Distribution Plot")
+
+    # Generate the distribution plot
+
+    dist_plot = sns.distplot(data[target])
+    dist_fig = dist_plot.get_figure()
+
+    # Save the plot
+
+    write_plot(model, 'seaborn', dist_fig, 'distribution_plot', tag)
+
+
+#
+# Function plot_box
+#
+
+def plot_box(model, data, x, y, hue, tag='eda'):
+    """
+    Box Plot
+    """
+
+    logger.info("Generating Box Plot")
+
+    # Generate the box plot
+
+    box_plot = sns.boxplot(x=x, y=y, hue=hue, data=data)
+    sns.despine(offset=10, trim=True)
+    box_fig = box_plot.get_figure()
+
+    # Save the plot
+
+    write_plot(model, 'seaborn', box_fig, 'box_plot', tag)
+
+
+#
+# Function plot_swarm
+#
+
+def plot_swarm(model, data, x, y, hue, tag='eda'):
+    """
+    Swarm Plot
+    """
+
+    logger.info("Generating Swarm Plot")
+
+    # Generate the swarm plot
+
+    swarm_plot = sns.swarmplot(x=x, y=y, hue=hue, data=data)
+    swarm_fig = swarm_plot.get_figure()
+
+    # Save the plot
+
+    write_plot(model, 'seaborn', swarm_fig, 'swarm_plot', tag)
 
 
 #
@@ -675,7 +746,7 @@ def plot_partial_dependence(model, partition, targets):
                 'average occupancy')
     plt.subplots_adjust(top=0.9)
 
-    plt.show()
+    write_plot(model, 'matplotlib', None, 'partial_dependence', 'ALL')
 
 
 #
@@ -766,7 +837,7 @@ def plot_boundary(model, partition, f1, f2):
         i += 1
 
     figure.subplots_adjust(left=.02, right=.98)
-    write_plot(model, 'boundary', partition, algo)
+    write_plot(model, 'matplotlib', None, 'boundary', algo)
 
 
 #
