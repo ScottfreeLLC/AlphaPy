@@ -26,8 +26,8 @@
 #     3. Distribution Plot
 #     4. Box Plot
 #     5. Swarm Plot
-#     6. Decision Boundary
-#     7. Partial Dependence
+#     6. Partial Dependence
+#     7. Decision Boundary
 #
 # Time Series
 #
@@ -843,3 +843,24 @@ def plot_boundary(model, partition, f1, f2):
 #
 # Time Series Plots
 #
+
+
+#
+# Function plot_time_series
+#
+
+def plot_time_series(model, data, target, tag='eda'):
+    """
+    Time Series Plot
+    """
+
+    logger.info("Generating Time Series Plot")
+
+    # Generate the time series plot
+
+    ts_plot = sns.tsplot(data=data[target])
+    ts_fig = ts_plot.get_figure()
+
+    # Save the plot
+
+    write_plot(model, 'seaborn', ts_fig, 'time_series_plot', tag)
