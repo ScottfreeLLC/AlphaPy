@@ -42,6 +42,7 @@ print(__doc__)
 # Imports
 #
 
+from bokeh.plotting import figure, show, output_file
 from estimators import ModelType
 from globs import BSEP, PSEP, SSEP, USEP
 from globs import Q1, Q3
@@ -232,7 +233,7 @@ def plot_calibration(model, partition):
     ax2.set_ylabel("Count")
     ax2.legend(loc="upper center", ncol=2)
 
-    write_plot(model, 'matplotlib', None, 'calibration', 'ALL')
+    write_plot(model, 'matplotlib', None, 'calibration', partition)
 
 
 #
@@ -278,7 +279,8 @@ def plot_importance(model, partition):
             plt.xticks(range(n_top), indices[:n_top])
             plt.xlim([-1, n_top])
             # save the plot
-            write_plot(model, 'matplotlib', None, 'feature_importance', algo)
+            tag = USEP.join([algo, partition])
+            write_plot(model, 'matplotlib', None, 'feature_importance', tag)
         except:
             logger.info("%s does not have feature importances", algo)
 
@@ -356,7 +358,8 @@ def plot_learning_curve(model, partition):
                  label="Cross-Validation Score")
         plt.legend(loc="best")
         # save the plot
-        write_plot(model, 'matplotlib', None, 'learning_curve', algo)
+        tag = USEP.join([algo, partition])
+        write_plot(model, 'matplotlib', None, 'learning_curve', tag)
 
 
 #
@@ -434,7 +437,8 @@ def plot_roc_curve(model, partition):
         plt.title(title)
         plt.legend(loc="lower right")
         # save chart
-        write_plot(model, 'matplotlib', None, 'roc_curve', algo)
+        tag = USEP.join([algo, partition])
+        write_plot(model, 'matplotlib', None, 'roc_curve', tag)
 
 
 #
@@ -476,7 +480,8 @@ def plot_confusion_matrix(model, partition):
         plt.ylabel('True Label')
         plt.xlabel('Predicted Label')
         # save the chart
-        write_plot(model, 'matplotlib', None, 'confusion', algo)
+        tag = USEP.join([algo, partition])
+        write_plot(model, 'matplotlib', None, 'confusion', tag)
 
 
 #
@@ -548,7 +553,8 @@ def plot_validation_curve(model, partition, pname, prange):
         plt.fill_between(prange, test_scores_mean - test_scores_std,
                          test_scores_mean + test_scores_std, alpha=alpha, color="g")
         plt.legend(loc="best")        # save the plot
-        write_plot(model, 'matplotlib', None, 'validation_curve', algo)
+        tag = USEP.join([algo, partition])
+        write_plot(model, 'matplotlib', None, 'validation_curve', tag)
 
 
 #
@@ -746,7 +752,7 @@ def plot_partial_dependence(model, partition, targets):
                 'average occupancy')
     plt.subplots_adjust(top=0.9)
 
-    write_plot(model, 'matplotlib', None, 'partial_dependence', 'ALL')
+    write_plot(model, 'matplotlib', None, 'partial_dependence', partition)
 
 
 #
@@ -837,7 +843,7 @@ def plot_boundary(model, partition, f1, f2):
         i += 1
 
     figure.subplots_adjust(left=.02, right=.98)
-    write_plot(model, 'matplotlib', None, 'boundary', algo)
+    write_plot(model, 'matplotlib', None, 'boundary', partition)
 
 
 #
@@ -864,3 +870,42 @@ def plot_time_series(model, data, target, tag='eda'):
     # Save the plot
 
     write_plot(model, 'seaborn', ts_fig, 'time_series_plot', tag)
+
+
+#
+# Function plot_candlestick
+#
+
+def plot_candlestick(model, df, symbol):
+    """
+    Candlestick Charts
+    """
+
+    # Extract data for given tag
+
+    df = df[df['tag'] == symbol]
+
+    # df["date"] = pd.to_datetime(df["date"])
+
+    mids = (df.open + df.close) / 2
+    spans = abs(df.close - df.open)
+
+    inc = df.close > df.open
+    dec = df.open > df.close
+    w = 12 * 60 * 60 * 1000 # half day in ms
+
+    TOOLS = "pan, wheel_zoom, box_zoom, reset, save"
+
+    p = figure(x_axis_type="datetime", tools=TOOLS, plot_width=1000, toolbar_location="left")
+
+    p.title = BSEP.join([tag.upper(), "Candlestick"])
+    p.xaxis.major_label_orientation = math.pi / 4
+    p.grid.grid_line_alpha = 0.3
+
+    p.segment(df.date, df.high, df.date, df.low, color="black")
+    p.rect(df.date[inc], mids[inc], w, spans[inc], fill_color="#D5E1DD", line_color="black")
+    p.rect(df.date[dec], mids[dec], w, spans[dec], fill_color="#F2583E", line_color="black")
+
+    # Save the plot
+
+    write_plot(model, 'bokeh', p, 'candlestick_chart', tag)

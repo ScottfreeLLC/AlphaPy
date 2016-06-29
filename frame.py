@@ -97,6 +97,8 @@ def load_frames(group, directory, extension, separator, splits=False):
                 # read file for corresponding frame
                 logger.info("Load Data Frame %s from file", fname)
                 df = read_frame(directory, fname, extension, separator)
+            # set the name
+            df['tag'] = gn
             # add this frame to the consolidated frame list
             if df is not None:
                 all_frames.append(df)
