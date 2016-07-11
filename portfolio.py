@@ -15,14 +15,13 @@
 
 from frame import Frame
 from frame import frame_name
+from globs import MULTIPLIERS
 import logging
 import math
 from pandas import DataFrame
 from pandas import date_range
 from pandas import Series
-import position
 from space import Space
-import trade
 
 
 #
@@ -138,6 +137,65 @@ class Portfolio():
 
 
 #
+# Class Position
+#
+
+class Position:
+    
+    # __init__
+    
+    def __init__(self,
+                 portfolio,
+                 name,
+                 opendate):
+        space = portfolio.space
+        self.date = opendate
+        self.name = name
+        self.status = 'opened'
+        self.mpos = 'flat'
+        self.quantity = 0
+        self.price = 0.0
+        self.value = 0.0
+        self.profit = 0.0
+        self.netreturn = 0.0
+        self.opened = opendate
+        self.held = 0
+        self.costbasis = 0.0
+        self.trades = []
+        self.ntrades = 0
+        self.pdata = Frame.frames[frame_name(name, space)].df
+        self.multiplier = MULTIPLIERS[space.subject]
+
+    # __str__
+    
+    def __str__(self):
+        return self.name
+
+
+#
+# Class Trade
+#
+
+class Trade:
+    
+    states = ['name', 'order', 'quantity', 'price']
+
+    # __init__
+
+    def __init__(self,
+                 name,
+                 order,
+                 quantity,
+                 price,
+                 tdate):
+        self.name = name
+        self.order = order
+        self.quantity = quantity
+        self.price = price
+        self.tdate = tdate
+
+
+#
 # Function add_position
 #
 
@@ -158,6 +216,96 @@ def remove_position(p, name):
     Remove a position from a portfolio by name
     """
     del p.positions[name]
+
+
+#
+# Function valuate_position
+#
+
+#
+# Example of Cost Basis:
+#
+# | +100 | * 10 =  1,000
+# | +200 | * 15 =  3,000
+# | -500 | * 20 = 10,000
+# --------        ------
+#    800          14,000  =>  14,000 / 800 = 17.5
+#
+#    Position is -200 (net short) @ 17.5
+#
+
+def valuate_position(position, tdate):
+    """
+    Valuate the position based on the trade list
+    """
+    # get current price
+    pdata = position.pdata
+    if tdate in pdata.index:
+        cp = pdata.ix[tdate]['close']
+        # start valuation
+        multiplier = position.multiplier
+        netpos = 0
+        tts = 0     # total traded shares
+        ttv = 0     # total traded value
+        totalprofit = 0.0
+        for trade in position.trades:
+            tq = trade.quantity
+            netpos = netpos + tq
+            tts = tts + abs(tq)
+            tp = trade.price
+            pfactor = tq * multiplier
+            cv = pfactor * cp
+            cvabs = abs(cv)
+            ttv = ttv + cvabs
+            ev = pfactor * tp
+            totalprofit = totalprofit + cv - ev
+        position.quantity = netpos
+        position.price = cp
+        position.value = abs(netpos) * multiplier * cp
+        position.profit = totalprofit
+        position.costbasis = ttv / tts
+        position.netreturn = totalprofit / cvabs - 1.0
+
+
+#
+# Function update_position
+#
+
+def update_position(position, trade):
+    """
+    Update the position status, trade list, and valuation
+    """
+    position.trades.append(trade)
+    position.ntrades = position.ntrades + 1
+    position.date = trade.tdate
+    position.held = trade.tdate - position.opened
+    valuate_position(position, trade.tdate)
+    if position.quantity > 0:
+        position.mpos = 'long'
+    if position.quantity < 0:
+        position.mpos = 'short'
+
+
+#
+# Function close_position
+#
+
+def close_position(p, position, tdate):
+    """
+    Close the position and remove it from the portfolio
+    """
+    pq = position.quantity
+    # if necessary, put on an offsetting trade
+    if pq != 0:
+        tradesize = -pq
+        position.date = tdate
+        pdata = position.pdata
+        cp = pdata.ix[tdate]['close']
+        newtrade = Trade(position.name, tradesize, cp, tdate)
+        update_portfolio(p, position, newtrade, tradesize)
+        position.quantity = 0
+    position.status = 'closed'
+    remove_position(p, position.name)
 
     
 #
@@ -201,7 +349,7 @@ def update_portfolio(p, pos, trade, allocation):
     """
     # update position
     ppq = abs(pos.quantity)
-    position.update_position(pos, trade)
+    update_position(pos, trade)
     cpq = abs(pos.quantity)
     npq = cpq - ppq
     # update portfolio
@@ -257,7 +405,7 @@ def balance(p, tdate, cashlevel):
             order = Orders.lb
         if tradesize < 0:
             order = Orders.sb
-        trade.exec_trade(p, pos.name, order, tradesize, cp, tdate)
+        exec_trade(p, pos.name, order, tradesize, cp, tdate)
         p.cash = currentcash + bdelta - ntv
 
 
@@ -297,7 +445,7 @@ def kick_out(p, tdate, freepos):
             freepos = kopos - opos
     # close the top freepos positions
     for i in range(freepos):
-        position.close_position(p, positions[koorder[i]], tdate)
+        close_position(p, positions[koorder[i]], tdate)
 
 
 #
@@ -314,7 +462,7 @@ def stop_loss(p, tdate):
         pos = positions[key]
         nr = pos.netreturn
         if nr <= -maxloss:
-            position.close_position(p, pos, tdate)
+            close_position(p, pos, tdate)
 
 
 #
@@ -334,7 +482,7 @@ def valuate_portfolio(p, tdate):
     value = p.cash
     for i, key in posenum:
         pos = positions[key]
-        position.valuate_position(pos, tdate)
+        valuate_position(pos, tdate)
         vpos[i] = pos.value
         value = value + vpos[i]
     # now compute the weights
@@ -479,7 +627,7 @@ def gen_portfolio(system, group, startcap=100000, posby='close'):
             for t in trades.iterrows():
                 tdate = t[0]
                 row = t[1]
-                pos = trade.exec_trade(p, row['name'], row['order'], row['quantity'], row['price'], tdate)
+                pos = exec_trade(p, row['name'], row['order'], row['quantity'], row['price'], tdate)
                 if pos:
                     if pos.status == 'closed':
                         pstats2(p, pstat, pos)
@@ -509,3 +657,85 @@ def delete_portfolio(p):
     for key in positions:
         close_position(p, positions[key])
     del p
+
+
+#
+# Function allocate_trade
+#
+
+def allocate_trade(p, pos, trade):
+    """
+    Determine the trade allocation for a given portfolio
+    """
+    cash = p.cash
+    margin = p.margin
+    mincash = p.mincash
+    restricted = p.restricted
+    if restricted:
+        kick_out(p, trade.tdate)
+        stop_loss(p, trade.tdate)
+    multiplier = pos.multiplier
+    qpold = pos.quantity
+    qtrade = trade.quantity
+    qpnew = qpold + qtrade
+    allocation = abs(qpnew) - abs(qpold)
+    addedvalue = trade.price * multiplier * abs(allocation)
+    if restricted:
+        cashreserve = mincash * cash
+        freemargin = (cash - cashreserve) / margin
+        if addedvalue > freemargin:
+            logger.info("Required free margin: %d < added value: %d",
+                        freemargin, addedvalue)
+            allocation = 0
+        else:
+            freecash = cash - addedvalue
+            if freecash < 0:
+                p.cash = cash + freecash
+    return allocation
+
+
+#
+# Function exec_trade
+#
+
+def exec_trade(p, name, order, quantity, price, tdate):
+    """
+    Execute a trade within a portfolio
+    """
+    # see if the position already exists
+    if name in p.positions:
+        pos = p.positions[name]
+        newpos = False
+    else:
+        pos = Position(p, name, tdate)
+        newpos = True
+    # check the dynamic position sizing variable
+    if not p.posby:
+        psize = quantity
+    else:
+        if order == 'le' or order == 'se':
+            pf = Frame.frames[frame_name(name, p.space)].df
+            cv = pf.ix[tdate][p.posby]
+            psize = trunc((p.value * p.fixedfrac) / cv)
+            if quantity < 0:
+                psize = -psize
+        else:
+            psize = -pos.quantity
+    # instantiate and allocate the trade
+    newtrade = Trade(name, order, psize, price, tdate)
+    allocation = allocate_trade(p, pos, newtrade)
+    if allocation != 0:
+        # create a new position if necessary
+        if newpos:
+            add_position(p, name, pos)
+            p.npos += 1
+        # update the portfolio
+        update_portfolio(p, pos, newtrade, allocation)
+        # if net position is zero, then close the position
+        pflat = pos.quantity == 0
+        if pflat:
+            close_position(p, pos, tdate)
+            p.npos -= 1
+        return pos
+    else:
+        return None

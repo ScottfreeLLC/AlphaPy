@@ -18,7 +18,7 @@ from frame import frame_name
 import logging
 from pandas import DataFrame
 from space import Space
-from trade import Trade
+from portfolio import Trade
 from var import vexec
 
 
@@ -120,7 +120,7 @@ def gen_trades(system, name, group, quantity):
     p = 0
     q = quantity
     for i, row in pf.iterrows():
-        tdate = row.name
+        tdate = row.date
         lrow = None
         if longevent:
             lrow = row[longevent]
@@ -182,7 +182,7 @@ def run_system(system,
     """
     # extract the group information
     gname = group.name
-    gmembers = group.all_members()
+    gmembers = group.members
     tspace = Space(system.name, "trades", group.space.fractal)
     # run the system for each member of the group
     gtlist = []

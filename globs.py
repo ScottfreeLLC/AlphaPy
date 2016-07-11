@@ -45,4 +45,4 @@ WILDCARD = '*'
 #
 
 FEEDS = {'stock' : 'yahoo', 'future' : 'quandl', 'forex' : 'quandl'}
-MULTIPLIERS = {'stocks' : 1.0}
+MULTIPLIERS = {'stock' : 1.0}

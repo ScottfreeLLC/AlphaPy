@@ -164,7 +164,9 @@ def write_plot(model, vizlib, plot, plot_type, tag):
         plt.savefig(file_all)
     elif vizlib == 'seaborn':
         plot.savefig(file_all)
-    elif vizlib == 'plotly' or vizlib == 'bokeh':
+    elif vizlib == 'bokeh':
+        plot.save(file_all)
+    elif vizlib == 'plotly':
         raise ValueError("Unsupported data visualization library: %s", vizlib)
     else:
         raise ValueError("Unrecognized data visualization library: %s", vizlib)
@@ -898,7 +900,7 @@ def plot_candlestick(model, df, symbol):
 
     p = figure(x_axis_type="datetime", tools=TOOLS, plot_width=1000, toolbar_location="left")
 
-    p.title = BSEP.join([tag.upper(), "Candlestick"])
+    p.title = BSEP.join([symbol.upper(), "Candlestick"])
     p.xaxis.major_label_orientation = math.pi / 4
     p.grid.grid_line_alpha = 0.3
 
@@ -908,4 +910,4 @@ def plot_candlestick(model, df, symbol):
 
     # Save the plot
 
-    write_plot(model, 'bokeh', p, 'candlestick_chart', tag)
+    write_plot(model, 'bokeh', p, 'candlestick_chart', symbol)
