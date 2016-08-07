@@ -92,7 +92,8 @@ def pipeline(model):
         split_point = X_train.shape[0]
         X = pd.concat([X_train, X_test])
     else:
-        raise IndexError("The number of training and test columns must match.")
+        raise IndexError("The number of training and test columns [%s, %s] must match.",
+                         X_train.shape[1], X_test.shape[1])
 
     # Log feature statistics
 

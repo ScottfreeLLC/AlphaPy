@@ -24,23 +24,28 @@ from globs import FEEDS
 from globs import PSEP
 from globs import SSEP
 from globs import WILDCARD
+from imblearn.combine import SMOTEENN
+from imblearn.combine import SMOTETomek
+from imblearn.ensemble import BalanceCascade
+from imblearn.ensemble import EasyEnsemble
+from imblearn.over_sampling import RandomOverSampler
+from imblearn.over_sampling import SMOTE
+from imblearn.under_sampling import ClusterCentroids
+from imblearn.under_sampling import CondensedNearestNeighbour
+from imblearn.under_sampling import EditedNearestNeighbours
+from imblearn.under_sampling import InstanceHardnessThreshold
+from imblearn.under_sampling import NearMiss
+from imblearn.under_sampling import NeighbourhoodCleaningRule
+from imblearn.under_sampling import OneSidedSelection
+from imblearn.under_sampling import RandomUnderSampler
+from imblearn.under_sampling import RepeatedEditedNearestNeighbours
+from imblearn.under_sampling import TomekLinks
 import logging
 import numpy as np
 import pandas as pd
 import pandas_datareader.data as web
 from scipy import sparse
 from sklearn.preprocessing import LabelEncoder
-from unbalanced_dataset import BalanceCascade
-from unbalanced_dataset import ClusterCentroids
-from unbalanced_dataset import EasyEnsemble
-from unbalanced_dataset import NearMiss
-from unbalanced_dataset import NeighbourhoodCleaningRule
-from unbalanced_dataset import OverSampler
-from unbalanced_dataset import SMOTE
-from unbalanced_dataset import SMOTEENN
-from unbalanced_dataset import SMOTETomek
-from unbalanced_dataset import TomekLinks
-from unbalanced_dataset import UnderSampler
 
 
 #
@@ -89,8 +94,9 @@ def load_data(directory, filename, extension, separator, features, target,
     if target in df.columns:
         y = df[target].values
         y = LabelEncoder().fit_transform(y)
-        logger.info("Dropping target %s from data frame", target)
+        logger.info("Found target %s in data frame", target)
         if drop_target:
+            logger.info("Dropping target %s from data frame", target)
             df = df.drop([target], axis=1)
     elif return_labels:
         logger.info("Target ", target, " not found")
@@ -136,19 +142,19 @@ def get_data(model, partition):
         # load training data
         X, y = load_data(directory, train_file, extension,
                          separator, features, target,
-                         drop_target=False)
+                         drop_target=True)
     elif partition == 'test':
         # load test data
         if test_labels:
             X, y = load_data(directory, test_file, extension,
                              separator, features, target,
                              return_labels=test_labels,
-                             drop_target=False)
+                             drop_target=True)
         else:
             X, y = load_data(directory, test_file, extension,
                              separator, features, target,
                              return_labels=test_labels,
-                             drop_target=False)
+                             drop_target=True)
     else:
         raise ValueError("Unrecognized partition: %s", partition)
 
@@ -275,7 +281,8 @@ def sample_data(model):
 
 def get_remote_data(group,
                     start = datetime.now() - timedelta(365),
-                    end = datetime.now()):
+                    end = datetime.now(),
+                    dtcol = 'date'):
     gam = group.members
     feed = FEEDS[group.space.subject]
     for item in gam:
