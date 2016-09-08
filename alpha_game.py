@@ -326,17 +326,17 @@ def generate_team_frame(team, tf, tdict):
         tf['overunder_streak_avg'].at[index] = tf['overunder_margin'][index-streak+1:index+1].mean()
     # Rolling and Expanding Variables
     tf['point_margin_season'] = tf['point_margin_game'].cumsum()
-    tf['point_margin_season_avg'] = pd.expanding_mean(tf['point_margin_game'])
-    tf['point_margin_ngames'] = pd.rolling_sum(tf['point_margin_game'], window=window, min_periods=1)
-    tf['point_margin_ngames_avg'] = pd.rolling_mean(tf['point_margin_game'], window=window, min_periods=1)
+    tf['point_margin_season_avg'] = tf['point_margin_game'].expanding().mean()
+    tf['point_margin_ngames'] = tf['point_margin_game'].rolling(window=window, min_periods=1).sum()
+    tf['point_margin_ngames_avg'] = tf['point_margin_game'].rolling(window=window, min_periods=1).mean()
     tf['cover_margin_season'] = tf['cover_margin_game'].cumsum()
-    tf['cover_margin_season_avg'] = pd.expanding_mean(tf['cover_margin_game'])
-    tf['cover_margin_ngames'] = pd.rolling_sum(tf['cover_margin_game'], window=window, min_periods=1)
-    tf['cover_margin_ngames_avg'] = pd.rolling_mean(tf['cover_margin_game'], window=window, min_periods=1)
+    tf['cover_margin_season_avg'] = tf['cover_margin_game'].expanding().mean()
+    tf['cover_margin_ngames'] = tf['cover_margin_game'].rolling(window=window, min_periods=1).sum()
+    tf['cover_margin_ngames_avg'] = tf['cover_margin_game'].rolling(window=window, min_periods=1).mean()
     tf['overunder_season'] = tf['overunder_margin'].cumsum()
-    tf['overunder_season_avg'] = pd.expanding_mean(tf['overunder_margin'])
-    tf['overunder_ngames'] = pd.rolling_sum(tf['overunder_margin'], window=window, min_periods=1)
-    tf['overunder_ngames_avg'] = pd.rolling_mean(tf['overunder_margin'], window=window, min_periods=1)
+    tf['overunder_season_avg'] = tf['overunder_margin'].expanding().mean()
+    tf['overunder_ngames'] = tf['overunder_margin'].rolling(window=window, min_periods=1).sum()
+    tf['overunder_ngames_avg'] = tf['overunder_margin'].rolling(window=window, min_periods=1).mean()
     return tf
 
 
