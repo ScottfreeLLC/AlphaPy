@@ -113,9 +113,7 @@ def get_stock_config(cfg_dir):
 
     logger.info('STOCK PARAMETERS:')
     logger.info('features        = %d', specs['features'])
-    logger.info('forecast_period = %d', specs['forecast_period'])
     logger.info('fractal         = %s', specs['fractal'])
-    logger.info('leaders         = %s', specs['leaders'])
     logger.info('lookback_period = %d', specs['lookback_period'])
     logger.info('predict_date    = %s', specs['predict_date'])
     logger.info('schema          = %s', specs['schema'])
@@ -144,8 +142,6 @@ def pipeline(model, stock_specs):
     # Get any stock specifications
 
     features = stock_specs['features']
-    forecast_period = stock_specs['forecast_period']
-    leaders = stock_specs['leaders']
     lookback_period = stock_specs['lookback_period']
     predict_date = stock_specs['predict_date']
     target_group = stock_specs['target_group']
@@ -167,8 +163,8 @@ def pipeline(model, stock_specs):
 
     # Run the analysis, including the model pipeline
 
-    # a = Analysis(model, gs, train_date, predict_date)
-    # results = run_analysis(a, forecast_period, leaders)
+    a = Analysis(model, gs, train_date, predict_date)
+    results = run_analysis(a)
 
     # Create and run systems
 
@@ -178,9 +174,9 @@ def pipeline(model, stock_specs):
     # run_system(ts, gs)
     # gen_portfolio(ts, gs)
 
-    cs = System('closer', 'hc', 'lc')
-    run_system(cs, gs)
-    gen_portfolio(cs, gs)
+    # cs = System('closer', 'hc', 'lc')
+    # run_system(cs, gs)
+    # gen_portfolio(cs, gs)
 
     # Return the completed model
 

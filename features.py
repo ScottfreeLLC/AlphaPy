@@ -335,7 +335,9 @@ def get_text_features(fnum, fname, df, nvalues, dummy_limit,
 
 def float_factor(x, rounding):
     num2str = '{0:.{1}f}'.format
-    return int(re.sub("[^0-9]", "", num2str(x, rounding)))
+    fstr = re.sub("[^0-9]", "", num2str(x, rounding))
+    ffactor = int(fstr) if len(fstr) > 0 else 0
+    return ffactor
 
 
 #
@@ -351,6 +353,7 @@ def get_factors(fnum, fname, df, nvalues, dtype, encoder, rounding,
                 fnum, fname, dtype, nvalues)
     logger.info("Encoding: %s", encoder)
     feature = df[fname]
+    # convert float to factor
     if dtype == 'float64':
         logger.info("Rounding: %d", rounding)
         feature = feature.apply(float_factor, args=[rounding])

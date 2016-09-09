@@ -281,7 +281,7 @@ def plot_importance(model, partition):
             plt.xticks(range(n_top), indices[:n_top])
             plt.xlim([-1, n_top])
             # save the plot
-            tag = USEP.join([algo, partition])
+            tag = USEP.join([partition, algo])
             write_plot(model, 'matplotlib', None, 'feature_importance', tag)
         except:
             logger.info("%s does not have feature importances", algo)
@@ -360,7 +360,7 @@ def plot_learning_curve(model, partition):
                  label="Cross-Validation Score")
         plt.legend(loc="best")
         # save the plot
-        tag = USEP.join([algo, partition])
+        tag = USEP.join([partition, algo])
         write_plot(model, 'matplotlib', None, 'learning_curve', tag)
 
 
@@ -439,7 +439,7 @@ def plot_roc_curve(model, partition):
         plt.title(title)
         plt.legend(loc="lower right")
         # save chart
-        tag = USEP.join([algo, partition])
+        tag = USEP.join([partition, algo])
         write_plot(model, 'matplotlib', None, 'roc_curve', tag)
 
 
@@ -482,7 +482,7 @@ def plot_confusion_matrix(model, partition):
         plt.ylabel('True Label')
         plt.xlabel('Predicted Label')
         # save the chart
-        tag = USEP.join([algo, partition])
+        tag = USEP.join([partition, algo])
         write_plot(model, 'matplotlib', None, 'confusion', tag)
 
 
@@ -555,7 +555,7 @@ def plot_validation_curve(model, partition, pname, prange):
         plt.fill_between(prange, test_scores_mean - test_scores_std,
                          test_scores_mean + test_scores_std, alpha=alpha, color="g")
         plt.legend(loc="best")        # save the plot
-        tag = USEP.join([algo, partition])
+        tag = USEP.join([partition, algo])
         write_plot(model, 'matplotlib', None, 'validation_curve', tag)
 
 

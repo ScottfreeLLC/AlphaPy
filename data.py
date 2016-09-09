@@ -80,7 +80,7 @@ class SamplingMethod(Enum):
 # Function get_data
 #
 
-def get_data(model, target):
+def get_data(model, partition):
     """
     Read in data from the given directory in a given format.
     """
@@ -94,7 +94,7 @@ def get_data(model, target):
     extension = model.specs['extension']
     features = model.specs['features']
     leaders = model.specs['leaders']
-    leaders_lag = model.specs['leader_lag']
+    leaders_lag = model.specs['leaders_lag']
     project = model.specs['project']
     separator = model.specs['separator']
     target = model.specs['target']
@@ -103,12 +103,28 @@ def get_data(model, target):
     test_labels = model.specs['test_labels']
     train_file = model.specs['train_file']
 
-    # read in file
+    # Determine which partition to read
+
+    if partition == 'train':
+        filename = train_file
+    elif partition == 'test':
+        filename = test_file
+    else:
+        raise Exception("Partition %s not found", partition)
+
+    # Read in the file
+
     directory = SSEP.join([base_dir, project])
     df = read_frame(directory, filename, extension, separator)
-    # assign target and drop it if necessary
+
+    # Assign target and drop it if necessary
+
     if target in df.columns:
-        y = df[target].values
+        y = df[target]
+        # shift target if necessary
+        if target_lag > 0:
+            y = y.shift(-target_lag)
+        # transform with label encoder
         y = LabelEncoder().fit_transform(y)
         logger.info("Found target %s in data frame", target)
         if drop_target:
@@ -116,20 +132,29 @@ def get_data(model, target):
             df = df.drop([target], axis=1)
     elif return_labels:
         logger.info("Target ", target, " not found")
-        raise Exception('Target not found')
-    # extract features
+        raise Exception("Target not found")
+
+    # Extract features
+
     if features == WILDCARD:
         X = df
     else:
         X = df[features]
-    # shift leaders if necessary
+
+    # Shift leaders if necessary
+
     if leaders and leaders_lag != 0:
         X[leaders] = X[leaders].shift(-leaders_lag)
-    # shift target if necessary
+
+    # Eliminate bottom rows because of target lag
+
     if target_lag > 0:
-        y = y.shift(-target_lag)
-    # labels are returned usually only for training data
-    if return_labels:
+        X = X[:-target_lag]
+        y = y[:-target_lag]
+
+    # Labels are returned usually only for training data
+
+    if test_labels:
         return X, y
     else:
         return X, None
