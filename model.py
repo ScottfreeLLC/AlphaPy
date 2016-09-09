@@ -164,11 +164,14 @@ def get_model_config(cfg_dir):
     specs['drop_target'] = cfg['data']['drop_target']
     specs['dummy_limit'] = cfg['data']['dummy_limit']
     specs['features'] = cfg['data']['features']
+    specs['leaders'] = cfg['data']['leaders']
+    specs['leaders_lag'] = cfg['data']['leaders_lag']
     specs['sentinel'] = cfg['data']['sentinel']
     specs['separator'] = cfg['data']['separator']
     specs['shuffle'] = cfg['data']['shuffle']
     specs['split'] = cfg['data']['split']
     specs['target'] = cfg['data']['target']
+    specs['target_lag'] = cfg['data']['target_lag']
     specs['target_value'] = cfg['data']['target_value']
     specs['test_file'] = cfg['data']['test']
     specs['test_labels'] = cfg['data']['test_labels']
@@ -321,6 +324,8 @@ def get_model_config(cfg_dir):
     logger.info('interactions      = %r', specs['interactions'])
     logger.info('isample_pct       = %d', specs['isample_pct'])
     logger.info('kaggle            = %r', specs['kaggle'])
+    logger.info('leaders           = %s', specs['leaders'])
+    logger.info('leaders_lag       = %d', specs['leaders_lag'])
     logger.info('learning_curve    = %r', specs['learning_curve'])
     logger.info('model_type        = %r', specs['model_type'])
     logger.info('n_estimators      = %d', specs['n_estimators'])
@@ -348,6 +353,7 @@ def get_model_config(cfg_dir):
     logger.info('shuffle           = %r', specs['shuffle'])
     logger.info('split             = %f', specs['split'])
     logger.info('target [y]        = %s', specs['target'])
+    logger.info('target_lag        = %d', specs['target_lag'])
     logger.info('target_value      = %d', specs['target_value'])
     logger.info('test_file         = %s', specs['test_file'])
     logger.info('test_labels       = %r', specs['test_labels'])
