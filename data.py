@@ -130,7 +130,7 @@ def get_data(model, partition):
         if drop_target:
             logger.info("Dropping target %s from data frame", target)
             df = df.drop([target], axis=1)
-    elif return_labels:
+    elif test_labels:
         logger.info("Target ", target, " not found")
         raise Exception("Target not found")
 
