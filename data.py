@@ -77,18 +77,34 @@ class SamplingMethod(Enum):
 
 
 #
-# Function load_data
+# Function get_data
 #
 
-def load_data(directory, filename, extension, separator, features, target,
-              return_labels=True, drop_target=True):
+def get_data(model, target):
     """
     Read in data from the given directory in a given format.
     """
 
     logger.info("Loading Data")
 
+    # Extract the model data
+
+    base_dir = model.specs['base_dir']
+    drop_target = model.specs['drop_target']
+    extension = model.specs['extension']
+    features = model.specs['features']
+    leaders = model.specs['leaders']
+    leaders_lag = model.specs['leader_lag']
+    project = model.specs['project']
+    separator = model.specs['separator']
+    target = model.specs['target']
+    target_lag = model.specs['target_lag']
+    test_file = model.specs['test_file']
+    test_labels = model.specs['test_labels']
+    train_file = model.specs['train_file']
+
     # read in file
+    directory = SSEP.join([base_dir, project])
     df = read_frame(directory, filename, extension, separator)
     # assign target and drop it if necessary
     if target in df.columns:
@@ -106,61 +122,17 @@ def load_data(directory, filename, extension, separator, features, target,
         X = df
     else:
         X = df[features]
+    # shift leaders if necessary
+    if leaders and leaders_lag != 0:
+        X[leaders] = X[leaders].shift(-leaders_lag)
+    # shift target if necessary
+    if target_lag > 0:
+        y = y.shift(-target_lag)
     # labels are returned usually only for training data
     if return_labels:
         return X, y
     else:
         return X, None
-
-
-#
-# Function get_data
-#
-
-def get_data(model, partition):
-    """
-    Read in training or testing data.
-    """
-
-    # Extract the model data
-
-    base_dir = model.specs['base_dir']
-    drop_target = model.specs['drop_target']
-    extension = model.specs['extension']
-    features = model.specs['features']
-    project = model.specs['project']
-    separator = model.specs['separator']
-    target = model.specs['target']
-    test_file = model.specs['test_file']
-    test_labels = model.specs['test_labels']
-    train_file = model.specs['train_file']
-
-    # Load the data
-
-    directory = SSEP.join([base_dir, project])
-
-    if partition == 'train':
-        # load training data
-        X, y = load_data(directory, train_file, extension,
-                         separator, features, target,
-                         drop_target=drop_target)
-    elif partition == 'test':
-        # load test data
-        if test_labels:
-            X, y = load_data(directory, test_file, extension,
-                             separator, features, target,
-                             return_labels=test_labels,
-                             drop_target=drop_target)
-        else:
-            X, y = load_data(directory, test_file, extension,
-                             separator, features, target,
-                             return_labels=test_labels,
-                             drop_target=drop_target)
-    else:
-        raise ValueError("Unrecognized partition: %s", partition)
-
-    # Return the data
-    return X, y
 
 
 #

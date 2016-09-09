@@ -64,9 +64,7 @@ def get_stock_config(cfg_dir):
 
     # Section: stock [this section must be first]
 
-    specs['forecast_period'] = cfg['stock']['forecast_period']
     specs['fractal'] = cfg['stock']['fractal']
-    specs['leaders'] = cfg['stock']['leaders']
     specs['lookback_period'] = cfg['stock']['lookback_period']
     specs['predict_date'] = cfg['stock']['predict_date']
     specs['schema'] = cfg['stock']['schema']
