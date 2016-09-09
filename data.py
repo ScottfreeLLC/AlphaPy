@@ -125,6 +125,7 @@ def get_data(model, partition):
     # Extract the model data
 
     base_dir = model.specs['base_dir']
+    drop_target = model.specs['drop_target']
     extension = model.specs['extension']
     features = model.specs['features']
     project = model.specs['project']
@@ -142,19 +143,19 @@ def get_data(model, partition):
         # load training data
         X, y = load_data(directory, train_file, extension,
                          separator, features, target,
-                         drop_target=True)
+                         drop_target=drop_target)
     elif partition == 'test':
         # load test data
         if test_labels:
             X, y = load_data(directory, test_file, extension,
                              separator, features, target,
                              return_labels=test_labels,
-                             drop_target=True)
+                             drop_target=drop_target)
         else:
             X, y = load_data(directory, test_file, extension,
                              separator, features, target,
                              return_labels=test_labels,
-                             drop_target=True)
+                             drop_target=drop_target)
     else:
         raise ValueError("Unrecognized partition: %s", partition)
 
