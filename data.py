@@ -107,6 +107,7 @@ def get_data(model, partition):
 
     if partition == 'train':
         filename = train_file
+        test_labels = True
     elif partition == 'test':
         filename = test_file
     else:

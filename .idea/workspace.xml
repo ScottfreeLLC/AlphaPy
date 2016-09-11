@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c5790f48-797b-4b3d-9134-1e107c5be668" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data.py" afterPath="$PROJECT_DIR$/data.py" />
-    </list>
+    <list default="true" id="c5790f48-797b-4b3d-9134-1e107c5be668" name="Default" comment="" />
     <ignored path="AlphaPy.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path=".idea/dataSources.local.xml" />
@@ -30,10 +27,14 @@
       <file leaf-file-name="alpha_stock.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/alpha_stock.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2771">
-              <caret line="184" column="0" selection-start-line="184" selection-start-column="0" selection-end-line="184" selection-end-column="0" />
+            <state relative-caret-position="2669">
+              <caret line="178" column="0" selection-start-line="178" selection-start-column="0" selection-end-line="178" selection-end-column="0" />
               <folding>
-                <marker date="1467653093000" expanded="true" signature="4457:4531" ph="..." />
+                <marker date="1473445874000" expanded="false" signature="272:845" ph="import ..." />
+                <marker date="1473445874000" expanded="true" signature="848:871" ph="..." />
+                <marker date="1473445874000" expanded="true" signature="912:943" ph="..." />
+                <marker date="1473445874000" expanded="true" signature="975:1309" ph="..." />
+                <marker date="1473445874000" expanded="true" signature="4109:4183" ph="..." />
               </folding>
             </state>
           </provider>
@@ -88,7 +89,7 @@
   <component name="ProjectFrameBounds">
     <option name="y" value="23" />
     <option name="width" value="1440" />
-    <option name="height" value="834" />
+    <option name="height" value="832" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -115,8 +116,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -137,6 +136,8 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scratches" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -146,7 +147,7 @@
     <property name="options.splitter.details.proportions" value="0.2" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/alpha_stock.py" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../BNP Claims" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="js-jscs-nodeInterpreter" value="/usr/local/bin/node" />
   </component>
@@ -399,7 +400,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1440" height="834" extended-state="6" />
+    <frame x="0" y="23" width="1440" height="832" extended-state="6" />
     <editor active="false" />
     <layout>
       <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3298611" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -436,7 +437,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/alpha_stock.py</url>
-          <line>182</line>
+          <line>176</line>
           <option name="timeStamp" value="8" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
@@ -459,10 +460,46 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/alpha_stock.py">
       <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2771">
+          <caret line="184" column="0" selection-start-line="184" selection-start-column="0" selection-end-line="184" selection-end-column="0" />
+          <folding>
+            <marker date="1473445874000" expanded="false" signature="272:845" ph="import ..." />
+            <marker date="1473445874000" expanded="true" signature="848:871" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="912:943" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="975:1309" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="4109:4183" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/system.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3230">
+          <caret line="196" column="0" selection-start-line="196" selection-start-column="0" selection-end-line="196" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/portfolio.py">
+      <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <marker date="1467653093000" expanded="true" signature="4457:4531" ph="..." />
+            <element signature="e#260#283#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/alpha_stock.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1473445874000" expanded="false" signature="272:845" ph="import ..." />
+            <marker date="1473445874000" expanded="true" signature="848:871" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="912:943" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="975:1309" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="4109:4183" ph="..." />
           </folding>
         </state>
       </provider>
@@ -480,7 +517,11 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <marker date="1467653093000" expanded="true" signature="4457:4531" ph="..." />
+            <marker date="1473445874000" expanded="false" signature="272:845" ph="import ..." />
+            <marker date="1473445874000" expanded="true" signature="848:871" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="912:943" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="975:1309" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="4109:4183" ph="..." />
           </folding>
         </state>
       </provider>
@@ -498,7 +539,11 @@
         <state relative-caret-position="2771">
           <caret line="184" column="0" selection-start-line="184" selection-start-column="0" selection-end-line="184" selection-end-column="0" />
           <folding>
-            <marker date="1467653093000" expanded="true" signature="4457:4531" ph="..." />
+            <marker date="1473445874000" expanded="false" signature="272:845" ph="import ..." />
+            <marker date="1473445874000" expanded="true" signature="848:871" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="912:943" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="975:1309" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="4109:4183" ph="..." />
           </folding>
         </state>
       </provider>
@@ -526,7 +571,11 @@
         <state relative-caret-position="3791">
           <caret line="244" column="0" selection-start-line="244" selection-start-column="0" selection-end-line="244" selection-end-column="0" />
           <folding>
-            <marker date="1467653093000" expanded="true" signature="4457:4531" ph="..." />
+            <marker date="1473445874000" expanded="false" signature="272:845" ph="import ..." />
+            <marker date="1473445874000" expanded="true" signature="848:871" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="912:943" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="975:1309" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="4109:4183" ph="..." />
           </folding>
         </state>
       </provider>
@@ -561,7 +610,11 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <marker date="1467653093000" expanded="true" signature="4457:4531" ph="..." />
+            <marker date="1473445874000" expanded="false" signature="272:845" ph="import ..." />
+            <marker date="1473445874000" expanded="true" signature="848:871" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="912:943" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="975:1309" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="4109:4183" ph="..." />
           </folding>
         </state>
       </provider>
@@ -580,7 +633,11 @@
         <state relative-caret-position="2771">
           <caret line="184" column="0" selection-start-line="184" selection-start-column="0" selection-end-line="184" selection-end-column="0" />
           <folding>
-            <marker date="1467653093000" expanded="true" signature="4457:4531" ph="..." />
+            <marker date="1473445874000" expanded="false" signature="272:845" ph="import ..." />
+            <marker date="1473445874000" expanded="true" signature="848:871" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="912:943" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="975:1309" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="4109:4183" ph="..." />
           </folding>
         </state>
       </provider>
@@ -616,7 +673,11 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <marker date="1467653093000" expanded="true" signature="4457:4531" ph="..." />
+            <marker date="1473445874000" expanded="false" signature="272:845" ph="import ..." />
+            <marker date="1473445874000" expanded="true" signature="848:871" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="912:943" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="975:1309" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="4109:4183" ph="..." />
           </folding>
         </state>
       </provider>
@@ -626,7 +687,11 @@
         <state relative-caret-position="2465">
           <caret line="164" column="0" selection-start-line="164" selection-start-column="0" selection-end-line="164" selection-end-column="0" />
           <folding>
-            <marker date="1467653093000" expanded="true" signature="4457:4531" ph="..." />
+            <marker date="1473445874000" expanded="false" signature="272:845" ph="import ..." />
+            <marker date="1473445874000" expanded="true" signature="848:871" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="912:943" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="975:1309" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="4109:4183" ph="..." />
           </folding>
         </state>
       </provider>
@@ -646,7 +711,11 @@
         <state relative-caret-position="2601">
           <caret line="172" column="0" selection-start-line="172" selection-start-column="0" selection-end-line="172" selection-end-column="0" />
           <folding>
-            <marker date="1467653093000" expanded="true" signature="4457:4531" ph="..." />
+            <marker date="1473445874000" expanded="false" signature="272:845" ph="import ..." />
+            <marker date="1473445874000" expanded="true" signature="848:871" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="912:943" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="975:1309" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="4109:4183" ph="..." />
           </folding>
         </state>
       </provider>
@@ -719,10 +788,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/alpha_stock.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2771">
-          <caret line="184" column="0" selection-start-line="184" selection-start-column="0" selection-end-line="184" selection-end-column="0" />
+        <state relative-caret-position="2669">
+          <caret line="178" column="0" selection-start-line="178" selection-start-column="0" selection-end-line="178" selection-end-column="0" />
           <folding>
-            <marker date="1467653093000" expanded="true" signature="4457:4531" ph="..." />
+            <marker date="1473445874000" expanded="false" signature="272:845" ph="import ..." />
+            <marker date="1473445874000" expanded="true" signature="848:871" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="912:943" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="975:1309" ph="..." />
+            <marker date="1473445874000" expanded="true" signature="4109:4183" ph="..." />
           </folding>
         </state>
       </provider>
