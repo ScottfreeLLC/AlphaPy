@@ -566,13 +566,16 @@ def create_features(X, model, split_point, y_train):
     # Extract model parameters
 
     clustering = model.specs['clustering']
+    counts_flag = model.specs['counts']
     dummy_limit = model.specs['dummy_limit']
     encoder = model.specs['encoder']
     model_type = model.specs['model_type']
     ngrams_max = model.specs['ngrams_max']
+    numpy_flag = model.specs['numpy']
     pca = model.specs['pca']
     pvalue_level = model.specs['pvalue_level']
     rounding = model.specs['rounding']
+    scipy_flag = model.specs['scipy']
     sentinel = model.specs['sentinel']
     target_value = model.specs['target_value']
     treatments = model.specs['treatments']
@@ -585,16 +588,15 @@ def create_features(X, model, split_point, y_train):
 
     # Count zero and NaN values
 
-    logger.info("Creating Count Features")
-
-    logger.info("NA Counts")
-    X['nan_count'] = X.count(axis=1)
-    logger.info("Number Counts")
-    for i in range(10):
-        fc = USEP.join(['count', str(i)])
-        X[fc] = (X == i).astype(int).sum(axis=1)
-
-    logger.info("New Feature Count : %d", X.shape[1])
+    if counts_flag:
+        logger.info("Creating Count Features")
+        logger.info("NA Counts")
+        X['nan_count'] = X.count(axis=1)
+        logger.info("Number Counts")
+        for i in range(10):
+            fc = USEP.join(['count', str(i)])
+            X[fc] = (X == i).astype(int).sum(axis=1)
+        logger.info("New Feature Count : %d", X.shape[1])
 
     # Iterate through columns, dispatching and transforming each feature.
 
@@ -638,15 +640,17 @@ def create_features(X, model, split_point, y_train):
 
     # Calculate the total, mean, standard deviation, and variance
 
-    np_features = create_numpy_features(base_features)
-    all_features = np.column_stack((all_features, np_features))
-    logger.info("New Feature Count : %d", all_features.shape[1])
+    if numpy_flag:
+        np_features = create_numpy_features(base_features)
+        all_features = np.column_stack((all_features, np_features))
+        logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Generate scipy features
 
-    sp_features = create_scipy_features(base_features)
-    all_features = np.column_stack((all_features, sp_features))
-    logger.info("New Feature Count : %d", all_features.shape[1])
+    if scipy_flag:
+        sp_features = create_scipy_features(base_features)
+        all_features = np.column_stack((all_features, sp_features))
+        logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Create clustering features
 
@@ -763,8 +767,6 @@ def create_interactions(X, model):
     # Log parameters
 
     logger.info("Initial Feature Count  : %d", X.shape[1])
-    logger.info("Interaction Percentage : %d", isample_pct)
-    logger.info("Polynomial Degree      : %d", poly_degree)
 
     # Initialize all features
 
@@ -774,6 +776,8 @@ def create_interactions(X, model):
 
     if interactions:
         logger.info("Generating Polynomial Features")
+        logger.info("Interaction Percentage : %d", isample_pct)
+        logger.info("Polynomial Degree      : %d", poly_degree)
         if model_type == ModelType.regression:
             selector = SelectPercentile(f_regression, percentile=isample_pct)
         elif model_type == ModelType.classification:

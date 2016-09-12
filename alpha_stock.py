@@ -150,6 +150,8 @@ def pipeline(model, stock_specs):
     # Get any stock specifications
 
     features = stock_specs['features']
+    forecast_period = stock_specs['forecast_period']
+    leaders = stock_specs['leaders']
     lookback_period = stock_specs['lookback_period']
     predict_date = stock_specs['predict_date']
     target_group = stock_specs['target_group']
@@ -172,7 +174,7 @@ def pipeline(model, stock_specs):
     # Run the analysis, including the model pipeline
 
     a = Analysis(model, gs, train_date, predict_date)
-    results = run_analysis(a)
+    results = run_analysis(a, forecast_period, leaders)
 
     # Create and run systems
 

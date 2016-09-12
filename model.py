@@ -193,6 +193,8 @@ def get_model_config(cfg_dir):
     specs['cluster_min'] = cfg['features']['clustering']['minimum']
     specs['cluster_max'] = cfg['features']['clustering']['maximum']
     specs['cluster_inc'] = cfg['features']['clustering']['increment']
+    # counts
+    specs['counts'] = cfg['features']['counts']['option']
     # encoding
     specs['rounding'] = cfg['features']['encoding']['rounding']
     # determine whether or not encoder is valid
@@ -209,12 +211,16 @@ def get_model_config(cfg_dir):
     specs['interactions'] = cfg['features']['interactions']['option']
     specs['isample_pct'] = cfg['features']['interactions']['sampling_pct']
     specs['poly_degree'] = cfg['features']['interactions']['poly_degree']
+    # NumPy
+    specs['numpy'] = cfg['features']['numpy']['option']
     # pca
     specs['pca'] = cfg['features']['pca']['option']
     specs['pca_min'] = cfg['features']['pca']['minimum']
     specs['pca_max'] = cfg['features']['pca']['maximum']
     specs['pca_inc'] = cfg['features']['pca']['increment']
     specs['pca_whiten'] = cfg['features']['pca']['whiten']
+    # SciPy
+    specs['scipy'] = cfg['features']['scipy']['option']
     # text
     specs['ngrams_max'] = cfg['features']['text']['ngrams']
     specs['vectorize'] = cfg['features']['text']['vectorize']
@@ -298,6 +304,7 @@ def get_model_config(cfg_dir):
     logger.info('cluster_max       = %d', specs['cluster_max'])
     logger.info('cluster_min       = %d', specs['cluster_min'])
     logger.info('confusion_matrix  = %r', specs['confusion_matrix'])
+    logger.info('counts            = %r', specs['counts'])
     logger.info('cv_folds          = %d', specs['cv_folds'])
     logger.info('extension         = %s', specs['extension'])
     logger.info('drop              = %s', specs['drop'])
@@ -326,6 +333,7 @@ def get_model_config(cfg_dir):
     logger.info('n_estimators      = %d', specs['n_estimators'])
     logger.info('n_jobs            = %d', specs['n_jobs'])
     logger.info('ngrams_max        = %d', specs['ngrams_max'])
+    logger.info('numpy             = %r', specs['numpy'])
     logger.info('pca               = %r', specs['pca'])
     logger.info('pca_inc           = %d', specs['pca_inc'])
     logger.info('pca_max           = %d', specs['pca_max'])
@@ -341,6 +349,7 @@ def get_model_config(cfg_dir):
     logger.info('sampling          = %r', specs['sampling'])
     logger.info('sampling_method   = %r', specs['sampling_method'])
     logger.info('sampling_ratio    = %f', specs['sampling_ratio'])
+    logger.info('scipy             = %r', specs['scipy'])
     logger.info('scorer            = %s', specs['scorer'])
     logger.info('seed              = %d', specs['seed'])
     logger.info('sentinel          = %d', specs['sentinel'])
