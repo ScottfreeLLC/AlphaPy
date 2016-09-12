@@ -98,7 +98,7 @@ class Analysis(object):
 # Function run_analysis
 #
 
-def run_analysis(analysis, splits=True):
+def run_analysis(analysis, forecast_period, leaders, splits=True):
     """
     Run an analysis for a given model and group
     """
@@ -130,6 +130,12 @@ def run_analysis(analysis, splits=True):
         test_frame = pd.DataFrame()
         # Subset each frame and add to the model frame
         for df in data_frames:
+            # shift the target for the forecast period
+            if forecast_period > 0:
+                df[target] = df[target].shift(-forecast_period)
+            # shift any leading features if necessary
+            if leaders: 
+                df[leaders] = df[leaders].shift(-1)
             # drop any rows with NA
             df.dropna(inplace=True)
             # split data into train and test

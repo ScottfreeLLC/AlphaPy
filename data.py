@@ -93,12 +93,9 @@ def get_data(model, partition):
     drop_target = model.specs['drop_target']
     extension = model.specs['extension']
     features = model.specs['features']
-    leaders = model.specs['leaders']
-    leaders_lag = model.specs['leaders_lag']
     project = model.specs['project']
     separator = model.specs['separator']
     target = model.specs['target']
-    target_lag = model.specs['target_lag']
     test_file = model.specs['test_file']
     test_labels = model.specs['test_labels']
     train_file = model.specs['train_file']
@@ -122,9 +119,6 @@ def get_data(model, partition):
 
     if target in df.columns:
         y = df[target]
-        # shift target if necessary
-        if target_lag > 0:
-            y = y.shift(-target_lag)
         # transform with label encoder
         y = LabelEncoder().fit_transform(y)
         logger.info("Found target %s in data frame", target)
@@ -141,17 +135,6 @@ def get_data(model, partition):
         X = df
     else:
         X = df[features]
-
-    # Shift leaders if necessary
-
-    if leaders and leaders_lag != 0:
-        X[leaders] = X[leaders].shift(-leaders_lag)
-
-    # Eliminate bottom rows because of target lag
-
-    if target_lag > 0:
-        X = X[:-target_lag]
-        y = y[:-target_lag]
 
     # Labels are returned usually only for training data
 

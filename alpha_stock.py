@@ -64,7 +64,9 @@ def get_stock_config(cfg_dir):
 
     # Section: stock [this section must be first]
 
+    specs['forecast_period'] = cfg['stock']['forecast_period']
     specs['fractal'] = cfg['stock']['fractal']
+    specs['leaders'] = cfg['stock']['leaders']
     specs['lookback_period'] = cfg['stock']['lookback_period']
     specs['predict_date'] = cfg['stock']['predict_date']
     specs['schema'] = cfg['stock']['schema']
@@ -79,6 +81,7 @@ def get_stock_config(cfg_dir):
     # Section: features
 
     try:
+        logger.info("Getting Features")
         specs['features'] = cfg['features']
     except:
         logger.info("No Features Found")
@@ -86,6 +89,7 @@ def get_stock_config(cfg_dir):
     # Section: groups
 
     try:
+        logger.info("Defining Groups")
         for g, m in cfg['groups'].items():
             command = 'Group(\'' + g + '\', space)'
             exec(command)
@@ -96,6 +100,7 @@ def get_stock_config(cfg_dir):
     # Section: aliases
 
     try:
+        logger.info("Defining Aliases")
         for k, v in cfg['aliases'].items():
             Alias(k, v)
     except:
@@ -104,6 +109,7 @@ def get_stock_config(cfg_dir):
     # Section: variables
 
     try:
+        logger.info("Defining Variables")
         for k, v in cfg['variables'].items():
             Variable(k, v)
     except:
@@ -112,8 +118,10 @@ def get_stock_config(cfg_dir):
     # Log the stock parameters
 
     logger.info('STOCK PARAMETERS:')
-    logger.info('features        = %d', specs['features'])
+    logger.info('features        = %s', specs['features'])
+    logger.info('forecast_period = %d', specs['forecast_period'])
     logger.info('fractal         = %s', specs['fractal'])
+    logger.info('leaders         = %s', specs['leaders'])
     logger.info('lookback_period = %d', specs['lookback_period'])
     logger.info('predict_date    = %s', specs['predict_date'])
     logger.info('schema          = %s', specs['schema'])
