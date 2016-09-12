@@ -161,7 +161,6 @@ def get_model_config(cfg_dir):
     # Section: data
 
     specs['drop'] = cfg['data']['drop']
-    specs['drop_target'] = cfg['data']['drop_target']
     specs['dummy_limit'] = cfg['data']['dummy_limit']
     specs['features'] = cfg['data']['features']
     specs['sentinel'] = cfg['data']['sentinel']
@@ -308,7 +307,6 @@ def get_model_config(cfg_dir):
     logger.info('cv_folds          = %d', specs['cv_folds'])
     logger.info('extension         = %s', specs['extension'])
     logger.info('drop              = %s', specs['drop'])
-    logger.info('drop_target       = %r', specs['drop_target'])
     logger.info('dummy_limit       = %d', specs['dummy_limit'])
     logger.info('encoder           = %r', specs['encoder'])
     logger.info('esr               = %d', specs['esr'])

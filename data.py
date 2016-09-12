@@ -90,7 +90,6 @@ def get_data(model, partition):
     # Extract the model data
 
     base_dir = model.specs['base_dir']
-    drop_target = model.specs['drop_target']
     extension = model.specs['extension']
     features = model.specs['features']
     project = model.specs['project']
@@ -118,13 +117,13 @@ def get_data(model, partition):
     # Assign target and drop it if necessary
 
     if target in df.columns:
+        logger.info("Found target %s in data frame", target)
         y = df[target]
         # transform with label encoder
         y = LabelEncoder().fit_transform(y)
-        logger.info("Found target %s in data frame", target)
-        if drop_target:
-            logger.info("Dropping target %s from data frame", target)
-            df = df.drop([target], axis=1)
+        # drop the target as it has already been extracted into y
+        logger.info("Dropping target %s from data frame", target)
+        df = df.drop([target], axis=1)
     elif test_labels:
         logger.info("Target ", target, " not found")
         raise Exception("Target not found")
