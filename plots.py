@@ -127,13 +127,13 @@ def generate_plots(model, partition):
         plot_calibration(model, partition)
     if confusion_matrix:
         plot_confusion_matrix(model, partition)
+    if roc_curve:
+        plot_roc_curve(model, partition)
     if partition == 'train':
         if importances:
             plot_importance(model, partition)
         if learning_curve:
             plot_learning_curve(model, partition)
-        if roc_curve:
-            plot_roc_curve(model, partition)
 
 
 #
