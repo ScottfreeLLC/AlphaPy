@@ -327,6 +327,7 @@ def plot_learning_curve(model, partition):
     # Plot a learning curve for each algorithm.   
 
     ylim = (0.0, 1.01)
+    train_sizes=np.linspace(.1, 1.0, 5)
     for algo in model.algolist:
         logger.info("Learning Curve for Algorithm: %s", algo)
         # get estimator
@@ -341,8 +342,9 @@ def plot_learning_curve(model, partition):
         plt.xlabel("Training Examples")
         plt.ylabel("Score")
         train_sizes, train_scores, test_scores = \
-            learning_curve(estimator, X, y, cv=cv, scoring=scorer,
-                           n_jobs=n_jobs, verbose=verbosity)
+            learning_curve(estimator, X, y, train_sizes=train_sizes,
+                           cv=cv, scoring=scorer, n_jobs=n_jobs,
+                           verbose=verbosity)
         train_scores_mean = np.mean(train_scores, axis=1)
         train_scores_std = np.std(train_scores, axis=1)
         test_scores_mean = np.mean(test_scores, axis=1)
