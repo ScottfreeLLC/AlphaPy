@@ -173,20 +173,18 @@ def pipeline(model, stock_specs):
 
     # Run the analysis, including the model pipeline
 
-    a = Analysis(model, gs, train_date, predict_date)
-    results = run_analysis(a, forecast_period, leaders)
+    # a = Analysis(model, gs, train_date, predict_date)
+    # results = run_analysis(a, forecast_period, leaders)
 
     # Create and run systems
-
-    pass
 
     # ts = System('trend', 'bigup', 'bigdown')
     # run_system(ts, gs)
     # gen_portfolio(ts, gs)
 
-    # cs = System('closer', 'hc', 'lc')
-    # run_system(cs, gs)
-    # gen_portfolio(cs, gs)
+    cs = System('closer', 'hc', 'lc')
+    run_system(cs, gs)
+    gen_portfolio(cs, gs)
 
     # Return the completed model
 

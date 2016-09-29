@@ -119,8 +119,7 @@ def gen_trades(system, name, group, quantity):
     h = 0
     p = 0
     q = quantity
-    for i, row in pf.iterrows():
-        tdate = row.date
+    for tdate, row in pf.iterrows():
         lrow = None
         if longevent:
             lrow = row[longevent]

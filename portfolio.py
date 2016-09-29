@@ -598,6 +598,7 @@ def gen_portfolio(system, group, startcap=100000, posby='close'):
     """
     Create a portfolio from a trades file
     """
+    logger.info("Creating Portfolio for System %s", system.name)
     gname = group.name
     gspace = group.space
     p = Portfolio(gname,
@@ -609,7 +610,8 @@ def gen_portfolio(system, group, startcap=100000, posby='close'):
         sys.exit("Error creating Portfolio")
     # build a portfolio from the trades in the file
     tspace = Space(system.name, 'trades', gspace.fractal)
-    tframe = Frame.frames[frame_name(gname, tspace)].df
+    tfname = frame_name(gname, tspace)
+    tframe = Frame.frames[tfname].df
     start = tframe.index[0]
     end = tframe.index[-1]
     drange = date_range(start, end, freq='B')
@@ -617,6 +619,7 @@ def gen_portfolio(system, group, startcap=100000, posby='close'):
     # initialize portfolio states and stats
     ps = []
     pstat = pstats1()
+    logger.info("Executing Trades (this may take a while)")
     # iterate through the date range, updating the portfolio
     for i, d in enumerate(drange):
         # process today's trades
@@ -636,6 +639,7 @@ def gen_portfolio(system, group, startcap=100000, posby='close'):
         # update the portfolio valuation
         valuate_portfolio(p, d)
         ps.append((d, [p.value, p.profit, p.netreturn]))
+    logger.info
     # create the portfolio states frame for this system
     pspace = Space(system.name, 'portfolio', gspace.fractal)
     psf = DataFrame.from_items(ps, orient='index', columns=Portfolio.states)
@@ -716,7 +720,7 @@ def exec_trade(p, name, order, quantity, price, tdate):
         if order == 'le' or order == 'se':
             pf = Frame.frames[frame_name(name, p.space)].df
             cv = pf.ix[tdate][p.posby]
-            psize = trunc((p.value * p.fixedfrac) / cv)
+            psize = math.trunc((p.value * p.fixedfrac) / cv)
             if quantity < 0:
                 psize = -psize
         else:

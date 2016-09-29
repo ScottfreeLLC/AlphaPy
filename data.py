@@ -271,5 +271,9 @@ def get_remote_data(group,
         df = web.DataReader(item, feed, start, end)
         df.reset_index(level=0, inplace=True)
         df = df.rename(columns = lambda x: x.lower().replace(' ',''))
+        # time series, so date is the index
+        df['date'] = pd.to_datetime(df['date'])
+        df.index = df['date']
+        del df['date']
         newf = Frame(item.lower(), group.space, df)
     return
