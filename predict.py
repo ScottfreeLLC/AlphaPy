@@ -3,7 +3,7 @@
 # Package   : AlphaPy
 # Module    : predict
 # Version   : 1.0
-# Copyright : RS Analytics LLC
+# Copyright : Mark Conway
 # Date      : June 29, 2013
 #
 ##############################################################
