@@ -15,7 +15,9 @@
 
 from frame import Frame
 from frame import frame_name
+from frame import write_frame
 from globs import MULTIPLIERS
+from globs import SSEP
 import logging
 import math
 from pandas import DataFrame
@@ -361,6 +363,18 @@ def update_portfolio(p, pos, trade, allocation):
 
 
 #
+# Function delete_portfolio
+#
+
+def delete_portfolio(p):
+    """ Delete the portfolio, closing all positions """
+    positions = p.positions
+    for key in positions:
+        close_position(p, positions[key])
+    del p
+
+
+#
 # Function balance
 #
 
@@ -591,79 +605,6 @@ def pstats3(p, pstat):
 
 
 #
-# Function gen_portfolio
-#
-
-def gen_portfolio(system, group, startcap=100000, posby='close'):
-    """
-    Create a portfolio from a trades file
-    """
-    logger.info("Creating Portfolio for System %s", system.name)
-    gname = group.name
-    gspace = group.space
-    p = Portfolio(gname,
-                  system.name,
-                  startcap = startcap,
-                  posby = posby,
-                  restricted = False)
-    if not p:
-        sys.exit("Error creating Portfolio")
-    # build a portfolio from the trades in the file
-    tspace = Space(system.name, 'trades', gspace.fractal)
-    tfname = frame_name(gname, tspace)
-    tframe = Frame.frames[tfname].df
-    start = tframe.index[0]
-    end = tframe.index[-1]
-    drange = date_range(start, end, freq='B')
-    del tspace
-    # initialize portfolio states and stats
-    ps = []
-    pstat = pstats1()
-    logger.info("Executing Trades (this may take a while)")
-    # iterate through the date range, updating the portfolio
-    for i, d in enumerate(drange):
-        # process today's trades
-        if drange[i] in tframe.index:
-            trades = tframe.ix[drange[i]]
-            if isinstance(trades, Series):
-                trades = DataFrame(trades).transpose()
-            for t in trades.iterrows():
-                tdate = t[0]
-                row = t[1]
-                pos = exec_trade(p, row['name'], row['order'], row['quantity'], row['price'], tdate)
-                if pos:
-                    if pos.status == 'closed':
-                        pstats2(p, pstat, pos)
-                else:
-                    logger.info("Trade could not be allocated")
-        # update the portfolio valuation
-        valuate_portfolio(p, d)
-        ps.append((d, [p.value, p.profit, p.netreturn]))
-    logger.info
-    # create the portfolio states frame for this system
-    pspace = Space(system.name, 'portfolio', gspace.fractal)
-    psf = DataFrame.from_items(ps, orient='index', columns=Portfolio.states)
-    Frame(gname, pspace, psf)
-    del pspace
-    # compute the final portfolio statistics
-    pstats3(p, pstat)
-    # return the portfolio
-    return p
-
-
-#
-# Function delete_portfolio
-#
-
-def delete_portfolio(p):
-    """ Delete the portfolio, closing all positions """
-    positions = p.positions
-    for key in positions:
-        close_position(p, positions[key])
-    del p
-
-
-#
 # Function allocate_trade
 #
 
@@ -743,3 +684,78 @@ def exec_trade(p, name, order, quantity, price, tdate):
         return pos
     else:
         return None
+
+
+#
+# Function gen_portfolio
+#
+
+def gen_portfolio(model, system, group, tframe, startcap=100000, posby='close'):
+    """
+    Create a portfolio from a trades frame
+    """
+    logger.info("Creating Portfolio for System %s", system.name)
+
+    # Unpack model data
+
+    base_dir = model.specs['base_dir']
+    extension = model.specs['extension']
+    project = model.specs['project']
+    separator = model.specs['separator']
+    directory = SSEP.join([base_dir, project])
+
+    # Create portfolio
+
+    gname = group.name
+    gspace = group.space
+    p = Portfolio(gname,
+                  system.name,
+                  startcap = startcap,
+                  posby = posby,
+                  restricted = False)
+    if not p:
+        sys.exit("Error creating Portfolio")
+
+    # Build a portfolio from the trades frame
+
+    start = tframe.index[0]
+    end = tframe.index[-1]
+    drange = date_range(start, end, freq='B')
+    # initialize portfolio states and stats
+    ps = []
+    pstat = pstats1()
+    # iterate through the date range, updating the portfolio
+    for i, d in enumerate(drange):
+        logger.info("Updating Portfolio for %s", d)
+        # process today's trades
+        if drange[i] in tframe.index:
+            trades = tframe.ix[drange[i]]
+            if isinstance(trades, Series):
+                trades = DataFrame(trades).transpose()
+            for t in trades.iterrows():
+                tdate = t[0]
+                row = t[1]
+                pos = exec_trade(p, row['name'], row['order'], row['quantity'], row['price'], tdate)
+                if pos:
+                    if pos.status == 'closed':
+                        pstats2(p, pstat, pos)
+                else:
+                    logger.info("Trade could not be allocated")
+        # update the portfolio valuation
+        valuate_portfolio(p, d)
+        ps.append((d, [p.value, p.profit, p.netreturn]))
+
+    # Create the portfolio states frame for this system
+
+    logger.info("Writing Portfolio Frame")
+    pspace = Space(system.name, 'portfolio', gspace.fractal)
+    pf = DataFrame.from_items(ps, orient='index', columns=Portfolio.states)
+    pfname = frame_name(gname, pspace)
+    write_frame(pf, directory, pfname, extension, separator, index=True)
+    del pspace
+
+    # Compute the final portfolio statistics
+    pstats3(p, pstat)
+
+    # return the portfolio
+    return p

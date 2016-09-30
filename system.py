@@ -15,6 +15,8 @@
 
 from frame import Frame
 from frame import frame_name
+from frame import write_frame
+from globs import SSEP
 import logging
 from pandas import DataFrame
 from space import Space
@@ -170,33 +172,50 @@ def gen_trades(system, name, group, quantity):
 # Function run_system
 #
 
-def run_system(system,
+def run_system(model,
+               system,
                group,
                startcap = 100000,
                quantity = 1000,
                posby = 'close',
                bperiod = 0):
     """
-    Run a system for a given group, creating a trades file
+    Run a system for a given group, creating a trades frame
     """
-    # extract the group information
+    logger.info("Generating Trades for System %s", system.name)
+
+    # Unpack model data
+
+    base_dir = model.specs['base_dir']
+    extension = model.specs['extension']
+    project = model.specs['project']
+    separator = model.specs['separator']
+    directory = SSEP.join([base_dir, project])
+
+    # Extract the group information
     gname = group.name
     gmembers = group.members
-    tspace = Space(system.name, "trades", group.space.fractal)
-    # run the system for each member of the group
+
+    # Run the system for each member of the group
+
     gtlist = []
     for m in gmembers:
         # generate the trades for this member
         tlist = gen_trades(system, m, group, quantity)
         # create the local trades frame
         df = DataFrame.from_items(tlist, orient='index', columns=Trade.states)
-        Frame(m, tspace, df)
         # add trades to global trade list
         for item in tlist:
             gtlist.append(item)
-    # create group trades frame
+
+    # Create group trades frame
+
+    tspace = Space(system.name, "trades", group.space.fractal)
     gtlist = sorted(gtlist, key=lambda x: x[0])
-    gdf = DataFrame.from_items(gtlist, orient='index', columns=Trade.states)
-    Frame(gname, tspace, gdf)
-    # free memory
+    tf = DataFrame.from_items(gtlist, orient='index', columns=Trade.states)
+    tfname = frame_name(gname, tspace)
+    write_frame(tf, directory, tfname, extension, separator, index=True)
     del tspace
+
+    # Return trades frame
+    return tf

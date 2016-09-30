@@ -134,7 +134,7 @@ def read_frame(directory, filename, extension, separator):
 # Function write_frame
 #
 
-def write_frame(df, directory, filename, extension, separator):
+def write_frame(df, directory, filename, extension, separator, index=False):
     """
     Write to a file from a data frame.
     """
@@ -142,6 +142,6 @@ def write_frame(df, directory, filename, extension, separator):
     file_all = SSEP.join([directory, file_only])
     logger.info("Writing data frame to %s", file_all)
     try:
-        df.to_csv(file_all, sep=separator, index=False)
+        df.to_csv(file_all, sep=separator, index=index)
     except:
         logger.info("Could not write data frame to %s", file_all)

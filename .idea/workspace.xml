@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c5790f48-797b-4b3d-9134-1e107c5be668" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/AlphaPy.iml" afterPath="$PROJECT_DIR$/.idea/AlphaPy.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alpha_stock.py" afterPath="$PROJECT_DIR$/alpha_stock.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data.py" afterPath="$PROJECT_DIR$/data.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/portfolio.py" afterPath="$PROJECT_DIR$/portfolio.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/system.py" afterPath="$PROJECT_DIR$/system.py" />
-    </list>
+    <list default="true" id="c5790f48-797b-4b3d-9134-1e107c5be668" name="Default" comment="" />
     <ignored path="AlphaPy.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path=".idea/dataSources.local.xml" />

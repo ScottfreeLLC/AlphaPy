@@ -183,8 +183,8 @@ def pipeline(model, stock_specs):
     # gen_portfolio(ts, gs)
 
     cs = System('closer', 'hc', 'lc')
-    run_system(cs, gs)
-    gen_portfolio(cs, gs)
+    tf = run_system(model, cs, gs)
+    gen_portfolio(model, cs, gs, tf)
 
     # Return the completed model
 
