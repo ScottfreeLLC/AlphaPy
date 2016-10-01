@@ -301,8 +301,6 @@ def vapply(group, vname):
                 f = vexec(f, v)
         else:
             logger.info("Frame not found: %s", fname)
-    # output frame
-    return f
                 
 
 #

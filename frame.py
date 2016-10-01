@@ -72,6 +72,42 @@ class Frame(object):
 
 
 #
+# Function read_frame
+#
+
+def read_frame(directory, filename, extension, separator):
+    """
+    Read from a file into a data frame.
+    """
+    file_only = PSEP.join([filename, extension])
+    file_all = SSEP.join([directory, file_only])
+    logger.info("Loading data from %s", file_all)
+    try:
+        df = pd.read_csv(file_all, sep=separator)
+    except:
+        df = None
+        logger.info("Could not find or access %s", file_all)
+    return df
+
+
+#
+# Function write_frame
+#
+
+def write_frame(df, directory, filename, extension, separator, index=False):
+    """
+    Write to a file from a data frame.
+    """
+    file_only = PSEP.join([filename, extension])
+    file_all = SSEP.join([directory, file_only])
+    logger.info("Writing data frame to %s", file_all)
+    try:
+        df.to_csv(file_all, sep=separator, index=index)
+    except:
+        logger.info("Could not write data frame to %s", file_all)
+
+
+#
 # Function load_frames
 #
 
@@ -112,36 +148,21 @@ def load_frames(group, directory, extension, separator, splits=False):
 
 
 #
-# Function read_frame
+# Function dump_frames
 #
 
-def read_frame(directory, filename, extension, separator):
+def dump_frames(group, directory, extension, separator):        
     """
-    Read from a file into a data frame.
+    Dump frames to disk.
     """
-    file_only = PSEP.join([filename, extension])
-    file_all = SSEP.join([directory, file_only])
-    logger.info("Loading data from %s", file_all)
-    try:
-        df = pd.read_csv(file_all, sep=separator)
-    except:
-        df = None
-        logger.info("Could not find or access %s", file_all)
-    return df
-
-
-#
-# Function write_frame
-#
-
-def write_frame(df, directory, filename, extension, separator, index=False):
-    """
-    Write to a file from a data frame.
-    """
-    file_only = PSEP.join([filename, extension])
-    file_all = SSEP.join([directory, file_only])
-    logger.info("Writing data frame to %s", file_all)
-    try:
-        df.to_csv(file_all, sep=separator, index=index)
-    except:
-        logger.info("Could not write data frame to %s", file_all)
+    logger.info("Dumping frames from %s", directory)
+    gnames = [item.lower() for item in group.members]
+    gspace = group.space
+    for gn in gnames:
+        fname = frame_name(gn, gspace)
+        if fname in Frame.frames:
+            logger.info("Writing Data Frame for %s", fname)
+            df = Frame.frames[fname].df
+            write_frame(df, directory, fname, extension, separator, index=True)
+        else:
+            logger.info("Data Frame for %s not found", fname)

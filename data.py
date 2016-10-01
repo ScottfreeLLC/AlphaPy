@@ -269,11 +269,16 @@ def get_remote_data(group,
     for item in gam:
         logger.info("Getting %s data from %s to %s", item, start, end)
         df = web.DataReader(item, feed, start, end)
-        df.reset_index(level=0, inplace=True)
-        df = df.rename(columns = lambda x: x.lower().replace(' ',''))
-        # time series, so date is the index
-        df['date'] = pd.to_datetime(df['date'])
-        df.index = df['date']
-        del df['date']
-        newf = Frame(item.lower(), group.space, df)
-    return
+        if df is not None:
+            df.reset_index(level=0, inplace=True)
+            df = df.rename(columns = lambda x: x.lower().replace(' ',''))
+            # time series, so date is the index
+            df['date'] = pd.to_datetime(df['date'])
+            df.index = df['date']
+            del df['date']
+            # allocate global Frame
+            newf = Frame(item.lower(), group.space, df)
+            if newf is None:
+                logger.error("Could not allocate Frame for: %s", item)
+        else:
+            logger.info("Could not get data for: %s", item)

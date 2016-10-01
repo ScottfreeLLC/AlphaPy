@@ -21,9 +21,8 @@ import argparse
 from datetime import datetime
 from datetime import timedelta
 from data import get_remote_data
-from frame import Frame
+from frame import dump_frames
 from globs import SSEP
-from globs import WILDCARD
 from group import Group
 import logging
 from model import get_model_config
@@ -146,6 +145,11 @@ def pipeline(model, stock_specs):
     # Get any model specifications
 
     target = model.specs['target']
+    base_dir = model.specs['base_dir']
+    extension = model.specs['extension']
+    project = model.specs['project']
+    separator = model.specs['separator']
+    directory = SSEP.join([base_dir, project])
 
     # Get any stock specifications
 
@@ -164,12 +168,17 @@ def pipeline(model, stock_specs):
 
     # Get stock data
 
-    get_remote_data(gs, datetime.now() - timedelta(lookback_period))
+    time_frame = datetime.now() - timedelta(lookback_period)
+    get_remote_data(gs, time_frame)
 
     # Apply the features to all of the frames
 
     vmapply(gs, features)
     vmapply(gs, [target])
+
+    # Save the frames with all the new features
+
+    dump_frames(gs, directory, extension, separator)
 
     # Run the analysis, including the model pipeline
 
@@ -183,8 +192,8 @@ def pipeline(model, stock_specs):
     # gen_portfolio(ts, gs)
 
     cs = System('closer', 'hc', 'lc')
-    tf = run_system(model, cs, gs)
-    gen_portfolio(model, cs, gs, tf)
+    tfs = run_system(model, cs, gs)
+    gen_portfolio(model, cs, gs, tfs)
 
     # Return the completed model
 
