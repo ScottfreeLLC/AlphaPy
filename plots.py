@@ -880,16 +880,12 @@ def plot_time_series(model, data, target, tag='eda'):
 # Function plot_candlestick
 #
 
-def plot_candlestick(model, df, symbol):
+def plot_candlestick(df, symbol, cols=[], model=None):
     """
     Candlestick Charts
     """
 
-    # Extract data for given tag
-
-    df = df[df['tag'] == symbol]
-
-    # df["date"] = pd.to_datetime(df["date"])
+    df["date"] = pd.to_datetime(df["date"])
 
     mids = (df.open + df.close) / 2
     spans = abs(df.close - df.open)
@@ -910,6 +906,8 @@ def plot_candlestick(model, df, symbol):
     p.rect(df.date[inc], mids[inc], w, spans[inc], fill_color="#D5E1DD", line_color="black")
     p.rect(df.date[dec], mids[dec], w, spans[dec], fill_color="#F2583E", line_color="black")
 
-    # Save the plot
-
-    write_plot(model, 'bokeh', p, 'candlestick_chart', symbol)
+    if model is not None:
+        # save the plot
+        write_plot(model, 'bokeh', p, 'candlestick_chart', symbol)
+    else:
+        show(p)

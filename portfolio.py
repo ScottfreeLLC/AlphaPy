@@ -721,6 +721,7 @@ def gen_portfolio(model, system, group, tframe, startcap=100000, posby='close'):
     start = tframe.index[0]
     end = tframe.index[-1]
     drange = date_range(start, end, freq='B')
+
     # initialize portfolio states and stats
     ps = []
     pstat = pstats1()

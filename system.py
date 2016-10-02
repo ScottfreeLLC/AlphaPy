@@ -175,10 +175,7 @@ def gen_trades(system, name, group, quantity):
 def run_system(model,
                system,
                group,
-               startcap = 100000,
-               quantity = 1000,
-               posby = 'close',
-               bperiod = 0):
+               quantity = 1):
     """
     Run a system for a given group, creating a trades frame
     """
