@@ -179,9 +179,10 @@ def run_system(model,
     """
     Run a system for a given group, creating a trades frame
     """
+
     logger.info("Generating Trades for System %s", system.name)
 
-    # Unpack model data
+    # Unpack the model data.
 
     base_dir = model.specs['base_dir']
     extension = model.specs['extension']
@@ -189,7 +190,8 @@ def run_system(model,
     separator = model.specs['separator']
     directory = SSEP.join([base_dir, project])
 
-    # Extract the group information
+    # Extract the group information.
+
     gname = group.name
     gmembers = group.members
 

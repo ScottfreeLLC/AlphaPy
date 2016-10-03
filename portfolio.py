@@ -53,10 +53,6 @@ class Portfolio():
     # class variable to track all portfolios
 
     portfolios = {}
-    
-    # portfolio states
-
-    states = ['value', 'profit', 'netreturn']
 
     # __new__
     
@@ -124,10 +120,10 @@ class Portfolio():
         self.maxloss = maxloss
         self.balance = 'M'
         self.value = startcap
-        self.profit = 0.0
+        self.netprofit = 0.0
         self.netreturn = 0.0
-        self.runup = 0.0
-        self.drawdown = 0.0
+        self.totalprofit = 0.0
+        self.totalreturn = 0.0
         # add portfolio to portfolios list
         pn = portfolio_name(name, tag)
         Portfolio.portfolios[pn] = self
@@ -275,7 +271,7 @@ def valuate_position(position, tdate):
 
 def update_position(position, trade):
     """
-    Update the position status, trade list, and valuation
+    Update the position status and valuate it.
     """
     position.trades.append(trade)
     position.ntrades = position.ntrades + 1
@@ -294,7 +290,7 @@ def update_position(position, trade):
 
 def close_position(p, position, tdate):
     """
-    Close the position and remove it from the portfolio
+    Close the position and remove it from the portfolio.
     """
     pq = position.quantity
     # if necessary, put on an offsetting trade
@@ -347,7 +343,7 @@ def withdraw_portfolio(p, cash, tdate):
 
 def update_portfolio(p, pos, trade, allocation):
     """
-    Update the portfolio positions and valuation
+    Update the portfolio positions
     """
     # update position
     ppq = abs(pos.quantity)
@@ -359,7 +355,6 @@ def update_portfolio(p, pos, trade, allocation):
     multiplier = pos.multiplier
     cv = trade.price * multiplier * npq
     p.cash -= cv
-    valuate_portfolio(p, trade.tdate)
 
 
 #
@@ -492,6 +487,8 @@ def valuate_portfolio(p, tdate):
     vpos = [0] * poslen
     p.weights = [0] * poslen
     posenum = enumerate(positions)
+    # save the current portfolio value
+    prev_value = p.value
     # compute the total portfolio value
     value = p.cash
     for i, key in posenum:
@@ -499,109 +496,15 @@ def valuate_portfolio(p, tdate):
         valuate_position(pos, tdate)
         vpos[i] = pos.value
         value = value + vpos[i]
+    p.value = value
     # now compute the weights
     for i, key in posenum:
-        p.weights[i] = vpos[i] / value
-    p.value = value
-    p.profit = p.value - p.startcap
-    p.netreturn = p.value / p.startcap - 1.0
-
-
-#
-# Function pstats1
-#
-
-def pstats1():
-    """
-    Portfolio Statistics, Phase I
-    """
-    pstat = {}
-    pstat['totalperiod'] = 0
-    pstat['totaltrades'] = 0
-    pstat['longtrades'] = 0
-    pstat['shortrades'] = 0
-    pstat['lsratio'] = 0.0
-    pstat['winners'] = 0
-    pstat['losers'] = 0
-    pstat['winpct'] = 0.0
-    pstat['losepct'] = 0.0
-    pstat['maxwin'] = 0.0
-    pstat['maxloss'] = 0.0
-    pstat['grossprofit'] = 0.0
-    pstat['grossloss'] = 0.0
-    pstat['profitfactor'] = 0.0
-    pstat['totalreturn'] = 0.0
-    pstat['car'] = 0.0
-    pstat['avgtrade'] = 0.0
-    pstat['avgwin'] = 0.0
-    pstat['avgloss'] = 0.0
-    pstat['avghold'] = 0
-    pstat['optimalf'] = 0.0
-    pstat['totalruns'] = 0
-    pstat['longruns'] = 0
-    pstat['shortruns'] = 0
-    pstat['avgrun'] = 0
-    pstat['avglongrun'] = 0
-    pstat['avgshortrun'] = 0
-    pstat['maxrunup'] = 0.0
-    pstat['maxdrawdown'] = 0.0
-    pstat['avgrunup'] = 0.0
-    pstat['avgdrawdown'] = 0.0
-    pstat['coverage'] = 0.0
-    pstat['longcoverage'] = 0.0
-    pstat['shortcoverage'] = 0.0
-    pstat['frequency'] = 0
-    pstat['longfrequency'] = 0
-    pstat['shortfrequency'] = 0 
-    return pstat
-
-
-#
-# Function pstats2
-#
-
-def pstats2(p, pstat, pos):
-    """
-    Portfolio Statistics, Phase II
-    """
-    pstat['totaltrades'] += 1
-    if pos.mpos == 'long':
-        pstat['longtrades'] += 1
-    if pos.mpos == 'short':
-        pstat['shortrades'] += 1
-    if pos.profit > 0:
-        pstat['winners'] += 1
-        pstat['grossprofit'] += pos.profit
-        if pos.profit > pstat['maxwin']:
-            pstat['maxwin'] = pos.profit
-    if pos.profit < 0:
-        pstat['losers'] += 1
-        pstat['grossloss'] += pos.profit
-        if -pos.profit > pstat['maxloss']:
-            pstat['maxloss'] = pos.profit
-    pstat['totalreturn'] *= 1.0 + pos.netreturn
-
-
-#
-# Function pstats3
-#
-
-def pstats3(p, pstat):
-    """
-    Portfolio Statistics, Phase III
-    """
-    pstat['profitfactor'] = 0
-    if pstat['grossloss'] > 0:
-        pstat['profitfactor'] = pstat['grossprofit'] / pstat['grossloss']
-    pstat['lsratio'] = 0
-    if pstat['shortrades'] > 0:
-        pstat['lsratio'] = pstat['longtrades'] / pstat['shortrades']
-    pstat['winpct'] = 0.0
-    if pstat['totaltrades'] > 0:
-        pstat['winpct'] = pstat['winners'] / pstat['totaltrades']
-    pstat['losepct'] = 0.0
-    if pstat['totaltrades'] > 0:
-        pstat['losepct'] = pstat['losers'] / pstat['totaltrades']
+        p.weights[i] = vpos[i] / p.value
+    # update portfolio stats
+    p.netprofit = p.value - prev_value
+    p.netreturn = p.value / prev_value - 1.0
+    p.totalprofit = p.value - p.startcap
+    p.totalreturn = p.value / p.startcap - 1.0
 
 
 #
@@ -656,18 +559,18 @@ def exec_trade(p, name, order, quantity, price, tdate):
         newpos = True
     # check the dynamic position sizing variable
     if not p.posby:
-        psize = quantity
+        tsize = quantity
     else:
         if order == 'le' or order == 'se':
             pf = Frame.frames[frame_name(name, p.space)].df
             cv = pf.ix[tdate][p.posby]
-            psize = math.trunc((p.value * p.fixedfrac) / cv)
+            tsize = math.trunc((p.value * p.fixedfrac) / cv)
             if quantity < 0:
-                psize = -psize
+                tsize = -tsize
         else:
-            psize = -pos.quantity
+            tsize = -pos.quantity
     # instantiate and allocate the trade
-    newtrade = Trade(name, order, psize, price, tdate)
+    newtrade = Trade(name, order, tsize, price, tdate)
     allocation = allocate_trade(p, pos, newtrade)
     if allocation != 0:
         # create a new position if necessary
@@ -681,22 +584,23 @@ def exec_trade(p, name, order, quantity, price, tdate):
         if pflat:
             close_position(p, pos, tdate)
             p.npos -= 1
-        return pos
-    else:
-        return None
+    # return trade size
+    return tsize
 
 
 #
 # Function gen_portfolio
 #
 
-def gen_portfolio(model, system, group, tframe, startcap=100000, posby='close'):
+def gen_portfolio(model, system, group, tframe,
+                  startcap=100000, posby='close'):
     """
     Create a portfolio from a trades frame
     """
+
     logger.info("Creating Portfolio for System %s", system.name)
 
-    # Unpack model data
+    # Unpack the model data.
 
     base_dir = model.specs['base_dir']
     extension = model.specs['extension']
@@ -704,59 +608,96 @@ def gen_portfolio(model, system, group, tframe, startcap=100000, posby='close'):
     separator = model.specs['separator']
     directory = SSEP.join([base_dir, project])
 
-    # Create portfolio
+    # Create the portfolio.
 
     gname = group.name
     gspace = group.space
+    gmembers = group.members
+    ff = 1.0 / len(gmembers)
+
     p = Portfolio(gname,
                   system.name,
                   startcap = startcap,
                   posby = posby,
-                  restricted = False)
+                  restricted = False,
+                  fixedfrac = ff)
     if not p:
-        sys.exit("Error creating Portfolio")
+        logger.error("Error creating Portfolio")
 
-    # Build a portfolio from the trades frame
+    # Build pyfolio data from the trades frame.
 
     start = tframe.index[0]
     end = tframe.index[-1]
-    drange = date_range(start, end, freq='B')
+    drange = date_range(start, end, freq=gspace.fractal)
 
-    # initialize portfolio states and stats
-    ps = []
-    pstat = pstats1()
-    # iterate through the date range, updating the portfolio
-    for i, d in enumerate(drange):
+    # Initialize return, position, and transaction data.
+
+    rs = []
+    pcols = list(gmembers)
+    pcols.extend(['cash'])
+    pf = DataFrame(index=drange, columns=pcols).fillna(0.0)
+    ts = []
+
+    # Iterate through the date range, updating the portfolio.
+
+    for d in drange:
         logger.info("Updating Portfolio for %s", d)
         # process today's trades
-        if drange[i] in tframe.index:
-            trades = tframe.ix[drange[i]]
+        if d in tframe.index:
+            trades = tframe.ix[d]
             if isinstance(trades, Series):
                 trades = DataFrame(trades).transpose()
             for t in trades.iterrows():
                 tdate = t[0]
                 row = t[1]
-                pos = exec_trade(p, row['name'], row['order'], row['quantity'], row['price'], tdate)
-                if pos:
-                    if pos.status == 'closed':
-                        pstats2(p, pstat, pos)
+                tsize = exec_trade(p, row['name'], row['order'], row['quantity'], row['price'], tdate)
+                if tsize != 0:
+                    ts.append((d, [tsize, row['price'], row['name']]))
                 else:
-                    logger.info("Trade could not be allocated")
-        # update the portfolio valuation
+                    logger.info("Trade could not be executed for %s", row['name'])
+        # iterate through current positions
+        positions = p.positions
+        pfrow = pf.ix[d]
+        for key in positions:
+            pos = positions[key]
+            if pos.quantity > 0:
+                value = pos.value
+            else:
+                value = -pos.value
+            pfrow[pos.name] = value
+        pfrow['cash'] = p.cash
+        # update the portfolio returns
         valuate_portfolio(p, d)
-        ps.append((d, [p.value, p.profit, p.netreturn]))
+        rs.append((d, [p.netreturn]))
 
-    # Create the portfolio states frame for this system
+    # Create and record the returns frame for this system.
 
-    logger.info("Writing Portfolio Frame")
-    pspace = Space(system.name, 'portfolio', gspace.fractal)
-    pf = DataFrame.from_items(ps, orient='index', columns=Portfolio.states)
+    logger.info("Recording Returns Frame")
+    rspace = Space(system.name, 'returns', gspace.fractal)
+    rf = DataFrame.from_items(rs, orient='index', columns=['return'])
+    rfname = frame_name(gname, rspace)
+    write_frame(rf, directory, rfname, extension, separator,
+                index=True, index_label='date')
+    del rspace
+
+    # Record the positions frame for this system.
+
+    logger.info("Recording Positions Frame")
+    pspace = Space(system.name, 'positions', gspace.fractal)
     pfname = frame_name(gname, pspace)
-    write_frame(pf, directory, pfname, extension, separator, index=True)
+    write_frame(pf, directory, pfname, extension, separator,
+                index=True, index_label='date')
     del pspace
 
-    # Compute the final portfolio statistics
-    pstats3(p, pstat)
+    # Create and record the transactions frame for this system.
 
-    # return the portfolio
+    logger.info("Recording Transactions Frame")
+    tspace = Space(system.name, 'transactions', gspace.fractal)
+    tf = DataFrame.from_items(ts, orient='index', columns=['amount', 'price', 'symbol'])
+    tfname = frame_name(gname, tspace)
+    write_frame(tf, directory, tfname, extension, separator,
+                index=True, index_label='date')
+    del tspace
+
+    # Return the portfolio.
     return p
