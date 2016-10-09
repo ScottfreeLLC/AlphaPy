@@ -25,7 +25,6 @@ import logging
 import math
 import numpy as np
 import pandas as pd
-from pandas.core.common import array_equivalent
 import re
 from scipy import sparse
 import scipy.stats as sps
@@ -238,7 +237,7 @@ def impute_values(features, dt):
     try:
         nfeatures = features.shape[1]
     except:
-        features = features.reshape(-1, 1)
+        features = features.values.reshape(-1, 1)
     if dt == 'float64':
         imp = Imputer(missing_values='NaN', strategy='median', axis=0)
     elif dt == 'int64' or dt == 'bool':
@@ -819,34 +818,6 @@ def create_interactions(X, model):
 
 
 #
-# Function duplicate_columns
-#
-
-def duplicate_columns(frame):
-    """
-    Identify any duplicate columns.
-    """
-
-    logger.info("Identifying Duplicate Columns")
-
-    groups = frame.columns.to_series().groupby(frame.dtypes).groups
-    dups = []
-    for t, v in groups.items():
-        cs = frame[v].columns
-        vs = frame[v]
-        lcs = len(cs)
-        for i in range(lcs):
-            ia = vs.iloc[:,i].values
-            for j in range(i+1, lcs):
-                ja = vs.iloc[:,j].values
-                if array_equivalent(ia, ja):
-                    dups.append(cs[i])
-                    break
-    logger.info("Duplicate Columns %s", dups)
-    return dups
-
-
-#
 # Function drop_features
 #
 
@@ -857,37 +828,6 @@ def drop_features(X, drop):
 
     logger.info("Dropping Features: %s", drop)
     X.drop(drop, axis=1, inplace=True, errors='ignore')
-
-    return X
-
-
-#
-# Function remove_redundant_features
-#
-
-def remove_redundant_features(X):
-    """
-    Remove any duplicate or constant columns.
-    """
-
-    # Remove duplicate columns
-
-    logger.info("Removing Duplicate Columns")
-    dups = duplicate_columns(X)
-    X = X.drop(dups, axis=1)
-    logger.info("Removed %d Duplicate Columns", len(dups))
-
-    # Remove constant columns
-
-    remove = []
-    for col in X.columns:
-        dtype = X[col].dtypes
-        if dtype == 'float64' or dtype == 'int64':
-            if X[col].std() == 0:
-                remove.append(col)
-    logger.info("Removing Constant Columns: %s", remove)
-    X.drop(remove, axis=1, inplace=True)
-    logger.info("Removed %d Constant Features", len(remove))
 
     return X
 

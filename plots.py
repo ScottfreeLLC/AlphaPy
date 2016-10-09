@@ -46,6 +46,7 @@ from bokeh.plotting import figure, show, output_file
 from estimators import ModelType
 from globs import BSEP, PSEP, SSEP, USEP
 from globs import Q1, Q3
+from itertools import cycle
 import logging
 import math
 import matplotlib.pyplot as plt
@@ -54,22 +55,20 @@ import numpy as np
 import pandas as pd
 from scipy import interp
 import seaborn as sns
-from sklearn import cross_validation
-from sklearn import metrics
 from sklearn.calibration import calibration_curve
-from sklearn.cross_validation import cross_val_score
-from sklearn.cross_validation import ShuffleSplit
-from sklearn.cross_validation import StratifiedKFold
-from sklearn.cross_validation import StratifiedShuffleSplit
-from sklearn.cross_validation import train_test_split
 from sklearn.decomposition import PCA
 from sklearn.ensemble.partial_dependence import partial_dependence
 from sklearn.ensemble.partial_dependence import plot_partial_dependence
-from sklearn.learning_curve import learning_curve
 from sklearn.learning_curve import validation_curve
 from sklearn.metrics import auc
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import roc_curve
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import learning_curve
+from sklearn.model_selection import ShuffleSplit
+from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from util import remove_list_items
 
@@ -321,7 +320,7 @@ def plot_learning_curve(model, partition):
 
     # Set cross-validation parameters to get mean train and test curves.
 
-    cv = StratifiedShuffleSplit(y, n_iter=cv_folds, test_size=split,
+    cv = StratifiedShuffleSplit(n_splits=cv_folds, test_size=split,
                                 random_state=seed)
 
     # Plot a learning curve for each algorithm.   
@@ -397,10 +396,10 @@ def plot_roc_curve(model, partition):
     # Set up for stratified validation.
 
     if shuffle:
-        cv = StratifiedShuffleSplit(y, n_iter=cv_folds, test_size=split,
+        cv = StratifiedShuffleSplit(n_splits=cv_folds, test_size=split,
                                     random_state=seed)
     else:
-        cv = StratifiedKFold(y, n_folds=cv_folds, shuffle=False,
+        cv = StratifiedKFold(n_splits=cv_folds, shuffle=False,
                              random_state=seed)    
 
     # Plot a ROC Curve for each algorithm.
@@ -412,11 +411,14 @@ def plot_roc_curve(model, partition):
         # initialize true and false positive rates
         mean_tpr = 0.0
         mean_fpr = np.linspace(0, 1, 100)
-        all_tpr = []
         plt.figure()
+        colors = cycle(['cyan', 'indigo', 'seagreen', 'yellow', 'blue', 'darkorange'])
+        lw = 2
         # cross-validation
-        for i, (train, test) in enumerate(cv):
-            logger.info("Cross-Validation Fold: %d of %d", i+1, cv_folds)
+        i = 0
+        for (train, test), color in zip(cv.split(X, y), colors):
+            fold = i + 1
+            logger.info("Cross-Validation Fold: %d of %d", fold, cv_folds)
             estimator.fit(X[train], y[train])
             probas_ = estimator.predict_proba(X[test])
             # compute ROC curve and area the curve
@@ -424,14 +426,15 @@ def plot_roc_curve(model, partition):
             mean_tpr += interp(mean_fpr, fpr, tpr)
             mean_tpr[0] = 0.0
             roc_auc = auc(fpr, tpr)
-            plt.plot(fpr, tpr, lw=1, label='ROC Fold %d (area = %0.2f)' % (i, roc_auc))
+            plt.plot(fpr, tpr, lw=lw, label='ROC Fold %d (area = %0.2f)' % (fold, roc_auc))
+            i += 1
         # plot mean ROC
-        plt.plot([0, 1], [0, 1], '--', color=(0.6, 0.6, 0.6), label='Luck')
-        mean_tpr /= len(cv)
+        plt.plot([0, 1], [0, 1], linestyle='--', color='k', label='Luck')
+        mean_tpr /= cv.get_n_splits(X, y)
         mean_tpr[-1] = 1.0
         mean_auc = auc(mean_fpr, mean_tpr)
-        plt.plot(mean_fpr, mean_tpr, 'k--',
-                 label='Mean ROC (area = %0.2f)' % mean_auc, lw=2)
+        plt.plot(mean_fpr, mean_tpr, color='g', linestyle='--',
+                 label='Mean ROC (area = %0.2f)' % mean_auc, lw=lw)
         # plot labels
         plt.xlim([-0.05, 1.05])
         plt.ylim([-0.05, 1.05])

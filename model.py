@@ -29,10 +29,6 @@ import logging
 import numpy as np
 import pandas as pd
 from sklearn.calibration import CalibratedClassifierCV
-from sklearn.cross_validation import cross_val_score
-from sklearn.cross_validation import train_test_split
-from sklearn.cross_validation import ShuffleSplit
-from sklearn.cross_validation import StratifiedShuffleSplit
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import RidgeCV
 from sklearn.metrics import accuracy_score
@@ -52,6 +48,10 @@ from sklearn.metrics import recall_score
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import roc_curve
 from sklearn.metrics.cluster import adjusted_rand_score
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import ShuffleSplit
+from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 import sys
 import yaml
@@ -489,7 +489,7 @@ def first_fit(model, algo, est):
 
     # Get initial estimates of our score.
 
-    sss = StratifiedShuffleSplit(y_train, n_iter=cv_folds, test_size=split,
+    sss = StratifiedShuffleSplit(n_splits=cv_folds, test_size=split,
                                  random_state=seed)
 
     scores = cross_val_score(est, X_train, y_train, cv=sss, scoring=scorer,

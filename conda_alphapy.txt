@@ -1,0 +1,2128 @@
+localhost:AlphaPy_Games markconway$ conda create -n alphapy python=3.5
+Fetching package metadata .......
+Solving package specifications: ..........
+Using Anaconda Cloud api site https://api.anaconda.org
+
+Package plan for installation in environment //anaconda/envs/alphapy:
+
+The following NEW packages will be INSTALLED:
+
+    openssl:    1.0.2h-1
+    pip:        8.1.2-py35_0
+    python:     3.5.2-0
+    readline:   6.2-2
+    setuptools: 23.0.0-py35_0
+    sqlite:     3.13.0-0
+    tk:         8.5.18-0
+    wheel:      0.29.0-py35_0
+    xz:         5.2.2-0
+    zlib:       1.2.8-3
+
+Proceed ([y]/n)? y
+
+Linking packages ...
+[      COMPLETE      ]|#################################################################################################################| 100%
+#
+# To activate this environment, use:
+# $ source activate alphapy
+#
+# To deactivate this environment, use:
+# $ source deactivate
+#
+localhost:AlphaPy_Games markconway$ source activate alphapy
+(alphapy) localhost:AlphaPy_Games markconway$ conda install -c conda-forge alphapy
+Using Anaconda Cloud api site https://api.anaconda.org
+Fetching package metadata .........
+Solving package specifications: .
+Error: Package missing in current osx-64 channels:
+  - alphapy
+
+You can search for packages on anaconda.org with
+
+    anaconda search -t conda alphapy
+(alphapy) localhost:AlphaPy_Games markconway$ conda install -c conda-forge tensorflow
+Using Anaconda Cloud api site https://api.anaconda.org
+Fetching package metadata .........
+Solving package specifications: ..........
+
+Package plan for installation in environment //anaconda/envs/alphapy:
+
+The following NEW packages will be INSTALLED:
+
+    mkl:        11.3.3-0
+    numpy:      1.11.1-py35_0
+    protobuf:   3.0.0b2-py35_0 conda-forge
+    six:        1.10.0-py35_0  conda-forge
+    tensorflow: 0.9.0-py35_0   conda-forge
+
+Proceed ([y]/n)? y
+
+Linking packages ...
+[      COMPLETE      ]|#################################################################################################################| 100%
+(alphapy) localhost:AlphaPy_Games markconway$ python ../AlphaPy/alpha_game.py
+None
+Traceback (most recent call last):
+  File "../AlphaPy/alpha_game.py", line 18, in <module>
+    from alpha import pipeline
+  File "/Users/markconway/Projects/AlphaPy/alpha.py", line 18, in <module>
+    from data import get_data
+  File "/Users/markconway/Projects/AlphaPy/data.py", line 20, in <module>
+    from frame import Frame
+  File "/Users/markconway/Projects/AlphaPy/frame.py", line 20, in <module>
+    import pandas as pd
+ImportError: No module named 'pandas'
+(alphapy) localhost:AlphaPy_Games markconway$ conda install --name alphapy pandas
+Using Anaconda Cloud api site https://api.anaconda.org
+Fetching package metadata .......
+Solving package specifications: ..........
+
+Package plan for installation in environment //anaconda/envs/alphapy:
+
+The following NEW packages will be INSTALLED:
+
+    pandas:          0.18.1-np111py35_0
+    python-dateutil: 2.5.3-py35_0
+    pytz:            2016.6.1-py35_0
+
+Proceed ([y]/n)? y
+
+Linking packages ...
+[      COMPLETE      ]|#################################################################################################################| 100%
+(alphapy) localhost:AlphaPy_Games markconway$ python ../AlphaPy/alpha_game.py
+None
+Traceback (most recent call last):
+  File "../AlphaPy/alpha_game.py", line 18, in <module>
+    from alpha import pipeline
+  File "/Users/markconway/Projects/AlphaPy/alpha.py", line 18, in <module>
+    from data import get_data
+  File "/Users/markconway/Projects/AlphaPy/data.py", line 27, in <module>
+    from imblearn.combine import SMOTEENN
+ImportError: No module named 'imblearn'
+(alphapy) localhost:AlphaPy_Games markconway$ conda list
+# packages in environment at //anaconda/envs/alphapy:
+#
+Using Anaconda Cloud api site https://api.anaconda.org
+protobuf                  3.0.0b2                  py35_0    conda-forge
+six                       1.10.0                   py35_0    conda-forge
+tensorflow                0.9.0                    py35_0    conda-forge
+mkl                       11.3.3                        0
+numpy                     1.11.1                   py35_0
+openssl                   1.0.2h                        1
+pandas                    0.18.1              np111py35_0
+pip                       8.1.2                    py35_0
+python                    3.5.2                         0
+python-dateutil           2.5.3                    py35_0
+pytz                      2016.6.1                 py35_0
+readline                  6.2                           2
+setuptools                23.0.0                   py35_0
+sqlite                    3.13.0                        0
+tk                        8.5.18                        0
+wheel                     0.29.0                   py35_0
+xz                        5.2.2                         0
+zlib                      1.2.8                         3
+(alphapy) localhost:AlphaPy_Games markconway$ conda install --name alphapy imblearn
+Using Anaconda Cloud api site https://api.anaconda.org
+Fetching package metadata .......
+Solving package specifications: .
+Error: Package missing in current osx-64 channels:
+  - imblearn
+
+You can search for packages on anaconda.org with
+
+    anaconda search -t conda imblearn
+(alphapy) localhost:AlphaPy_Games markconway$ pip install imblearn
+Collecting imblearn
+  Could not find a version that satisfies the requirement imblearn (from versions: )
+No matching distribution found for imblearn
+(alphapy) localhost:AlphaPy_Games markconway$ history
+   34  ls
+   35  java -jar h2o.jar
+   36  pip install xgboost --upgrade
+   37  conda install xgboost --update
+   38  ls
+   39  pwd
+   40  pwd
+   41  pwd
+   42  ls
+   43  cd Projects
+   44  cd AlphaPy
+   45  ls
+   46  python alpha_game.py -name NBA
+   47  python alpha_game.py -name NBA
+   48  python alpha_game.py -name NBA
+   49  python alpha_game.py -name NBA
+   50  python alpha_game.py -name NBA
+   51  python alpha_game.py -name NBA
+   52  python alpha_game.py -name NBA
+   53  python alpha_game.py -name NBA -rfe -grid
+   54  python alpha_game.py -name NBA -rfe -grid -plot
+   55  python alpha_game.py -name NBA -rfe -grid -plot -score log_loss
+   56  python alpha_game.py -name NBA -rfe -grid -plot
+   57  python alpha.py -name "BNP Claims"
+   58  python alpha.py -name "BNP Claims" -plot -grid -scorer log_loss
+   59  python alpha.py -name "BNP Claims" -plot -grid -score log_loss
+   60  python alpha.py -name "BNP Claims" -plot -score log_loss -algo 'RF,XGB'
+   61  python alpha_game.py -name NBA
+   62  python alpha_game.py -name NBA
+   63  python alpha_game.py -name NBA
+   64  python alpha_game.py -name NBA
+   65  python alpha_game.py -name NBA
+   66  python alpha_game.py -name NBA
+   67  python alpha.py -name "BNP Claims" -plot -score log_loss -algo 'RF,XGB'
+   68  python alpha.py -name "BNP Claims" -plot -score log_loss -algo 'RF,XGB' -inter -poly 2
+   69  python alpha.py -name "BNP Claims" -score log_loss -algo 'RF,XGB' -inter -poly 2
+   70  python alpha.py -name "BNP Claims" -score log_loss -poly 2
+   71  python alpha.py -name "BNP Claims" -score log_loss -inter
+   72  python alpha.py -name "BNP Claims" -score log_loss -inter
+   73  python alpha.py -name "BNP Claims" -score log_loss -inter
+   74  python alpha.py -name "BNP Claims" -score log_loss -inter
+   75  python alpha.py -name "BNP Claims" -score log_loss -inter
+   76  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1
+   77  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1
+   78  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1 -grid
+   79  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1 -grid -nest 501
+   80  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1 -nest 1001
+   81  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1 -gp
+   82  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1 -gp
+   83  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1 -gp
+   84  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1 -gp
+   85  pip install spark-sklearn
+   86  printenv
+   87  pyspark
+   88  pwd
+   89  cd Software
+   90  ls
+   91  cd spark-1.6.1-bin-hadoop2.6/
+   92  ls
+   93  ./bin/pyspark
+   94  printenv
+   95  setenv SPARK_HOME=/Users/markconway/Software/spark-1.6.1-bin-hadoop2.6
+   96  SPARK_HOME=/Users/markconway/Software/spark-1.6.1-bin-hadoop2.6
+   97  ./bin/pyspark
+   98  ipython profile create pyspark
+   99  cd ~/.ipython/profile_pyspark
+  100  ls
+  101  cd startup
+  102  ls
+  103  nano 00-pyspark-setup.py
+  104  printenv
+  105  pwd
+  106  ls /Users/markconway/Software/spark-1.6.1-bin-hadoop2.6
+  107  ls /Users/markconway/Software/spark-1.6.1-bin-hadoop2.6/python
+  108  ls /Users/markconway/Software/spark-1.6.1-bin-hadoop2.6/python/lib
+  109  nano 00-pyspark-setup.py
+  110  ipython notebook --profile=pyspark
+  111  python
+  112  which pycharm
+  113  vagrant up
+  114  vagrant global-status
+  115  vagrant up
+  116  cd Vagrant
+  117  vagrant up
+  118  pwd
+  119  cd Projects
+  120  ls
+  121  cd BNP Paribas
+  122  cd BNP Claims
+  123  cd "BNP Claims"
+  124  ls
+  125  more train.csv
+  126  more test.csv
+  127  more sample_submission.csv
+  128  pwd
+  129  cd Projects/AlphaPy_Games
+  130  ls
+  131  python ../AlphaPy/alpha_game.py
+  132  python ../AlphaPy/alpha_stock.py
+  133  python ../AlphaPy/alpha_stock.py
+  134  python ../AlphaPy/alpha_stock.py
+  135  python ../AlphaPy/alpha_stock.py
+  136  python ../AlphaPy/alpha_stock.py
+  137  python ../AlphaPy/alpha_stock.py
+  138  python ../AlphaPy/alpha_stock.py
+  139  python ../AlphaPy/alpha_stock.py
+  140  pwd
+  141  cd ../AlphaPy_Stocks
+  142  ls
+  143  python ../AlphaPy/alpha_stock.py
+  144  python ../AlphaPy/alpha_stock.py
+  145  python ../AlphaPy/alpha_stock.py
+  146  python ../AlphaPy/alpha_stock.py
+  147  python ../AlphaPy/alpha_stock.py
+  148  python ../AlphaPy/alpha_stock.py
+  149  python ../AlphaPy/alpha_stock.py
+  150  python ../AlphaPy/alpha_stock.py
+  151  python ../AlphaPy/alpha_stock.py
+  152  python ../AlphaPy/alpha_stock.py
+  153  python ../AlphaPy/alpha_stock.py
+  154  python ../AlphaPy/alpha_stock.py
+  155  python ../AlphaPy/alpha_stock.py
+  156  python ../AlphaPy/alpha_stock.py
+  157  python ../AlphaPy/alpha_stock.py
+  158  python ../AlphaPy/alpha_stock.py
+  159  python ../AlphaPy/alpha_stock.py
+  160  python ../AlphaPy/alpha_stock.py
+  161  python ../AlphaPy/alpha_stock.py
+  162  python ../AlphaPy/alpha_stock.py
+  163  python ../AlphaPy/alpha_stock.py
+  164  python ../AlphaPy/alpha_stock.py
+  165  python ../AlphaPy/alpha_stock.py
+  166  python ../AlphaPy/alpha_stock.py
+  167  python ../AlphaPy/alpha_stock.py
+  168  python ../AlphaPy/alpha_stock.py
+  169  python ../AlphaPy/alpha_stock.py
+  170  pwd
+  171  pwd
+  172  python ../AlphaPy/alpha_stock.py
+  173  python ../AlphaPy/alpha_stock.py
+  174  python ../AlphaPy/alpha_stock.py
+  175  python ../AlphaPy/alpha_stock.py
+  176  python ../AlphaPy/alpha_stock.py
+  177  pwd
+  178  wget
+  179  brew wget
+  180  brew -help
+  181  brew ?
+  182  brew
+  183  pyspark
+  184  pwd
+  185  printenv
+  186  pwd
+  187  cd Softwar
+  188  cd Software
+  189  ls
+  190  ls
+  191  cd spark-1.6.1-bin-hadoop2.6/
+  192  ls
+  193  pwd
+  194  ./bin/pyspark
+  195  cd bin
+  196  ls
+  197  ls -lrt
+  198  pyspark
+  199  ./pyspark
+  200  more pyspark
+  201
+  202  printenv
+  203  python
+  204  ls
+  205  /Users/markconway/anaconda/bin/jupyter_mac.command ; exit;
+  206  pwd
+  207  pwd
+  208  cd Projects
+  209  ls
+  210  cd Santander
+  211  ls
+  212  pwd
+  213  ../AlphaPy/alpha.py
+  214  python ../AlphaPy/alpha.py
+  215  python ../AlphaPy/alpha.py
+  216  ls
+  217  cd Projects
+  218  ls
+  219  cd AlphaPy_Games
+  220  python ../AlphaPy/alpha.py
+  221  python ../AlphaPy/alpha.py
+  222  conda update conda
+  223  conda update scikit-learn
+  224  conda update -all
+  225  conda update --all
+  226  python ../AlphaPy/alpha.py
+  227  cd Projects/AlphaPy_Stocks
+  228  ls
+  229  pip install xgboost --upgrade
+  230  /Users/markconway/anaconda/bin/jupyter_mac.command ; exit;
+  231  /Users/markconway/anaconda/bin/jupyter_mac.command ; exit;
+  232  /Users/markconway/anaconda/bin/jupyter_mac.command ; exit;
+  233  ls
+  234  cd Vagrant
+  235  vagrant up
+  236  vagrant up
+  237  vagrant down
+  238  /Users/markconway/anaconda/bin/jupyter_mac.command ; exit;
+  239  /Users/markconway/anaconda/bin/jupyter_mac.command ; exit;
+  240  pwd
+  241  cd Projects
+  242  pip install beautifulsoup4
+  243  wget
+  244  pyspark
+  245  cd Software
+  246  ls
+  247  pwd
+  248  cd ../Software
+  249  ls
+  250  spark-1.6.1-bin-hadoop2.6/
+  251  cd spark-1.6.1-bin-hadoop2.6/
+  252  ls
+  253  ./bin/pyspark
+  254  ./bin/pyspark
+  255  ls /Users/markconway/Software/spark-1.6.1-bin-hadoop2.6
+  256  ls /Users/markconway/Software/spark-1.6.1-bin-hadoop2.6
+  257  printenv
+  258  ls
+  259  pwd
+  260  ls
+  261  rm Untitled*.ipynb
+  262  ls
+  263  ls Projects
+  264  pwd
+  265  cd Software
+  266  ls
+  267  nano ~/.bash_profile
+  268  pwd
+  269  cd
+  270  ls
+  271  ls -lrta
+  272  ipython profile create pyspark
+  273  nano ~/.ipython/profile_pyspark/startup/00-pyspark-setup.py
+  274  source ~/.profile
+  275  source ~/.bash_profile
+  276  printenv
+  277  ipython notebook --profile=pyspark
+  278  ipython notebook --profile=pyspark
+  279  ipython notebook --profile=pyspark
+  280  jupyter notebook --profile=pyspark
+  281  pwd
+  282  ls
+  283  ls -lrta
+  284  jupyter notebook --profile=pyspark
+  285  source ~/.bash_profile
+  286  nano ~/.bash_profile
+  287  nano ~/.ipython/profile_pyspark/startup/00-pyspark-setup.py
+  288  source ~/.bash_profile
+  289  jupyter notebook
+  290  jupyter notebook --profile=pyspark
+  291  PYSPARK_DRIVER_PYTHON=ipython PYSPARK_DRIVER_PYTHON_OPTS='notebook' $SPARK_HOME/bin/pyspark
+  292  PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS='notebook' $SPARK_HOME/bin/pyspark
+  293  PYSPARK_PYTHON=python3 PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS='notebook' $SPARK_HOME/bin/pyspark
+  294  pwd
+  295  cd Projects
+  296  ls
+  297  cd Spark
+  298  ls
+  299  cd ampcamp5-usb
+  300  ls
+  301  cd data
+  302  ls
+  303  cd movielens
+  304  ls
+  305  cd medium
+  306  l
+  307  ls
+  308  wc ratings.dat
+  309  wc movings.dat
+  310  wc movies.dat
+  311  wc users.dat
+  312  pwd
+  313  pip install flask-appbuilder
+  314  pip install flask-appbuilder --upgrade
+  315  pip install caravel
+  316  fabmanager create-admin --app caravel
+  317  fabmanager create-admin --app caravel
+  318  caravel db upgrade
+  319  caravel init
+  320  caravel load_examples
+  321  caravel load_examples
+  322  caravel runserver -d
+  323  pip install django --upgrade
+  324  python -c "import django; print(django.get_version())"
+  325  pip install lifetimes --update
+  326  pip install lifetimes
+  327  caravel runserver -d
+  328  caravel runserver -d
+  329  caravel db upgrade
+  330  caravel load_examples
+  331  pip uninstall caravel
+  332  sudo pip uninstall caravel
+  333  pip install caravel
+  334  caravel db upgrade
+  335  caravel runserver -d
+  336  fabmanager run
+  337  cd Projects
+  338  ls
+  339  cd Flask-AppBuilder/
+  340  ls
+  341  cd examples
+  342  ls
+  343  cd quickcharts
+  344  ls
+  345  fabmanager run
+  346  fabmanager create-admin
+  347  ls
+  348  cd app
+  349  ls
+  350  fabmanager run
+  351  cd ..
+  352  ls
+  353  fabmanager run
+  354  fabmanager
+  355  fabmanager list-users
+  356  fabmanager version
+  357  pip uninstall Flask-AppBuilder
+  358  conda install Flask-AppBuilder
+  359  anaconda search -t conda flask-appbuilder
+  360  conda install spyre
+  361  pip install Flask-AppBuilder
+  362  fabmanager create-admin
+  363  conda install flask --update
+  364  conda install flask
+  365  conda update flask
+  366  fabmanager run
+  367  pwd
+  368  cd Projects
+  369  ls
+  370  cd Flask-AppBuilder/
+  371  ls
+  372  cd examples
+  373  ls
+  374  cd quickcharts
+  375  ls
+  376  fabmanager run
+  377  caravel runserver -d
+  378  pwd
+  379  cd Projects
+  380  ls
+  381  cd Flask-AppBuilder/
+  382  ls
+  383  cd examples
+  384  ls
+  385  cd quickcharts
+  386  ls
+  387  fabmanager create-admin
+  388  pip uninstall Flask-AppBuilder
+  389  conda install Flask-AppBuilder
+  390  anaconda search -t conda flask-appbuilder
+  391  pip install Flask-AppBuilder
+  392  fabmanager create-admin
+  393  fabmanager run
+  394  fabmanager
+  395  fabmanager list-users
+  396  fabmanager run
+  397  python
+  398  ping www.microsoft.com
+  399  ping www.google.com
+  400  history
+  401  PYSPARK_PYTHON=python3 PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS='notebook' $SPARK_HOME/bin/pyspark
+  402  pip install caravel --upgrade
+  403  sudo pip install caravel --upgrade
+  404  caravel db upgrade
+  405  sudo caravel db upgrade
+  406  caravel db upgrade
+  407  caravel db stamp f0fbf6129e13
+  408  caravel db upgrade
+  409  caravel init
+  410  caravel load_examples
+  411  caravel runserver -d
+  412  fabmanager create-admin --app caravel
+  413  caravel runserver -d
+  414  pip install SpeechRecognition
+  415  python -m speechrecognition
+  416  python -m speech_recognition
+  417  pip install pyaudio
+  418  brew install portaudio && sudo brew link portaudio
+  419  pip install pyaudio
+  420  pip install pocketsphinx
+  421  pip install swig
+  422  history
+  423  PYSPARK_PYTHON=python3 PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS='notebook' $SPARK_HOME/bin/pyspark
+  424  PYSPARK_PYTHON=python3 PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS='notebook' $SPARK_HOME/bin/pyspark
+  425  conda update anaconda
+  426  conda update launcher
+  427  conda remove launcher
+  428  conda install launcher
+  429  conda update
+  430  conda update all
+  431  conda update conda
+  432  conda update anaconda
+  433  pwd
+  434  cd Projects/Santander
+  435  ls
+  436  ls
+  437  pwd
+  438  history
+  439  ../AlphaPy/alpha.py
+  440  pwd
+  441  ls ../AlphaPy
+  442  python ../AlphaPy/alpha.py
+  443  python ../AlphaPy/alpha.py
+  444  python ../AlphaPy/alpha.py
+  445  python ../AlphaPy/alpha.py
+  446  python ../AlphaPy/alpha.py
+  447  ls
+  448  cd Projects
+  449  ls
+  450  history
+  451  ls
+  452  cd AlphaPy_Games
+  453  ls
+  454  cd NFL
+  455  ls
+  456  python ../AlphaPy/alpha_stock.py
+  457  pwd
+  458  cd ..
+  459  python ../AlphaPy/alpha_stock.py
+  460  python ../AlphaPy/alpha_game.py
+  461  python ../AlphaPy/alpha_game.py
+  462  python
+  463  python
+  464  cd Projects
+  465  ls
+  466  ls A*
+  467  cd AlphaPy_Stocks/
+  468  ls
+  469  python ../AlphaPy/alpha_game.py
+  470  conda install pandas-datareader
+  471  python ../AlphaPy/alpha_game.py
+  472  conda install unbalanced_dataset
+  473  pip install unbalanced_dataset
+  474  conda install imbalanced-learn
+  475  pip install -U imbalanced-learn
+  476  python ../AlphaPy/alpha_game.py
+  477  python
+  478  python ../AlphaPy/alpha_game.py
+  479  python ../AlphaPy/alpha_game.py
+  480  conda install skflow
+  481  anaconda search -t conda skflow
+  482  pip install skflow
+  483  python ../AlphaPy/alpha_game.py
+  484  conda install tensorflow
+  485  pip install tensorflow
+  486  conda create -n tensorflow python=3.5
+  487  source activate tensorflow
+  488  python ../AlphaPy/alpha_game.py
+  489  exit
+  490  cd Projects
+  491  ls
+  492  cd AlphaPy_Stocks
+  493  ls
+  494  source activate tensorflow
+  495  conda install -c conda-forge tensorflow
+  496  history
+  497  ls
+  498  python ../AlphaPy/alpha_game.py
+  499  cd AlphaPy
+  500  ls
+  501  cd Projects
+  502  ls
+  503  cd AlphaPy_Games
+  504  ls
+  505  history
+  506  python ../AlphaPy/alpha_game.py
+  507  pip3 install tensorflow
+  508  pip install tensorflow
+  509  source activate tensorflow
+  510  python ../AlphaPy/alpha_game.py
+  511  conda install -n tensorflow pandas
+  512  python ../AlphaPy/alpha_game.py
+  513  conda install -n tensorflow imblearn
+  514  source deactivate
+  515  python ../AlphaPy/alpha_game.py
+  516  conda install tensorflow
+  517  anaconda search -t conda tensorflow
+  518  conda install conda-forge/tensorflow
+  519  conda remove -n tensorflow -all
+  520  conda remove -n tensorflow
+  521  conda remove -h
+  522  python
+  523  conda create -n alphapy python=3.5
+  524  source activate alphapy
+  525  conda install -c conda-forge alphapy
+  526  conda install -c conda-forge tensorflow
+  527  python ../AlphaPy/alpha_game.py
+  528  conda install --name alphapy pandas
+  529  python ../AlphaPy/alpha_game.py
+  530  conda list
+  531  conda install --name alphapy imblearn
+  532  pip install imblearn
+  533  history
+(alphapy) localhost:AlphaPy_Games markconway$ conda install --name alphapy imbalanced-learn
+Using Anaconda Cloud api site https://api.anaconda.org
+Fetching package metadata .......
+Solving package specifications: .
+Error: Package missing in current osx-64 channels:
+  - imbalanced-learn
+
+You can search for packages on anaconda.org with
+
+    anaconda search -t conda imbalanced-learn
+(alphapy) localhost:AlphaPy_Games markconway$ pip install -U imbalanced-learn
+Collecting imbalanced-learn
+Collecting scipy>=0.17.0 (from imbalanced-learn)
+  Using cached scipy-0.18.0-cp35-cp35m-macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64.whl
+Requirement already up-to-date: numpy>=1.10.4 in /anaconda/envs/alphapy/lib/python3.5/site-packages (from imbalanced-learn)
+Collecting scikit-learn>=0.17.1 (from imbalanced-learn)
+  Downloading scikit_learn-0.17.1-cp35-cp35m-macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64.whl (3.7MB)
+    100% |████████████████████████████████| 3.7MB 169kB/s
+Installing collected packages: scipy, scikit-learn, imbalanced-learn
+Successfully installed imbalanced-learn-0.1.5 scikit-learn-0.17.1 scipy-0.18.0
+(alphapy) localhost:AlphaPy_Games markconway$ conda list
+# packages in environment at //anaconda/envs/alphapy:
+#
+Using Anaconda Cloud api site https://api.anaconda.org
+protobuf                  3.0.0b2                  py35_0    conda-forge
+six                       1.10.0                   py35_0    conda-forge
+tensorflow                0.9.0                    py35_0    conda-forge
+imbalanced-learn          0.1.5                     <pip>
+mkl                       11.3.3                        0
+numpy                     1.11.1                   py35_0
+openssl                   1.0.2h                        1
+pandas                    0.18.1              np111py35_0
+pip                       8.1.2                    py35_0
+python                    3.5.2                         0
+python-dateutil           2.5.3                    py35_0
+pytz                      2016.6.1                 py35_0
+readline                  6.2                           2
+scikit-learn              0.17.1                    <pip>
+scipy                     0.18.0                    <pip>
+setuptools                23.0.0                   py35_0
+sqlite                    3.13.0                        0
+tk                        8.5.18                        0
+wheel                     0.29.0                   py35_0
+xz                        5.2.2                         0
+zlib                      1.2.8                         3
+(alphapy) localhost:AlphaPy_Games markconway$ python ../AlphaPy/alpha_game.py
+None
+Traceback (most recent call last):
+  File "../AlphaPy/alpha_game.py", line 18, in <module>
+    from alpha import pipeline
+  File "/Users/markconway/Projects/AlphaPy/alpha.py", line 18, in <module>
+    from data import get_data
+  File "/Users/markconway/Projects/AlphaPy/data.py", line 46, in <module>
+    import pandas_datareader.data as web
+ImportError: No module named 'pandas_datareader'
+(alphapy) localhost:AlphaPy_Games markconway$ history
+   39  pwd
+   40  pwd
+   41  pwd
+   42  ls
+   43  cd Projects
+   44  cd AlphaPy
+   45  ls
+   46  python alpha_game.py -name NBA
+   47  python alpha_game.py -name NBA
+   48  python alpha_game.py -name NBA
+   49  python alpha_game.py -name NBA
+   50  python alpha_game.py -name NBA
+   51  python alpha_game.py -name NBA
+   52  python alpha_game.py -name NBA
+   53  python alpha_game.py -name NBA -rfe -grid
+   54  python alpha_game.py -name NBA -rfe -grid -plot
+   55  python alpha_game.py -name NBA -rfe -grid -plot -score log_loss
+   56  python alpha_game.py -name NBA -rfe -grid -plot
+   57  python alpha.py -name "BNP Claims"
+   58  python alpha.py -name "BNP Claims" -plot -grid -scorer log_loss
+   59  python alpha.py -name "BNP Claims" -plot -grid -score log_loss
+   60  python alpha.py -name "BNP Claims" -plot -score log_loss -algo 'RF,XGB'
+   61  python alpha_game.py -name NBA
+   62  python alpha_game.py -name NBA
+   63  python alpha_game.py -name NBA
+   64  python alpha_game.py -name NBA
+   65  python alpha_game.py -name NBA
+   66  python alpha_game.py -name NBA
+   67  python alpha.py -name "BNP Claims" -plot -score log_loss -algo 'RF,XGB'
+   68  python alpha.py -name "BNP Claims" -plot -score log_loss -algo 'RF,XGB' -inter -poly 2
+   69  python alpha.py -name "BNP Claims" -score log_loss -algo 'RF,XGB' -inter -poly 2
+   70  python alpha.py -name "BNP Claims" -score log_loss -poly 2
+   71  python alpha.py -name "BNP Claims" -score log_loss -inter
+   72  python alpha.py -name "BNP Claims" -score log_loss -inter
+   73  python alpha.py -name "BNP Claims" -score log_loss -inter
+   74  python alpha.py -name "BNP Claims" -score log_loss -inter
+   75  python alpha.py -name "BNP Claims" -score log_loss -inter
+   76  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1
+   77  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1
+   78  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1 -grid
+   79  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1 -grid -nest 501
+   80  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1 -nest 1001
+   81  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1 -gp
+   82  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1 -gp
+   83  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1 -gp
+   84  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1 -gp
+   85  pip install spark-sklearn
+   86  printenv
+   87  pyspark
+   88  pwd
+   89  cd Software
+   90  ls
+   91  cd spark-1.6.1-bin-hadoop2.6/
+   92  ls
+   93  ./bin/pyspark
+   94  printenv
+   95  setenv SPARK_HOME=/Users/markconway/Software/spark-1.6.1-bin-hadoop2.6
+   96  SPARK_HOME=/Users/markconway/Software/spark-1.6.1-bin-hadoop2.6
+   97  ./bin/pyspark
+   98  ipython profile create pyspark
+   99  cd ~/.ipython/profile_pyspark
+  100  ls
+  101  cd startup
+  102  ls
+  103  nano 00-pyspark-setup.py
+  104  printenv
+  105  pwd
+  106  ls /Users/markconway/Software/spark-1.6.1-bin-hadoop2.6
+  107  ls /Users/markconway/Software/spark-1.6.1-bin-hadoop2.6/python
+  108  ls /Users/markconway/Software/spark-1.6.1-bin-hadoop2.6/python/lib
+  109  nano 00-pyspark-setup.py
+  110  ipython notebook --profile=pyspark
+  111  python
+  112  which pycharm
+  113  vagrant up
+  114  vagrant global-status
+  115  vagrant up
+  116  cd Vagrant
+  117  vagrant up
+  118  pwd
+  119  cd Projects
+  120  ls
+  121  cd BNP Paribas
+  122  cd BNP Claims
+  123  cd "BNP Claims"
+  124  ls
+  125  more train.csv
+  126  more test.csv
+  127  more sample_submission.csv
+  128  pwd
+  129  cd Projects/AlphaPy_Games
+  130  ls
+  131  python ../AlphaPy/alpha_game.py
+  132  python ../AlphaPy/alpha_stock.py
+  133  python ../AlphaPy/alpha_stock.py
+  134  python ../AlphaPy/alpha_stock.py
+  135  python ../AlphaPy/alpha_stock.py
+  136  python ../AlphaPy/alpha_stock.py
+  137  python ../AlphaPy/alpha_stock.py
+  138  python ../AlphaPy/alpha_stock.py
+  139  python ../AlphaPy/alpha_stock.py
+  140  pwd
+  141  cd ../AlphaPy_Stocks
+  142  ls
+  143  python ../AlphaPy/alpha_stock.py
+  144  python ../AlphaPy/alpha_stock.py
+  145  python ../AlphaPy/alpha_stock.py
+  146  python ../AlphaPy/alpha_stock.py
+  147  python ../AlphaPy/alpha_stock.py
+  148  python ../AlphaPy/alpha_stock.py
+  149  python ../AlphaPy/alpha_stock.py
+  150  python ../AlphaPy/alpha_stock.py
+  151  python ../AlphaPy/alpha_stock.py
+  152  python ../AlphaPy/alpha_stock.py
+  153  python ../AlphaPy/alpha_stock.py
+  154  python ../AlphaPy/alpha_stock.py
+  155  python ../AlphaPy/alpha_stock.py
+  156  python ../AlphaPy/alpha_stock.py
+  157  python ../AlphaPy/alpha_stock.py
+  158  python ../AlphaPy/alpha_stock.py
+  159  python ../AlphaPy/alpha_stock.py
+  160  python ../AlphaPy/alpha_stock.py
+  161  python ../AlphaPy/alpha_stock.py
+  162  python ../AlphaPy/alpha_stock.py
+  163  python ../AlphaPy/alpha_stock.py
+  164  python ../AlphaPy/alpha_stock.py
+  165  python ../AlphaPy/alpha_stock.py
+  166  python ../AlphaPy/alpha_stock.py
+  167  python ../AlphaPy/alpha_stock.py
+  168  python ../AlphaPy/alpha_stock.py
+  169  python ../AlphaPy/alpha_stock.py
+  170  pwd
+  171  pwd
+  172  python ../AlphaPy/alpha_stock.py
+  173  python ../AlphaPy/alpha_stock.py
+  174  python ../AlphaPy/alpha_stock.py
+  175  python ../AlphaPy/alpha_stock.py
+  176  python ../AlphaPy/alpha_stock.py
+  177  pwd
+  178  wget
+  179  brew wget
+  180  brew -help
+  181  brew ?
+  182  brew
+  183  pyspark
+  184  pwd
+  185  printenv
+  186  pwd
+  187  cd Softwar
+  188  cd Software
+  189  ls
+  190  ls
+  191  cd spark-1.6.1-bin-hadoop2.6/
+  192  ls
+  193  pwd
+  194  ./bin/pyspark
+  195  cd bin
+  196  ls
+  197  ls -lrt
+  198  pyspark
+  199  ./pyspark
+  200  more pyspark
+  201
+  202  printenv
+  203  python
+  204  ls
+  205  /Users/markconway/anaconda/bin/jupyter_mac.command ; exit;
+  206  pwd
+  207  pwd
+  208  cd Projects
+  209  ls
+  210  cd Santander
+  211  ls
+  212  pwd
+  213  ../AlphaPy/alpha.py
+  214  python ../AlphaPy/alpha.py
+  215  python ../AlphaPy/alpha.py
+  216  ls
+  217  cd Projects
+  218  ls
+  219  cd AlphaPy_Games
+  220  python ../AlphaPy/alpha.py
+  221  python ../AlphaPy/alpha.py
+  222  conda update conda
+  223  conda update scikit-learn
+  224  conda update -all
+  225  conda update --all
+  226  python ../AlphaPy/alpha.py
+  227  cd Projects/AlphaPy_Stocks
+  228  ls
+  229  pip install xgboost --upgrade
+  230  /Users/markconway/anaconda/bin/jupyter_mac.command ; exit;
+  231  /Users/markconway/anaconda/bin/jupyter_mac.command ; exit;
+  232  /Users/markconway/anaconda/bin/jupyter_mac.command ; exit;
+  233  ls
+  234  cd Vagrant
+  235  vagrant up
+  236  vagrant up
+  237  vagrant down
+  238  /Users/markconway/anaconda/bin/jupyter_mac.command ; exit;
+  239  /Users/markconway/anaconda/bin/jupyter_mac.command ; exit;
+  240  pwd
+  241  cd Projects
+  242  pip install beautifulsoup4
+  243  wget
+  244  pyspark
+  245  cd Software
+  246  ls
+  247  pwd
+  248  cd ../Software
+  249  ls
+  250  spark-1.6.1-bin-hadoop2.6/
+  251  cd spark-1.6.1-bin-hadoop2.6/
+  252  ls
+  253  ./bin/pyspark
+  254  ./bin/pyspark
+  255  ls /Users/markconway/Software/spark-1.6.1-bin-hadoop2.6
+  256  ls /Users/markconway/Software/spark-1.6.1-bin-hadoop2.6
+  257  printenv
+  258  ls
+  259  pwd
+  260  ls
+  261  rm Untitled*.ipynb
+  262  ls
+  263  ls Projects
+  264  pwd
+  265  cd Software
+  266  ls
+  267  nano ~/.bash_profile
+  268  pwd
+  269  cd
+  270  ls
+  271  ls -lrta
+  272  ipython profile create pyspark
+  273  nano ~/.ipython/profile_pyspark/startup/00-pyspark-setup.py
+  274  source ~/.profile
+  275  source ~/.bash_profile
+  276  printenv
+  277  ipython notebook --profile=pyspark
+  278  ipython notebook --profile=pyspark
+  279  ipython notebook --profile=pyspark
+  280  jupyter notebook --profile=pyspark
+  281  pwd
+  282  ls
+  283  ls -lrta
+  284  jupyter notebook --profile=pyspark
+  285  source ~/.bash_profile
+  286  nano ~/.bash_profile
+  287  nano ~/.ipython/profile_pyspark/startup/00-pyspark-setup.py
+  288  source ~/.bash_profile
+  289  jupyter notebook
+  290  jupyter notebook --profile=pyspark
+  291  PYSPARK_DRIVER_PYTHON=ipython PYSPARK_DRIVER_PYTHON_OPTS='notebook' $SPARK_HOME/bin/pyspark
+  292  PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS='notebook' $SPARK_HOME/bin/pyspark
+  293  PYSPARK_PYTHON=python3 PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS='notebook' $SPARK_HOME/bin/pyspark
+  294  pwd
+  295  cd Projects
+  296  ls
+  297  cd Spark
+  298  ls
+  299  cd ampcamp5-usb
+  300  ls
+  301  cd data
+  302  ls
+  303  cd movielens
+  304  ls
+  305  cd medium
+  306  l
+  307  ls
+  308  wc ratings.dat
+  309  wc movings.dat
+  310  wc movies.dat
+  311  wc users.dat
+  312  pwd
+  313  pip install flask-appbuilder
+  314  pip install flask-appbuilder --upgrade
+  315  pip install caravel
+  316  fabmanager create-admin --app caravel
+  317  fabmanager create-admin --app caravel
+  318  caravel db upgrade
+  319  caravel init
+  320  caravel load_examples
+  321  caravel load_examples
+  322  caravel runserver -d
+  323  pip install django --upgrade
+  324  python -c "import django; print(django.get_version())"
+  325  pip install lifetimes --update
+  326  pip install lifetimes
+  327  caravel runserver -d
+  328  caravel runserver -d
+  329  caravel db upgrade
+  330  caravel load_examples
+  331  pip uninstall caravel
+  332  sudo pip uninstall caravel
+  333  pip install caravel
+  334  caravel db upgrade
+  335  caravel runserver -d
+  336  fabmanager run
+  337  cd Projects
+  338  ls
+  339  cd Flask-AppBuilder/
+  340  ls
+  341  cd examples
+  342  ls
+  343  cd quickcharts
+  344  ls
+  345  fabmanager run
+  346  fabmanager create-admin
+  347  ls
+  348  cd app
+  349  ls
+  350  fabmanager run
+  351  cd ..
+  352  ls
+  353  fabmanager run
+  354  fabmanager
+  355  fabmanager list-users
+  356  fabmanager version
+  357  pip uninstall Flask-AppBuilder
+  358  conda install Flask-AppBuilder
+  359  anaconda search -t conda flask-appbuilder
+  360  conda install spyre
+  361  pip install Flask-AppBuilder
+  362  fabmanager create-admin
+  363  conda install flask --update
+  364  conda install flask
+  365  conda update flask
+  366  fabmanager run
+  367  pwd
+  368  cd Projects
+  369  ls
+  370  cd Flask-AppBuilder/
+  371  ls
+  372  cd examples
+  373  ls
+  374  cd quickcharts
+  375  ls
+  376  fabmanager run
+  377  caravel runserver -d
+  378  pwd
+  379  cd Projects
+  380  ls
+  381  cd Flask-AppBuilder/
+  382  ls
+  383  cd examples
+  384  ls
+  385  cd quickcharts
+  386  ls
+  387  fabmanager create-admin
+  388  pip uninstall Flask-AppBuilder
+  389  conda install Flask-AppBuilder
+  390  anaconda search -t conda flask-appbuilder
+  391  pip install Flask-AppBuilder
+  392  fabmanager create-admin
+  393  fabmanager run
+  394  fabmanager
+  395  fabmanager list-users
+  396  fabmanager run
+  397  python
+  398  ping www.microsoft.com
+  399  ping www.google.com
+  400  history
+  401  PYSPARK_PYTHON=python3 PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS='notebook' $SPARK_HOME/bin/pyspark
+  402  pip install caravel --upgrade
+  403  sudo pip install caravel --upgrade
+  404  caravel db upgrade
+  405  sudo caravel db upgrade
+  406  caravel db upgrade
+  407  caravel db stamp f0fbf6129e13
+  408  caravel db upgrade
+  409  caravel init
+  410  caravel load_examples
+  411  caravel runserver -d
+  412  fabmanager create-admin --app caravel
+  413  caravel runserver -d
+  414  pip install SpeechRecognition
+  415  python -m speechrecognition
+  416  python -m speech_recognition
+  417  pip install pyaudio
+  418  brew install portaudio && sudo brew link portaudio
+  419  pip install pyaudio
+  420  pip install pocketsphinx
+  421  pip install swig
+  422  history
+  423  PYSPARK_PYTHON=python3 PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS='notebook' $SPARK_HOME/bin/pyspark
+  424  PYSPARK_PYTHON=python3 PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS='notebook' $SPARK_HOME/bin/pyspark
+  425  conda update anaconda
+  426  conda update launcher
+  427  conda remove launcher
+  428  conda install launcher
+  429  conda update
+  430  conda update all
+  431  conda update conda
+  432  conda update anaconda
+  433  pwd
+  434  cd Projects/Santander
+  435  ls
+  436  ls
+  437  pwd
+  438  history
+  439  ../AlphaPy/alpha.py
+  440  pwd
+  441  ls ../AlphaPy
+  442  python ../AlphaPy/alpha.py
+  443  python ../AlphaPy/alpha.py
+  444  python ../AlphaPy/alpha.py
+  445  python ../AlphaPy/alpha.py
+  446  python ../AlphaPy/alpha.py
+  447  ls
+  448  cd Projects
+  449  ls
+  450  history
+  451  ls
+  452  cd AlphaPy_Games
+  453  ls
+  454  cd NFL
+  455  ls
+  456  python ../AlphaPy/alpha_stock.py
+  457  pwd
+  458  cd ..
+  459  python ../AlphaPy/alpha_stock.py
+  460  python ../AlphaPy/alpha_game.py
+  461  python ../AlphaPy/alpha_game.py
+  462  python
+  463  python
+  464  cd Projects
+  465  ls
+  466  ls A*
+  467  cd AlphaPy_Stocks/
+  468  ls
+  469  python ../AlphaPy/alpha_game.py
+  470  conda install pandas-datareader
+  471  python ../AlphaPy/alpha_game.py
+  472  conda install unbalanced_dataset
+  473  pip install unbalanced_dataset
+  474  conda install imbalanced-learn
+  475  pip install -U imbalanced-learn
+  476  python ../AlphaPy/alpha_game.py
+  477  python
+  478  python ../AlphaPy/alpha_game.py
+  479  python ../AlphaPy/alpha_game.py
+  480  conda install skflow
+  481  anaconda search -t conda skflow
+  482  pip install skflow
+  483  python ../AlphaPy/alpha_game.py
+  484  conda install tensorflow
+  485  pip install tensorflow
+  486  conda create -n tensorflow python=3.5
+  487  source activate tensorflow
+  488  python ../AlphaPy/alpha_game.py
+  489  exit
+  490  cd Projects
+  491  ls
+  492  cd AlphaPy_Stocks
+  493  ls
+  494  source activate tensorflow
+  495  conda install -c conda-forge tensorflow
+  496  history
+  497  ls
+  498  python ../AlphaPy/alpha_game.py
+  499  cd AlphaPy
+  500  ls
+  501  cd Projects
+  502  ls
+  503  cd AlphaPy_Games
+  504  ls
+  505  history
+  506  python ../AlphaPy/alpha_game.py
+  507  pip3 install tensorflow
+  508  pip install tensorflow
+  509  source activate tensorflow
+  510  python ../AlphaPy/alpha_game.py
+  511  conda install -n tensorflow pandas
+  512  python ../AlphaPy/alpha_game.py
+  513  conda install -n tensorflow imblearn
+  514  source deactivate
+  515  python ../AlphaPy/alpha_game.py
+  516  conda install tensorflow
+  517  anaconda search -t conda tensorflow
+  518  conda install conda-forge/tensorflow
+  519  conda remove -n tensorflow -all
+  520  conda remove -n tensorflow
+  521  conda remove -h
+  522  python
+  523  conda create -n alphapy python=3.5
+  524  source activate alphapy
+  525  conda install -c conda-forge alphapy
+  526  conda install -c conda-forge tensorflow
+  527  python ../AlphaPy/alpha_game.py
+  528  conda install --name alphapy pandas
+  529  python ../AlphaPy/alpha_game.py
+  530  conda list
+  531  conda install --name alphapy imblearn
+  532  pip install imblearn
+  533  history
+  534  conda install --name alphapy imbalanced-learn
+  535  pip install -U imbalanced-learn
+  536  conda list
+  537  python ../AlphaPy/alpha_game.py
+  538  history
+(alphapy) localhost:AlphaPy_Games markconway$ conda install pandas-datareader
+Using Anaconda Cloud api site https://api.anaconda.org
+Fetching package metadata .......
+Solving package specifications: ..........
+
+Package plan for installation in environment //anaconda/envs/alphapy:
+
+The following NEW packages will be INSTALLED:
+
+    pandas-datareader: 0.2.1-py35_0
+    requests:          2.10.0-py35_0
+    requests-file:     1.4-py35_0
+
+Proceed ([y]/n)? y
+
+Linking packages ...
+[      COMPLETE      ]|#################################################################################################################| 100%
+(alphapy) localhost:AlphaPy_Games markconway$ python ../AlphaPy/alpha_game.py
+None
+Traceback (most recent call last):
+  File "../AlphaPy/alpha_game.py", line 18, in <module>
+    from alpha import pipeline
+  File "/Users/markconway/Projects/AlphaPy/alpha.py", line 21, in <module>
+    from estimators import get_estimators
+  File "/Users/markconway/Projects/AlphaPy/estimators.py", line 20, in <module>
+    import skflow
+ImportError: No module named 'skflow'
+(alphapy) localhost:AlphaPy_Games markconway$ history
+   42  ls
+   43  cd Projects
+   44  cd AlphaPy
+   45  ls
+   46  python alpha_game.py -name NBA
+   47  python alpha_game.py -name NBA
+   48  python alpha_game.py -name NBA
+   49  python alpha_game.py -name NBA
+   50  python alpha_game.py -name NBA
+   51  python alpha_game.py -name NBA
+   52  python alpha_game.py -name NBA
+   53  python alpha_game.py -name NBA -rfe -grid
+   54  python alpha_game.py -name NBA -rfe -grid -plot
+   55  python alpha_game.py -name NBA -rfe -grid -plot -score log_loss
+   56  python alpha_game.py -name NBA -rfe -grid -plot
+   57  python alpha.py -name "BNP Claims"
+   58  python alpha.py -name "BNP Claims" -plot -grid -scorer log_loss
+   59  python alpha.py -name "BNP Claims" -plot -grid -score log_loss
+   60  python alpha.py -name "BNP Claims" -plot -score log_loss -algo 'RF,XGB'
+   61  python alpha_game.py -name NBA
+   62  python alpha_game.py -name NBA
+   63  python alpha_game.py -name NBA
+   64  python alpha_game.py -name NBA
+   65  python alpha_game.py -name NBA
+   66  python alpha_game.py -name NBA
+   67  python alpha.py -name "BNP Claims" -plot -score log_loss -algo 'RF,XGB'
+   68  python alpha.py -name "BNP Claims" -plot -score log_loss -algo 'RF,XGB' -inter -poly 2
+   69  python alpha.py -name "BNP Claims" -score log_loss -algo 'RF,XGB' -inter -poly 2
+   70  python alpha.py -name "BNP Claims" -score log_loss -poly 2
+   71  python alpha.py -name "BNP Claims" -score log_loss -inter
+   72  python alpha.py -name "BNP Claims" -score log_loss -inter
+   73  python alpha.py -name "BNP Claims" -score log_loss -inter
+   74  python alpha.py -name "BNP Claims" -score log_loss -inter
+   75  python alpha.py -name "BNP Claims" -score log_loss -inter
+   76  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1
+   77  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1
+   78  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1 -grid
+   79  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1 -grid -nest 501
+   80  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1 -nest 1001
+   81  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1 -gp
+   82  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1 -gp
+   83  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1 -gp
+   84  python alpha.py -name "BNP Claims" -score log_loss -inter -na -1 -gp
+   85  pip install spark-sklearn
+   86  printenv
+   87  pyspark
+   88  pwd
+   89  cd Software
+   90  ls
+   91  cd spark-1.6.1-bin-hadoop2.6/
+   92  ls
+   93  ./bin/pyspark
+   94  printenv
+   95  setenv SPARK_HOME=/Users/markconway/Software/spark-1.6.1-bin-hadoop2.6
+   96  SPARK_HOME=/Users/markconway/Software/spark-1.6.1-bin-hadoop2.6
+   97  ./bin/pyspark
+   98  ipython profile create pyspark
+   99  cd ~/.ipython/profile_pyspark
+  100  ls
+  101  cd startup
+  102  ls
+  103  nano 00-pyspark-setup.py
+  104  printenv
+  105  pwd
+  106  ls /Users/markconway/Software/spark-1.6.1-bin-hadoop2.6
+  107  ls /Users/markconway/Software/spark-1.6.1-bin-hadoop2.6/python
+  108  ls /Users/markconway/Software/spark-1.6.1-bin-hadoop2.6/python/lib
+  109  nano 00-pyspark-setup.py
+  110  ipython notebook --profile=pyspark
+  111  python
+  112  which pycharm
+  113  vagrant up
+  114  vagrant global-status
+  115  vagrant up
+  116  cd Vagrant
+  117  vagrant up
+  118  pwd
+  119  cd Projects
+  120  ls
+  121  cd BNP Paribas
+  122  cd BNP Claims
+  123  cd "BNP Claims"
+  124  ls
+  125  more train.csv
+  126  more test.csv
+  127  more sample_submission.csv
+  128  pwd
+  129  cd Projects/AlphaPy_Games
+  130  ls
+  131  python ../AlphaPy/alpha_game.py
+  132  python ../AlphaPy/alpha_stock.py
+  133  python ../AlphaPy/alpha_stock.py
+  134  python ../AlphaPy/alpha_stock.py
+  135  python ../AlphaPy/alpha_stock.py
+  136  python ../AlphaPy/alpha_stock.py
+  137  python ../AlphaPy/alpha_stock.py
+  138  python ../AlphaPy/alpha_stock.py
+  139  python ../AlphaPy/alpha_stock.py
+  140  pwd
+  141  cd ../AlphaPy_Stocks
+  142  ls
+  143  python ../AlphaPy/alpha_stock.py
+  144  python ../AlphaPy/alpha_stock.py
+  145  python ../AlphaPy/alpha_stock.py
+  146  python ../AlphaPy/alpha_stock.py
+  147  python ../AlphaPy/alpha_stock.py
+  148  python ../AlphaPy/alpha_stock.py
+  149  python ../AlphaPy/alpha_stock.py
+  150  python ../AlphaPy/alpha_stock.py
+  151  python ../AlphaPy/alpha_stock.py
+  152  python ../AlphaPy/alpha_stock.py
+  153  python ../AlphaPy/alpha_stock.py
+  154  python ../AlphaPy/alpha_stock.py
+  155  python ../AlphaPy/alpha_stock.py
+  156  python ../AlphaPy/alpha_stock.py
+  157  python ../AlphaPy/alpha_stock.py
+  158  python ../AlphaPy/alpha_stock.py
+  159  python ../AlphaPy/alpha_stock.py
+  160  python ../AlphaPy/alpha_stock.py
+  161  python ../AlphaPy/alpha_stock.py
+  162  python ../AlphaPy/alpha_stock.py
+  163  python ../AlphaPy/alpha_stock.py
+  164  python ../AlphaPy/alpha_stock.py
+  165  python ../AlphaPy/alpha_stock.py
+  166  python ../AlphaPy/alpha_stock.py
+  167  python ../AlphaPy/alpha_stock.py
+  168  python ../AlphaPy/alpha_stock.py
+  169  python ../AlphaPy/alpha_stock.py
+  170  pwd
+  171  pwd
+  172  python ../AlphaPy/alpha_stock.py
+  173  python ../AlphaPy/alpha_stock.py
+  174  python ../AlphaPy/alpha_stock.py
+  175  python ../AlphaPy/alpha_stock.py
+  176  python ../AlphaPy/alpha_stock.py
+  177  pwd
+  178  wget
+  179  brew wget
+  180  brew -help
+  181  brew ?
+  182  brew
+  183  pyspark
+  184  pwd
+  185  printenv
+  186  pwd
+  187  cd Softwar
+  188  cd Software
+  189  ls
+  190  ls
+  191  cd spark-1.6.1-bin-hadoop2.6/
+  192  ls
+  193  pwd
+  194  ./bin/pyspark
+  195  cd bin
+  196  ls
+  197  ls -lrt
+  198  pyspark
+  199  ./pyspark
+  200  more pyspark
+  201
+  202  printenv
+  203  python
+  204  ls
+  205  /Users/markconway/anaconda/bin/jupyter_mac.command ; exit;
+  206  pwd
+  207  pwd
+  208  cd Projects
+  209  ls
+  210  cd Santander
+  211  ls
+  212  pwd
+  213  ../AlphaPy/alpha.py
+  214  python ../AlphaPy/alpha.py
+  215  python ../AlphaPy/alpha.py
+  216  ls
+  217  cd Projects
+  218  ls
+  219  cd AlphaPy_Games
+  220  python ../AlphaPy/alpha.py
+  221  python ../AlphaPy/alpha.py
+  222  conda update conda
+  223  conda update scikit-learn
+  224  conda update -all
+  225  conda update --all
+  226  python ../AlphaPy/alpha.py
+  227  cd Projects/AlphaPy_Stocks
+  228  ls
+  229  pip install xgboost --upgrade
+  230  /Users/markconway/anaconda/bin/jupyter_mac.command ; exit;
+  231  /Users/markconway/anaconda/bin/jupyter_mac.command ; exit;
+  232  /Users/markconway/anaconda/bin/jupyter_mac.command ; exit;
+  233  ls
+  234  cd Vagrant
+  235  vagrant up
+  236  vagrant up
+  237  vagrant down
+  238  /Users/markconway/anaconda/bin/jupyter_mac.command ; exit;
+  239  /Users/markconway/anaconda/bin/jupyter_mac.command ; exit;
+  240  pwd
+  241  cd Projects
+  242  pip install beautifulsoup4
+  243  wget
+  244  pyspark
+  245  cd Software
+  246  ls
+  247  pwd
+  248  cd ../Software
+  249  ls
+  250  spark-1.6.1-bin-hadoop2.6/
+  251  cd spark-1.6.1-bin-hadoop2.6/
+  252  ls
+  253  ./bin/pyspark
+  254  ./bin/pyspark
+  255  ls /Users/markconway/Software/spark-1.6.1-bin-hadoop2.6
+  256  ls /Users/markconway/Software/spark-1.6.1-bin-hadoop2.6
+  257  printenv
+  258  ls
+  259  pwd
+  260  ls
+  261  rm Untitled*.ipynb
+  262  ls
+  263  ls Projects
+  264  pwd
+  265  cd Software
+  266  ls
+  267  nano ~/.bash_profile
+  268  pwd
+  269  cd
+  270  ls
+  271  ls -lrta
+  272  ipython profile create pyspark
+  273  nano ~/.ipython/profile_pyspark/startup/00-pyspark-setup.py
+  274  source ~/.profile
+  275  source ~/.bash_profile
+  276  printenv
+  277  ipython notebook --profile=pyspark
+  278  ipython notebook --profile=pyspark
+  279  ipython notebook --profile=pyspark
+  280  jupyter notebook --profile=pyspark
+  281  pwd
+  282  ls
+  283  ls -lrta
+  284  jupyter notebook --profile=pyspark
+  285  source ~/.bash_profile
+  286  nano ~/.bash_profile
+  287  nano ~/.ipython/profile_pyspark/startup/00-pyspark-setup.py
+  288  source ~/.bash_profile
+  289  jupyter notebook
+  290  jupyter notebook --profile=pyspark
+  291  PYSPARK_DRIVER_PYTHON=ipython PYSPARK_DRIVER_PYTHON_OPTS='notebook' $SPARK_HOME/bin/pyspark
+  292  PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS='notebook' $SPARK_HOME/bin/pyspark
+  293  PYSPARK_PYTHON=python3 PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS='notebook' $SPARK_HOME/bin/pyspark
+  294  pwd
+  295  cd Projects
+  296  ls
+  297  cd Spark
+  298  ls
+  299  cd ampcamp5-usb
+  300  ls
+  301  cd data
+  302  ls
+  303  cd movielens
+  304  ls
+  305  cd medium
+  306  l
+  307  ls
+  308  wc ratings.dat
+  309  wc movings.dat
+  310  wc movies.dat
+  311  wc users.dat
+  312  pwd
+  313  pip install flask-appbuilder
+  314  pip install flask-appbuilder --upgrade
+  315  pip install caravel
+  316  fabmanager create-admin --app caravel
+  317  fabmanager create-admin --app caravel
+  318  caravel db upgrade
+  319  caravel init
+  320  caravel load_examples
+  321  caravel load_examples
+  322  caravel runserver -d
+  323  pip install django --upgrade
+  324  python -c "import django; print(django.get_version())"
+  325  pip install lifetimes --update
+  326  pip install lifetimes
+  327  caravel runserver -d
+  328  caravel runserver -d
+  329  caravel db upgrade
+  330  caravel load_examples
+  331  pip uninstall caravel
+  332  sudo pip uninstall caravel
+  333  pip install caravel
+  334  caravel db upgrade
+  335  caravel runserver -d
+  336  fabmanager run
+  337  cd Projects
+  338  ls
+  339  cd Flask-AppBuilder/
+  340  ls
+  341  cd examples
+  342  ls
+  343  cd quickcharts
+  344  ls
+  345  fabmanager run
+  346  fabmanager create-admin
+  347  ls
+  348  cd app
+  349  ls
+  350  fabmanager run
+  351  cd ..
+  352  ls
+  353  fabmanager run
+  354  fabmanager
+  355  fabmanager list-users
+  356  fabmanager version
+  357  pip uninstall Flask-AppBuilder
+  358  conda install Flask-AppBuilder
+  359  anaconda search -t conda flask-appbuilder
+  360  conda install spyre
+  361  pip install Flask-AppBuilder
+  362  fabmanager create-admin
+  363  conda install flask --update
+  364  conda install flask
+  365  conda update flask
+  366  fabmanager run
+  367  pwd
+  368  cd Projects
+  369  ls
+  370  cd Flask-AppBuilder/
+  371  ls
+  372  cd examples
+  373  ls
+  374  cd quickcharts
+  375  ls
+  376  fabmanager run
+  377  caravel runserver -d
+  378  pwd
+  379  cd Projects
+  380  ls
+  381  cd Flask-AppBuilder/
+  382  ls
+  383  cd examples
+  384  ls
+  385  cd quickcharts
+  386  ls
+  387  fabmanager create-admin
+  388  pip uninstall Flask-AppBuilder
+  389  conda install Flask-AppBuilder
+  390  anaconda search -t conda flask-appbuilder
+  391  pip install Flask-AppBuilder
+  392  fabmanager create-admin
+  393  fabmanager run
+  394  fabmanager
+  395  fabmanager list-users
+  396  fabmanager run
+  397  python
+  398  ping www.microsoft.com
+  399  ping www.google.com
+  400  history
+  401  PYSPARK_PYTHON=python3 PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS='notebook' $SPARK_HOME/bin/pyspark
+  402  pip install caravel --upgrade
+  403  sudo pip install caravel --upgrade
+  404  caravel db upgrade
+  405  sudo caravel db upgrade
+  406  caravel db upgrade
+  407  caravel db stamp f0fbf6129e13
+  408  caravel db upgrade
+  409  caravel init
+  410  caravel load_examples
+  411  caravel runserver -d
+  412  fabmanager create-admin --app caravel
+  413  caravel runserver -d
+  414  pip install SpeechRecognition
+  415  python -m speechrecognition
+  416  python -m speech_recognition
+  417  pip install pyaudio
+  418  brew install portaudio && sudo brew link portaudio
+  419  pip install pyaudio
+  420  pip install pocketsphinx
+  421  pip install swig
+  422  history
+  423  PYSPARK_PYTHON=python3 PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS='notebook' $SPARK_HOME/bin/pyspark
+  424  PYSPARK_PYTHON=python3 PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS='notebook' $SPARK_HOME/bin/pyspark
+  425  conda update anaconda
+  426  conda update launcher
+  427  conda remove launcher
+  428  conda install launcher
+  429  conda update
+  430  conda update all
+  431  conda update conda
+  432  conda update anaconda
+  433  pwd
+  434  cd Projects/Santander
+  435  ls
+  436  ls
+  437  pwd
+  438  history
+  439  ../AlphaPy/alpha.py
+  440  pwd
+  441  ls ../AlphaPy
+  442  python ../AlphaPy/alpha.py
+  443  python ../AlphaPy/alpha.py
+  444  python ../AlphaPy/alpha.py
+  445  python ../AlphaPy/alpha.py
+  446  python ../AlphaPy/alpha.py
+  447  ls
+  448  cd Projects
+  449  ls
+  450  history
+  451  ls
+  452  cd AlphaPy_Games
+  453  ls
+  454  cd NFL
+  455  ls
+  456  python ../AlphaPy/alpha_stock.py
+  457  pwd
+  458  cd ..
+  459  python ../AlphaPy/alpha_stock.py
+  460  python ../AlphaPy/alpha_game.py
+  461  python ../AlphaPy/alpha_game.py
+  462  python
+  463  python
+  464  cd Projects
+  465  ls
+  466  ls A*
+  467  cd AlphaPy_Stocks/
+  468  ls
+  469  python ../AlphaPy/alpha_game.py
+  470  conda install pandas-datareader
+  471  python ../AlphaPy/alpha_game.py
+  472  conda install unbalanced_dataset
+  473  pip install unbalanced_dataset
+  474  conda install imbalanced-learn
+  475  pip install -U imbalanced-learn
+  476  python ../AlphaPy/alpha_game.py
+  477  python
+  478  python ../AlphaPy/alpha_game.py
+  479  python ../AlphaPy/alpha_game.py
+  480  conda install skflow
+  481  anaconda search -t conda skflow
+  482  pip install skflow
+  483  python ../AlphaPy/alpha_game.py
+  484  conda install tensorflow
+  485  pip install tensorflow
+  486  conda create -n tensorflow python=3.5
+  487  source activate tensorflow
+  488  python ../AlphaPy/alpha_game.py
+  489  exit
+  490  cd Projects
+  491  ls
+  492  cd AlphaPy_Stocks
+  493  ls
+  494  source activate tensorflow
+  495  conda install -c conda-forge tensorflow
+  496  history
+  497  ls
+  498  python ../AlphaPy/alpha_game.py
+  499  cd AlphaPy
+  500  ls
+  501  cd Projects
+  502  ls
+  503  cd AlphaPy_Games
+  504  ls
+  505  history
+  506  python ../AlphaPy/alpha_game.py
+  507  pip3 install tensorflow
+  508  pip install tensorflow
+  509  source activate tensorflow
+  510  python ../AlphaPy/alpha_game.py
+  511  conda install -n tensorflow pandas
+  512  python ../AlphaPy/alpha_game.py
+  513  conda install -n tensorflow imblearn
+  514  source deactivate
+  515  python ../AlphaPy/alpha_game.py
+  516  conda install tensorflow
+  517  anaconda search -t conda tensorflow
+  518  conda install conda-forge/tensorflow
+  519  conda remove -n tensorflow -all
+  520  conda remove -n tensorflow
+  521  conda remove -h
+  522  python
+  523  conda create -n alphapy python=3.5
+  524  source activate alphapy
+  525  conda install -c conda-forge alphapy
+  526  conda install -c conda-forge tensorflow
+  527  python ../AlphaPy/alpha_game.py
+  528  conda install --name alphapy pandas
+  529  python ../AlphaPy/alpha_game.py
+  530  conda list
+  531  conda install --name alphapy imblearn
+  532  pip install imblearn
+  533  history
+  534  conda install --name alphapy imbalanced-learn
+  535  pip install -U imbalanced-learn
+  536  conda list
+  537  python ../AlphaPy/alpha_game.py
+  538  history
+  539  conda install pandas-datareader
+  540  python ../AlphaPy/alpha_game.py
+  541  history
+(alphapy) localhost:AlphaPy_Games markconway$ pip install -U skflow
+Collecting skflow
+Requirement already up-to-date: numpy in /anaconda/envs/alphapy/lib/python3.5/site-packages (from skflow)
+Collecting sklearn (from skflow)
+Requirement already up-to-date: scipy in /anaconda/envs/alphapy/lib/python3.5/site-packages (from skflow)
+Requirement already up-to-date: scikit-learn in /anaconda/envs/alphapy/lib/python3.5/site-packages (from sklearn->skflow)
+Installing collected packages: sklearn, skflow
+Successfully installed skflow-0.1.0 sklearn-0.0
+(alphapy) localhost:AlphaPy_Games markconway$ python ../AlphaPy/alpha_game.py
+None
+Traceback (most recent call last):
+  File "../AlphaPy/alpha_game.py", line 18, in <module>
+    from alpha import pipeline
+  File "/Users/markconway/Projects/AlphaPy/alpha.py", line 21, in <module>
+    from estimators import get_estimators
+  File "/Users/markconway/Projects/AlphaPy/estimators.py", line 39, in <module>
+    import xgboost as xgb
+ImportError: No module named 'xgboost'
+(alphapy) localhost:AlphaPy_Games markconway$ conda install xgboost
+Using Anaconda Cloud api site https://api.anaconda.org
+Fetching package metadata .......
+Solving package specifications: .
+Error: Package missing in current osx-64 channels:
+  - xgboost
+
+Close matches found; did you mean one of these?
+
+    xgboost: boost
+
+You can search for packages on anaconda.org with
+
+    anaconda search -t conda xgboost
+(alphapy) localhost:AlphaPy_Games markconway$ pip install xgboost
+Collecting xgboost
+  Downloading xgboost-0.4a30.tar.gz (753kB)
+    100% |████████████████████████████████| 757kB 766kB/s
+Requirement already satisfied (use --upgrade to upgrade): numpy in /anaconda/envs/alphapy/lib/python3.5/site-packages (from xgboost)
+Requirement already satisfied (use --upgrade to upgrade): scipy in /anaconda/envs/alphapy/lib/python3.5/site-packages (from xgboost)
+Building wheels for collected packages: xgboost
+  Running setup.py bdist_wheel for xgboost ... done
+  Stored in directory: /Users/markconway/Library/Caches/pip/wheels/d3/43/37/f902e214730441ba23bfc73621fad90dd6634e7fb34090a804
+Successfully built xgboost
+Installing collected packages: xgboost
+Successfully installed xgboost-0.4a30
+(alphapy) localhost:AlphaPy_Games markconway$ python ../AlphaPy/alpha_game.py
+None
+Traceback (most recent call last):
+  File "../AlphaPy/alpha_game.py", line 18, in <module>
+    from alpha import pipeline
+  File "/Users/markconway/Projects/AlphaPy/alpha.py", line 24, in <module>
+    from features import create_features
+  File "/Users/markconway/Projects/AlphaPy/features.py", line 16, in <module>
+    import category_encoders as ce
+ImportError: No module named 'category_encoders'
+(alphapy) localhost:AlphaPy_Games markconway$ conda install category_encoders
+Using Anaconda Cloud api site https://api.anaconda.org
+Fetching package metadata .......
+Solving package specifications: .
+Error: Package missing in current osx-64 channels:
+  - category_encoders
+
+You can search for packages on anaconda.org with
+
+    anaconda search -t conda category_encoders
+(alphapy) localhost:AlphaPy_Games markconway$ pip install category_encoders
+Collecting category_encoders
+  Downloading category_encoders-1.2.3.tar.gz
+Requirement already satisfied (use --upgrade to upgrade): numpy>=1.8.0 in /anaconda/envs/alphapy/lib/python3.5/site-packages (from category_encoders)
+Requirement already satisfied (use --upgrade to upgrade): scipy>=0.9 in /anaconda/envs/alphapy/lib/python3.5/site-packages (from category_encoders)
+Requirement already satisfied (use --upgrade to upgrade): pandas>=0.15.0 in /anaconda/envs/alphapy/lib/python3.5/site-packages (from category_encoders)
+Requirement already satisfied (use --upgrade to upgrade): scikit-learn>=0.15.0 in /anaconda/envs/alphapy/lib/python3.5/site-packages (from category_encoders)
+Collecting statsmodels>=0.6.0 (from category_encoders)
+  Downloading statsmodels-0.6.1.tar.gz (7.0MB)
+    100% |████████████████████████████████| 7.0MB 86kB/s
+Collecting patsy>=0.4.0 (from category_encoders)
+  Downloading patsy-0.4.1-py2.py3-none-any.whl (233kB)
+    100% |████████████████████████████████| 235kB 2.2MB/s
+Requirement already satisfied (use --upgrade to upgrade): python-dateutil>=2 in /anaconda/envs/alphapy/lib/python3.5/site-packages (from pandas>=0.15.0->category_encoders)
+Requirement already satisfied (use --upgrade to upgrade): pytz>=2011k in /anaconda/envs/alphapy/lib/python3.5/site-packages (from pandas>=0.15.0->category_encoders)
+Requirement already satisfied (use --upgrade to upgrade): six in /anaconda/envs/alphapy/lib/python3.5/site-packages (from patsy>=0.4.0->category_encoders)
+Building wheels for collected packages: category-encoders, statsmodels
+  Running setup.py bdist_wheel for category-encoders ... done
+  Stored in directory: /Users/markconway/Library/Caches/pip/wheels/cd/68/9a/e5c17b68698937dc85dfbf362549997391832730c1c1267383
+  Running setup.py bdist_wheel for statsmodels ... done
+  Stored in directory: /Users/markconway/Library/Caches/pip/wheels/38/d3/1e/94a59b1460b3249b15399e09dae7a3828045bcf830d999b4b1
+Successfully built category-encoders statsmodels
+Installing collected packages: patsy, statsmodels, category-encoders
+Successfully installed category-encoders-1.2.3 patsy-0.4.1 statsmodels-0.6.1
+(alphapy) localhost:AlphaPy_Games markconway$ python ../AlphaPy/alpha_game.py
+None
+Traceback (most recent call last):
+  File "../AlphaPy/alpha_game.py", line 18, in <module>
+    from alpha import pipeline
+  File "/Users/markconway/Projects/AlphaPy/alpha.py", line 24, in <module>
+    from features import create_features
+  File "/Users/markconway/Projects/AlphaPy/features.py", line 22, in <module>
+    from gplearn.genetic import SymbolicTransformer
+ImportError: No module named 'gplearn'
+(alphapy) localhost:AlphaPy_Games markconway$ conda install gplearn
+Using Anaconda Cloud api site https://api.anaconda.org
+Fetching package metadata .......
+Solving package specifications: .
+Error: Package missing in current osx-64 channels:
+  - gplearn
+
+You can search for packages on anaconda.org with
+
+    anaconda search -t conda gplearn
+(alphapy) localhost:AlphaPy_Games markconway$ pip install gplearn
+Collecting gplearn
+  Downloading gplearn-0.1.0-py2.py3-none-any.whl (70kB)
+    100% |████████████████████████████████| 71kB 1.2MB/s
+Requirement already satisfied (use --upgrade to upgrade): scikit-learn>=0.15.2 in /anaconda/envs/alphapy/lib/python3.5/site-packages (from gplearn)
+Installing collected packages: gplearn
+Successfully installed gplearn-0.1.0
+(alphapy) localhost:AlphaPy_Games markconway$ python ../AlphaPy/alpha_game.py
+None
+Traceback (most recent call last):
+  File "../AlphaPy/alpha_game.py", line 18, in <module>
+    from alpha import pipeline
+  File "/Users/markconway/Projects/AlphaPy/alpha.py", line 35, in <module>
+    from model import first_fit
+  File "/Users/markconway/Projects/AlphaPy/model.py", line 57, in <module>
+    import yaml
+ImportError: No module named 'yaml'
+(alphapy) localhost:AlphaPy_Games markconway$ conda install yaml
+Using Anaconda Cloud api site https://api.anaconda.org
+Fetching package metadata .......
+Solving package specifications: ..........
+
+Package plan for installation in environment //anaconda/envs/alphapy:
+
+The following NEW packages will be INSTALLED:
+
+    yaml: 0.1.6-0
+
+Proceed ([y]/n)? y
+
+Linking packages ...
+[      COMPLETE      ]|#################################################################################################################| 100%
+(alphapy) localhost:AlphaPy_Games markconway$ python ../AlphaPy/alpha_game.py
+None
+Traceback (most recent call last):
+  File "../AlphaPy/alpha_game.py", line 18, in <module>
+    from alpha import pipeline
+  File "/Users/markconway/Projects/AlphaPy/alpha.py", line 35, in <module>
+    from model import first_fit
+  File "/Users/markconway/Projects/AlphaPy/model.py", line 57, in <module>
+    import yaml
+ImportError: No module named 'yaml'
+(alphapy) localhost:AlphaPy_Games markconway$ conda list
+# packages in environment at //anaconda/envs/alphapy:
+#
+Using Anaconda Cloud api site https://api.anaconda.org
+category-encoders         1.2.3                     <pip>
+protobuf                  3.0.0b2                  py35_0    conda-forge
+six                       1.10.0                   py35_0    conda-forge
+tensorflow                0.9.0                    py35_0    conda-forge
+gplearn                   0.1.0                     <pip>
+imbalanced-learn          0.1.5                     <pip>
+mkl                       11.3.3                        0
+numpy                     1.11.1                   py35_0
+openssl                   1.0.2h                        1
+pandas                    0.18.1              np111py35_0
+pandas-datareader         0.2.1                    py35_0
+patsy                     0.4.1                     <pip>
+pip                       8.1.2                    py35_0
+python                    3.5.2                         0
+python-dateutil           2.5.3                    py35_0
+pytz                      2016.6.1                 py35_0
+readline                  6.2                           2
+requests                  2.10.0                   py35_0
+requests-file             1.4                      py35_0
+scikit-learn              0.17.1                    <pip>
+scipy                     0.18.0                    <pip>
+setuptools                23.0.0                   py35_0
+skflow                    0.1.0                     <pip>
+sklearn                   0.0                       <pip>
+sqlite                    3.13.0                        0
+statsmodels               0.6.1                     <pip>
+tk                        8.5.18                        0
+wheel                     0.29.0                   py35_0
+xgboost                   0.4a30                    <pip>
+xz                        5.2.2                         0
+yaml                      0.1.6                         0
+zlib                      1.2.8                         3
+(alphapy) localhost:AlphaPy_Games markconway$ pip install yaml
+Collecting yaml
+  Could not find a version that satisfies the requirement yaml (from versions: )
+No matching distribution found for yaml
+(alphapy) localhost:AlphaPy_Games markconway$ conda install python-yaml
+Using Anaconda Cloud api site https://api.anaconda.org
+Fetching package metadata .......
+Solving package specifications: .
+Error: Package missing in current osx-64 channels:
+  - python-yaml
+
+Close matches found; did you mean one of these?
+
+    python-yaml: python-daemon, python-ntlm, python-gdbm
+
+You can search for packages on anaconda.org with
+
+    anaconda search -t conda python-yaml
+(alphapy) localhost:AlphaPy_Games markconway$ conda install pyyaml
+Using Anaconda Cloud api site https://api.anaconda.org
+Fetching package metadata .......
+Solving package specifications: ..........
+
+Package plan for installation in environment //anaconda/envs/alphapy:
+
+The following NEW packages will be INSTALLED:
+
+    pyyaml: 3.11-py35_4
+
+Proceed ([y]/n)? y
+
+Linking packages ...
+[      COMPLETE      ]|#################################################################################################################| 100%
+(alphapy) localhost:AlphaPy_Games markconway$ conda list
+# packages in environment at //anaconda/envs/alphapy:
+#
+Using Anaconda Cloud api site https://api.anaconda.org
+category-encoders         1.2.3                     <pip>
+protobuf                  3.0.0b2                  py35_0    conda-forge
+six                       1.10.0                   py35_0    conda-forge
+tensorflow                0.9.0                    py35_0    conda-forge
+gplearn                   0.1.0                     <pip>
+imbalanced-learn          0.1.5                     <pip>
+mkl                       11.3.3                        0
+numpy                     1.11.1                   py35_0
+openssl                   1.0.2h                        1
+pandas                    0.18.1              np111py35_0
+pandas-datareader         0.2.1                    py35_0
+patsy                     0.4.1                     <pip>
+pip                       8.1.2                    py35_0
+python                    3.5.2                         0
+python-dateutil           2.5.3                    py35_0
+pytz                      2016.6.1                 py35_0
+pyyaml                    3.11                     py35_4
+readline                  6.2                           2
+requests                  2.10.0                   py35_0
+requests-file             1.4                      py35_0
+scikit-learn              0.17.1                    <pip>
+scipy                     0.18.0                    <pip>
+setuptools                23.0.0                   py35_0
+skflow                    0.1.0                     <pip>
+sklearn                   0.0                       <pip>
+sqlite                    3.13.0                        0
+statsmodels               0.6.1                     <pip>
+tk                        8.5.18                        0
+wheel                     0.29.0                   py35_0
+xgboost                   0.4a30                    <pip>
+xz                        5.2.2                         0
+yaml                      0.1.6                         0
+zlib                      1.2.8                         3
+(alphapy) localhost:AlphaPy_Games markconway$ conda remove yaml
+Fetching package metadata .......
+Using Anaconda Cloud api site https://api.anaconda.org
+Solving package specifications: ..........
+
+Package plan for package removal in environment //anaconda/envs/alphapy:
+
+The following packages will be REMOVED:
+
+    pyyaml: 3.11-py35_4
+    yaml:   0.1.6-0
+
+Proceed ([y]/n)? n
+
+(alphapy) localhost:AlphaPy_Games markconway$ python ../AlphaPy/alpha_game.py
+None
+None
+Traceback (most recent call last):
+  File "../AlphaPy/alpha_game.py", line 18, in <module>
+    from alpha import pipeline
+  File "/Users/markconway/Projects/AlphaPy/alpha.py", line 49, in <module>
+    from plots import generate_plots
+  File "/Users/markconway/Projects/AlphaPy/plots.py", line 45, in <module>
+    from bokeh.plotting import figure, show, output_file
+ImportError: No module named 'bokeh'
+(alphapy) localhost:AlphaPy_Games markconway$ conda install bokeh
+Using Anaconda Cloud api site https://api.anaconda.org
+Fetching package metadata .......
+Solving package specifications: ..........
+
+Package plan for installation in environment //anaconda/envs/alphapy:
+
+The following packages will be downloaded:
+
+    package                    |            build
+    ---------------------------|-----------------
+    tornado-4.4.1              |           py35_0         585 KB
+    bokeh-0.12.1               |           py35_0         3.3 MB
+    ------------------------------------------------------------
+                                           Total:         3.8 MB
+
+The following NEW packages will be INSTALLED:
+
+    bokeh:      0.12.1-py35_0
+    jinja2:     2.8-py35_1
+    markupsafe: 0.23-py35_2
+    tornado:    4.4.1-py35_0
+
+Proceed ([y]/n)? y
+
+Fetching packages ...
+tornado-4.4.1- 100% |##############################################################################################| Time: 0:00:00   1.54 MB/s
+bokeh-0.12.1-p 100% |##############################################################################################| Time: 0:00:01   3.29 MB/s
+Extracting packages ...
+[      COMPLETE      ]|#################################################################################################################| 100%
+Linking packages ...
+[      COMPLETE      ]|#################################################################################################################| 100%
+(alphapy) localhost:AlphaPy_Games markconway$ python ../AlphaPy/alpha_game.py
+None
+None
+Traceback (most recent call last):
+  File "../AlphaPy/alpha_game.py", line 18, in <module>
+    from alpha import pipeline
+  File "/Users/markconway/Projects/AlphaPy/alpha.py", line 49, in <module>
+    from plots import generate_plots
+  File "/Users/markconway/Projects/AlphaPy/plots.py", line 51, in <module>
+    import matplotlib.pyplot as plt
+ImportError: No module named 'matplotlib'
+(alphapy) localhost:AlphaPy_Games markconway$ conda install matplotlib
+Using Anaconda Cloud api site https://api.anaconda.org
+Fetching package metadata .......
+Solving package specifications: ..........
+
+Package plan for installation in environment //anaconda/envs/alphapy:
+
+The following packages will be downloaded:
+
+    package                    |            build
+    ---------------------------|-----------------
+    sip-4.18                   |           py35_0         219 KB
+    qt-4.8.7                   |                4        37.1 MB
+    pyqt-4.11.4                |           py35_4         4.0 MB
+    ------------------------------------------------------------
+                                           Total:        41.3 MB
+
+The following NEW packages will be INSTALLED:
+
+    cycler:     0.10.0-py35_0
+    freetype:   2.5.5-1
+    libpng:     1.6.22-0
+    matplotlib: 1.5.1-np111py35_0
+    pyparsing:  2.1.4-py35_0
+    pyqt:       4.11.4-py35_4
+    qt:         4.8.7-4
+    sip:        4.18-py35_0
+
+Proceed ([y]/n)? y
+
+Fetching packages ...
+sip-4.18-py35_ 100% |##############################################################################################| Time: 0:00:00 670.90 kB/s
+qt-4.8.7-4.tar 100% |##############################################################################################| Time: 0:00:18   2.08 MB/s
+pyqt-4.11.4-py 100% |##############################################################################################| Time: 0:00:01   2.64 MB/s
+Extracting packages ...
+[      COMPLETE      ]|#################################################################################################################| 100%
+Linking packages ...
+[      COMPLETE      ]|#################################################################################################################| 100%
+(alphapy) localhost:AlphaPy_Games markconway$ python ../AlphaPy/alpha_game.py
+None
+None
+Traceback (most recent call last):
+  File "../AlphaPy/alpha_game.py", line 18, in <module>
+    from alpha import pipeline
+  File "/Users/markconway/Projects/AlphaPy/alpha.py", line 49, in <module>
+    from plots import generate_plots
+  File "/Users/markconway/Projects/AlphaPy/plots.py", line 56, in <module>
+    import seaborn as sns
+ImportError: No module named 'seaborn'
+(alphapy) localhost:AlphaPy_Games markconway$ conda install seaborn
+Using Anaconda Cloud api site https://api.anaconda.org
+Fetching package metadata .......
+Solving package specifications: ..........
+
+Package plan for installation in environment //anaconda/envs/alphapy:
+
+The following packages will be downloaded:
+
+    package                    |            build
+    ---------------------------|-----------------
+    scipy-0.18.0               |      np111py35_0        12.3 MB
+    seaborn-0.7.0              |           py35_0         274 KB
+    ------------------------------------------------------------
+                                           Total:        12.6 MB
+
+The following NEW packages will be INSTALLED:
+
+    scipy:   0.18.0-np111py35_0
+    seaborn: 0.7.0-py35_0
+
+Proceed ([y]/n)? y
+
+Fetching packages ...
+scipy-0.18.0-n 100% |##############################################################################################| Time: 0:00:04   2.61 MB/s
+seaborn-0.7.0- 100% |##############################################################################################| Time: 0:00:00 992.17 kB/s
+Extracting packages ...
+[      COMPLETE      ]|#################################################################################################################| 100%
+Linking packages ...
+[      COMPLETE      ]|#################################################################################################################| 100%
+(alphapy) localhost:AlphaPy_Games markconway$ python ../AlphaPy/alpha_game.py
+None
+None
+[08/04/16 11:14:20] INFO    GAME PARAMETERS:

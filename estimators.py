@@ -73,7 +73,7 @@ scorers = {'accuracy'              : (ModelType.classification, Objective.maximi
            'f1_micro'              : (ModelType.classification, Objective.maximize),
            'f1_samples'            : (ModelType.classification, Objective.maximize),
            'f1_weighted'           : (ModelType.classification, Objective.maximize),
-           'log_loss'              : (ModelType.classification, Objective.minimize),
+           'neg_log_loss'          : (ModelType.classification, Objective.minimize),
            'precision'             : (ModelType.classification, Objective.maximize),
            'recall'                : (ModelType.classification, Objective.maximize),
            'roc_auc'               : (ModelType.classification, Objective.maximize),

@@ -21,8 +21,8 @@ import numpy as np
 from sklearn.feature_selection import RFE
 from sklearn.feature_selection import RFECV
 from sklearn.feature_selection import SelectPercentile
-from sklearn.grid_search import GridSearchCV
-from sklearn.grid_search import RandomizedSearchCV
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import RandomizedSearchCV
 from sklearn.pipeline import Pipeline
 from time import time
 
