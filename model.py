@@ -915,7 +915,10 @@ def save_model(model, tag, partition):
         sample_spec = PSEP.join([submission_file, extension])
         sample_input = SSEP.join([output_dir, sample_spec])
         ss = pd.read_csv(sample_input)
-        ss[ss.columns[1]] = preds
+        if model_type == ModelType.classification:
+            ss[ss.columns[1]] = probas
+        else:
+            ss[ss.columns[1]] = preds
         submission_base = USEP.join(['submission', d.strftime(f)])
         submission_spec = PSEP.join([submission_base, extension])
         submission_output = SSEP.join([output_dir, submission_spec])
