@@ -159,8 +159,9 @@ def write_plot(model, vizlib, plot, plot_type, tag):
     logger.info("Writing plot to %s", file_all)
 
     if vizlib == 'matplotlib':
-        plt.tight_layout()
-        plt.savefig(file_all)
+        plot.style.use('classic')
+        plot.tight_layout()
+        plot.savefig(file_all)
     elif vizlib == 'seaborn':
         plot.savefig(file_all)
     elif vizlib == 'bokeh':
@@ -234,7 +235,7 @@ def plot_calibration(model, partition):
     ax2.set_ylabel("Count")
     ax2.legend(loc="upper center", ncol=2)
 
-    write_plot(model, 'matplotlib', None, 'calibration', partition)
+    write_plot(model, 'matplotlib', plt, 'calibration', partition)
 
 
 #
@@ -281,7 +282,7 @@ def plot_importance(model, partition):
             plt.xlim([-1, n_top])
             # save the plot
             tag = USEP.join([partition, algo])
-            write_plot(model, 'matplotlib', None, 'feature_importance', tag)
+            write_plot(model, 'matplotlib', plt, 'feature_importance', tag)
         except:
             logger.info("%s does not have feature importances", algo)
 
@@ -320,13 +321,12 @@ def plot_learning_curve(model, partition):
 
     # Set cross-validation parameters to get mean train and test curves.
 
-    cv = StratifiedShuffleSplit(n_splits=cv_folds, test_size=split,
-                                random_state=seed)
+    cv = ShuffleSplit(n_splits=cv_folds, test_size=split, random_state=seed)
 
     # Plot a learning curve for each algorithm.   
 
-    ylim = (0.0, 1.01)
-    train_sizes=np.linspace(.1, 1.0, 5)
+    ylim = (0.5, 1.01)
+
     for algo in model.algolist:
         logger.info("Learning Curve for Algorithm: %s", algo)
         # get estimator
@@ -341,9 +341,8 @@ def plot_learning_curve(model, partition):
         plt.xlabel("Training Examples")
         plt.ylabel("Score")
         train_sizes, train_scores, test_scores = \
-            learning_curve(estimator, X, y, train_sizes=train_sizes,
-                           cv=cv, scoring=scorer, n_jobs=n_jobs,
-                           verbose=verbosity)
+            learning_curve(estimator, X, y, cv=cv, scoring=scorer,
+                           n_jobs=n_jobs, verbose=verbosity)
         train_scores_mean = np.mean(train_scores, axis=1)
         train_scores_std = np.std(train_scores, axis=1)
         test_scores_mean = np.mean(test_scores, axis=1)
@@ -359,10 +358,10 @@ def plot_learning_curve(model, partition):
                  label="Training Score")
         plt.plot(train_sizes, test_scores_mean, 'o-', color="g",
                  label="Cross-Validation Score")
-        plt.legend(loc="best")
+        plt.legend(loc="lower right")
         # save the plot
         tag = USEP.join([partition, algo])
-        write_plot(model, 'matplotlib', None, 'learning_curve', tag)
+        write_plot(model, 'matplotlib', plt, 'learning_curve', tag)
 
 
 #
@@ -445,7 +444,7 @@ def plot_roc_curve(model, partition):
         plt.legend(loc="lower right")
         # save chart
         tag = USEP.join([partition, algo])
-        write_plot(model, 'matplotlib', None, 'roc_curve', tag)
+        write_plot(model, 'matplotlib', plt, 'roc_curve', tag)
 
 
 #
@@ -488,7 +487,7 @@ def plot_confusion_matrix(model, partition):
         plt.xlabel('Predicted Label')
         # save the chart
         tag = USEP.join([partition, algo])
-        write_plot(model, 'matplotlib', None, 'confusion', tag)
+        write_plot(model, 'matplotlib', plt, 'confusion', tag)
 
 
 #
@@ -561,7 +560,7 @@ def plot_validation_curve(model, partition, pname, prange):
                          test_scores_mean + test_scores_std, alpha=alpha, color="g")
         plt.legend(loc="best")        # save the plot
         tag = USEP.join([partition, algo])
-        write_plot(model, 'matplotlib', None, 'validation_curve', tag)
+        write_plot(model, 'matplotlib', plt, 'validation_curve', tag)
 
 
 #
@@ -759,7 +758,7 @@ def plot_partial_dependence(model, partition, targets):
                 'average occupancy')
     plt.subplots_adjust(top=0.9)
 
-    write_plot(model, 'matplotlib', None, 'partial_dependence', partition)
+    write_plot(model, 'matplotlib', plt, 'partial_dependence', partition)
 
 
 #
@@ -850,7 +849,7 @@ def plot_boundary(model, partition, f1, f2):
         i += 1
 
     figure.subplots_adjust(left=.02, right=.98)
-    write_plot(model, 'matplotlib', None, 'boundary', partition)
+    write_plot(model, 'matplotlib', figure, 'boundary', partition)
 
 
 #

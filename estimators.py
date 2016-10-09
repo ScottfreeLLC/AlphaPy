@@ -88,7 +88,7 @@ scorers = {'accuracy'              : (ModelType.classification, Objective.maximi
 # Define XGB scoring map
 #
 
-xgb_score_map = {'log_loss'            : 'logloss',
+xgb_score_map = {'neg_log_loss'        : 'logloss',
                  'mean_absolute_error' : 'mae',
                  'mean_squared_error'  : 'rmse',
                  'precision'           : 'map',

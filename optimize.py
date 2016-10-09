@@ -119,6 +119,24 @@ def rfe_search(model, algo):
 
 
 #
+# Function grid_report
+#
+
+def grid_report(results, n_top=3):
+    """
+    Report the top grid search scores.
+    """
+    for i in range(1, n_top + 1):
+        candidates = np.flatnonzero(results['rank_test_score'] == i)
+        for candidate in candidates:
+            logger.info("Model with rank: {0}".format(i))
+            logger.info("Mean validation score: {0:.3f} (std: {1:.3f})".format(
+                        results['mean_test_score'][candidate],
+                        results['std_test_score'][candidate]))
+            logger.info("Parameters: {0}".format(results['params'][candidate]))
+
+
+#
 # Function hyper_grid_search
 #
 
@@ -210,21 +228,15 @@ def hyper_grid_search(model, estimator):
     start = time()
     gscv.fit(X_train, y_train)
     if gs_iters > 0:
-        logger.info("Randomized Grid Search took %.2f seconds for %d iterations",
-                    (time() - start), gs_iters)
+        logger.info("Randomized Grid SearchSearch took %.2f seconds for %d candidate"
+                    " parameter settings." % ((time() - start), gs_iters))
     else:
-        logger.info("Full Grid Search took %.2f seconds", (time() - start))
+        logger.info("Full Grid Search took %.2f seconds for %d candidate parameter"
+                    " settings." % (time() - start, len(gscv.cv_results_['params'])))
 
     # Log the grid search scoring statistics.
 
-    mean_scores = []
-    for params, mean_score, scores in gscv.grid_scores_:
-        mean_scores.extend([mean_score])
-
-    logger.info("All Scores: Mean %.4f, StdDev %.4f, Min %.4f, Max %.4f",
-                np.mean(mean_scores), np.std(mean_scores),
-                np.min(mean_scores), np.max(mean_scores))
-
+    grid_report(gscv.cv_results_)
     logger.info("Algorithm: %s, Best Score: %.4f, Best Parameters: %s",
                 algo, gscv.best_score_, gscv.best_params_)
 

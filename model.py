@@ -809,7 +809,7 @@ def generate_metrics(model, partition):
                 except:
                     logger.info("Average Precision Score not calculated")
                 try:
-                    model.metrics[(algo, partition, 'log_loss')] = log_loss(expected, predicted)
+                    model.metrics[(algo, partition, 'neg_log_loss')] = log_loss(expected, predicted)
                 except:
                     logger.info("Log Loss not calculated")
                 try:

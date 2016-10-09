@@ -111,10 +111,6 @@ def pipeline(model):
         raise IndexError("The number of training and test columns [%s, %s] must match.",
                          X_train.shape[1], X_test.shape[1])
 
-    # Read in Features, Aliases, and Variables
-
-    pass
-
     # Create initial features
 
     new_features = create_features(X, model, split_point, y_train)
