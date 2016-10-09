@@ -155,8 +155,9 @@ def get_model_config(cfg_dir):
 
     specs['base_dir'] = cfg['project']['base_directory']
     specs['extension'] = cfg['project']['file_extension']
-    specs['kaggle'] = cfg['project']['kaggle_submission']
     specs['project'] = cfg['project']['project_name']
+    specs['sample_submission'] = cfg['project']['sample_submission']
+    specs['submission_file'] = cfg['project']['submission_file']
 
     # Section: data
 
@@ -325,7 +326,6 @@ def get_model_config(cfg_dir):
     logger.info('importances       = %r', specs['importances'])
     logger.info('interactions      = %r', specs['interactions'])
     logger.info('isample_pct       = %d', specs['isample_pct'])
-    logger.info('kaggle            = %r', specs['kaggle'])
     logger.info('learning_curve    = %r', specs['learning_curve'])
     logger.info('model_type        = %r', specs['model_type'])
     logger.info('n_estimators      = %d', specs['n_estimators'])
@@ -344,6 +344,7 @@ def get_model_config(cfg_dir):
     logger.info('rfe_step          = %d', specs['rfe_step'])
     logger.info('roc_curve         = %r', specs['roc_curve'])
     logger.info('rounding          = %d', specs['rounding'])
+    logger.info('sample_submission = %r', specs['sample_submission'])
     logger.info('sampling          = %r', specs['sampling'])
     logger.info('sampling_method   = %r', specs['sampling_method'])
     logger.info('sampling_ratio    = %f', specs['sampling_ratio'])
@@ -354,6 +355,7 @@ def get_model_config(cfg_dir):
     logger.info('separator         = %s', specs['separator'])
     logger.info('shuffle           = %r', specs['shuffle'])
     logger.info('split             = %f', specs['split'])
+    logger.info('submission_file   = %s', specs['submission_file'])
     logger.info('target [y]        = %s', specs['target'])
     logger.info('target_value      = %d', specs['target_value'])
     logger.info('test_file         = %s', specs['test_file'])
@@ -859,10 +861,11 @@ def save_model(model, tag, partition):
 
     base_dir = model.specs['base_dir']
     extension = model.specs['extension']
-    kaggle = model.specs['kaggle']
     model_type = model.specs['model_type']
     project = model.specs['project']
+    sample_submission = model.specs['sample_submission']
     separator = model.specs['separator']
+    submission_file = model.specs['submission_file']
 
     # Extract model data.
 
@@ -905,14 +908,15 @@ def save_model(model, tag, partition):
     preds = model.preds[(tag, partition)]
     np_store_data(preds, output_dir, output_file, extension, separator)
 
-    # Generate Kaggle submission file
+    # Generate submission file
 
-    if kaggle:
-        logger.info("Saving Kaggle Submission")
-        sample_file = SSEP.join([output_dir, 'sample_submission.csv'])
-        ss = pd.read_csv(sample_file)
+    if sample_submission:
+        logger.info("Saving Submission")
+        sample_spec = PSEP.join([submission_file, extension])
+        sample_input = SSEP.join([output_dir, sample_spec])
+        ss = pd.read_csv(sample_input)
         ss[ss.columns[1]] = preds
-        kaggle_base = USEP.join(['kaggle', 'submission', d.strftime(f)])
-        kaggle_file = PSEP.join([kaggle_base, 'csv'])
-        kaggle_output = SSEP.join([output_dir, kaggle_file])
-        ss.to_csv(kaggle_output, index=False)
+        submission_base = USEP.join(['submission', d.strftime(f)])
+        submission_spec = PSEP.join([submission_base, extension])
+        submission_output = SSEP.join([output_dir, submission_spec])
+        ss.to_csv(submission_output, index=False)

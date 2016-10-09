@@ -852,11 +852,23 @@ def duplicate_columns(frame):
 
 def drop_features(X, drop):
     """
-    Drop any specified features and duplicate or constant columns.
+    Drop any specified features.
     """
 
     logger.info("Dropping Features: %s", drop)
     X.drop(drop, axis=1, inplace=True, errors='ignore')
+
+    return X
+
+
+#
+# Function remove_redundant_features
+#
+
+def remove_redundant_features(X):
+    """
+    Remove any duplicate or constant columns.
+    """
 
     # Remove duplicate columns
 

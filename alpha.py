@@ -25,6 +25,7 @@ from features import create_features
 from features import create_interactions
 from features import drop_features
 from features import remove_lv_features
+from features import remove_redundant_features
 from features import save_features
 from features import select_features
 from globs import CSEP
@@ -86,6 +87,11 @@ def pipeline(model):
     X_train, y_train = get_data(model, 'train')
     X_test, y_test = get_data(model, 'test')
 
+    # Drop features
+
+    X_train = drop_features(X_train, drop)
+    X_test = drop_features(X_test, drop)
+
     # Merge training and test data
 
     if X_train.shape[1] == X_test.shape[1]:
@@ -106,9 +112,9 @@ def pipeline(model):
     logger.info("Unique Values for %s : %s", target, uv)
     logger.info("Unique Counts for %s : %s", target, uc)
 
-    # Drop features
+    # Remove redundant features
 
-    X = drop_features(X, drop)
+    X = remove_redundant_features(X)
 
     # Create initial features
 

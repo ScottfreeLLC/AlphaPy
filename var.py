@@ -429,7 +429,7 @@ def up(f, c):
 
 
 #
-# Function higer
+# Function higher
 #
 
 def higher(f, c, o = 1):
