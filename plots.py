@@ -340,9 +340,11 @@ def plot_learning_curve(model, partition):
             plt.ylim(*ylim)
         plt.xlabel("Training Examples")
         plt.ylabel("Score")
+        # call learning curve function
+        train_sizes=np.linspace(.1, 1.0, cv_folds)
         train_sizes, train_scores, test_scores = \
-            learning_curve(estimator, X, y, cv=cv, scoring=scorer,
-                           n_jobs=n_jobs, verbose=verbosity)
+            learning_curve(estimator, X, y, train_sizes=train_sizes, cv=cv,
+                           scoring=scorer, n_jobs=n_jobs, verbose=verbosity)
         train_scores_mean = np.mean(train_scores, axis=1)
         train_scores_std = np.std(train_scores, axis=1)
         test_scores_mean = np.mean(test_scores, axis=1)
