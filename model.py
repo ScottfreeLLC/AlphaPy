@@ -491,10 +491,13 @@ def first_fit(model, algo, est):
 
     sss = StratifiedShuffleSplit(n_splits=cv_folds, test_size=split,
                                  random_state=seed)
-
-    scores = cross_val_score(est, X_train, y_train, cv=sss, scoring=scorer,
-                             n_jobs=n_jobs, verbose=verbosity,
-                             fit_params={'sample_weight': sample_weights})
+    if sample_weights:
+        scores = cross_val_score(est, X_train, y_train, cv=sss, scoring=scorer,
+                                 n_jobs=n_jobs, verbose=verbosity,
+                                 fit_params={'sample_weight': sample_weights})
+    else:
+        scores = cross_val_score(est, X_train, y_train, cv=sss, scoring=scorer,
+                                 n_jobs=n_jobs, verbose=verbosity)
 
     # Record scores
 
@@ -543,6 +546,15 @@ def make_predictions(model, algo, calibrate):
 
     logger.info("Final Fitting")
     est.fit(X_train, y_train)
+    model.estimators[algo] = est
+
+    # Record importances and coefficients, if available.
+
+    if hasattr(est, "feature_importances_"):
+        model.importances[algo] = est.feature_importances_
+
+    if hasattr(est, "coef_"):
+        model.coefs[algo] = est.coef_
 
     # Calibration
 
@@ -560,18 +572,6 @@ def make_predictions(model, algo, calibrate):
     if model_type == ModelType.classification:
         model.probas[(algo, 'train')] = est.predict_proba(X_train)[:, 1]
         model.probas[(algo, 'test')] = est.predict_proba(X_test)[:, 1]
-
-    # Record importances and coefficients, if available.
-
-    if hasattr(est, "feature_importances_"):
-        model.importances[algo] = est.feature_importances_
-
-    if hasattr(est, "coef_"):
-        model.coefs[algo] = est.coef_
-
-    # Save the estimator in the model
-
-    model.estimators[algo] = est
 
     # Return the model
 

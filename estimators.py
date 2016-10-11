@@ -294,7 +294,7 @@ def get_estimators(model):
               "n_jobs" : n_jobs,
               "verbose" : verbosity}
     est = RandomForestClassifierCoef(**params)
-    grid = {"n_estimators" : [21, 51, 101, 201, 501, 1001, 2001],
+    grid = {"n_estimators" : [21, 51, 101, 201, 501, 1001],
             "max_depth" : [5, 7, 10, 20],
             "min_samples_split" : [1, 3, 5, 10],
             "min_samples_leaf" : [1, 2, 3],

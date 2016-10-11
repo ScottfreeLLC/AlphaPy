@@ -23,6 +23,9 @@ import math
 from pandas import DataFrame
 from pandas import date_range
 from pandas import Series
+from pyfolio import create_position_tear_sheet
+from pyfolio import create_returns_tear_sheet
+from pyfolio import create_txn_tear_sheet
 from space import Space
 
 
@@ -701,3 +704,25 @@ def gen_portfolio(model, system, group, tframe,
 
     # Return the portfolio.
     return p
+
+
+#
+# Function plot_portfolio
+#
+
+def plot_portfolio(model, system, group, tframe,
+                   startcap=100000, posby='close'):
+    """
+    Create a portfolio from a trades frame
+    """
+
+    rf = pd.read_csv('test_closer_returns_1d.csv', index_col='date', squeeze=True)
+    rf.index = pd.to_datetime(rf.index, utc=True)
+    pf = pd.read_csv('test_closer_positions_1d.csv', index_col='date', squeeze=True)
+    pf.index = pd.to_datetime(pf.index, utc=True)
+    tf = pd.read_csv('test_closer_transactions_1d.csv', index_col='date', squeeze=True)
+    tf.index = pd.to_datetime(tf.index, utc=True)
+
+    fig = create_returns_tear_sheet(rf, return_fig=True)
+    fig = create_position_tear_sheet(rf, pf, return_fig=True)
+    fig = create_txn_tear_sheet(rf, pf, tf, return_fig=True)

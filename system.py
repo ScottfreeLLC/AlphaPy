@@ -45,8 +45,10 @@ class System(object):
     
     def __new__(cls,
                 name,
-                longevent = '',
-                shortevent = '',
+                longentry,
+                shortentry = None,
+                longexit = None,
+                shortexit = None,
                 holdperiod = 0,
                 scale = False):
         # create system name
@@ -59,14 +61,18 @@ class System(object):
     
     def __init__(self,
                  name,
-                 longevent = '',
-                 shortevent = '',
+                 longentry,
+                 shortentry = None,
+                 longexit = None,
+                 shortexit = None,
                  holdperiod = 0,
                  scale = False):
         # initialization
         self.name = name
-        self.longevent = longevent
-        self.shortevent = shortevent
+        self.longentry = longentry
+        self.shortentry = shortentry
+        self.longexit = longexit
+        self.shortexit = shortexit
         self.holdperiod = holdperiod
         self.scale = scale
         # add system to systems list
@@ -102,8 +108,10 @@ def gen_trades(system, name, group, quantity):
     Generate the list of trades based on the long and short events
     """
     # extract the system parameters
-    longevent = system.longevent
-    shortevent = system.shortevent
+    longentry = system.longentry
+    shortentry = system.shortentry
+    longexit = system.longexit
+    shortexit = system.shortexit
     holdperiod = system.holdperiod
     scale = system.scale
     # price frame
@@ -111,10 +119,14 @@ def gen_trades(system, name, group, quantity):
     # initialize the trade list
     tradelist = []
     # evaluate the long and short events
-    if longevent:
-        vexec(pf, longevent)
-    if shortevent:
-        vexec(pf, shortevent)
+    if longentry:
+        vexec(pf, longentry)
+    if shortentry:
+        vexec(pf, shortentry)
+    if longexit:
+        vexec(pf, longexit)
+    if shortexit:
+        vexec(pf, shortexit)
     # generate trade file
     inlong = False
     inshort = False
@@ -122,36 +134,59 @@ def gen_trades(system, name, group, quantity):
     p = 0
     q = quantity
     for tdate, row in pf.iterrows():
-        lrow = None
-        if longevent:
-            lrow = row[longevent]
-        srow = None
-        if shortevent:
-            srow = row[shortevent]
+        # evaluate entry and exit conditions
+        lerow = None
+        if longentry:
+            lerow = row[longentry]
+        serow = None
+        if shortentry:
+            serow = row[shortentry]
+        lxrow = None
+        if longexit:
+            lxrow = row[longexit]
+        sxrow = None
+        if shortexit:
+            sxrow = row[shortexit]
+        # get closing price
         c = row['close']
         # process the long and short events
-        if lrow:
+        if lerow:
             if p < 0:
-                # short active
+                # short active, so exit short
                 tradelist.append((tdate, [name, Orders.sx, -p, c]))
                 inshort = False
                 h = 0
                 p = 0
             if p == 0 or scale:
+                # go long (again)
                 tradelist.append((tdate, [name, Orders.le, q, c]))
                 inlong = True
                 p = p + q
-        elif srow:
+        elif serow:
             if p > 0:
-                # long active
+                # long active, so exit long
                 tradelist.append((tdate, [name, Orders.lx, -p, c]))
                 inlong = False
                 h = 0
                 p = 0
             if p == 0 or scale:
+                # go short (again)
                 tradelist.append((tdate, [name, Orders.se, -q, c]))
                 inshort = True
                 p = p - q
+        # check exit conditions
+        if inlong and h > 0 and lxrow:
+            # long active, so exit long
+            tradelist.append((tdate, [name, Orders.lx, -p, c]))
+            inlong = False
+            h = 0
+            p = 0
+        if inshort and h > 0 and sxrow:
+            # short active, so exit short
+            tradelist.append((tdate, [name, Orders.sx, -p, c]))
+            inshort = False
+            h = 0
+            p = 0
         # if a holding period was given, then check for exit
         if holdperiod > 0 and h >= holdperiod:
             if inlong:
