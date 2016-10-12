@@ -47,6 +47,7 @@ from estimators import ModelType
 from globs import BSEP, PSEP, SSEP, USEP
 from globs import Q1, Q3
 from itertools import cycle
+from itertools import product
 import logging
 import math
 import matplotlib.pyplot as plt
@@ -56,7 +57,6 @@ import pandas as pd
 from scipy import interp
 import seaborn as sns
 from sklearn.calibration import calibration_curve
-from sklearn.decomposition import PCA
 from sklearn.ensemble.partial_dependence import partial_dependence
 from sklearn.ensemble.partial_dependence import plot_partial_dependence
 from sklearn.learning_curve import validation_curve
@@ -129,10 +129,10 @@ def generate_plots(model, partition):
     if roc_curve:
         plot_roc_curve(model, partition)
     if partition == 'train':
-        if importances:
-            plot_importance(model, partition)
         if learning_curve:
             plot_learning_curve(model, partition)
+        if importances:
+            plot_importance(model, partition)
 
 
 #
@@ -159,7 +159,6 @@ def write_plot(model, vizlib, plot, plot_type, tag):
     logger.info("Writing plot to %s", file_all)
 
     if vizlib == 'matplotlib':
-        plot.style.use('classic')
         plot.tight_layout()
         plot.savefig(file_all)
     elif vizlib == 'seaborn':
@@ -186,6 +185,11 @@ def plot_calibration(model, partition):
     model : object that encapsulates all of the model parameters
     partition : 'train' or 'test'
 
+    Excerpts from:
+    
+    Author: Jan Hendrik Metzen <jhm@informatik.uni-bremen.de>
+    License: BSD Style.
+
     """
 
     logger.info("Generating Calibration Plot")
@@ -200,11 +204,7 @@ def plot_calibration(model, partition):
 
     X, y = get_partition_data(model, partition)
 
-    # Excerpts from:
-    #
-    # Author: Jan Hendrik Metzen <jhm@informatik.uni-bremen.de>
-    # License: BSD Style.
-
+    plt.style.use('classic')
     plt.figure(figsize=(10, 10))
     ax1 = plt.subplot2grid((3, 1), (0, 0), rowspan=2)
     ax2 = plt.subplot2grid((3, 1), (2, 0))
@@ -275,6 +275,7 @@ def plot_importance(model, partition):
                 logger.info("%d. Feature %d (%f)" % (f + 1, indices[f], importances[indices[f]]))
             # plot the feature importances
             title = BSEP.join([algo, "Feature Importances [", partition, "]"])
+            plt.style.use('classic')
             plt.figure()
             plt.title(title)
             plt.bar(range(n_top), importances[indices][:n_top], color="b", align="center")
@@ -309,7 +310,6 @@ def plot_learning_curve(model, partition):
 
     cv_folds = model.specs['cv_folds']
     n_jobs = model.specs['n_jobs']
-    scorer = model.specs['scorer']
     seed = model.specs['seed']
     shuffle = model.specs['shuffle']
     split = model.specs['split']
@@ -334,6 +334,7 @@ def plot_learning_curve(model, partition):
         # plot learning curve
         title = BSEP.join([algo, "Learning Curve [", partition, "]"])
         # set up plot
+        plt.style.use('classic')
         plt.figure()
         plt.title(title)
         if ylim is not None:
@@ -341,10 +342,10 @@ def plot_learning_curve(model, partition):
         plt.xlabel("Training Examples")
         plt.ylabel("Score")
         # call learning curve function
-        train_sizes=np.linspace(.1, 1.0, cv_folds)
+        train_sizes=np.linspace(0.1, 1.0, cv_folds)
         train_sizes, train_scores, test_scores = \
             learning_curve(estimator, X, y, train_sizes=train_sizes, cv=cv,
-                           scoring=scorer, n_jobs=n_jobs, verbose=verbosity)
+                           n_jobs=n_jobs, verbose=verbosity)
         train_scores_mean = np.mean(train_scores, axis=1)
         train_scores_std = np.std(train_scores, axis=1)
         test_scores_mean = np.mean(test_scores, axis=1)
@@ -396,12 +397,13 @@ def plot_roc_curve(model, partition):
 
     # Set up for stratified validation.
 
-    if shuffle:
-        cv = StratifiedShuffleSplit(n_splits=cv_folds, test_size=split,
-                                    random_state=seed)
-    else:
-        cv = StratifiedKFold(n_splits=cv_folds, shuffle=False,
-                             random_state=seed)    
+    if partition == 'train':
+        if shuffle:
+            cv = StratifiedShuffleSplit(n_splits=cv_folds, test_size=split,
+                                        random_state=seed)
+        else:
+            cv = StratifiedKFold(n_splits=cv_folds, shuffle=shuffle,
+                                 random_state=seed)    
 
     # Plot a ROC Curve for each algorithm.
 
@@ -412,31 +414,40 @@ def plot_roc_curve(model, partition):
         # initialize true and false positive rates
         mean_tpr = 0.0
         mean_fpr = np.linspace(0, 1, 100)
+        plt.style.use('classic')
         plt.figure()
         colors = cycle(['cyan', 'indigo', 'seagreen', 'yellow', 'blue', 'darkorange'])
         lw = 2
-        # cross-validation
-        i = 0
-        for (train, test), color in zip(cv.split(X, y), colors):
-            fold = i + 1
-            logger.info("Cross-Validation Fold: %d of %d", fold, cv_folds)
-            estimator.fit(X[train], y[train])
-            probas_ = estimator.predict_proba(X[test])
-            # compute ROC curve and area the curve
-            fpr, tpr, thresholds = roc_curve(y[test], probas_[:, 1])
-            mean_tpr += interp(mean_fpr, fpr, tpr)
-            mean_tpr[0] = 0.0
+        if partition == 'train':
+            # cross-validation
+            i = 0
+            for (train, test), color in zip(cv.split(X, y), colors):
+                fold = i + 1
+                logger.info("Cross-Validation Fold: %d of %d", fold, cv_folds)
+                estimator.fit(X[train], y[train])
+                probas_ = estimator.predict_proba(X[test])
+                # compute ROC curve and area the curve
+                fpr, tpr, _ = roc_curve(y[test], probas_[:, 1])
+                mean_tpr += interp(mean_fpr, fpr, tpr)
+                mean_tpr[0] = 0.0
+                roc_auc = auc(fpr, tpr)
+                plt.plot(fpr, tpr, lw=lw, label='ROC Fold %d (area = %0.2f)' % (fold, roc_auc))
+                i += 1
+            # plot mean ROC
+            mean_tpr /= cv.get_n_splits(X, y)
+            mean_tpr[-1] = 1.0
+            mean_auc = auc(mean_fpr, mean_tpr)
+            plt.plot(mean_fpr, mean_tpr, color='g', linestyle='--',
+                     label='Mean ROC (area = %0.2f)' % mean_auc, lw=lw)
+        else:
+            # compute ROC curve and ROC area for each class
+            probas = model.probas[(algo, partition)]
+            fpr, tpr, _ = roc_curve(y, probas)
             roc_auc = auc(fpr, tpr)
-            plt.plot(fpr, tpr, lw=lw, label='ROC Fold %d (area = %0.2f)' % (fold, roc_auc))
-            i += 1
-        # plot mean ROC
+            plt.plot(fpr, tpr, lw=lw, label='ROC (area = %0.2f)' % (roc_auc))
+        # draw luck line
         plt.plot([0, 1], [0, 1], linestyle='--', color='k', label='Luck')
-        mean_tpr /= cv.get_n_splits(X, y)
-        mean_tpr[-1] = 1.0
-        mean_auc = auc(mean_fpr, mean_tpr)
-        plt.plot(mean_fpr, mean_tpr, color='g', linestyle='--',
-                 label='Mean ROC (area = %0.2f)' % mean_auc, lw=lw)
-        # plot labels
+        # define plot characteristics
         plt.xlim([-0.05, 1.05])
         plt.ylim([-0.05, 1.05])
         plt.xlabel('False Positive Rate')
@@ -470,10 +481,13 @@ def plot_confusion_matrix(model, partition):
         y_pred = model.preds[(algo, partition)]
         # compute confusion matrix
         cm = confusion_matrix(y, y_pred)
-        logger.info('Confusion Matrix: %s', cm)
-        # plot the confusion matrix
+        logger.info('Confusion Matrix:')
+        logger.info('%s', cm)
+        # initialize plot
         np.set_printoptions(precision=2)
+        plt.style.use('classic')
         plt.figure()
+        # plot the confusion matrix
         cmap = plt.cm.Blues
         plt.imshow(cm, interpolation='nearest', cmap=cmap)
         title = BSEP.join([algo, "Confusion Matrix [", partition, "]"])
@@ -484,6 +498,14 @@ def plot_confusion_matrix(model, partition):
         tick_marks = np.arange(len(y_values))
         plt.xticks(tick_marks, y_values, rotation=45)
         plt.yticks(tick_marks, y_values)
+        # normalize confusion matrix
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        thresh = cm.max() / 2.
+        for i, j in product(range(cm.shape[0]), range(cm.shape[1])):
+            plt.text(j, i, cm[i, j],
+                     horizontalalignment="center",
+                     color="white" if cm[i, j] > thresh else "black")
+        # labels
         plt.tight_layout()
         plt.ylabel('True Label')
         plt.xlabel('Predicted Label')
@@ -542,6 +564,9 @@ def plot_validation_curve(model, partition, pname, prange):
         train_scores_std = np.std(train_scores, axis=1)
         test_scores_mean = np.mean(test_scores, axis=1)
         test_scores_std = np.std(test_scores, axis=1)
+        # set up figure
+        plt.style.use('classic')
+        plt.figure()
         # plot learning curves
         title = BSEP.join([algo, "Validation Curve [", partition, "]"])
         plt.title(title)
@@ -741,6 +766,8 @@ def plot_partial_dependence(model, partition, targets):
     print('_' * 80)
     print('Custom 3d plot via ``partial_dependence``')
     print
+
+    plt.style.use('classic')
     fig = plt.figure()
 
     target_feature = (1, 5)
@@ -793,6 +820,8 @@ def plot_boundary(model, partition, f1, f2):
 
     xdim = 3 * (len(classifiers) + 1)
     ydim = xdim / len(classifiers)
+
+    plt.style.use('classic')
     figure = plt.figure(figsize=(xdim, ydim))
 
     X, y = ds

@@ -503,10 +503,9 @@ def first_fit(model, algo, est):
 
     logger.info("Initial CV Scores for %s: %s", scorer, scores)
 
-    # Save the estimator in the model
+    # Save the estimator in the model and return the model
 
     model.estimators[algo] = est
-
     return model
 
 
@@ -544,7 +543,6 @@ def make_predictions(model, algo, calibrate):
 
     # Final Fit
 
-    logger.info("Final Fitting")
     est.fit(X_train, y_train)
     model.estimators[algo] = est
 

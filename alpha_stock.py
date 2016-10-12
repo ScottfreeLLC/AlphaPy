@@ -178,12 +178,12 @@ def pipeline(model, stock_specs):
 
     # Save the frames with all the new features
 
-    dump_frames(gs, directory, extension, separator)
+    # dump_frames(gs, directory, extension, separator)
 
     # Run the analysis, including the model pipeline
 
-    # a = Analysis(model, gs, train_date, predict_date)
-    # results = run_analysis(a, forecast_period, leaders)
+    a = Analysis(model, gs, train_date, predict_date)
+    results = run_analysis(a, forecast_period, leaders)
 
     # Create and run systems
 
@@ -191,9 +191,9 @@ def pipeline(model, stock_specs):
     # run_system(ts, gs)
     # gen_portfolio(ts, gs)
 
-    cs = System('closer', 'hc', 'lc')
-    tfs = run_system(model, cs, gs)
-    gen_portfolio(model, cs, gs, tfs)
+    # cs = System('closer', 'hc', 'lc')
+    # tfs = run_system(model, cs, gs)
+    # gen_portfolio(model, cs, gs, tfs)
 
     # Return the completed model
 

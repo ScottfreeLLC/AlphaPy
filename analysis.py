@@ -139,16 +139,16 @@ def run_analysis(analysis, forecast_period, leaders, splits=True):
             # drop any rows with NA
             df.dropna(inplace=True)
             # split data into train and test
-            new_train_frame = df.loc[(df.date >= train_date) & (df.date < predict_date)]
+            new_train_frame = df.loc[(df.index >= train_date) & (df.index < predict_date)]
             if len(new_train_frame) > 0:
                 train_frame = train_frame.append(new_train_frame)
+                new_test_frame = df.loc[df.index >= predict_date]
+                if len(new_test_frame) > 0:
+                    test_frame = test_frame.append(new_test_frame)
+                else:
+                    raise Exception("A test frame has zero rows. Adjust prediction date.")
             else:
-                raise Exception("Training frame has length 0. Adjust training date.")
-            new_test_frame = df.loc[df.date >= predict_date]
-            if len(new_test_frame) > 0:
-                test_frame = test_frame.append(new_test_frame)
-            else:
-                raise Exception("Test frame has length 0. Adjust prediction date.")
+                logger.warning("A training frame has zero rows.")
         # write out the training and test files
         write_frame(train_frame, directory, train_file, extension, separator)
         write_frame(test_frame, directory, test_file, extension, separator)

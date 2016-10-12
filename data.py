@@ -193,7 +193,6 @@ def sample_data(model):
     sampling_ratio = model.specs['sampling_ratio']
     target = model.specs['target']
     target_value = model.specs['target_value']
-    verbosity = model.specs['verbosity']
 
     # Extract model data.
 
@@ -213,37 +212,37 @@ def sample_data(model):
     # Choose the sampling method.
 
     if sampling_method == SamplingMethod.under_random:
-        sampler = UnderSampler(verbose=verbosity)
+        sampler = RandomUnderSampler()
     elif sampling_method == SamplingMethod.under_tomek:
-        sampler = TomekLinks(verbose=verbosity)
+        sampler = TomekLinks()
     elif sampling_method == SamplingMethod.under_cluster:
-        sampler = ClusterCentroids(verbose=verbosity)
+        sampler = ClusterCentroids()
     elif sampling_method == SamplingMethod.under_nearmiss:
-        sampler = NearMiss(version=1, verbose=verbosity)
+        sampler = NearMiss(version=1)
     elif sampling_method == SamplingMethod.under_ncr:
-        sampler = NeighbourhoodCleaningRule(size_ngh=51, verbose=verbosity)
+        sampler = NeighbourhoodCleaningRule(size_ngh=51)
     elif sampling_method == SamplingMethod.over_random:
-        sampler = OverSampler(ratio=ratio, verbose=verbosity)
+        sampler = RandomOverSampler(ratio=ratio)
     elif sampling_method == SamplingMethod.over_smote:
-        sampler = SMOTE(ratio=ratio, verbose=verbosity, kind='regular')
+        sampler = SMOTE(ratio=ratio, kind='regular')
     elif sampling_method == SamplingMethod.over_smoteb:
-        sampler = SMOTE(ratio=ratio, verbose=verbosity, kind='borderline1')
+        sampler = SMOTE(ratio=ratio, kind='borderline1')
     elif sampling_method == SamplingMethod.over_smotesv:
-        sampler = SMOTE(ratio=ratio, verbose=verbosity, kind='svm')
+        sampler = SMOTE(ratio=ratio, kind='svm')
     elif sampling_method == SamplingMethod.overunder_smote_tomek:
-        sampler = SMOTETomek(ratio=ratio, verbose=verbosity)
+        sampler = SMOTETomek(ratio=ratio)
     elif sampling_method == SamplingMethod.overunder_smote_enn:
-        sampler = SMOTEENN(ratio=ratio, verbose=verbosity)
+        sampler = SMOTEENN(ratio=ratio)
     elif sampling_method == SamplingMethod.ensemble_easy:
-        sampler = EasyEnsemble(verbose=verbosity)
+        sampler = EasyEnsemble()
     elif sampling_method == SamplingMethod.ensemble_bc:
-        sampler = BalanceCascade(verbose=verbosity)
+        sampler = BalanceCascade()
     else:
         raise ValueError("Unknown Sampling Method %s", sampling_method)
 
     # Get the newly sampled features.
 
-    X, y = sampler.fit_transform(X_train, y_train)
+    X, y = sampler.fit_sample(X_train, y_train)
 
     logger.info("Original Samples : %d", X_train.shape[0])
     logger.info("New Samples      : %d", X.shape[0])
