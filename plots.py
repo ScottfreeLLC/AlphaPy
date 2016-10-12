@@ -67,7 +67,6 @@ from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import learning_curve
 from sklearn.model_selection import ShuffleSplit
 from sklearn.model_selection import StratifiedKFold
-from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from util import remove_list_items
@@ -397,13 +396,7 @@ def plot_roc_curve(model, partition):
 
     # Set up for stratified validation.
 
-    if partition == 'train':
-        if shuffle:
-            cv = StratifiedShuffleSplit(n_splits=cv_folds, test_size=split,
-                                        random_state=seed)
-        else:
-            cv = StratifiedKFold(n_splits=cv_folds, shuffle=shuffle,
-                                 random_state=seed)    
+    cv = StratifiedKFold(n_splits=cv_folds, shuffle=shuffle, random_state=seed)    
 
     # Plot a ROC Curve for each algorithm.
 

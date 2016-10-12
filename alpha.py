@@ -188,7 +188,8 @@ def pipeline(model):
 
     # Create a blended estimator
 
-    model = predict_blend(model)
+    if len(model.algolist) > 1:
+        model = predict_blend(model)
 
     # Generate metrics
 

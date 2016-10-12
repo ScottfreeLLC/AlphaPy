@@ -49,8 +49,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.metrics import roc_curve
 from sklearn.metrics.cluster import adjusted_rand_score
 from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import ShuffleSplit
-from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 import sys
@@ -474,11 +473,10 @@ def first_fit(model, algo, est):
     # Extract model parameters.
 
     cv_folds = model.specs['cv_folds']
-    esr = model.specs['esr']
     n_jobs = model.specs['n_jobs']
     scorer = model.specs['scorer']
     seed = model.specs['seed']
-    split = model.specs['split']
+    shuffle = model.specs['shuffle']
     sample_weights = model.specs['sample_weights']
     verbosity = model.specs['verbosity']
 
@@ -489,14 +487,13 @@ def first_fit(model, algo, est):
 
     # Get initial estimates of our score.
 
-    sss = StratifiedShuffleSplit(n_splits=cv_folds, test_size=split,
-                                 random_state=seed)
+    cv = StratifiedKFold(n_splits=cv_folds, shuffle=shuffle, random_state=seed)
     if sample_weights:
-        scores = cross_val_score(est, X_train, y_train, cv=sss, scoring=scorer,
+        scores = cross_val_score(est, X_train, y_train, cv=cv, scoring=scorer,
                                  n_jobs=n_jobs, verbose=verbosity,
                                  fit_params={'sample_weight': sample_weights})
     else:
-        scores = cross_val_score(est, X_train, y_train, cv=sss, scoring=scorer,
+        scores = cross_val_score(est, X_train, y_train, cv=cv, scoring=scorer,
                                  n_jobs=n_jobs, verbose=verbosity)
 
     # Record scores
@@ -540,19 +537,9 @@ def make_predictions(model, algo, calibrate):
         X_test = model.X_test
     y_train = model.y_train
 
-    # Final Fit
+    # Record importances and coefficients if necessary.
 
-    logger.info("Fitting Final Model")
-    start_time = datetime.now()
-
-    est.fit(X_train, y_train)
     model.estimators[algo] = est
-
-    end_time = datetime.now()
-    time_taken = end_time - start_time
-    logger.info("Fitting Duration: %s", time_taken)
-
-    # Record importances and coefficients, if available.
 
     if hasattr(est, "feature_importances_"):
         model.importances[algo] = est.feature_importances_
@@ -571,6 +558,7 @@ def make_predictions(model, algo, calibrate):
 
     # Make predictions on original training and test data.
 
+    logger.info("Making Predictions")
     model.preds[(algo, 'train')] = est.predict(X_train)
     model.preds[(algo, 'test')] = est.predict(X_test)
     if model_type == ModelType.classification:
@@ -812,7 +800,7 @@ def generate_metrics(model, partition):
                 except:
                     logger.info("Log Loss not calculated")
                 try:
-                    fpr, tpr, thresholds = roc_curve(expected, predicted)
+                    fpr, tpr, _ = roc_curve(expected, predicted)
                     model.metrics[(algo, partition, 'roc_auc')] = auc(fpr, tpr)
                 except:
                     logger.info("ROC AUC Score not calculated")
