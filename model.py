@@ -518,7 +518,6 @@ def make_predictions(model, algo, calibrate):
     Make predictions for training and test set.
     """
 
-    start_time = datetime.now()
     logger.info("Final Model Predictions for %s", algo)
 
     # Extract model parameters.
@@ -543,8 +542,15 @@ def make_predictions(model, algo, calibrate):
 
     # Final Fit
 
+    logger.info("Fitting Final Model")
+    start_time = datetime.now()
+
     est.fit(X_train, y_train)
     model.estimators[algo] = est
+
+    end_time = datetime.now()
+    time_taken = end_time - start_time
+    logger.info("Fitting Duration: %s", time_taken)
 
     # Record importances and coefficients, if available.
 
@@ -572,11 +578,6 @@ def make_predictions(model, algo, calibrate):
         model.probas[(algo, 'test')] = est.predict_proba(X_test)[:, 1]
 
     # Return the model
-
-    end_time = datetime.now()
-    time_taken = end_time - start_time
-    logger.info("Final Predictions Complete: %s", time_taken)
-
     return model
 
 

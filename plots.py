@@ -18,6 +18,8 @@
 #     4. ROC Curve
 #     5. Confusion Matrix
 #     6. Validation Curve
+#     7. Partial Dependence
+#     8. Decision Boundary
 #
 # EDA Plots
 #
@@ -26,8 +28,6 @@
 #     3. Distribution Plot
 #     4. Box Plot
 #     5. Swarm Plot
-#     6. Partial Dependence
-#     7. Decision Boundary
 #
 # Time Series
 #
@@ -502,7 +502,8 @@ def plot_confusion_matrix(model, partition):
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
         thresh = cm.max() / 2.
         for i, j in product(range(cm.shape[0]), range(cm.shape[1])):
-            plt.text(j, i, cm[i, j],
+            cmr = round(cm[i, j], 3)
+            plt.text(j, i, cmr,
                      horizontalalignment="center",
                      color="white" if cm[i, j] > thresh else "black")
         # labels
@@ -525,10 +526,10 @@ def plot_validation_curve(model, partition, pname, prange):
     Parameters
     ----------
 
-    model : object that encapsulates all of the model parameters
+    model     : object that encapsulates all of the model parameters
     partition : data subset ['train' or 'test']
-    pname : hyperparameter name ['gamma']
-    prange : hyperparameter values [np.logspace(-6, -1, 5)]
+    pname     : hyperparameter name ['gamma']
+    prange    : hyperparameter values [np.logspace(-6, -1, 5)]
 
     """
 
@@ -588,6 +589,149 @@ def plot_validation_curve(model, partition, pname, prange):
         plt.legend(loc="best")        # save the plot
         tag = USEP.join([partition, algo])
         write_plot(model, 'matplotlib', plt, 'validation_curve', tag)
+
+
+#
+# Function plot_partial_dependence
+#
+
+def plot_partial_dependence(model, partition, targets):
+    """
+    Plot partial dependence
+    """
+
+    logger.info("Generating Partial Dependence Plot")
+
+    # Get X, Y for correct partition
+
+    X, y = get_partition_data(model, partition)
+
+    cal_housing = fetch_california_housing()
+
+    # split 80/20 train-test
+    X_train, X_test, y_train, y_test = train_test_split(cal_housing.data,
+                                                        cal_housing.target,
+                                                        test_size=0.2,
+                                                        random_state=1)
+    names = cal_housing.feature_names
+
+    print("Training GBRT...")
+    clf = GradientBoostingRegressor(n_estimators=100, max_depth=4,
+                                    learning_rate=0.1, loss='huber',
+                                    random_state=1)
+    clf.fit(X_train, y_train)
+
+    print('Convenience plot with ``partial_dependence_plots``')
+    plot_partial_dependence(gbrt, X, features, feature_names=None, label=None, n_cols=3,
+        grid_resolution=100, percentiles=(0.05, 0.95), n_jobs=1, verbose=0)
+    features = [0, 5, 1, 2, (5, 1)]
+    fig, axs = plot_partial_dependence(clf, X_train, features,
+                                       feature_names=names,
+                                       n_jobs=3, grid_resolution=50)
+    fig.suptitle('Partial dependence of house value on nonlocation features\n'
+                 'for the California housing dataset')
+    plt.subplots_adjust(top=0.9)  # tight_layout causes overlap with suptitle
+
+    print('Custom 3d plot via ``partial_dependence``')
+    fig = plt.figure()
+
+    target_feature = (1, 5)
+    pdp, axes = partial_dependence(clf, target_feature,
+                                   X=X_train, grid_resolution=50)
+    XX, YY = np.meshgrid(axes[0], axes[1])
+    Z = pdp[0].reshape(list(map(np.size, axes))).T
+    ax = Axes3D(fig)
+    surf = ax.plot_surface(XX, YY, Z, rstride=1, cstride=1, cmap=plt.cm.BuPu)
+    ax.set_xlabel(names[target_feature[0]])
+    ax.set_ylabel(names[target_feature[1]])
+    ax.set_zlabel('Partial dependence')
+    #  pretty init view
+    ax.view_init(elev=22, azim=122)
+    plt.colorbar(surf)
+    plt.suptitle('Partial dependence of house value on median age and '
+                 'average occupancy')
+    plt.subplots_adjust(top=0.9)
+
+    write_plot(model, 'matplotlib', plt, 'partial_dependence', partition)
+
+
+#
+# Function plot_boundary
+#
+
+def plot_boundary(model, partition, f1=0, f2=1):
+    """
+    Display a comparison of classifiers
+    """
+
+    logger.info("Generating Boundary Plots")
+
+    # For classification only
+
+    if model.specs['model_type'] != ModelType.classification:
+        logger.info('Boundary Plots are for classification only')
+        return None
+
+    # Get X, Y for correct partition
+
+    X, y = get_partition_data(model, partition)
+
+    X = iris.data[:, 0:2]  # we only take the first two features for visualization
+
+    n_features = X.shape[1]
+
+    C = 1.0
+    kernel = 1.0 * RBF([1.0, 1.0])  # for GPC
+
+    # Create different classifiers. The logistic regression cannot do
+    # multiclass out of the box.
+    classifiers = {'L1 logistic': LogisticRegression(C=C, penalty='l1'),
+                   'L2 logistic (OvR)': LogisticRegression(C=C, penalty='l2'),
+                   'Linear SVC': SVC(kernel='linear', C=C, probability=True,
+                                     random_state=0),
+                   'L2 logistic (Multinomial)': LogisticRegression(
+                    C=C, solver='lbfgs', multi_class='multinomial'),
+                   'GPC': GaussianProcessClassifier(kernel)
+                   }
+
+    n_classifiers = len(classifiers)
+
+    plt.figure(figsize=(3 * 2, n_classifiers * 2))
+    plt.subplots_adjust(bottom=.2, top=.95)
+
+    xx = np.linspace(3, 9, 100)
+    yy = np.linspace(1, 5, 100).T
+    xx, yy = np.meshgrid(xx, yy)
+    Xfull = np.c_[xx.ravel(), yy.ravel()]
+
+    for index, (name, classifier) in enumerate(classifiers.items()):
+        classifier.fit(X, y)
+
+        y_pred = classifier.predict(X)
+        classif_rate = np.mean(y_pred.ravel() == y.ravel()) * 100
+        logger.info("classif_rate for %s : %f " % (name, classif_rate))
+
+        # View probabilities=
+        probas = classifier.predict_proba(Xfull)
+        n_classes = np.unique(y_pred).size
+        for k in range(n_classes):
+            plt.subplot(n_classifiers, n_classes, index * n_classes + k + 1)
+            plt.title("Class %d" % k)
+            if k == 0:
+                plt.ylabel(name)
+            imshow_handle = plt.imshow(probas[:, k].reshape((100, 100)),
+                                       extent=(3, 9, 1, 5), origin='lower')
+            plt.xticks(())
+            plt.yticks(())
+            idx = (y_pred == k)
+            if idx.any():
+                plt.scatter(X[idx, 0], X[idx, 1], marker='o', c='k')
+
+    ax = plt.axes([0.15, 0.04, 0.7, 0.05])
+    plt.title("Probability")
+    plt.colorbar(imshow_handle, cax=ax, orientation='horizontal')
+
+    write_plot(model, 'matplotlib', figure, 'boundary', partition)
 
 
 #
@@ -717,170 +861,6 @@ def plot_swarm(model, data, x, y, hue, tag='eda'):
     # Save the plot
 
     write_plot(model, 'seaborn', swarm_fig, 'swarm_plot', tag)
-
-
-#
-# Function plot_partial_dependence
-#
-
-def plot_partial_dependence(model, partition, targets):
-    """
-    Plot partial dependence
-    """
-
-    logger.info("Generating Partial Dependence Plot")
-
-    # Get X, Y for correct partition
-
-    X, y = get_partition_data(model, partition)
-
-    # fetch California housing dataset
-    cal_housing = fetch_california_housing()
-
-    # split 80/20 train-test
-    X_train, X_test, y_train, y_test = train_test_split(cal_housing.data,
-                                                        cal_housing.target,
-                                                        test_size=0.2,
-                                                        random_state=1)
-    names = cal_housing.feature_names
-
-    print('_' * 80)
-    print("Training GBRT...")
-    clf = GradientBoostingRegressor(n_estimators=100, max_depth=4,
-                                    learning_rate=0.1, loss='huber',
-                                    random_state=1)
-    clf.fit(X_train, y_train)
-    print("done.")
-
-    print('_' * 80)
-    print('Convenience plot with ``partial_dependence_plots``')
-    print
-
-    features = [0, 5, 1, 2, (5, 1)]
-    fig, axs = plot_partial_dependence(clf, X_train, features, feature_names=names,
-                                       n_jobs=3, grid_resolution=50)
-    fig.suptitle('Partial dependence of house value on nonlocation features\n'
-                 'for the California housing dataset')
-    plt.subplots_adjust(top=0.9)  # tight_layout causes overlap with suptitle
-
-    print('_' * 80)
-    print('Custom 3d plot via ``partial_dependence``')
-    print
-
-    plt.style.use('classic')
-    fig = plt.figure()
-
-    target_feature = (1, 5)
-    pdp, (x_axis, y_axis) = partial_dependence(clf, target_feature,
-                                               X=X_train, grid_resolution=50)
-    XX, YY = np.meshgrid(x_axis, y_axis)
-    Z = pdp.T.reshape(XX.shape).T
-    ax = Axes3D(fig)
-    surf = ax.plot_surface(XX, YY, Z, rstride=1, cstride=1, cmap=plt.cm.BuPu)
-    ax.set_xlabel(names[target_feature[0]])
-    ax.set_ylabel(names[target_feature[1]])
-    ax.set_zlabel('Partial dependence')
-    # pretty init view
-    ax.view_init(elev=22, azim=122)
-    plt.colorbar(surf)
-    plt.suptitle('Partial dependence of house value on median age and '
-                'average occupancy')
-    plt.subplots_adjust(top=0.9)
-
-    write_plot(model, 'matplotlib', plt, 'partial_dependence', partition)
-
-
-#
-# Function plot_boundary
-#
-
-def plot_boundary(model, partition, f1, f2):
-    """
-    Display a comparison of classifiers
-    """
-
-    logger.info("Generating Boundary Plots")
-
-    # For classification only
-
-    if model.specs['model_type'] != ModelType.classification:
-        logger.info('Boundary Plots are for classification only')
-        return None
-
-    # Get X, Y for correct partition
-
-    X, y = get_partition_data(model, partition)
-
-    # Define plotting constants.
-
-    spacing = 0.5
-    tspacing = 0.3
-    # step size in the mesh
-    h = .02
-
-    xdim = 3 * (len(classifiers) + 1)
-    ydim = xdim / len(classifiers)
-
-    plt.style.use('classic')
-    figure = plt.figure(figsize=(xdim, ydim))
-
-    X, y = ds
-    X = StandardScaler().fit_transform(X)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.4)
-
-    x_min, x_max = X[:, f1].min() - spacing, X[:, f1].max() + spacing
-    y_min, y_max = X[:, f2].min() - spacing, X[:, f2].max() + spacing
-    xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
-                         np.arange(y_min, y_max, h))
-
-    # Plot the dataset first
-    i = 1
-    cm = plt.cm.RdBu
-    cm_bright = ListedColormap(['#FF0000', '#0000FF'])
-    ax = plt.subplot(1, len(classifiers) + 1, i)
-    # Plot the training and testing points
-    ax.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap=cm_bright)
-    ax.scatter(X_test[:, 0], X_test[:, 1], c=y_test, cmap=cm_bright, alpha=0.6)
-    ax.set_xlim(xx.min(), xx.max())
-    ax.set_ylim(yy.min(), yy.max())
-    ax.set_xticks(())
-    ax.set_yticks(())
-    i += 1
-
-    # iterate over classifiers
-    for name, clf in zip(names, classifiers):
-        ax = plt.subplot(1, len(classifiers) + 1, i)
-        clf.fit(X_train, y_train)
-        score = clf.score(X_test, y_test)
-
-        # Plot the decision boundary. For that, we will assign a color to each
-        # point in the mesh [x_min, m_max]x[y_min, y_max].
-
-        if hasattr(clf, "decision_function"):
-            Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
-        else:
-            Z = clf.predict_proba(np.c_[xx.ravel(), yy.ravel()])[:, 1]
-
-        # Put the result into a color plot
-        Z = Z.reshape(xx.shape)
-        ax.contourf(xx, yy, Z, cmap=cm, alpha=.8)
-
-        # Plot the training and testing points
-        ax.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap=cm_bright)
-        ax.scatter(X_test[:, 0], X_test[:, 1], c=y_test, cmap=cm_bright,
-                   alpha=0.6)
-
-        ax.set_xlim(xx.min(), xx.max())
-        ax.set_ylim(yy.min(), yy.max())
-        ax.set_xticks(())
-        ax.set_yticks(())
-        ax.set_title(name)
-        ax.text(xx.max() - tspacing, yy.min() + tspacing, ('%.2f' % score).lstrip('0'),
-                size=15, horizontalalignment='right')
-        i += 1
-
-    figure.subplots_adjust(left=.02, right=.98)
-    write_plot(model, 'matplotlib', figure, 'boundary', partition)
 
 
 #
