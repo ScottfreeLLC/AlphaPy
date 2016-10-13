@@ -539,8 +539,6 @@ def make_predictions(model, algo, calibrate):
 
     # Record importances and coefficients if necessary.
 
-    model.estimators[algo] = est
-
     if hasattr(est, "feature_importances_"):
         model.importances[algo] = est.feature_importances_
 
@@ -550,9 +548,11 @@ def make_predictions(model, algo, calibrate):
     # Calibration
 
     if calibrate and model_type == ModelType.classification:
-        logger.info("Calibration")
+        logger.info("Calibrating Classifier")
         est = CalibratedClassifierCV(est, cv="prefit", method=cal_type)
         est.fit(X_train, y_train)
+        model.estimators[algo] = est
+        logger.info("Calibration Complete")
     else:
         logger.info("Skipping Calibration")
 
@@ -564,6 +564,7 @@ def make_predictions(model, algo, calibrate):
     if model_type == ModelType.classification:
         model.probas[(algo, 'train')] = est.predict_proba(X_train)[:, 1]
         model.probas[(algo, 'test')] = est.predict_proba(X_test)[:, 1]
+    logger.info("Predictions Complete")
 
     # Return the model
     return model
