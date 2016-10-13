@@ -43,6 +43,7 @@ print(__doc__)
 #
 
 from bokeh.plotting import figure, show, output_file
+from estimators import get_estimators
 from estimators import ModelType
 from globs import BSEP, PSEP, SSEP, USEP
 from globs import Q1, Q3
@@ -65,7 +66,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import roc_curve
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import learning_curve
-from sklearn.model_selection import ShuffleSplit
+from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import train_test_split
 from util import remove_list_items
 
@@ -309,8 +310,11 @@ def plot_learning_curve(model, partition):
     n_jobs = model.specs['n_jobs']
     seed = model.specs['seed']
     shuffle = model.specs['shuffle']
-    split = model.specs['split']
     verbosity = model.specs['verbosity']
+
+    # Get original estimators
+
+    estimators = get_estimators(model)
 
     # Get X, Y for correct partition.
 
@@ -318,7 +322,7 @@ def plot_learning_curve(model, partition):
 
     # Set cross-validation parameters to get mean train and test curves.
 
-    cv = ShuffleSplit(n_splits=cv_folds, test_size=split, random_state=seed)
+    cv = StratifiedKFold(n_splits=cv_folds, shuffle=shuffle, random_state=seed)
 
     # Plot a learning curve for each algorithm.   
 
@@ -327,7 +331,7 @@ def plot_learning_curve(model, partition):
     for algo in model.algolist:
         logger.info("Learning Curve for Algorithm: %s", algo)
         # get estimator
-        estimator = model.estimators[algo]
+        est = estimators[algo].estimator
         # plot learning curve
         title = BSEP.join([algo, "Learning Curve [", partition, "]"])
         # set up plot
@@ -341,7 +345,7 @@ def plot_learning_curve(model, partition):
         # call learning curve function
         train_sizes=np.linspace(0.1, 1.0, cv_folds)
         train_sizes, train_scores, test_scores = \
-            learning_curve(estimator, X, y, train_sizes=train_sizes, cv=cv,
+            learning_curve(est, X, y, train_sizes=train_sizes, cv=cv,
                            n_jobs=n_jobs, verbose=verbosity)
         train_scores_mean = np.mean(train_scores, axis=1)
         train_scores_std = np.std(train_scores, axis=1)
@@ -458,12 +462,11 @@ def plot_confusion_matrix(model, partition):
         plt.yticks(tick_marks, y_values)
         # normalize confusion matrix
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-        thresh = cm.max() / 2.
         for i, j in product(range(cm.shape[0]), range(cm.shape[1])):
             cmr = round(cm[i, j], 3)
             plt.text(j, i, cmr,
                      horizontalalignment="center",
-                     color="white" if cm[i, j] > thresh else "black")
+                     color="white" if cm[i, j] > 0.65 else "black")
         # labels
         plt.tight_layout()
         plt.ylabel('True Label')

@@ -225,7 +225,6 @@ def hyper_grid_search(model, estimator):
 
     # Fit the randomized search and time it.
 
-    logger.info("Fitting")
     start = time()
     gscv.fit(X_train, y_train)
     if gs_iters > 0:

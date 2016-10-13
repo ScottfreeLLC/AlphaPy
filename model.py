@@ -48,10 +48,7 @@ from sklearn.metrics import recall_score
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import roc_curve
 from sklearn.metrics.cluster import adjusted_rand_score
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 import sys
 import yaml
 
@@ -472,37 +469,43 @@ def first_fit(model, algo, est):
 
     # Extract model parameters.
 
-    cv_folds = model.specs['cv_folds']
-    n_jobs = model.specs['n_jobs']
+    esr = model.specs['esr']
+    sample_weights = model.specs['sample_weights']
     scorer = model.specs['scorer']
     seed = model.specs['seed']
-    shuffle = model.specs['shuffle']
-    sample_weights = model.specs['sample_weights']
-    verbosity = model.specs['verbosity']
+    split = model.specs['split']
 
     # Extract model data.
 
     X_train = model.X_train
     y_train = model.y_train
 
-    # Get initial estimates of our score.
+    # Fit the initial model.
 
-    cv = StratifiedKFold(n_splits=cv_folds, shuffle=shuffle, random_state=seed)
-    if sample_weights:
-        scores = cross_val_score(est, X_train, y_train, cv=cv, scoring=scorer,
-                                 n_jobs=n_jobs, verbose=verbosity,
-                                 fit_params={'sample_weight': sample_weights})
+    if 'XGB' in algo and scorer in xgb_score_map:
+        X1, X2, y1, y2 = train_test_split(X_train, y_train, test_size=split,
+                                          random_state=seed)
+        eval_set = [(X1, y1), (X2, y2)]
+        eval_metric = xgb_score_map[scorer]
+        est.fit(X1, y1, eval_set=eval_set, eval_metric=eval_metric,
+                early_stopping_rounds=esr)
     else:
-        scores = cross_val_score(est, X_train, y_train, cv=cv, scoring=scorer,
-                                 n_jobs=n_jobs, verbose=verbosity)
+        est.fit(X_train, y_train, sample_weight=sample_weights)
 
-    # Record scores
+    # Store the estimator
 
-    logger.info("Initial CV Scores for %s: %s", scorer, scores)
+    model.estimators[algo] = est
+
+    # Record importances and coefficients if necessary.
+
+    if hasattr(est, "feature_importances_"):
+        model.importances[algo] = est.feature_importances_
+
+    if hasattr(est, "coef_"):
+        model.coefs[algo] = est.coef_
 
     # Save the estimator in the model and return the model
 
-    model.estimators[algo] = est
     return model
 
 
@@ -536,14 +539,6 @@ def make_predictions(model, algo, calibrate):
         X_train = model.X_train
         X_test = model.X_test
     y_train = model.y_train
-
-    # Record importances and coefficients if necessary.
-
-    if hasattr(est, "feature_importances_"):
-        model.importances[algo] = est.feature_importances_
-
-    if hasattr(est, "coef_"):
-        model.coefs[algo] = est.coef_
 
     # Calibration
 
