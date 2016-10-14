@@ -326,7 +326,7 @@ def plot_learning_curve(model, partition):
 
     # Plot a learning curve for each algorithm.   
 
-    ylim = (0.5, 1.01)
+    ylim = (0.4, 1.01)
 
     for algo in model.algolist:
         logger.info("Learning Curve for Algorithm: %s", algo)

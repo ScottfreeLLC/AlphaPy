@@ -207,6 +207,8 @@ def get_model_config(cfg_dir):
     specs['interactions'] = cfg['features']['interactions']['option']
     specs['isample_pct'] = cfg['features']['interactions']['sampling_pct']
     specs['poly_degree'] = cfg['features']['interactions']['poly_degree']
+    # log transformation
+    specs['logtransform'] = cfg['features']['logtransform']['option']
     # NumPy
     specs['numpy'] = cfg['features']['numpy']['option']
     # pca
@@ -323,6 +325,7 @@ def get_model_config(cfg_dir):
     logger.info('interactions      = %r', specs['interactions'])
     logger.info('isample_pct       = %d', specs['isample_pct'])
     logger.info('learning_curve    = %r', specs['learning_curve'])
+    logger.info('logtransform      = %r', specs['logtransform'])
     logger.info('model_type        = %r', specs['model_type'])
     logger.info('n_estimators      = %d', specs['n_estimators'])
     logger.info('n_jobs            = %d', specs['n_jobs'])

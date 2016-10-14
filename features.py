@@ -252,7 +252,7 @@ def impute_values(features, dt):
 # Function get_numerical_features
 #
 
-def get_numerical_features(fnum, fname, df, nvalues, dt, plevel):
+def get_numerical_features(fnum, fname, df, nvalues, dt, logt, plevel):
     """
     Get numerical features by looking for float and integer values.
     """
@@ -266,7 +266,7 @@ def get_numerical_features(fnum, fname, df, nvalues, dt, plevel):
     # imputer for float, integer, or boolean data types
     new_values = impute_values(feature, dt)
     # log-transform any values that do not fit a normal distribution
-    if np.all(new_values > 0):
+    if logt and np.all(new_values > 0):
         stat, pvalue = sps.normaltest(new_values)
         if pvalue <= plevel:
             logger.info("Feature %d: %s is not normally distributed [p-value: %f]",
@@ -568,6 +568,7 @@ def create_features(X, model, split_point, y_train):
     counts_flag = model.specs['counts']
     dummy_limit = model.specs['dummy_limit']
     encoder = model.specs['encoder']
+    logtransform = model.specs['logtransform']
     model_type = model.specs['model_type']
     ngrams_max = model.specs['ngrams_max']
     numpy_flag = model.specs['numpy']
@@ -618,7 +619,7 @@ def create_features(X, model, split_point, y_train):
                                    sentinel, target_value, X_train, y_train)            
         elif dtype == 'float64' or dtype == 'int64' or dtype == 'bool':
             features = get_numerical_features(fnum, fc, X, nunique, dtype,
-                                              pvalue_level)
+                                              logtransform, pvalue_level)
         elif dtype == 'object':
             features = get_text_features(fnum, fc, X, nunique, dummy_limit,
                                          vectorize, ngrams_max)
