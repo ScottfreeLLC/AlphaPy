@@ -41,6 +41,8 @@ from sklearn.feature_selection import SelectFwe
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import SelectPercentile
 from sklearn.feature_selection import VarianceThreshold
+from sklearn.manifold import Isomap
+from sklearn.manifold import TSNE
 from sklearn.preprocessing import Imputer
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.preprocessing import StandardScaler
@@ -514,7 +516,7 @@ def create_clusters(features, model):
 
 
 #
-# Function create_clusters
+# Function create_pca_features
 #
 
 def create_pca_features(features, model):
@@ -554,6 +556,76 @@ def create_pca_features(features, model):
 
 
 #
+# Function create_isomap_features
+#
+
+def create_isomap_features(features, model):
+    """
+    Create Isomap features.
+    """
+
+    logger.info("Creating Isomap Features")
+
+    # Extract model parameters
+
+    iso_components = model.specs['iso_components']
+    iso_neighbors = model.specs['iso_neighbors']
+    n_jobs = model.specs['n_jobs']
+
+    # Log model parameters
+
+    logger.info("Isomap Components : %d", iso_components)
+    logger.info("Isomap Neighbors  : %d", iso_neighbors)
+
+    # Generate Isomap features
+
+    model = Isomap(n_neighbors=iso_neighbors, n_components=iso_components,
+                   n_jobs=n_jobs)
+    ifeatures = model.fit_transform(features)
+
+    # Return new Isomap features
+
+    logger.info("Isomap Feature Count : %d", ifeatures.shape[1])
+    return ifeatures
+
+
+#
+# Function create_tsne_features
+#
+
+def create_tsne_features(features, model):
+    """
+    Create T-SNE features.
+    """
+
+    logger.info("Creating T-SNE Features")
+
+    # Extract model parameters
+
+    seed = model.specs['seed']
+    tsne_components = model.specs['tsne_components']
+    tsne_learn_rate = model.specs['tsne_learn_rate']
+    tsne_perplexity = model.specs['tsne_perplexity']
+
+    # Log model parameters
+
+    logger.info("T-SNE Components    : %d", tsne_components)
+    logger.info("T-SNE Learning Rate : %d", tsne_learn_rate)
+    logger.info("T-SNE Perplexity    : %d", tsne_perplexity)
+
+    # Generate T-SNE features
+
+    model = TSNE(n_components=tsne_components, perplexity=tsne_perplexity,
+                 learning_rate=tsne_learn_rate, random_state=seed)
+    tfeatures = model.fit_transform(features)
+
+    # Return new T-SNE features
+
+    logger.info("T-SNE Feature Count : %d", tfeatures.shape[1])
+    return tfeatures
+
+
+#
 # Function create_features
 #
 
@@ -568,6 +640,7 @@ def create_features(X, model, split_point, y_train):
     counts_flag = model.specs['counts']
     dummy_limit = model.specs['dummy_limit']
     encoder = model.specs['encoder']
+    isomap = model.specs['isomap']
     logtransform = model.specs['logtransform']
     model_type = model.specs['model_type']
     ngrams_max = model.specs['ngrams_max']
@@ -579,6 +652,7 @@ def create_features(X, model, split_point, y_train):
     sentinel = model.specs['sentinel']
     target_value = model.specs['target_value']
     treatments = model.specs['treatments']
+    tsne = model.specs['tsne']
     vectorize = model.specs['vectorize']
 
     # Log input parameters
@@ -663,6 +737,20 @@ def create_features(X, model, split_point, y_train):
 
     if pca:
         pfeatures = create_pca_features(all_features, model)
+        all_features = np.column_stack((all_features, pfeatures))
+        logger.info("New Feature Count : %d", all_features.shape[1])
+
+    # Create Isomap features
+
+    if isomap:
+        pfeatures = create_isomap_features(all_features, model)
+        all_features = np.column_stack((all_features, pfeatures))
+        logger.info("New Feature Count : %d", all_features.shape[1])
+
+    # Create T-SNE features
+
+    if tsne:
+        pfeatures = create_tsne_features(all_features, model)
         all_features = np.column_stack((all_features, pfeatures))
         logger.info("New Feature Count : %d", all_features.shape[1])
 

@@ -207,6 +207,10 @@ def get_model_config(cfg_dir):
     specs['interactions'] = cfg['features']['interactions']['option']
     specs['isample_pct'] = cfg['features']['interactions']['sampling_pct']
     specs['poly_degree'] = cfg['features']['interactions']['poly_degree']
+    # isomap
+    specs['isomap'] = cfg['features']['isomap']['option']
+    specs['iso_components'] = cfg['features']['isomap']['components']
+    specs['iso_neighbors'] = cfg['features']['isomap']['neighbors']
     # log transformation
     specs['logtransform'] = cfg['features']['logtransform']['option']
     # NumPy
@@ -222,6 +226,11 @@ def get_model_config(cfg_dir):
     # text
     specs['ngrams_max'] = cfg['features']['text']['ngrams']
     specs['vectorize'] = cfg['features']['text']['vectorize']
+    # t-sne
+    specs['tsne'] = cfg['features']['tsne']['option']
+    specs['tsne_components'] = cfg['features']['tsne']['components']
+    specs['tsne_learn_rate'] = cfg['features']['tsne']['learning_rate']
+    specs['tsne_perplexity'] = cfg['features']['tsne']['perplexity']
 
     # Section: model
 
@@ -323,6 +332,9 @@ def get_model_config(cfg_dir):
     logger.info('gs_sample_pct     = %f', specs['gs_sample_pct'])
     logger.info('importances       = %r', specs['importances'])
     logger.info('interactions      = %r', specs['interactions'])
+    logger.info('isomap            = %r', specs['interactions'])
+    logger.info('iso_components    = %d', specs['iso_components'])
+    logger.info('iso_neighbors     = %d', specs['iso_neighbors'])
     logger.info('isample_pct       = %d', specs['isample_pct'])
     logger.info('learning_curve    = %r', specs['learning_curve'])
     logger.info('logtransform      = %r', specs['logtransform'])
@@ -361,6 +373,10 @@ def get_model_config(cfg_dir):
     logger.info('test_labels       = %r', specs['test_labels'])
     logger.info('train_file        = %s', specs['train_file'])
     logger.info('treatments        = %s', specs['treatments'])
+    logger.info('tsne              = %r', specs['tsne'])
+    logger.info('tsne_components   = %d', specs['tsne_components'])
+    logger.info('tsne_learn_rate   = %f', specs['tsne_learn_rate'])
+    logger.info('tsne_perplexity   = %f', specs['tsne_perplexity'])
     logger.info('vectorize         = %r', specs['vectorize'])
     logger.info('verbosity         = %d', specs['verbosity'])
 

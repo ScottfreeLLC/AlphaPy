@@ -462,11 +462,12 @@ def plot_confusion_matrix(model, partition):
         plt.yticks(tick_marks, y_values)
         # normalize confusion matrix
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        thresh = cm.max() / 2.
         for i, j in product(range(cm.shape[0]), range(cm.shape[1])):
             cmr = round(cm[i, j], 3)
             plt.text(j, i, cmr,
                      horizontalalignment="center",
-                     color="white" if cm[i, j] > 0.65 else "black")
+                     color="white" if cm[i, j] > thresh else "black")
         # labels
         plt.tight_layout()
         plt.ylabel('True Label')
