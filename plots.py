@@ -137,7 +137,7 @@ def generate_plots(model, partition):
 # Function write_plot
 #
 
-def write_plot(model, vizlib, plot, plot_type, tag):
+def write_plot(model, vizlib, plot, plot_type, tag, display=False):
     """
     Save plot to a file.
     """
@@ -152,21 +152,23 @@ def write_plot(model, vizlib, plot, plot_type, tag):
     file_only = ''.join([plot_type, USEP, tag, '.png'])
     file_all = SSEP.join([base_dir, project, file_only])
 
-    # Save plot
+    # Show or write plot
 
-    logger.info("Writing plot to %s", file_all)
-
-    if vizlib == 'matplotlib':
-        plot.tight_layout()
-        plot.savefig(file_all)
-    elif vizlib == 'seaborn':
-        plot.savefig(file_all)
-    elif vizlib == 'bokeh':
-        plot.save(file_all)
-    elif vizlib == 'plotly':
-        raise ValueError("Unsupported data visualization library: %s", vizlib)
+    if display:
+        plot.plot()
     else:
-        raise ValueError("Unrecognized data visualization library: %s", vizlib)
+        logger.info("Writing plot to %s", file_all)
+        if vizlib == 'matplotlib':
+            plot.tight_layout()
+            plot.savefig(file_all)
+        elif vizlib == 'seaborn':
+            plot.savefig(file_all)
+        elif vizlib == 'bokeh':
+            plot.save(file_all)
+        elif vizlib == 'plotly':
+            raise ValueError("Unsupported data visualization library: %s", vizlib)
+        else:
+            raise ValueError("Unrecognized data visualization library: %s", vizlib)
 
 
 #
@@ -557,64 +559,36 @@ def plot_validation_curve(model, partition, pname, prange):
 # Function plot_partial_dependence
 #
 
-def plot_partial_dependence(model, partition, targets):
+def plot_partial_dependence(model, partition, algo, features, names=None):
     """
     Plot partial dependence
     """
 
     logger.info("Generating Partial Dependence Plot")
 
+    # Extract model parameters.
+
+    est = model.estimators[algo]
+    n_jobs = model.specs['n_jobs']
+    verbosity = model.specs['verbosity']
+
     # Get X, Y for correct partition
 
     X, y = get_partition_data(model, partition)
 
-    cal_housing = fetch_california_housing()
+    # Plot partial dependence
 
-    # split 80/20 train-test
-    X_train, X_test, y_train, y_test = train_test_split(cal_housing.data,
-                                                        cal_housing.target,
-                                                        test_size=0.2,
-                                                        random_state=1)
-    names = cal_housing.feature_names
-
-    print("Training GBRT...")
-    clf = GradientBoostingRegressor(n_estimators=100, max_depth=4,
-                                    learning_rate=0.1, loss='huber',
-                                    random_state=1)
-    clf.fit(X_train, y_train)
-
-    print('Convenience plot with ``partial_dependence_plots``')
-    plot_partial_dependence(gbrt, X, features, feature_names=None, label=None, n_cols=3,
-        grid_resolution=100, percentiles=(0.05, 0.95), n_jobs=1, verbose=0)
-    features = [0, 5, 1, 2, (5, 1)]
-    fig, axs = plot_partial_dependence(clf, X_train, features,
-                                       feature_names=names,
-                                       n_jobs=3, grid_resolution=50)
-    fig.suptitle('Partial dependence of house value on nonlocation features\n'
-                 'for the California housing dataset')
+    fig, axs = plot_partial_dependence(est, X, features, feature_names=names,
+                                       grid_resolution=50, n_jobs=n_jobs,
+                                       verbose=verbosity)
+    title = BSEP.join([algo, "Partial Dependence [", partition, "]"])
+    fig.suptitle(title)
     plt.subplots_adjust(top=0.9)  # tight_layout causes overlap with suptitle
 
-    print('Custom 3d plot via ``partial_dependence``')
-    fig = plt.figure()
+    # Save the plot
 
-    target_feature = (1, 5)
-    pdp, axes = partial_dependence(clf, target_feature,
-                                   X=X_train, grid_resolution=50)
-    XX, YY = np.meshgrid(axes[0], axes[1])
-    Z = pdp[0].reshape(list(map(np.size, axes))).T
-    ax = Axes3D(fig)
-    surf = ax.plot_surface(XX, YY, Z, rstride=1, cstride=1, cmap=plt.cm.BuPu)
-    ax.set_xlabel(names[target_feature[0]])
-    ax.set_ylabel(names[target_feature[1]])
-    ax.set_zlabel('Partial dependence')
-    #  pretty init view
-    ax.view_init(elev=22, azim=122)
-    plt.colorbar(surf)
-    plt.suptitle('Partial dependence of house value on median age and '
-                 'average occupancy')
-    plt.subplots_adjust(top=0.9)
-
-    write_plot(model, 'matplotlib', plt, 'partial_dependence', partition)
+    tag = USEP.join([partition, algo])
+    write_plot(model, 'matplotlib', plt, 'partial_dependence', tag)
 
 
 #
@@ -638,26 +612,13 @@ def plot_boundary(model, partition, f1=0, f2=1):
 
     X, y = get_partition_data(model, partition)
 
-    X = iris.data[:, 0:2]  # we only take the first two features for visualization
+    # Subset for the two boundary features
 
-    n_features = X.shape[1]
+    X = X[[f1, f2]]
 
-    C = 1.0
-    kernel = 1.0 * RBF([1.0, 1.0])  # for GPC
+    # Initialize plot
 
-    # Create different classifiers. The logistic regression cannot do
-    # multiclass out of the box.
-    classifiers = {'L1 logistic': LogisticRegression(C=C, penalty='l1'),
-                   'L2 logistic (OvR)': LogisticRegression(C=C, penalty='l2'),
-                   'Linear SVC': SVC(kernel='linear', C=C, probability=True,
-                                     random_state=0),
-                   'L2 logistic (Multinomial)': LogisticRegression(
-                    C=C, solver='lbfgs', multi_class='multinomial'),
-                   'GPC': GaussianProcessClassifier(kernel)
-                   }
-
-    n_classifiers = len(classifiers)
-
+    n_classifiers = len(model.algolist)
     plt.figure(figsize=(3 * 2, n_classifiers * 2))
     plt.subplots_adjust(bottom=.2, top=.95)
 
@@ -666,16 +627,17 @@ def plot_boundary(model, partition, f1=0, f2=1):
     xx, yy = np.meshgrid(xx, yy)
     Xfull = np.c_[xx.ravel(), yy.ravel()]
 
-    for index, (name, classifier) in enumerate(classifiers.items()):
-        classifier.fit(X, y)
+    # Plot each classification probability
 
-        y_pred = classifier.predict(X)
+    for index, name in enumerate(model.algolist):
+        # predictions
+        y_pred = model.preds[(algo, partition)]
         classif_rate = np.mean(y_pred.ravel() == y.ravel()) * 100
-        logger.info("classif_rate for %s : %f " % (name, classif_rate))
-
-        # View probabilities=
-        probas = classifier.predict_proba(Xfull)
+        logger.info("Classification Rate for %s : %f " % (name, classif_rate))
+        # probabilities
+        probas = model.probas[(algo, partition)]
         n_classes = np.unique(y_pred).size
+        # plot each class
         for k in range(n_classes):
             plt.subplot(n_classifiers, n_classes, index * n_classes + k + 1)
             plt.title("Class %d" % k)
@@ -689,9 +651,13 @@ def plot_boundary(model, partition, f1=0, f2=1):
             if idx.any():
                 plt.scatter(X[idx, 0], X[idx, 1], marker='o', c='k')
 
+    # Plot the probability color bar
+
     ax = plt.axes([0.15, 0.04, 0.7, 0.05])
     plt.title("Probability")
     plt.colorbar(imshow_handle, cax=ax, orientation='horizontal')
+
+    # Save the plot
 
     write_plot(model, 'matplotlib', figure, 'boundary', partition)
 
