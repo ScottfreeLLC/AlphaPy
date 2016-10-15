@@ -710,8 +710,7 @@ def gen_portfolio(model, system, group, tframe,
 # Function plot_portfolio
 #
 
-def plot_portfolio(model, system, group, tframe,
-                   startcap=100000, posby='close'):
+def plot_portfolio(model, system, group, tframe):
     """
     Create a portfolio from a trades frame
     """
@@ -722,6 +721,8 @@ def plot_portfolio(model, system, group, tframe,
     pf.index = pd.to_datetime(pf.index, utc=True)
     tf = pd.read_csv('test_closer_transactions_1d.csv', index_col='date', squeeze=True)
     tf.index = pd.to_datetime(tf.index, utc=True)
+
+    # 8 plots
 
     fig = create_returns_tear_sheet(rf, return_fig=True)
     fig = create_position_tear_sheet(rf, pf, return_fig=True)
