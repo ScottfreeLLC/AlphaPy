@@ -508,8 +508,10 @@ def first_fit(model, algo, est):
         eval_metric = xgb_score_map[scorer]
         est.fit(X1, y1, eval_set=eval_set, eval_metric=eval_metric,
                 early_stopping_rounds=esr)
-    else:
+    elif sample_weights:
         est.fit(X_train, y_train, sample_weight=sample_weights)
+    else:
+        est.fit(X_train, y_train)
 
     # Store the estimator
 

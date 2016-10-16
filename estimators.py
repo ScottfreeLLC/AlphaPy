@@ -17,7 +17,6 @@ from enum import Enum, unique
 from estimator import Estimator
 import numpy as np
 from scipy.stats import randint as sp_randint
-import skflow
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.ensemble import ExtraTreesRegressor
@@ -36,6 +35,7 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import LinearSVC
 from sklearn.svm import OneClassSVM
 from sklearn.svm import SVC
+import tensorflow.contrib.learn as skflow
 import xgboost as xgb
 
 
@@ -244,7 +244,7 @@ def get_estimators(model):
               "verbose" : verbosity}
     est = LogisticRegression(**params)
     grid = {"penalty" : ['l2'],
-            "C" : [0.1, 1, 10, 100, 1000, 1e4, 1e5],
+            "C" : [0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000, 1e4, 1e5, 1e6, 1e7],
             "fit_intercept" : [True, False],
             "solver" : ['newton-cg', 'lbfgs', 'liblinear', 'sag']}
     scoring = True
@@ -329,19 +329,8 @@ def get_estimators(model):
     algo = 'TF_DNN'
     model_type = ModelType.classification
     params = {"n_classes" : 2,
-              "hidden_units" : [20, 40, 20],
-              "tf_master" : '',
-              "batch_size" : 32,
-              "steps" : 200,
-              "optimizer" : 'SGD',
-              "learning_rate" : 0.1,
-              "class_weight" : None,
-              "tf_random_seed" : seed,
-              "continue_training" : False,
-              "verbose" : verbosity,
-              "max_to_keep" : 5,
-              "keep_checkpoint_every_n_hours" : 10000}
-    est = skflow.TensorFlowDNNClassifier(**params)
+              "hidden_units" : [20, 40, 20]}
+    est = skflow.DNNClassifier(**params)
     grid = None
     scoring = False
     estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
