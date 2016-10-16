@@ -15,6 +15,7 @@
 
 from frame import Frame
 from frame import frame_name
+from frame import read_frame
 from frame import write_frame
 from globs import MULTIPLIERS
 from globs import SSEP
@@ -716,23 +717,42 @@ def gen_portfolio(model, system, group, tframe,
 
 
 #
-# Function plot_portfolio
+# Function plot_returns
 #
 
-def plot_portfolio(model, system, group, tframe):
+def plot_returns(model, system, group,
+                 benchmark='SPY',
+                 drawdown_periods=5):
     """
-    Create a portfolio from a trades frame
+    Plot portfolio return information.
     """
 
-    rf = pd.read_csv('test_closer_returns_1d.csv', index_col='date', squeeze=True)
+    # Unpack the model data.
+
+    base_dir = model.specs['base_dir']
+    extension = model.specs['extension']
+    project = model.specs['project']
+    separator = model.specs['separator']
+    directory = SSEP.join([base_dir, project])
+
+    # Form file name
+
+    gname = group.name
+    gspace = group.space
+    rspace = Space(system.name, 'returns', gspace.fractal)
+    rfname = frame_name(gname, rspace)
+    del rspace
+
+    # Read in the returns file
+
+    rf = read_frame(directory, rfname, extension, separator,
+                    index_col='date', squeeze=True)
     rf.index = pd.to_datetime(rf.index, utc=True)
-    pf = pd.read_csv('test_closer_positions_1d.csv', index_col='date', squeeze=True)
-    pf.index = pd.to_datetime(pf.index, utc=True)
-    tf = pd.read_csv('test_closer_transactions_1d.csv', index_col='date', squeeze=True)
-    tf.index = pd.to_datetime(tf.index, utc=True)
 
+    # Show and plot returns
+
+    benchmark_rets = get_symbol_rets(benchmark)
     show_perf_stats(rf, benchmark_rets)
-    benchmark_rets = get_symbol_rets('SPY')
     plot_returns(rf)
     plot_rolling_returns(rf, benchmark_rets)
     plot_rolling_returns(rf, benchmark_rets, volatility_match=True)
@@ -740,6 +760,77 @@ def plot_portfolio(model, system, group, tframe):
     plot_annual_returns(rf)
     plot_return_quantiles(rf)
     plot_rolling_sharpe(rf)
+
+    # Show and plot drawdowns
+
     show_worst_drawdown_periods(rf)
-    plot_drawdown_periods(rf, top=5)
+    plot_drawdown_periods(rf, top=drawdown_periods)
     plot_drawdown_underwater(rf)
+
+
+#
+# Function plot_positions
+#
+
+def plot_positions(model, system, group):
+    """
+    Plot portfolio position information.
+    """
+
+    # Unpack the model data.
+
+    base_dir = model.specs['base_dir']
+    extension = model.specs['extension']
+    project = model.specs['project']
+    separator = model.specs['separator']
+    directory = SSEP.join([base_dir, project])
+
+    # Form file name
+
+    gname = group.name
+    gspace = group.space
+    pspace = Space(system.name, 'positions', gspace.fractal)
+    pfname = frame_name(gname, pspace)
+    del pspace
+
+    # Read in the positions file
+
+    pf = read_frame(directory, pfname, extension, separator,
+                    index_col='date', squeeze=True)
+    pf.index = pd.to_datetime(pf.index, utc=True)
+
+    # Position Plots TBD
+
+
+#
+# Function plot_transactions
+#
+
+def plot_transactions(model, system, group):
+    """
+    Plot portfolio transaction information.
+    """
+
+    # Unpack the model data.
+
+    base_dir = model.specs['base_dir']
+    extension = model.specs['extension']
+    project = model.specs['project']
+    separator = model.specs['separator']
+    directory = SSEP.join([base_dir, project])
+
+    # Form file name
+
+    gname = group.name
+    gspace = group.space
+    tspace = Space(system.name, 'transactions', gspace.fractal)
+    tfname = frame_name(gname, tspace)
+    del tspace
+
+    # Read in the transactions file
+
+    tf = read_frame(directory, tfname, extension, separator,
+                    index_col='date', squeeze=True)
+    tf.index = pd.to_datetime(tf.index, utc=True)
+
+    # Transaction Plots TBD
