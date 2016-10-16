@@ -13,7 +13,6 @@
 # Imports
 #
 
-import _pickle as pickle
 from data import SamplingMethod
 from datetime import datetime
 from estimators import Objective
@@ -25,6 +24,7 @@ from features import feature_scorers
 from globs import PSEP
 from globs import SSEP
 from globs import USEP
+from sklearn.externals import joblib
 import logging
 import numpy as np
 import pandas as pd
@@ -389,7 +389,7 @@ def get_model_config(cfg_dir):
 # Function load_model_object
 #
 
-def load_model_object(directory):
+def load_model_object(directory, timestamp):
     """
     Load the model from storage.
     """
@@ -398,22 +398,20 @@ def load_model_object(directory):
 
     # Create path name
 
-    full_path = SSEP.join([directory, 'model.save'])
+    filename = 'model_' + timestamp + '.pkl'
+    full_path = SSEP.join([directory, 'model', filename])
 
-    # Open model object
+    # Load the model predictor
 
-    with open(full_path, 'rb') as f:
-        model = pickle.load(f)
-    f.close()
-
-    return model
+    predictor = joblib.load(full_path)
+    return predictor
 
 
 #
 # Function save_model_object
 #
 
-def save_model_object(model):
+def save_model_object(model, timestamp):
     """
     Save the model to storage.
     """
@@ -425,16 +423,19 @@ def save_model_object(model):
     base_dir = model.specs['base_dir']
     project = model.specs['project']
 
+    # Get the best predictor
+
+    predictor = model.estimators['BEST']
+
     # Create full path name.
 
     directory = SSEP.join([base_dir, project])
-    full_path = SSEP.join([directory, 'model.save'])
+    filename = 'model_' + timestamp + '.pkl'
+    full_path = SSEP.join([directory, 'model', filename])
 
-    # Save model object (previously saved in Pickle format)
+    # Save model object
 
-    with open(full_path, 'wb') as f:
-        pickle.dump(model, f)
-    f.close()
+    joblib.dump(predictor, full_path)
 
 
 #
@@ -880,35 +881,36 @@ def save_model(model, tag, partition):
 
     d = datetime.now()
     f = "%Y%m%d"
+    timestamp = d.strftime(f)
 
     # Dump the model object itself
 
-    save_model_object(model)
+    save_model_object(model, timestamp)
 
     # Save final features for training and testing data
 
     output_dir = SSEP.join([base_dir, project])
 
     logger.info("Saving New Training Data")
-    output_file = USEP.join(['train', d.strftime(f)])
+    output_file = USEP.join(['train', timestamp])
     np_store_data(X_train, output_dir, output_file, extension, separator)
 
     logger.info("Saving New Testing Data")
-    output_file = USEP.join(['test', d.strftime(f)])
+    output_file = USEP.join(['test', timestamp])
     np_store_data(X_test, output_dir, output_file, extension, separator)
 
     # Save probabilities for classification projects
 
     if model_type == ModelType.classification:
         logger.info("Saving Probabilities")
-        output_file = USEP.join(['probabilities', d.strftime(f)])
+        output_file = USEP.join(['probabilities', timestamp])
         probas = model.probas[(tag, partition)]
         np_store_data(probas, output_dir, output_file, extension, separator)
 
     # Save predictions for all projects
 
     logger.info("Saving Predictions")
-    output_file = USEP.join(['predictions', d.strftime(f)])
+    output_file = USEP.join(['predictions', timestamp])
     preds = model.preds[(tag, partition)]
     np_store_data(preds, output_dir, output_file, extension, separator)
 
@@ -923,7 +925,7 @@ def save_model(model, tag, partition):
             ss[ss.columns[1]] = probas
         else:
             ss[ss.columns[1]] = preds
-        submission_base = USEP.join(['submission', d.strftime(f)])
+        submission_base = USEP.join(['submission', timestamp])
         submission_spec = PSEP.join([submission_base, extension])
         submission_output = SSEP.join([output_dir, submission_spec])
         ss.to_csv(submission_output, index=False)
