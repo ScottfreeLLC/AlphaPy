@@ -149,7 +149,7 @@ def pipeline(model, stock_specs):
     extension = model.specs['extension']
     project = model.specs['project']
     separator = model.specs['separator']
-    directory = SSEP.join([base_dir, project])
+    directory = SSEP.join([base_dir, project, 'data'])
 
     # Get any stock specifications
 

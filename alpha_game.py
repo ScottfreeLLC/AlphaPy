@@ -443,7 +443,7 @@ if __name__ == '__main__':
 
     logger.info("Reading Game Data")
 
-    directory = SSEP.join([base_dir, organization])
+    directory = SSEP.join([base_dir, organization, 'data'])
     file_base = USEP.join([organization, space.subject, space.schema, space.fractal])
     df = read_frame(directory, file_base, specs['extension'], specs['separator'])
     logger.info("Total Game Records: %d", df.shape[0])

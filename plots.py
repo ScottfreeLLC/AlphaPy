@@ -150,7 +150,7 @@ def write_plot(model, vizlib, plot, plot_type, tag, display=False):
     # Create output file specification
 
     file_only = ''.join([plot_type, USEP, tag, '.png'])
-    file_all = SSEP.join([base_dir, project, file_only])
+    file_all = SSEP.join([base_dir, project, 'plots', file_only])
 
     # Show or write plot
 
