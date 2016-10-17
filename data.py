@@ -13,7 +13,6 @@
 # Imports
 #
 
-import _pickle as pickle
 from datetime import datetime
 from datetime import timedelta
 from enum import Enum, unique
@@ -111,7 +110,7 @@ def get_data(model, partition):
 
     # Read in the file
 
-    directory = SSEP.join([base_dir, project])
+    directory = SSEP.join([base_dir, project, 'input'])
     df = read_frame(directory, filename, extension, separator)
 
     # Assign target and drop it if necessary

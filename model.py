@@ -889,7 +889,7 @@ def save_model(model, tag, partition):
 
     # Save final features for training and testing data
 
-    output_dir = SSEP.join([base_dir, project])
+    output_dir = SSEP.join([base_dir, project, 'output'])
 
     logger.info("Saving New Training Data")
     output_file = USEP.join(['train', timestamp])

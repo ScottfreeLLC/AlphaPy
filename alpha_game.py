@@ -598,6 +598,7 @@ if __name__ == '__main__':
     # Rewrite with all the features to the train and test files
     #
 
+    directory = SSEP.join([directory, 'input'])
     write_frame(new_train_frame, directory, specs['train_file'],
                 specs['extension'], specs['separator'])
     write_frame(new_test_frame, directory, specs['test_file'],
