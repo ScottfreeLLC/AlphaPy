@@ -919,7 +919,7 @@ def save_model(model, tag, partition):
     if sample_submission:
         logger.info("Saving Submission")
         sample_spec = PSEP.join([submission_file, extension])
-        sample_input = SSEP.join([output_dir, sample_spec])
+        sample_input = SSEP.join([output_dir, 'input', sample_spec])
         ss = pd.read_csv(sample_input)
         if model_type == ModelType.classification:
             ss[ss.columns[1]] = probas
