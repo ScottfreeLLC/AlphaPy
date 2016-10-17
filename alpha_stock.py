@@ -6,6 +6,8 @@
 # Copyright : Mark Conway
 # Date      : September 13, 2015
 #
+# python ../AlphaPy/alpha_stock.py -d 'Trend Days/config'
+#
 ##############################################################
 
 

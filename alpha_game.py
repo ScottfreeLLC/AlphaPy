@@ -6,6 +6,8 @@
 # Copyright : Mark Conway
 # Date      : October 26, 2015
 #
+# python ../AlphaPy/alpha_game.py -d 'NBA/config'
+#
 ##############################################################
 
 
@@ -102,7 +104,7 @@ sports_dict = {'wins' : int,
 
 
 #
-# These are the "leakers". Generally, we try to predict one of these
+# These are the leaders. Generally, we try to predict one of these
 # variables as the target and lag the remaining ones.
 #
 
@@ -137,18 +139,22 @@ def get_game_config(cfg_dir):
 
     specs['points_max'] = cfg['game']['points_max']
     specs['points_min'] = cfg['game']['points_min']
+    specs['predict_date'] = cfg['game']['predict_date']
     specs['random_scoring'] = cfg['game']['random_scoring']
     specs['rolling_window'] = cfg['game']['rolling_window']   
     specs['season'] = cfg['game']['season']
+    specs['train_date'] = cfg['game']['train_date']
 
     # Log the game parameters
 
     logger.info('GAME PARAMETERS:')
     logger.info('points_max       = %d', specs['points_max'])
     logger.info('points_min       = %d', specs['points_min'])
+    logger.info('predict_date     = %s', specs['predict_date'])
     logger.info('random_scoring   = %r', specs['random_scoring'])
     logger.info('rolling_window   = %d', specs['rolling_window'])
     logger.info('season           = %d', specs['season'])
+    logger.info('train_date       = %s', specs['train_date'])
 
     # Game Specifications
 
@@ -402,9 +408,11 @@ if __name__ == '__main__':
 
     points_max = game_specs['points_max']
     points_min = game_specs['points_min']
+    predict_date = game_specs['predict_date']
     random_scoring = game_specs['random_scoring']
-    window = game_specs['rolling_window']   
     season = game_specs['season']
+    train_date = game_specs['train_date']
+    window = game_specs['rolling_window']   
 
     # Read model configuration file
 
@@ -414,6 +422,7 @@ if __name__ == '__main__':
 
     base_dir = specs['base_dir']
     organization = specs['project']
+    target = specs['target']
 
     # Debug the program
 
@@ -443,9 +452,10 @@ if __name__ == '__main__':
 
     logger.info("Reading Game Data")
 
-    directory = SSEP.join([base_dir, organization, 'data'])
+    directory = SSEP.join([base_dir, organization])
+    data_dir = SSEP.join([directory, 'data'])
     file_base = USEP.join([organization, space.subject, space.schema, space.fractal])
-    df = read_frame(directory, file_base, specs['extension'], specs['separator'])
+    df = read_frame(data_dir, file_base, specs['extension'], specs['separator'])
     logger.info("Total Game Records: %d", df.shape[0])
 
     #
@@ -461,10 +471,8 @@ if __name__ == '__main__':
     # Set the training date and prediction date
     #
 
-    train_date = datetime.date(1900, 1, 1)
     train_date = train_date.strftime('%Y-%m-%d')
-    predict_date = datetime.datetime.now()
-    predict_date = '2016-01-01' # predict_date.strftime("%Y-%m-%d")
+    predict_date = predict_date.strftime('%Y-%m-%d')
 
     #
     # Run the game pipeline on a seasonal loop
@@ -598,10 +606,10 @@ if __name__ == '__main__':
     # Rewrite with all the features to the train and test files
     #
 
-    directory = SSEP.join([directory, 'input'])
-    write_frame(new_train_frame, directory, specs['train_file'],
+    input_dir = SSEP.join([directory, 'input'])
+    write_frame(new_train_frame, input_dir, specs['train_file'],
                 specs['extension'], specs['separator'])
-    write_frame(new_test_frame, directory, specs['test_file'],
+    write_frame(new_test_frame, input_dir, specs['test_file'],
                 specs['extension'], specs['separator'])
 
     #

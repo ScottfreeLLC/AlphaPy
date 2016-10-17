@@ -294,7 +294,7 @@ def get_estimators(model):
               "n_jobs" : n_jobs,
               "verbose" : verbosity}
     est = RandomForestClassifierCoef(**params)
-    grid = {"n_estimators" : [21, 51, 101, 201, 501, 1001],
+    grid = {"n_estimators" : [21, 51, 101, 201, 501],
             "max_depth" : [5, 7, 10, 20],
             "min_samples_split" : [1, 3, 5, 10],
             "min_samples_leaf" : [1, 2, 3],
@@ -348,7 +348,7 @@ def get_estimators(model):
               "nthread" : n_jobs,
               "silent" : True}
     est = xgb.XGBClassifier(**params)
-    grid = {"n_estimators" : [21, 51, 101, 201, 501, 1001],
+    grid = {"n_estimators" : [21, 51, 101, 201, 501],
             "max_depth" : [5, 6, 7, 8, 9, 10, 12, 15, 20],
             "learning_rate" : [0.01, 0.02, 0.05, 0.1, 0.2],
             "min_child_weight" : [1.0, 1.1],
