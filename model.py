@@ -892,11 +892,11 @@ def save_model(model, tag, partition):
     output_dir = SSEP.join([base_dir, project, 'output'])
 
     logger.info("Saving New Training Data")
-    output_file = USEP.join(['train', timestamp])
+    output_file = USEP.join(['features_train', timestamp])
     np_store_data(X_train, output_dir, output_file, extension, separator)
 
     logger.info("Saving New Testing Data")
-    output_file = USEP.join(['test', timestamp])
+    output_file = USEP.join(['features_test', timestamp])
     np_store_data(X_test, output_dir, output_file, extension, separator)
 
     # Save probabilities for classification projects
