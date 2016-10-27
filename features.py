@@ -281,7 +281,7 @@ def get_numerical_features(fnum, fname, df, nvalues, dt, logt, plevel):
 # Function get_polynomials
 #
 
-def get_polynomials(features, poly_degree):
+def get_polynomials(features, poly_degree, input_names=None):
     """
     Get feature interactions and possibly polynomial interactions.
     """
@@ -289,7 +289,8 @@ def get_polynomials(features, poly_degree):
                                degree=poly_degree,
                                include_bias=False)
     poly_features = polyf.fit_transform(features)
-    return poly_features
+    feature_names = polyf.get_feature_names(input_names)
+    return poly_features, feature_names
 
 
 #
@@ -755,7 +756,7 @@ def create_features(X, model, split_point, y_train):
         logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Return all transformed training and test features
-
+    
     return all_features
 
 

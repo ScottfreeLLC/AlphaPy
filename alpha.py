@@ -126,6 +126,10 @@ def pipeline(model):
     # Remove low-variance features
 
     sig_features = remove_lv_features(all_features)
+
+    # Save the model's feature set
+
+    logger.info("Feature Names : %s", sig_features.dtype.names)
     X_train, X_test = np.array_split(sig_features, [split_point])
     model = save_features(model, X_train, X_test)
 
