@@ -730,29 +730,29 @@ def create_features(X, model, split_point, y_train):
     # Create clustering features
 
     if clustering:
-        cfeatures = create_clusters(all_features, model)
+        cfeatures = create_clusters(base_features, model)
         all_features = np.column_stack((all_features, cfeatures))
         logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Create PCA features
 
     if pca:
-        pfeatures = create_pca_features(all_features, model)
+        pfeatures = create_pca_features(base_features, model)
         all_features = np.column_stack((all_features, pfeatures))
         logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Create Isomap features
 
     if isomap:
-        pfeatures = create_isomap_features(all_features, model)
-        all_features = np.column_stack((all_features, pfeatures))
+        ifeatures = create_isomap_features(base_features, model)
+        all_features = np.column_stack((all_features, ifeatures))
         logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Create T-SNE features
 
     if tsne:
-        pfeatures = create_tsne_features(all_features, model)
-        all_features = np.column_stack((all_features, pfeatures))
+        tfeatures = create_tsne_features(base_features, model)
+        all_features = np.column_stack((all_features, tfeatures))
         logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Return all transformed training and test features
