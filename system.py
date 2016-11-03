@@ -93,10 +93,8 @@ class Orders:
     se = 'se'
     lx = 'lx'
     sx = 'sx'
-    lt = 'lt'
-    st = 'st'
-    lb = 'lb'
-    sb = 'sb'
+    lh = 'lh'
+    sh = 'sh'
 
 
 #
@@ -190,10 +188,10 @@ def gen_trades(system, name, group, quantity):
         # if a holding period was given, then check for exit
         if holdperiod > 0 and h >= holdperiod:
             if inlong:
-                tradelist.append((tdate, [name, Orders.lt, -p, c]))
+                tradelist.append((tdate, [name, Orders.lh, -p, c]))
                 inlong = False
             if inshort:
-                tradelist.append((tdate, [name, Orders.st, -p, c]))
+                tradelist.append((tdate, [name, Orders.sh, -p, c]))
                 inshort = False
             h = 0
             p = 0
