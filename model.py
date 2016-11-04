@@ -94,7 +94,6 @@ class Model:
         self.specs = specs
         self.name = specs['project']
         # initialize model
-        self.features = []
         self.X_train = None
         self.X_test = None
         self.y_train = None

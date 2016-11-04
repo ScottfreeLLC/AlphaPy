@@ -289,8 +289,7 @@ def get_polynomials(features, poly_degree, input_names=None):
                                degree=poly_degree,
                                include_bias=False)
     poly_features = polyf.fit_transform(features)
-    feature_names = polyf.get_feature_names(input_names)
-    return poly_features, feature_names
+    return poly_features
 
 
 #
@@ -730,29 +729,25 @@ def create_features(X, model, split_point, y_train):
     # Create clustering features
 
     if clustering:
-        cfeatures = create_clusters(base_features, model)
-        all_features = np.column_stack((all_features, cfeatures))
+        all_features = create_clusters(base_features, model)
         logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Create PCA features
 
     if pca:
-        pfeatures = create_pca_features(base_features, model)
-        all_features = np.column_stack((all_features, pfeatures))
+        all_features = create_pca_features(base_features, model)
         logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Create Isomap features
 
     if isomap:
-        ifeatures = create_isomap_features(base_features, model)
-        all_features = np.column_stack((all_features, ifeatures))
+        all_features = create_isomap_features(base_features, model)
         logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Create T-SNE features
 
     if tsne:
-        tfeatures = create_tsne_features(base_features, model)
-        all_features = np.column_stack((all_features, tfeatures))
+        all_features = create_tsne_features(base_features, model)
         logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Return all transformed training and test features
