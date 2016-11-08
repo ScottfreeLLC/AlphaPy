@@ -887,9 +887,12 @@ def save_model(model, tag, partition):
 
     save_model_object(model, timestamp)
 
-    # Save final features for training and testing data
+    # Specify input and output directories
 
+    input_dir = SSEP.join([base_dir, project, 'input'])
     output_dir = SSEP.join([base_dir, project, 'output'])
+
+    # Save final features for training and testing data
 
     logger.info("Saving New Training Data")
     output_file = USEP.join(['features_train', timestamp])
@@ -919,7 +922,7 @@ def save_model(model, tag, partition):
     if sample_submission:
         logger.info("Saving Submission")
         sample_spec = PSEP.join([submission_file, extension])
-        sample_input = SSEP.join([output_dir, 'input', sample_spec])
+        sample_input = SSEP.join([input_dir, sample_spec])
         ss = pd.read_csv(sample_input)
         if model_type == ModelType.classification:
             ss[ss.columns[1]] = probas

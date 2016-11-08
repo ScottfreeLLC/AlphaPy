@@ -735,19 +735,22 @@ def create_features(X, model, split_point, y_train):
     # Create PCA features
 
     if pca:
-        all_features = create_pca_features(base_features, model)
+        pfeatures = create_pca_features(base_features, model)
+        all_features = np.column_stack((all_features, pfeatures))
         logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Create Isomap features
 
     if isomap:
-        all_features = create_isomap_features(base_features, model)
+        ifeatures = create_isomap_features(base_features, model)
+        all_features = np.column_stack((all_features, ifeatures))
         logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Create T-SNE features
 
     if tsne:
-        all_features = create_tsne_features(base_features, model)
+        tfeatures = create_tsne_features(base_features, model)
+        all_features = np.column_stack((all_features, tfeatures))
         logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Return all transformed training and test features
