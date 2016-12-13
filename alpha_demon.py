@@ -1,12 +1,12 @@
 ##############################################################
 #
 # Package   : AlphaPy
-# Module    : alpha_stock
+# Module    : alpha_demon
 # Version   : 1.0
 # Copyright : Mark Conway
-# Date      : September 13, 2015
+# Date      : December 13, 2016
 #
-# python ../AlphaPy/alpha_stock.py -d 'Trend Days/config'
+# python ../AlphaPy/alpha_demon.py -d 'Shannon Demon/config'
 #
 ##############################################################
 
@@ -153,7 +153,7 @@ def pipeline(model, stock_specs):
     separator = model.specs['separator']
     directory = SSEP.join([base_dir, project, 'data'])
 
-    # Get any stock specifications
+    # Get any demon specifications
 
     features = stock_specs['features']
     forecast_period = stock_specs['forecast_period']
@@ -173,29 +173,11 @@ def pipeline(model, stock_specs):
     time_frame = datetime.now() - timedelta(lookback_period)
     get_remote_data(gs, time_frame)
 
-    # Apply the features to all of the frames
-
-    vmapply(gs, features)
-    vmapply(gs, [target])
-
-    # Save the frames with all the new features
-
-    # dump_frames(gs, directory, extension, separator)
-
-    # Run the analysis, including the model pipeline
-
-    a = Analysis(model, gs, train_date, predict_date)
-    results = run_analysis(a, forecast_period, leaders)
-
     # Create and run systems
 
     # ts = System('trend', 'bigup', 'bigdown')
     # run_system(ts, gs)
     # gen_portfolio(ts, gs)
-
-    # cs = System('closer', 'hc', 'lc')
-    # tfs = run_system(model, cs, gs)
-    # gen_portfolio(model, cs, gs, tfs)
 
     # Return the completed model
 
@@ -211,7 +193,7 @@ if __name__ == '__main__':
     # Logging
 
     logging.basicConfig(format="[%(asctime)s] %(levelname)s\t%(message)s",
-                        filename="alpha314_stock.log", filemode='a', level=logging.DEBUG,
+                        filename="alpha_demon.log", filemode='a', level=logging.DEBUG,
                         datefmt='%m/%d/%y %H:%M:%S')
     formatter = logging.Formatter("[%(asctime)s] %(levelname)s\t%(message)s",
                                   datefmt='%m/%d/%y %H:%M:%S')
@@ -223,12 +205,12 @@ if __name__ == '__main__':
     # Start the pipeline
 
     logger.info('*'*80)
-    logger.info("START STOCK PIPELINE")
+    logger.info("START DEMON")
     logger.info('*'*80)
 
     # Argument Parsing
 
-    parser = argparse.ArgumentParser(description="Alpha314 Stock Parser")
+    parser = argparse.ArgumentParser(description="Alpha Demon Parser")
     parser.add_argument("-d", dest="cfg_dir", default=".",
                         help="directory location of configuration file")
     args = parser.parse_args()
