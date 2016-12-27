@@ -6,6 +6,8 @@
 # Copyright: Mark Conway
 # Date     : June 29, 2013
 #
+# python ../AlphaPy/alpha.py
+#
 ##############################################################
 
 
