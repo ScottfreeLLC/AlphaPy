@@ -1,12 +1,12 @@
 ##############################################################
 #
 # Package   : AlphaPy
-# Module    : alpha_game
+# Module    : alpha_sport
 # Version   : 1.0
 # Copyright : Mark Conway
 # Date      : October 26, 2015
 #
-# python ../AlphaPy/alpha_game.py -d 'NBA/config'
+# python ../AlphaPy/alpha_sport.py -d 'NBA/config'
 #
 ##############################################################
 
@@ -382,7 +382,7 @@ if __name__ == '__main__':
     # Logging
 
     logging.basicConfig(format="[%(asctime)s] %(levelname)s\t%(message)s",
-                        filename="alpha314_game.log", filemode='a', level=logging.DEBUG,
+                        filename="alpha_sport.log", filemode='a', level=logging.DEBUG,
                         datefmt='%m/%d/%y %H:%M:%S')
     formatter = logging.Formatter("[%(asctime)s] %(levelname)s\t%(message)s",
                                   datefmt='%m/%d/%y %H:%M:%S')
@@ -395,7 +395,7 @@ if __name__ == '__main__':
 
     # Argument Parsing
 
-    parser = argparse.ArgumentParser(description="Alpha314 Game Parser")
+    parser = argparse.ArgumentParser(description="AlphaPy Sport Parser")
     parser.add_argument("-d", dest="cfg_dir", default=".",
                         help="directory location of configuration files")
     args = parser.parse_args()
@@ -430,7 +430,7 @@ if __name__ == '__main__':
 
     # Call the pipeline
 
-    logger.info("Starting Game Pipeline")
+    logger.info("Starting Sport Pipeline")
 
     # Create the game scores space
 
@@ -636,4 +636,4 @@ if __name__ == '__main__':
     # End of Program
     #
 
-    logger.info("Completed Game Pipeline")
+    logger.info("Completed Sport Pipeline")

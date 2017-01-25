@@ -1,12 +1,12 @@
 ##############################################################
 #
 # Package   : AlphaPy
-# Module    : alpha_stock
+# Module    : alpha_market
 # Version   : 1.0
 # Copyright : Mark Conway
 # Date      : September 13, 2015
 #
-# python ../AlphaPy/alpha_stock.py -d 'Stocks/config'
+# python ../AlphaPy/alpha_market.py -d 'Stocks/config'
 #
 ##############################################################
 
@@ -46,16 +46,16 @@ logger = logging.getLogger(__name__)
 
 
 #
-# Function get_stock_config
+# Function get_market_config
 #
 
-def get_stock_config(cfg_dir):
+def get_market_config(cfg_dir):
 
-    logger.info("Stock Configuration")
+    logger.info("Market Configuration")
 
     # Read the configuration file
 
-    full_path = SSEP.join([cfg_dir, 'stock.yml'])
+    full_path = SSEP.join([cfg_dir, 'market.yml'])
     with open(full_path, 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
 
@@ -63,20 +63,20 @@ def get_stock_config(cfg_dir):
 
     specs = {}
 
-    # Section: stock [this section must be first]
+    # Section: market [this section must be first]
 
-    specs['forecast_period'] = cfg['stock']['forecast_period']
-    specs['fractal'] = cfg['stock']['fractal']
-    specs['leaders'] = cfg['stock']['leaders']
-    specs['lookback_period'] = cfg['stock']['lookback_period']
-    specs['predict_date'] = cfg['stock']['predict_date']
-    specs['schema'] = cfg['stock']['schema']
-    specs['target_group'] = cfg['stock']['target_group']
-    specs['train_date'] = cfg['stock']['train_date']
+    specs['forecast_period'] = cfg['market']['forecast_period']
+    specs['fractal'] = cfg['market']['fractal']
+    specs['leaders'] = cfg['market']['leaders']
+    specs['lookback_period'] = cfg['market']['lookback_period']
+    specs['predict_date'] = cfg['market']['predict_date']
+    specs['schema'] = cfg['market']['schema']
+    specs['target_group'] = cfg['market']['target_group']
+    specs['train_date'] = cfg['market']['train_date']
 
     # Create the subject/schema/fractal namespace
 
-    sspecs = ['stock', specs['schema'], specs['fractal']]    
+    sspecs = ['market', specs['schema'], specs['fractal']]    
     space = Space(*sspecs)
 
     # Section: features
@@ -118,7 +118,7 @@ def get_stock_config(cfg_dir):
 
     # Log the stock parameters
 
-    logger.info('STOCK PARAMETERS:')
+    logger.info('MARKET PARAMETERS:')
     logger.info('features        = %s', specs['features'])
     logger.info('forecast_period = %d', specs['forecast_period'])
     logger.info('fractal         = %s', specs['fractal'])
@@ -138,9 +138,9 @@ def get_stock_config(cfg_dir):
 # Function pipeline
 #
 
-def pipeline(model, stock_specs):
+def pipeline(model, market_specs):
     """
-    AlphaPy Stock Pipeline
+    AlphaPy Market Pipeline
     :rtype : object
     """
 
@@ -153,15 +153,15 @@ def pipeline(model, stock_specs):
     separator = model.specs['separator']
     directory = SSEP.join([base_dir, project, 'data'])
 
-    # Get any stock specifications
+    # Get any market specifications
 
-    features = stock_specs['features']
-    forecast_period = stock_specs['forecast_period']
-    leaders = stock_specs['leaders']
-    lookback_period = stock_specs['lookback_period']
-    predict_date = stock_specs['predict_date']
-    target_group = stock_specs['target_group']
-    train_date = stock_specs['train_date']
+    features = market_specs['features']
+    forecast_period = market_specs['forecast_period']
+    leaders = market_specs['leaders']
+    lookback_period = market_specs['lookback_period']
+    predict_date = market_specs['predict_date']
+    target_group = market_specs['target_group']
+    train_date = market_specs['train_date']
 
     # Set the target group
 
@@ -211,7 +211,7 @@ if __name__ == '__main__':
     # Logging
 
     logging.basicConfig(format="[%(asctime)s] %(levelname)s\t%(message)s",
-                        filename="alpha314_stock.log", filemode='a', level=logging.DEBUG,
+                        filename="alpha_market.log", filemode='a', level=logging.DEBUG,
                         datefmt='%m/%d/%y %H:%M:%S')
     formatter = logging.Formatter("[%(asctime)s] %(levelname)s\t%(message)s",
                                   datefmt='%m/%d/%y %H:%M:%S')
@@ -223,23 +223,23 @@ if __name__ == '__main__':
     # Start the pipeline
 
     logger.info('*'*80)
-    logger.info("START STOCK PIPELINE")
+    logger.info("START MARKET PIPELINE")
     logger.info('*'*80)
 
     # Argument Parsing
 
-    parser = argparse.ArgumentParser(description="Alpha314 Stock Parser")
+    parser = argparse.ArgumentParser(description="AlphaPy Market Parser")
     parser.add_argument("-d", dest="cfg_dir", default=".",
                         help="directory location of configuration file")
     args = parser.parse_args()
 
     # Read stock configuration file
 
-    stock_specs = get_stock_config(args.cfg_dir)
+    market_specs = get_market_config(args.cfg_dir)
 
-    # Read configuration file
+    # Read model configuration file
 
-    specs = get_model_config(args.cfg_dir)
+    model_specs = get_model_config(args.cfg_dir)
 
     # Debug the program
 
@@ -249,16 +249,16 @@ if __name__ == '__main__':
 
     logger.info("Creating Model")
 
-    model = Model(specs)
+    model = Model(model_specs)
 
     # Start the pipeline
 
     logger.info("Calling Pipeline")
 
-    model = pipeline(model, stock_specs)
+    model = pipeline(model, market_specs)
 
     # Complete the pipeline
 
     logger.info('*'*80)
-    logger.info("END STOCK PIPELINE")
+    logger.info("END MARKET PIPELINE")
     logger.info('*'*80)
