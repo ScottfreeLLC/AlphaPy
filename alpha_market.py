@@ -76,7 +76,7 @@ def get_market_config(cfg_dir):
 
     # Create the subject/schema/fractal namespace
 
-    sspecs = ['market', specs['schema'], specs['fractal']]    
+    sspecs = ['stock', specs['schema'], specs['fractal']]    
     space = Space(*sspecs)
 
     # Section: features
