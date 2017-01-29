@@ -151,8 +151,10 @@ def run_analysis(analysis, forecast_period, leaders, splits=True):
                 logger.warning("A training frame has zero rows.")
         # write out the training and test files
         directory = SSEP.join([directory, 'input'])
-        write_frame(train_frame, directory, train_file, extension, separator)
-        write_frame(test_frame, directory, test_file, extension, separator)
+        write_frame(train_frame, directory, train_file, extension, separator,
+                    index=True, index_label='date')
+        write_frame(test_frame, directory, test_file, extension, separator,
+                    index=True, index_label='date')
         # run the model pipeline
         analysis.model = pipeline(model)
     else:
