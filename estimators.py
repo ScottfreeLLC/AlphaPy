@@ -174,7 +174,7 @@ def get_estimators(model):
             "learning_rate" : [0.05, 0.1, 0.15],
             "n_estimators" : [50, 100, 200],
             "max_depth" : [3, 5, 10],
-            "min_samples_split" : [1, 2, 3],
+            "min_samples_split" : [2, 3],
             "min_samples_leaf" : [1, 2]
             }
     scoring = True
@@ -296,7 +296,7 @@ def get_estimators(model):
     est = RandomForestClassifierCoef(**params)
     grid = {"n_estimators" : [21, 51, 101, 201, 501],
             "max_depth" : [5, 7, 10, 20],
-            "min_samples_split" : [1, 3, 5, 10],
+            "min_samples_split" : [2, 3, 5, 10],
             "min_samples_leaf" : [1, 2, 3],
             "bootstrap" : [True, False],
             "criterion" : ['gini', 'entropy']}
@@ -398,7 +398,7 @@ def get_estimators(model):
     grid = {"n_estimators" : [21, 51, 101, 201, 501, 1001, 2001],
             "max_features" : ['auto', 'sqrt', 'log2'],
             "max_depth" : [3, 5, 7, 10, 20, 30],
-            "min_samples_split" : [1, 2, 3],
+            "min_samples_split" : [2, 3],
             "min_samples_leaf" : [1, 2],
             "bootstrap" : [True, False],
             "warm_start" : [True, False]}

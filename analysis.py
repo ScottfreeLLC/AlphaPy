@@ -146,15 +146,21 @@ def run_analysis(analysis, forecast_period, leaders, splits=True):
                 if len(new_test_frame) > 0:
                     test_frame = test_frame.append(new_test_frame)
                 else:
-                    raise Exception("A test frame has zero rows. Adjust prediction date.")
+                    logger.info("A test frame has zero rows.")
             else:
                 logger.warning("A training frame has zero rows.")
         # write out the training and test files
-        directory = SSEP.join([directory, 'input'])
-        write_frame(train_frame, directory, train_file, extension, separator,
-                    index=True, index_label='date')
-        write_frame(test_frame, directory, test_file, extension, separator,
-                    index=True, index_label='date')
+        if len(train_frame) > 0 and len(test_frame) > 0:
+            directory = SSEP.join([directory, 'input'])
+            write_frame(train_frame, directory, train_file, extension, separator,
+                        index=True, index_label='date')
+            write_frame(test_frame, directory, test_file, extension, separator,
+                        index=True, index_label='date')
+        else:
+            if len(train_frame) <= 0:
+                raise Exception("Training frame has zero rows. Check data source.")
+            if len(test_frame) <= 0:
+                raise Exception("Test frame has zero rows. Check prediction date.")
         # run the model pipeline
         analysis.model = pipeline(model)
     else:
