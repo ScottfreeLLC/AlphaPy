@@ -35,6 +35,7 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import LinearSVC
 from sklearn.svm import OneClassSVM
 from sklearn.svm import SVC
+import tensorflow as tf
 import tensorflow.contrib.learn as skflow
 import xgboost as xgb
 
@@ -328,7 +329,9 @@ def get_estimators(model):
     # Google TensorFlow Deep Neural Network
     algo = 'TF_DNN'
     model_type = ModelType.classification
-    params = {"n_classes" : 2,
+    feature_columns = [tf.contrib.layers.real_valued_column("", dimension=4)]
+    params = {"feature_columns" : feature_columns,
+              "n_classes" : 2,
               "hidden_units" : [20, 40, 20]}
     est = skflow.DNNClassifier(**params)
     grid = None

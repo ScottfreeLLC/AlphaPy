@@ -122,8 +122,7 @@ def run_analysis(analysis, forecast_period, leaders, splits=True):
     # Load the data frames
 
     directory = SSEP.join([base_dir, project])
-    data_frames = load_frames(group, directory, extension,
-                              separator, splits)
+    data_frames = load_frames(group, directory, extension, separator, splits)
     if data_frames:
         # create training and test frames
         train_frame = pd.DataFrame()
@@ -134,10 +133,10 @@ def run_analysis(analysis, forecast_period, leaders, splits=True):
             if forecast_period > 0:
                 df[target] = df[target].shift(-forecast_period)
             # shift any leading features if necessary
-            if leaders: 
+            if leaders:
                 df[leaders] = df[leaders].shift(-1)
-            # drop any rows with NA
-            df.dropna(inplace=True)
+            # drop any rows with target values of NA
+            df.dropna(subset=[target], inplace=True)
             # split data into train and test
             new_train_frame = df.loc[(df.index >= train_date) & (df.index < predict_date)]
             if len(new_train_frame) > 0:
@@ -146,7 +145,7 @@ def run_analysis(analysis, forecast_period, leaders, splits=True):
                 if len(new_test_frame) > 0:
                     test_frame = test_frame.append(new_test_frame)
                 else:
-                    logger.info("A test frame has zero rows.")
+                    logger.info("A test frame has zero rows. Check for discontinued or stale data.")
             else:
                 logger.warning("A training frame has zero rows.")
         # write out the training and test files
