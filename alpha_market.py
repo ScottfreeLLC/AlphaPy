@@ -146,12 +146,10 @@ def pipeline(model, market_specs):
 
     # Get any model specifications
 
-    target = model.specs['target']
-    base_dir = model.specs['base_dir']
+    directory = model.specs['directory']
     extension = model.specs['extension']
-    project = model.specs['project']
     separator = model.specs['separator']
-    directory = SSEP.join([base_dir, project, 'data'])
+    target = model.specs['target']
 
     # Get any market specifications
 

@@ -420,8 +420,8 @@ if __name__ == '__main__':
 
     # Unpack model arguments
 
-    base_dir = specs['base_dir']
-    organization = specs['project']
+    directory = specs['directory']
+    organization = directory.split(SSEP)[-1]
     target = specs['target']
 
     # Debug the program
@@ -452,7 +452,6 @@ if __name__ == '__main__':
 
     logger.info("Reading Game Data")
 
-    directory = SSEP.join([base_dir, organization])
     data_dir = SSEP.join([directory, 'data'])
     file_base = USEP.join([organization, space.subject, space.schema, space.fractal])
     df = read_frame(data_dir, file_base, specs['extension'], specs['separator'])

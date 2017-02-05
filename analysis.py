@@ -59,7 +59,7 @@ class Analysis(object):
         if train_date >= predict_date:
             raise ValueError("Training date must be before prediction date")
         # set analysis name
-        name = model.specs['project']
+        name = model.specs['directory'].split(SSEP)[-1]
         target = model.specs['target']
         an = analysis_name(name, target)
         if not an in Analysis.analyses:
@@ -75,7 +75,7 @@ class Analysis(object):
                  train_date = pd.datetime(1900, 1, 1),
                  predict_date = pd.datetime.today() - BDay(2)):
         # set analysis name
-        name = model.specs['project']
+        name = model.specs['directory'].split(SSEP)[-1]
         target = model.specs['target']
         an = analysis_name(name, target)
         # initialize analysis
@@ -112,9 +112,8 @@ def run_analysis(analysis, forecast_period, leaders, splits=True):
 
     # Unpack model data
 
-    base_dir = model.specs['base_dir']
+    directory = model.specs['directory']
     extension = model.specs['extension']
-    project = model.specs['project']
     separator = model.specs['separator']
     test_file = model.specs['test_file']
     test_labels = model.specs['test_labels']
@@ -122,7 +121,6 @@ def run_analysis(analysis, forecast_period, leaders, splits=True):
 
     # Load the data frames
 
-    directory = SSEP.join([base_dir, project])
     data_frames = load_frames(group, directory, extension, separator, splits)
     if data_frames:
         # create training and test frames

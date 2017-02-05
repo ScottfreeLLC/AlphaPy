@@ -88,10 +88,9 @@ def get_data(model, partition):
 
     # Extract the model data
 
-    base_dir = model.specs['base_dir']
+    directory = model.specs['directory']
     extension = model.specs['extension']
     features = model.specs['features']
-    project = model.specs['project']
     separator = model.specs['separator']
     target = model.specs['target']
     test_file = model.specs['test_file']
@@ -110,8 +109,8 @@ def get_data(model, partition):
 
     # Read in the file
 
-    directory = SSEP.join([base_dir, project, 'input'])
-    df = read_frame(directory, filename, extension, separator)
+    input_dir = SSEP.join([directory, 'input'])
+    df = read_frame(input_dir, filename, extension, separator)
 
     # Assign target and drop it if necessary
 

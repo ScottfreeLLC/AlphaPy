@@ -68,31 +68,12 @@ logger = logging.getLogger(__name__)
 #
 
 class Model:
-
-    # class variable to track all models
-
-    models = {}
-
-    # __new__
-    
-    def __new__(cls,
-                specs):
-        # create model name
-        try:
-            mn = specs['project']
-        except:
-            raise KeyError("Model specs must include the key: project")
-        if not mn in Model.models:
-            return super(Model, cls).__new__(cls)
-        else:
-            print ("Model ", mn, " already exists")
             
     # __init__
             
     def __init__(self,
                  specs):
         self.specs = specs
-        self.name = specs['project']
         # initialize model
         self.X_train = None
         self.X_test = None
@@ -112,11 +93,6 @@ class Model:
         self.probas = {}
         # Keys: (algorithm, partition, metric)
         self.metrics = {}
-        # add model to models list
-        try:
-            Model.models[specs['project']] = self
-        except:
-            raise KeyError("Model specs must include the key: project")
                 
     # __str__
 
@@ -149,9 +125,8 @@ def get_model_config(cfg_dir):
 
     # Section: project [this section must be first]
 
-    specs['base_dir'] = cfg['project']['base_directory']
+    specs['directory'] = cfg['project']['directory']
     specs['extension'] = cfg['project']['file_extension']
-    specs['project'] = cfg['project']['project_name']
     specs['sample_submission'] = cfg['project']['sample_submission']
     specs['submission_file'] = cfg['project']['submission_file']
 
@@ -302,7 +277,6 @@ def get_model_config(cfg_dir):
     logger.info('MODEL PARAMETERS:')
     logger.info('algorithms        = %s', specs['algorithms'])
     logger.info('balance_classes   = %s', specs['balance_classes'])
-    logger.info('base_dir          = %s', specs['base_dir'])
     logger.info('calibration       = %r', specs['calibration'])
     logger.info('cal_type          = %s', specs['cal_type'])
     logger.info('calibration_plot  = %r', specs['calibration'])
@@ -313,6 +287,7 @@ def get_model_config(cfg_dir):
     logger.info('confusion_matrix  = %r', specs['confusion_matrix'])
     logger.info('counts            = %r', specs['counts'])
     logger.info('cv_folds          = %d', specs['cv_folds'])
+    logger.info('directory         = %s', specs['directory'])
     logger.info('extension         = %s', specs['extension'])
     logger.info('drop              = %s', specs['drop'])
     logger.info('dummy_limit       = %d', specs['dummy_limit'])
@@ -349,7 +324,6 @@ def get_model_config(cfg_dir):
     logger.info('pca_min           = %d', specs['pca_min'])
     logger.info('pca_whiten        = %r', specs['pca_whiten'])
     logger.info('poly_degree       = %d', specs['poly_degree'])
-    logger.info('project           = %s', specs['project'])
     logger.info('pvalue_level      = %f', specs['pvalue_level'])
     logger.info('rfe               = %r', specs['rfe'])
     logger.info('rfe_step          = %d', specs['rfe_step'])
@@ -420,8 +394,7 @@ def save_model_object(model, timestamp):
 
     # Extract model parameters.
 
-    base_dir = model.specs['base_dir']
-    project = model.specs['project']
+    directory = model.specs['directory']
 
     # Get the best predictor
 
@@ -429,7 +402,6 @@ def save_model_object(model, timestamp):
 
     # Create full path name.
 
-    directory = SSEP.join([base_dir, project])
     filename = 'model_' + timestamp + '.pkl'
     full_path = SSEP.join([directory, 'model', filename])
 
@@ -864,10 +836,9 @@ def save_model(model, tag, partition):
 
     # Extract model parameters.
 
-    base_dir = model.specs['base_dir']
+    directory = model.specs['directory']
     extension = model.specs['extension']
     model_type = model.specs['model_type']
-    project = model.specs['project']
     sample_submission = model.specs['sample_submission']
     separator = model.specs['separator']
     submission_file = model.specs['submission_file']
@@ -889,8 +860,8 @@ def save_model(model, tag, partition):
 
     # Specify input and output directories
 
-    input_dir = SSEP.join([base_dir, project, 'input'])
-    output_dir = SSEP.join([base_dir, project, 'output'])
+    input_dir = SSEP.join([directory, 'input'])
+    output_dir = SSEP.join([directory, 'output'])
 
     # Save final features for training and testing data
 
