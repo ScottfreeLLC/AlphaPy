@@ -142,7 +142,7 @@ def get_game_config(cfg_dir):
     specs['predict_date'] = cfg['game']['predict_date']
     specs['random_scoring'] = cfg['game']['random_scoring']
     specs['rolling_window'] = cfg['game']['rolling_window']   
-    specs['season'] = cfg['game']['season']
+    specs['seasons'] = cfg['game']['seasons']
     specs['train_date'] = cfg['game']['train_date']
 
     # Log the game parameters
@@ -153,7 +153,7 @@ def get_game_config(cfg_dir):
     logger.info('predict_date     = %s', specs['predict_date'])
     logger.info('random_scoring   = %r', specs['random_scoring'])
     logger.info('rolling_window   = %d', specs['rolling_window'])
-    logger.info('season           = %d', specs['season'])
+    logger.info('seasons          = %s', specs['seasons'])
     logger.info('train_date       = %s', specs['train_date'])
 
     # Game Specifications
@@ -410,7 +410,7 @@ if __name__ == '__main__':
     points_min = game_specs['points_min']
     predict_date = game_specs['predict_date']
     random_scoring = game_specs['random_scoring']
-    season = game_specs['season']
+    seasons = game_specs['seasons']
     train_date = game_specs['train_date']
     window = game_specs['rolling_window']   
 
@@ -477,10 +477,7 @@ if __name__ == '__main__':
     # Run the game pipeline on a seasonal loop
     #
 
-    if season:
-        # run model for a specific season
-        seasons = [season]
-    else:
+    if not seasons:
         # run model on all seasons
         seasons = df['season'].unique().tolist()
 
