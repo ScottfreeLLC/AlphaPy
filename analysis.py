@@ -117,6 +117,7 @@ def run_analysis(analysis, forecast_period, leaders, splits=True):
     project = model.specs['project']
     separator = model.specs['separator']
     test_file = model.specs['test_file']
+    test_labels = model.specs['test_labels']
     train_file = model.specs['train_file']
 
     # Load the data frames
@@ -135,14 +136,17 @@ def run_analysis(analysis, forecast_period, leaders, splits=True):
             # shift any leading features if necessary
             if leaders:
                 df[leaders] = df[leaders].shift(-1)
-            # drop any rows with target values of NA
-            df.dropna(subset=[target], inplace=True)
             # split data into train and test
             new_train_frame = df.loc[(df.index >= train_date) & (df.index < predict_date)]
             if len(new_train_frame) > 0:
+                # train frame
+                new_train_frame.dropna(subset=[target], inplace=True)
                 train_frame = train_frame.append(new_train_frame)
+                # test frame
                 new_test_frame = df.loc[df.index >= predict_date]
                 if len(new_test_frame) > 0:
+                    if test_labels:
+                        new_test_frame.dropna(subset=[target], inplace=True)
                     test_frame = test_frame.append(new_test_frame)
                 else:
                     logger.info("A test frame has zero rows. Check for discontinued or stale data.")
