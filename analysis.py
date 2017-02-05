@@ -135,17 +135,17 @@ def run_analysis(analysis, forecast_period, leaders, splits=True):
             if leaders:
                 df[leaders] = df[leaders].shift(-1)
             # split data into train and test
-            new_train_frame = df.loc[(df.index >= train_date) & (df.index < predict_date)]
-            if len(new_train_frame) > 0:
+            new_train = df.loc[(df.index >= train_date) & (df.index < predict_date)]
+            if len(new_train) > 0:
                 # train frame
-                new_train_frame.dropna(subset=[target], inplace=True)
-                train_frame = train_frame.append(new_train_frame)
+                new_train = new_train.dropna(subset=[target])
+                train_frame = train_frame.append(new_train)
                 # test frame
-                new_test_frame = df.loc[df.index >= predict_date]
-                if len(new_test_frame) > 0:
+                new_test = df.loc[df.index >= predict_date]
+                if len(new_test) > 0:
                     if test_labels:
-                        new_test_frame.dropna(subset=[target], inplace=True)
-                    test_frame = test_frame.append(new_test_frame)
+                        new_test = new_test.dropna(subset=[target])
+                    test_frame = test_frame.append(new_test)
                 else:
                     logger.info("A test frame has zero rows. Check for discontinued or stale data.")
             else:
