@@ -17,7 +17,7 @@
 
 print(__doc__)
 
-from alpha import pipeline
+from alpha import main_pipeline
 import argparse
 import datetime
 from estimators import ModelType
@@ -615,7 +615,7 @@ if __name__ == '__main__':
     logger.info("Running Model")
 
     model = Model(specs)
-    model = pipeline(model)
+    model = main_pipeline(model)
 
     #
     # Log the predictions

@@ -128,6 +128,7 @@ def get_model_config(cfg_dir):
     specs['directory'] = cfg['project']['directory']
     specs['extension'] = cfg['project']['file_extension']
     specs['sample_submission'] = cfg['project']['sample_submission']
+    specs['scoring_mode'] = cfg['project']['scoring_mode']
     specs['submission_file'] = cfg['project']['submission_file']
 
     # Section: data
@@ -335,6 +336,7 @@ def get_model_config(cfg_dir):
     logger.info('sampling_ratio    = %f', specs['sampling_ratio'])
     logger.info('scipy             = %r', specs['scipy'])
     logger.info('scorer            = %s', specs['scorer'])
+    logger.info('scoring_mode      = %r', specs['scoring_mode'])
     logger.info('seed              = %d', specs['seed'])
     logger.info('sentinel          = %d', specs['sentinel'])
     logger.info('separator         = %s', specs['separator'])

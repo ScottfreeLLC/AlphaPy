@@ -13,7 +13,7 @@
 # Imports
 #
 
-from alpha import pipeline
+from alpha import main_pipeline
 from frame import load_frames
 from frame import write_frame
 from globs import SSEP
@@ -162,8 +162,8 @@ def run_analysis(analysis, forecast_period, leaders, splits=True):
                 raise Exception("Training frame has zero rows. Check data source.")
             if len(test_frame) <= 0:
                 raise Exception("Test frame has zero rows. Check prediction date.")
-        # run the model pipeline
-        analysis.model = pipeline(model)
+        # run the AlphaPy pipeline
+        analysis.model = main_pipeline(model)
     else:
         # no frames found
         logger.info("No frames were found for analysis %s", name)

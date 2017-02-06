@@ -60,26 +60,20 @@ logger = logging.getLogger(__name__)
 
 
 #
-# Function pipeline
+# Function data_pipeline
 #
 
-def pipeline(model):
+def data_pipeline(model):
     """
-    AlphaPy Main Pipeline
-    :rtype : object
+    AlphaPy Data Pipeline
+    :rtype : model object
     """
+
+    logger.info("DATA PIPELINE")
 
     # Unpack the model specifications
 
-    calibration = model.specs['calibration']
     drop = model.specs['drop']
-    feature_selection = model.specs['feature_selection']
-    grid_search = model.specs['grid_search']
-    rfe = model.specs['rfe']
-    sampling = model.specs['sampling']
-    scorer = model.specs['scorer']
-    shuffle = model.specs['shuffle']
-    split = model.specs['split']
     target = model.specs['target']
     test_labels = model.specs['test_labels']
 
@@ -138,6 +132,32 @@ def pipeline(model):
     logger.info("Feature Names : %s", sig_features.dtype.names)
     X_train, X_test = np.array_split(sig_features, [split_point])
     model = save_features(model, X_train, X_test)
+
+    # Return the model
+    return model
+
+
+#
+# Function model_pipeline
+#
+
+def model_pipeline(model):
+    """
+    AlphaPy Model Pipeline
+    :rtype : model object
+    """
+
+    logger.info("MODEL PIPELINE")
+
+    # Unpack the model specifications
+
+    calibration = model.specs['calibration']
+    feature_selection = model.specs['feature_selection']
+    grid_search = model.specs['grid_search']
+    rfe = model.specs['rfe']
+    sampling = model.specs['sampling']
+    scorer = model.specs['scorer']
+    test_labels = model.specs['test_labels']
 
     # Shuffle the data [if specified]
 
@@ -220,6 +240,35 @@ def pipeline(model):
 
     save_model(model, 'BEST', 'test')
 
+    # Return the model
+    return model
+
+
+#
+# Function main_pipeline
+#
+
+def main_pipeline(model):
+    """
+    AlphaPy Main Pipeline
+    :rtype : model object
+    """
+
+    # Unpack the model specifications
+
+    scoring_mode = model.specs['scoring_mode']
+
+    # Call the data pipeline
+
+    model = data_pipeline(model)
+
+    # Calibration or scoring
+
+    if scoring_mode:
+        logger.info("SCORING")
+    else:
+        model = model_pipeline(model)
+
     # Return the completed model
 
     return model
@@ -274,7 +323,7 @@ if __name__ == '__main__':
 
     logger.info("Calling Pipeline")
 
-    model = pipeline(model)
+    model = main_pipeline(model)
 
     # Complete the pipeline
 

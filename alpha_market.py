@@ -16,7 +16,6 @@
 #
 
 from alias import Alias
-from alpha import pipeline
 from analysis import Analysis
 from analysis import run_analysis
 import argparse
@@ -135,10 +134,10 @@ def get_market_config(cfg_dir):
 
 
 #
-# Function pipeline
+# Function market_pipeline
 #
 
-def pipeline(model, market_specs):
+def market_pipeline(model, market_specs):
     """
     AlphaPy Market Pipeline
     :rtype : object
@@ -246,14 +245,12 @@ if __name__ == '__main__':
     # Create a model from the arguments
 
     logger.info("Creating Model")
-
     model = Model(model_specs)
 
     # Start the pipeline
 
     logger.info("Calling Pipeline")
-
-    model = pipeline(model, market_specs)
+    model = market_pipeline(model, market_specs)
 
     # Complete the pipeline
 
