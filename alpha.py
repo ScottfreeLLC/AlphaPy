@@ -245,6 +245,18 @@ def model_pipeline(model):
 
 
 #
+# Function score_with_model
+#
+
+def score_with_model(model):
+    """
+    AlphaPy Scoring
+    """
+
+    logger.info("SCORING")
+
+
+#
 # Function main_pipeline
 #
 
@@ -262,10 +274,10 @@ def main_pipeline(model):
 
     model = data_pipeline(model)
 
-    # Calibration or scoring
+    # Scoring Only or Calibration
 
     if scoring_mode:
-        logger.info("SCORING")
+        score_with_model(model)
     else:
         model = model_pipeline(model)
 
