@@ -129,7 +129,6 @@ def get_model_config(cfg_dir):
 
     specs['directory'] = cfg['project']['directory']
     specs['extension'] = cfg['project']['file_extension']
-    specs['model_name'] = cfg['project']['model_name']
     specs['sample_submission'] = cfg['project']['sample_submission']
     specs['scoring_mode'] = cfg['project']['scoring_mode']
     specs['submission_file'] = cfg['project']['submission_file']
@@ -317,7 +316,6 @@ def get_model_config(cfg_dir):
     logger.info('isample_pct       = %d', specs['isample_pct'])
     logger.info('learning_curve    = %r', specs['learning_curve'])
     logger.info('logtransform      = %r', specs['logtransform'])
-    logger.info('model_name        = %s', specs['model_name'])
     logger.info('model_type        = %r', specs['model_type'])
     logger.info('n_estimators      = %d', specs['n_estimators'])
     logger.info('n_jobs            = %d', specs['n_jobs'])
@@ -369,30 +367,27 @@ def get_model_config(cfg_dir):
 # Function load_model_object
 #
 
-def load_model_object(directory, model_name):
+def load_model_object(directory):
     """
     Load the model from storage.
     """
 
     logger.info("Loading Model")
 
-    # Create path name
+    # Create search path
 
-    dot_pkl = '.pkl'
-    star_pkl = '*' + dot_pkl
-    if model_name is not None:
-        filename = 'model_' + model_name + pkl
-    else:
-        # get latest pkl file in model directory
-        search_path = SSEP.join([directory, star_pkl])
+    search_path = SSEP.join([directory, 'model', 'model*.pkl'])
+
+    # Locate the Pickle model file
+
+    try:
         filename = max(glob.iglob(search_path), key=os.path.getctime)
-        if filename is None:
-            logging.error("Could not find model %s in %s", model_name, search_path)
-    full_path = SSEP.join([directory, 'model', filename])
+    except:
+        logging.error("Could not find model %s", search_path)
 
     # Load the model predictor
 
-    predictor = joblib.load(full_path)
+    predictor = joblib.load(filename)
     return predictor
 
 
@@ -410,7 +405,6 @@ def save_model_object(model, timestamp):
     # Extract model parameters.
 
     directory = model.specs['directory']
-    model_name = model.specs['model_name']
 
     # Get the best predictor
 
@@ -418,10 +412,7 @@ def save_model_object(model, timestamp):
 
     # Create full path name.
 
-    if model is not None:
-        filename = 'model_' + model_name + '.pkl'
-    else:
-        filename = 'model_' + timestamp + '.pkl'
+    filename = 'model_' + timestamp + '.pkl'
     full_path = SSEP.join([directory, 'model', filename])
 
     # Save model object

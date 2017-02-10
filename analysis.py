@@ -138,7 +138,7 @@ def run_analysis(analysis, forecast_period, leaders, splits=True):
             new_train = df.loc[(df.index >= train_date) & (df.index < predict_date)]
             if len(new_train) > 0:
                 # train frame
-                new_train = new_train.dropna(subset=[target])
+                new_train = new_train.dropna()
                 train_frame = train_frame.append(new_train)
                 # test frame
                 new_test = df.loc[df.index >= predict_date]

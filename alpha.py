@@ -263,18 +263,19 @@ def score_with_model(model):
     # Unpack the model specifications
 
     directory = model.specs['directory']
-    model_name = model.specs['model_name']
     model_type = model.specs['model_type']
 
     # Load model object
 
-    predictor = load_model_object(directory, model_name)
+    predictor = load_model_object(directory)
 
     # Score the test data
     
     preds = predictor.predict(X_test)
+    logger.info("Predictions: %s", preds)
     if model_type == ModelType.classification:
         probas = predictor.predict_proba(X_test)[:, 1]
+        logger.info("Probabilities: %s", probas)
 
 
 #
