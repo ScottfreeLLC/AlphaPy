@@ -21,14 +21,16 @@ from estimators import scorers
 from estimators import xgb_score_map
 from features import Encoders
 from features import feature_scorers
+import glob
 from globs import PSEP
 from globs import SSEP
 from globs import USEP
-from sklearn.externals import joblib
 import logging
 import numpy as np
+import os
 import pandas as pd
 from sklearn.calibration import CalibratedClassifierCV
+from sklearn.externals import joblib
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import RidgeCV
 from sklearn.metrics import accuracy_score
@@ -367,7 +369,7 @@ def get_model_config(cfg_dir):
 # Function load_model_object
 #
 
-def load_model_object(directory, timestamp):
+def load_model_object(directory, model_name):
     """
     Load the model from storage.
     """
@@ -376,7 +378,16 @@ def load_model_object(directory, timestamp):
 
     # Create path name
 
-    filename = 'model_' + timestamp + '.pkl'
+    dot_pkl = '.pkl'
+    star_pkl = '*' + dot_pkl
+    if model_name is not None:
+        filename = 'model_' + model_name + pkl
+    else:
+        # get latest pkl file in model directory
+        search_path = SSEP.join([directory, star_pkl])
+        filename = max(glob.iglob(search_path), key=os.path.getctime)
+        if filename is None:
+            logging.error("Could not find model %s in %s", model_name, search_path)
     full_path = SSEP.join([directory, 'model', filename])
 
     # Load the model predictor

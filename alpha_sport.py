@@ -618,17 +618,6 @@ if __name__ == '__main__':
     model = main_pipeline(model)
 
     #
-    # Log the predictions
-    #
-
-    for algo in model.algolist:
-        logger.info("Algorithm: %s", algo)
-        logger.info("Predictions:")
-        logger.info(model.preds[(algo, 'test')])
-        logger.info("Probabilities:")
-        logger.info(model.probas[(algo, 'test')])
-
-    #
     # End of Program
     #
 

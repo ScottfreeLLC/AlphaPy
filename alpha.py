@@ -38,6 +38,7 @@ from model import first_fit
 from model import generate_metrics
 from model import get_model_config
 from model import get_sample_weights
+from model import load_model_object
 from model import make_predictions
 from model import Model
 from model import predict_best
@@ -254,6 +255,26 @@ def score_with_model(model):
     """
 
     logger.info("SCORING")
+
+    # Unpack the model data
+
+    X_test = model.X_test
+
+    # Unpack the model specifications
+
+    directory = model.specs['directory']
+    model_name = model.specs['model_name']
+    model_type = model.specs['model_type']
+
+    # Load model object
+
+    predictor = load_model_object(directory, model_name)
+
+    # Score the test data
+    
+    preds = predictor.predict(X_test)
+    if model_type == ModelType.classification:
+        probas = predictor.predict_proba(X_test)[:, 1]
 
 
 #
