@@ -144,7 +144,7 @@ def run_analysis(analysis, forecast_period, leaders, splits=True):
                 new_test = df.loc[df.index >= predict_date]
                 if len(new_test) > 0:
                     if test_labels:
-                        new_test = new_test.dropna(subset=[target])
+                        new_test = new_test.dropna()
                     test_frame = test_frame.append(new_test)
                 else:
                     logger.info("A test frame has zero rows. Check for discontinued or stale data.")
