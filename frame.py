@@ -129,7 +129,6 @@ def load_frames(group, directory, extension, separator, splits=False):
         for gn in gnames:
             fname = frame_name(gn, gspace)
             if fname in Frame.frames:
-                logger.info("Found Data Frame for %s", fname)
                 df = Frame.frames[fname].df
             else:
                 logger.info("Data Frame for %s not found", fname)
