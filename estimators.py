@@ -1,12 +1,26 @@
-##############################################################
+################################################################################
 #
-# Package  : AlphaPy
-# Module   : estimators
-# Version  : 1.0
-# Copyright: Mark Conway
-# Date     : June 29, 2013
+# Package   : AlphaPy
+# Module    : estimators
+# Version   : 1.0
+# Date      : July 11, 2013
 #
-##############################################################
+# Copyright 2017 @ Alpha314
+# Mark Conway & Robert D. Scott II
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+################################################################################
 
 
 #
@@ -351,7 +365,7 @@ def get_estimators(model):
               "nthread" : n_jobs,
               "silent" : True}
     est = xgb.XGBClassifier(**params)
-    grid = {"n_estimators" : [21, 51, 101, 201, 501],
+    grid = {"n_estimators" : [21, 51, 101, 201, 501, 1001],
             "max_depth" : [5, 6, 7, 8, 9, 10, 12, 15, 20],
             "learning_rate" : [0.01, 0.02, 0.05, 0.1, 0.2],
             "min_child_weight" : [1.0, 1.1],

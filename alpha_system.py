@@ -1,7 +1,7 @@
 ################################################################################
 #
 # Package   : AlphaPy
-# Module    : alpha_market
+# Module    : alpha_system
 # Version   : 1.0
 # Date      : July 11, 2013
 #
@@ -20,7 +20,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Example: python ../AlphaPy/alpha_market.py -d 'Stocks/config'
+# Example: python ../AlphaPy/alpha_system.py -d 'Stocks/config'
 #
 ################################################################################
 
@@ -29,14 +29,11 @@
 # Imports
 #
 
-from alias import Alias
-from analysis import Analysis
-from analysis import run_analysis
+from alpha_market import get_market_config
 import argparse
 from datetime import datetime
 from datetime import timedelta
 from data import get_remote_data
-from frame import dump_frames
 from globs import SSEP
 from group import Group
 import logging
@@ -59,101 +56,12 @@ logger = logging.getLogger(__name__)
 
 
 #
-# Function get_market_config
+# Function system_pipeline
 #
 
-def get_market_config(cfg_dir):
-
-    logger.info("Market Configuration")
-
-    # Read the configuration file
-
-    full_path = SSEP.join([cfg_dir, 'market.yml'])
-    with open(full_path, 'r') as ymlfile:
-        cfg = yaml.load(ymlfile)
-
-    # Store configuration parameters in dictionary
-
-    specs = {}
-
-    # Section: market [this section must be first]
-
-    specs['forecast_period'] = cfg['market']['forecast_period']
-    specs['fractal'] = cfg['market']['fractal']
-    specs['leaders'] = cfg['market']['leaders']
-    specs['lookback_period'] = cfg['market']['lookback_period']
-    specs['predict_date'] = cfg['market']['predict_date']
-    specs['schema'] = cfg['market']['schema']
-    specs['target_group'] = cfg['market']['target_group']
-    specs['train_date'] = cfg['market']['train_date']
-
-    # Create the subject/schema/fractal namespace
-
-    sspecs = ['stock', specs['schema'], specs['fractal']]    
-    space = Space(*sspecs)
-
-    # Section: features
-
-    try:
-        logger.info("Getting Features")
-        specs['features'] = cfg['features']
-    except:
-        logger.info("No Features Found")
-
-    # Section: groups
-
-    try:
-        logger.info("Defining Groups")
-        for g, m in cfg['groups'].items():
-            command = 'Group(\'' + g + '\', space)'
-            exec(command)
-            Group.groups[g].add(m)
-    except:
-        logger.info("No Groups Found")
-
-    # Section: aliases
-
-    try:
-        logger.info("Defining Aliases")
-        for k, v in cfg['aliases'].items():
-            Alias(k, v)
-    except:
-        logger.info("No Aliases Found")
-
-    # Section: variables
-
-    try:
-        logger.info("Defining Variables")
-        for k, v in cfg['variables'].items():
-            Variable(k, v)
-    except:
-        logger.info("No Variables Found")
-
-    # Log the stock parameters
-
-    logger.info('MARKET PARAMETERS:')
-    logger.info('features        = %s', specs['features'])
-    logger.info('forecast_period = %d', specs['forecast_period'])
-    logger.info('fractal         = %s', specs['fractal'])
-    logger.info('leaders         = %s', specs['leaders'])
-    logger.info('lookback_period = %d', specs['lookback_period'])
-    logger.info('predict_date    = %s', specs['predict_date'])
-    logger.info('schema          = %s', specs['schema'])
-    logger.info('target_group    = %s', specs['target_group'])
-    logger.info('train_date      = %s', specs['train_date'])
-
-    # Stock Specifications
-
-    return specs
-
-
-#
-# Function market_pipeline
-#
-
-def market_pipeline(model, market_specs):
+def system_pipeline(model, market_specs):
     """
-    AlphaPy Market Pipeline
+    AlphaPy System Pipeline
     :rtype : object
     """
 
@@ -188,10 +96,6 @@ def market_pipeline(model, market_specs):
 
     vmapply(gs, features)
     vmapply(gs, [target])
-
-    # Save the frames with all the new features
-
-    # dump_frames(gs, directory, extension, separator)
 
     # Run the analysis, including the model pipeline
 
@@ -234,7 +138,7 @@ if __name__ == '__main__':
     # Start the pipeline
 
     logger.info('*'*80)
-    logger.info("START MARKET PIPELINE")
+    logger.info("START SYSTEM PIPELINE")
     logger.info('*'*80)
 
     # Argument Parsing
@@ -264,10 +168,10 @@ if __name__ == '__main__':
     # Start the pipeline
 
     logger.info("Calling Pipeline")
-    model = market_pipeline(model, market_specs)
+    model = system_pipeline(model, market_specs)
 
     # Complete the pipeline
 
     logger.info('*'*80)
-    logger.info("END MARKET PIPELINE")
+    logger.info("END SYSTEM PIPELINE")
     logger.info('*'*80)
