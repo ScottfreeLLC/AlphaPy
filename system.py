@@ -231,11 +231,9 @@ def run_system(model,
 
     # Unpack the model data.
 
-    base_dir = model.specs['base_dir']
+    directory = model.specs['directory']
     extension = model.specs['extension']
-    project = model.specs['project']
     separator = model.specs['separator']
-    directory = SSEP.join([base_dir, project])
 
     # Extract the group information.
 

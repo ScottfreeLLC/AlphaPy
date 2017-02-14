@@ -90,8 +90,8 @@ def system_pipeline(model, market_specs):
     # Create and run systems
 
     ts = System('trend', 'bigup', 'bigdown')
-    run_system(model, ts, gs)
-    gen_portfolio(model, ts, gs)
+    tfs = run_system(model, ts, gs)
+    gen_portfolio(model, ts, gs, tfs)
 
     # cs = System('closer', 'hc', 'lc')
     # tfs = run_system(model, cs, gs)

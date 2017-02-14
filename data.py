@@ -33,7 +33,6 @@ from enum import Enum, unique
 from frame import Frame
 from frame import frame_name
 from frame import read_frame
-from globs import FEEDS
 from globs import PSEP
 from globs import SSEP
 from globs import WILDCARD
@@ -336,12 +335,12 @@ def get_yahoo_data(symbol, lookback_period):
 
     # Calculate the start and end date for Yahoo.
 
-    start = datetime.now() - timedelta(lookback_period),
-    end = datetime.now()):
+    start = datetime.now() - timedelta(lookback_period)
+    end = datetime.now()
 
     # Call the Pandas Web data reader.
 
-    df = web.DataReader(item, 'yahoo', start, end)
+    df = web.DataReader(symbol, 'yahoo', start, end)
     return df
 
 
@@ -362,14 +361,14 @@ def get_feed_data(group, lookback_period):
         logger.info("Getting Intraday Data (Google 50-day limit)")
         daily_data = False
         dtcol = 'datetime'
-    elif
+    else:
         # daily data (date only)
         logger.info("Getting Daily Data")
         daily_data = True
         dtcol = 'date'
     # Get the data from the relevant feed
     for item in group.members:
-        logger.info("Getting %s data from %s to %s", item, start, end)
+        logger.info("Getting %s data for last %d days", item, lookback_period)
         if daily_data:
             df = get_yahoo_data(item, lookback_period)
         else:

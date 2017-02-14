@@ -35,6 +35,7 @@ from estimators import scorers
 from estimators import xgb_score_map
 from features import Encoders
 from features import feature_scorers
+from frame import read_frame
 from frame import write_frame
 import glob
 from globs import PSEP

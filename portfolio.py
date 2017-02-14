@@ -629,11 +629,9 @@ def gen_portfolio(model, system, group, tframe,
 
     # Unpack the model data.
 
-    base_dir = model.specs['base_dir']
+    directory = model.specs['directory']
     extension = model.specs['extension']
-    project = model.specs['project']
     separator = model.specs['separator']
-    directory = SSEP.join([base_dir, project])
 
     # Create the portfolio.
 
@@ -668,7 +666,6 @@ def gen_portfolio(model, system, group, tframe,
     # Iterate through the date range, updating the portfolio.
 
     for d in drange:
-        logger.info("Updating Portfolio for %s", d)
         # process today's trades
         if d in tframe.index:
             trades = tframe.ix[d]
