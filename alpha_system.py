@@ -31,10 +31,7 @@
 
 from alpha_market import get_market_config
 import argparse
-from datetime import datetime
-from datetime import timedelta
-from data import get_remote_data
-from globs import SSEP
+from data import get_feed_data
 from group import Group
 import logging
 from model import get_model_config
@@ -43,9 +40,7 @@ from portfolio import gen_portfolio
 from space import Space
 from system import System
 from system import run_system
-from var import Variable
 from var import vmapply
-import yaml
 
 
 #
@@ -75,12 +70,9 @@ def system_pipeline(model, market_specs):
     # Get any market specifications
 
     features = market_specs['features']
-    forecast_period = market_specs['forecast_period']
-    leaders = market_specs['leaders']
+    fractal = market_specs['fractal']
     lookback_period = market_specs['lookback_period']
-    predict_date = market_specs['predict_date']
     target_group = market_specs['target_group']
-    train_date = market_specs['train_date']
 
     # Set the target group
 
@@ -89,32 +81,23 @@ def system_pipeline(model, market_specs):
 
     # Get stock data
 
-    time_frame = datetime.now() - timedelta(lookback_period)
-    get_remote_data(gs, time_frame)
+    get_feed_data(gs, lookback_period)
 
     # Apply the features to all of the frames
 
     vmapply(gs, features)
-    vmapply(gs, [target])
-
-    # Run the analysis, including the model pipeline
-
-    a = Analysis(model, gs, train_date, predict_date)
-    results = run_analysis(a, forecast_period, leaders)
 
     # Create and run systems
 
-    # ts = System('trend', 'bigup', 'bigdown')
-    # run_system(ts, gs)
-    # gen_portfolio(ts, gs)
+    ts = System('trend', 'bigup', 'bigdown')
+    run_system(model, ts, gs)
+    gen_portfolio(model, ts, gs)
 
     # cs = System('closer', 'hc', 'lc')
     # tfs = run_system(model, cs, gs)
     # gen_portfolio(model, cs, gs, tfs)
 
-    # Return the completed model
-
-    return model
+    return
 
 
 #
@@ -126,7 +109,7 @@ if __name__ == '__main__':
     # Logging
 
     logging.basicConfig(format="[%(asctime)s] %(levelname)s\t%(message)s",
-                        filename="alpha_market.log", filemode='a', level=logging.DEBUG,
+                        filename="alpha_system.log", filemode='a', level=logging.DEBUG,
                         datefmt='%m/%d/%y %H:%M:%S')
     formatter = logging.Formatter("[%(asctime)s] %(levelname)s\t%(message)s",
                                   datefmt='%m/%d/%y %H:%M:%S')
@@ -143,7 +126,7 @@ if __name__ == '__main__':
 
     # Argument Parsing
 
-    parser = argparse.ArgumentParser(description="AlphaPy Market Parser")
+    parser = argparse.ArgumentParser(description="AlphaPy System Parser")
     parser.add_argument("-d", dest="cfg_dir", default=".",
                         help="directory location of configuration file")
     args = parser.parse_args()

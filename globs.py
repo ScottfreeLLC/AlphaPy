@@ -58,5 +58,4 @@ WILDCARD = '*'
 # Dictionaries
 #
 
-FEEDS = {'stock' : 'yahoo', 'future' : 'quandl', 'forex' : 'quandl'}
 MULTIPLIERS = {'stock' : 1.0}

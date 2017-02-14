@@ -33,19 +33,13 @@ from alias import Alias
 from analysis import Analysis
 from analysis import run_analysis
 import argparse
-from datetime import datetime
-from datetime import timedelta
-from data import get_remote_data
-from frame import dump_frames
+from data import get_feed_data
 from globs import SSEP
 from group import Group
 import logging
 from model import get_model_config
 from model import Model
-from portfolio import gen_portfolio
 from space import Space
-from system import System
-from system import run_system
 from var import Variable
 from var import vmapply
 import yaml
@@ -159,9 +153,6 @@ def market_pipeline(model, market_specs):
 
     # Get any model specifications
 
-    directory = model.specs['directory']
-    extension = model.specs['extension']
-    separator = model.specs['separator']
     target = model.specs['target']
 
     # Get any market specifications
@@ -181,32 +172,17 @@ def market_pipeline(model, market_specs):
 
     # Get stock data
 
-    time_frame = datetime.now() - timedelta(lookback_period)
-    get_remote_data(gs, time_frame)
+    get_feed_data(gs, lookback_period)
 
     # Apply the features to all of the frames
 
     vmapply(gs, features)
     vmapply(gs, [target])
 
-    # Save the frames with all the new features
-
-    # dump_frames(gs, directory, extension, separator)
-
     # Run the analysis, including the model pipeline
 
     a = Analysis(model, gs, train_date, predict_date)
     results = run_analysis(a, forecast_period, leaders)
-
-    # Create and run systems
-
-    # ts = System('trend', 'bigup', 'bigdown')
-    # run_system(ts, gs)
-    # gen_portfolio(ts, gs)
-
-    # cs = System('closer', 'hc', 'lc')
-    # tfs = run_system(model, cs, gs)
-    # gen_portfolio(model, cs, gs, tfs)
 
     # Return the completed model
 

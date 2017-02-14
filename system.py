@@ -145,7 +145,7 @@ def gen_trades(system, name, group, quantity):
     h = 0
     p = 0
     q = quantity
-    for tdate, row in pf.iterrows():
+    for dt, row in pf.iterrows():
         # evaluate entry and exit conditions
         lerow = None
         if longentry:
@@ -165,47 +165,47 @@ def gen_trades(system, name, group, quantity):
         if lerow:
             if p < 0:
                 # short active, so exit short
-                tradelist.append((tdate, [name, Orders.sx, -p, c]))
+                tradelist.append((dt, [name, Orders.sx, -p, c]))
                 inshort = False
                 h = 0
                 p = 0
             if p == 0 or scale:
                 # go long (again)
-                tradelist.append((tdate, [name, Orders.le, q, c]))
+                tradelist.append((dt, [name, Orders.le, q, c]))
                 inlong = True
                 p = p + q
         elif serow:
             if p > 0:
                 # long active, so exit long
-                tradelist.append((tdate, [name, Orders.lx, -p, c]))
+                tradelist.append((dt, [name, Orders.lx, -p, c]))
                 inlong = False
                 h = 0
                 p = 0
             if p == 0 or scale:
                 # go short (again)
-                tradelist.append((tdate, [name, Orders.se, -q, c]))
+                tradelist.append((dt, [name, Orders.se, -q, c]))
                 inshort = True
                 p = p - q
         # check exit conditions
         if inlong and h > 0 and lxrow:
             # long active, so exit long
-            tradelist.append((tdate, [name, Orders.lx, -p, c]))
+            tradelist.append((dt, [name, Orders.lx, -p, c]))
             inlong = False
             h = 0
             p = 0
         if inshort and h > 0 and sxrow:
             # short active, so exit short
-            tradelist.append((tdate, [name, Orders.sx, -p, c]))
+            tradelist.append((dt, [name, Orders.sx, -p, c]))
             inshort = False
             h = 0
             p = 0
         # if a holding period was given, then check for exit
         if holdperiod > 0 and h >= holdperiod:
             if inlong:
-                tradelist.append((tdate, [name, Orders.lh, -p, c]))
+                tradelist.append((dt, [name, Orders.lh, -p, c]))
                 inlong = False
             if inshort:
-                tradelist.append((tdate, [name, Orders.sh, -p, c]))
+                tradelist.append((dt, [name, Orders.sh, -p, c]))
                 inshort = False
             h = 0
             p = 0

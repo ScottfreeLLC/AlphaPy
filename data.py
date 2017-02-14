@@ -57,6 +57,7 @@ import logging
 import numpy as np
 import pandas as pd
 import pandas_datareader.data as web
+import re
 from scipy import sparse
 from sklearn.preprocessing import LabelEncoder
 
@@ -268,27 +269,120 @@ def sample_data(model):
 
 
 #
-# Function get_remote_data
+# Function get_google_data
 #
 
-def get_remote_data(group,
-                    start = datetime.now() - timedelta(365),
-                    end = datetime.now(),
-                    dtcol = 'date'):
-    gam = group.members
-    feed = FEEDS[group.space.subject]
-    for item in gam:
+def get_google_data(symbol, lookback_period, fractal):
+    """
+    Get Google Finance intraday data.
+    """
+
+    # Google requires upper-case symbol, otherwise not found
+    symbol = symbol.upper()
+    # convert fractal to interval
+    interval = 60 * int(re.findall('\d+', fractal)[0])
+    # Google has a 50-day limit
+    max_days = 50
+    if lookback_period > max_days:
+        lookback_period = max_days
+    # set Google data constants
+    toffset = 7
+    line_length = 6
+    # make the request to Google
+    base_url = 'https://www.google.com/finance/getprices?q={}&i={}&p={}d&f=d,o,h,l,c,v'
+    url = base_url.format(symbol, interval, lookback_period)
+    response = requests.get(url)
+    # process the response
+    text = response.text.split('\n')
+    records = []
+    for line in text[toffset:]:
+        items = line.split(',')
+        if len(items) == line_length:
+            dt_item = items[0]
+            close_item = items[1]
+            high_item = items[2]
+            low_item = items[3]
+            open_item = items[4]
+            volume_item = items[5]
+            if dt_item[0] == 'a':
+                day_item = float(dt_item[1:])
+                offset = 0
+            else:
+                offset = float(dt_item)
+            dt = datetime.datetime.fromtimestamp(day_item + (interval * offset))
+            dt = pd.to_datetime(dt)
+            dt_date = dt.strftime('%Y-%m-%d')
+            record = (dt, dt_date, open_item, high_item, low_item, close_item, volume_item)
+            records.append(record)
+    cols = ['datetime', 'date', 'open', 'high', 'low', 'close', 'volume']
+    df = DataFrame.from_records(records, columns=cols)
+    date_group = df.groupby('date')
+    df['bar_number'] = date_group.cumcount()
+    df['end_of_day'] = False
+    del df['date']
+    df.loc[date_group.tail(1).index, 'end_of_day'] = True
+    df.to_csv('data.csv', index=False)
+    return df
+
+
+#
+# Function get_yahoo_data
+#
+
+def get_yahoo_data(symbol, lookback_period):
+    """
+    Get Yahoo Finance daily data.
+    """
+
+    # Calculate the start and end date for Yahoo.
+
+    start = datetime.now() - timedelta(lookback_period),
+    end = datetime.now()):
+
+    # Call the Pandas Web data reader.
+
+    df = web.DataReader(item, 'yahoo', start, end)
+    return df
+
+
+#
+# Function get_feed_data
+#
+
+def get_feed_data(group, lookback_period):
+    """
+    Get feed data from daily or intraday sources.
+    """
+
+    gspace = group.space
+    fractal = gspace.fractal
+    # Determine the feed source
+    if 'm' in fractal:
+        # intraday data (date and time)
+        logger.info("Getting Intraday Data (Google 50-day limit)")
+        daily_data = False
+        dtcol = 'datetime'
+    elif
+        # daily data (date only)
+        logger.info("Getting Daily Data")
+        daily_data = True
+        dtcol = 'date'
+    # Get the data from the relevant feed
+    for item in group.members:
         logger.info("Getting %s data from %s to %s", item, start, end)
-        df = web.DataReader(item, feed, start, end)
+        if daily_data:
+            df = get_yahoo_data(item, lookback_period)
+        else:
+            df = get_google_data(item, lookback_period, fractal)
         if df is not None:
             df.reset_index(level=0, inplace=True)
             df = df.rename(columns = lambda x: x.lower().replace(' ',''))
-            # time series, so date is the index
-            df['date'] = pd.to_datetime(df['date'])
-            df.index = df['date']
-            del df['date']
+            # time series, so set date/time as index
+            df[dtcol] = pd.to_datetime(df[dtcol])
+            df.index = df[dtcol]
+            del df[dtcol]
             # allocate global Frame
-            newf = Frame(item.lower(), group.space, df)
+            newf = Frame(item.lower(), gspace, df)
             if newf is None:
                 logger.error("Could not allocate Frame for: %s", item)
         else:

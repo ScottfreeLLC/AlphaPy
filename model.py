@@ -35,6 +35,7 @@ from estimators import scorers
 from estimators import xgb_score_map
 from features import Encoders
 from features import feature_scorers
+from frame import write_frame
 import glob
 from globs import PSEP
 from globs import SSEP
@@ -866,6 +867,7 @@ def save_model(model, tag, partition):
     sample_submission = model.specs['sample_submission']
     separator = model.specs['separator']
     submission_file = model.specs['submission_file']
+    test_file = model.specs['test_file']
 
     # Extract model data.
 
@@ -887,6 +889,13 @@ def save_model(model, tag, partition):
     input_dir = SSEP.join([directory, 'input'])
     output_dir = SSEP.join([directory, 'output'])
 
+    # Save predictions for all projects
+
+    logger.info("Saving Predictions")
+    output_file = USEP.join(['predictions', timestamp])
+    preds = model.preds[(tag, partition)]
+    np_store_data(preds, output_dir, output_file, extension, separator)
+
     # Save probabilities for classification projects
 
     if model_type == ModelType.classification:
@@ -895,12 +904,15 @@ def save_model(model, tag, partition):
         probas = model.probas[(tag, partition)]
         np_store_data(probas, output_dir, output_file, extension, separator)
 
-    # Save predictions for all projects
+    # Save ranked predictions
 
-    logger.info("Saving Predictions")
-    output_file = USEP.join(['predictions', timestamp])
-    preds = model.preds[(tag, partition)]
-    np_store_data(preds, output_dir, output_file, extension, separator)
+    logger.info("Saving Ranked Predictions")
+    tf = read_frame(input_dir, test_file, extension, separator)
+    tf['prediction'] = pd.Series(preds, index=tf.index)
+    tf['probability'] = pd.Series(probas, index=tf.index)
+    tf.sort_values('probability', ascending=False, inplace=True)
+    output_file = USEP.join(['rankings', timestamp])
+    write_frame(tf, output_dir, output_file, extension, separator)
 
     # Generate submission file
 
