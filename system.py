@@ -258,7 +258,8 @@ def run_system(model,
     gtlist = sorted(gtlist, key=lambda x: x[0])
     tf = DataFrame.from_items(gtlist, orient='index', columns=Trade.states)
     tfname = frame_name(gname, tspace)
-    write_frame(tf, directory, tfname, extension, separator, index=True)
+    system_dir = SSEP.join([directory, 'systems'])
+    write_frame(tf, system_dir, tfname, extension, separator, index=True)
     del tspace
 
     # Return trades frame

@@ -694,13 +694,17 @@ def gen_portfolio(model, system, group, tframe,
         valuate_portfolio(p, d)
         rs.append((d, [p.netreturn]))
 
+    # Create systems directory path
+
+    system_dir = SSEP.join([directory, 'systems'])
+
     # Create and record the returns frame for this system.
 
     logger.info("Recording Returns Frame")
     rspace = Space(system.name, 'returns', gspace.fractal)
     rf = DataFrame.from_items(rs, orient='index', columns=['return'])
     rfname = frame_name(gname, rspace)
-    write_frame(rf, directory, rfname, extension, separator,
+    write_frame(rf, system_dir, rfname, extension, separator,
                 index=True, index_label='date')
     del rspace
 
@@ -709,7 +713,7 @@ def gen_portfolio(model, system, group, tframe,
     logger.info("Recording Positions Frame")
     pspace = Space(system.name, 'positions', gspace.fractal)
     pfname = frame_name(gname, pspace)
-    write_frame(pf, directory, pfname, extension, separator,
+    write_frame(pf, system_dir, pfname, extension, separator,
                 index=True, index_label='date')
     del pspace
 
@@ -719,7 +723,7 @@ def gen_portfolio(model, system, group, tframe,
     tspace = Space(system.name, 'transactions', gspace.fractal)
     tf = DataFrame.from_items(ts, orient='index', columns=['amount', 'price', 'symbol'])
     tfname = frame_name(gname, tspace)
-    write_frame(tf, directory, tfname, extension, separator,
+    write_frame(tf, system_dir, tfname, extension, separator,
                 index=True, index_label='date')
     del tspace
 
