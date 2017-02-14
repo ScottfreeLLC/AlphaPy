@@ -887,16 +887,6 @@ def save_model(model, tag, partition):
     input_dir = SSEP.join([directory, 'input'])
     output_dir = SSEP.join([directory, 'output'])
 
-    # Save final features for training and testing data
-
-    logger.info("Saving New Training Data")
-    output_file = USEP.join(['features_train', timestamp])
-    np_store_data(X_train, output_dir, output_file, extension, separator)
-
-    logger.info("Saving New Testing Data")
-    output_file = USEP.join(['features_test', timestamp])
-    np_store_data(X_test, output_dir, output_file, extension, separator)
-
     # Save probabilities for classification projects
 
     if model_type == ModelType.classification:
