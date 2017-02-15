@@ -112,10 +112,10 @@ class Orders:
 
 
 #
-# Function gen_trades
+# Function long_short
 #
 
-def gen_trades(system, name, group, quantity):
+def long_short(system, name, group, quantity):
     """
     Generate the list of trades based on the long and short events
     """
@@ -216,6 +216,73 @@ def gen_trades(system, name, group, quantity):
 
 
 #
+# Function open_range_breakout
+#
+
+def open_range_breakout(name, space, quantity):
+    """
+    Open Range Breakout
+    """
+    # system parameters
+    trigger_bar = 3
+    # price frame
+    pf = Frame.frames[frame_name(name, space)].df
+    # initialize the trade list
+    tradelist = []
+    # generate trade file
+    for dt, row in pf.iterrows():
+        # extract data from row
+        bar_number = row['bar_number']
+        h = row['high']
+        l = row['low']
+        c = row['close']
+        end_of_day = row['end_of_day']
+        # open range breakout
+        if bar_number == 0:
+            # new day
+            traded = False
+            inlong = False
+            inshort = False
+            hh = h
+            ll = l
+        elif bar_number < trigger_bar:
+            # set opening range
+            if h > hh:
+                hh = h
+            if l < ll:
+                ll = l
+        else:
+            if not traded:
+                # trigger trade
+                if h > hh and not inlong:
+                    # long breakout triggers
+                    tradelist.append((dt, [name, Orders.le, quantity, hh]))
+                    inlong = True
+                if l < ll and not inshort:
+                    # short breakout triggers
+                    tradelist.append((dt, [name, Orders.se, -quantity, ll]))
+                    inshort = True
+                # set traded flag
+                if inlong or inshort:
+                    traded = True
+            # test stop loss
+            if inlong and l < ll:
+                tradelist.append((dt, [name, Orders.lx, -quantity, ll]))
+                inlong = False
+            if inshort and h > hh:
+                tradelist.append((dt, [name, Orders.sx, quantity, hh]))
+                inshort = False
+        # exit any positions at the end of the day
+        if inlong and end_of_day:
+            # long active, so exit long
+            tradelist.append((dt, [name, Orders.lx, -quantity, c]))
+        if inshort and end_of_day:
+            # short active, so exit short
+            tradelist.append((dt, [name, Orders.sx, quantity, c]))
+    return tradelist
+
+
+#
 # Function run_system
 #
 
@@ -227,7 +294,12 @@ def run_system(model,
     Run a system for a given group, creating a trades frame
     """
 
-    logger.info("Generating Trades for System %s", system.name)
+    if system.__class__ == str:
+        system_name = system
+    else:
+        system_name = system.name
+
+    logger.info("Generating Trades for System %s", system_name)
 
     # Unpack the model data.
 
@@ -239,13 +311,21 @@ def run_system(model,
 
     gname = group.name
     gmembers = group.members
+    gspace = group.space
 
     # Run the system for each member of the group
 
     gtlist = []
-    for m in gmembers:
+    for symbol in gmembers:
         # generate the trades for this member
-        tlist = gen_trades(system, m, group, quantity)
+        if system.__class__ == str:
+            try:
+                tlist = locals()[system_name](symbol, gspace, quantity)
+            except:
+                logger.error('Could not find system %s', system_name)
+        else:
+            # call default long/short system
+            tlist = long_short(system, symbol, gspace, quantity)
         # create the local trades frame
         df = DataFrame.from_items(tlist, orient='index', columns=Trade.states)
         # add trades to global trade list
@@ -254,7 +334,7 @@ def run_system(model,
 
     # Create group trades frame
 
-    tspace = Space(system.name, "trades", group.space.fractal)
+    tspace = Space(system_name, "trades", group.space.fractal)
     gtlist = sorted(gtlist, key=lambda x: x[0])
     tf = DataFrame.from_items(gtlist, orient='index', columns=Trade.states)
     tfname = frame_name(gname, tspace)

@@ -625,7 +625,7 @@ def gen_portfolio(model, system, group, tframe,
     Create a portfolio from a trades frame
     """
 
-    logger.info("Creating Portfolio for System %s", system.name)
+    logger.info("Creating Portfolio for System %s", system)
 
     # Unpack the model data.
 
@@ -641,7 +641,7 @@ def gen_portfolio(model, system, group, tframe,
     ff = 1.0 / len(gmembers)
 
     p = Portfolio(gname,
-                  system.name,
+                  system,
                   startcap = startcap,
                   posby = posby,
                   restricted = False,
@@ -701,7 +701,7 @@ def gen_portfolio(model, system, group, tframe,
     # Create and record the returns frame for this system.
 
     logger.info("Recording Returns Frame")
-    rspace = Space(system.name, 'returns', gspace.fractal)
+    rspace = Space(system, 'returns', gspace.fractal)
     rf = DataFrame.from_items(rs, orient='index', columns=['return'])
     rfname = frame_name(gname, rspace)
     write_frame(rf, system_dir, rfname, extension, separator,
@@ -711,7 +711,7 @@ def gen_portfolio(model, system, group, tframe,
     # Record the positions frame for this system.
 
     logger.info("Recording Positions Frame")
-    pspace = Space(system.name, 'positions', gspace.fractal)
+    pspace = Space(system, 'positions', gspace.fractal)
     pfname = frame_name(gname, pspace)
     write_frame(pf, system_dir, pfname, extension, separator,
                 index=True, index_label='date')
@@ -720,7 +720,7 @@ def gen_portfolio(model, system, group, tframe,
     # Create and record the transactions frame for this system.
 
     logger.info("Recording Transactions Frame")
-    tspace = Space(system.name, 'transactions', gspace.fractal)
+    tspace = Space(system, 'transactions', gspace.fractal)
     tf = DataFrame.from_items(ts, orient='index', columns=['amount', 'price', 'symbol'])
     tfname = frame_name(gname, tspace)
     write_frame(tf, system_dir, tfname, extension, separator,
@@ -744,17 +744,15 @@ def plot_returns(model, system, group,
 
     # Unpack the model data.
 
-    base_dir = model.specs['base_dir']
+    directory = model.specs['directory']
     extension = model.specs['extension']
-    project = model.specs['project']
     separator = model.specs['separator']
-    directory = SSEP.join([base_dir, project])
 
     # Form file name
 
     gname = group.name
     gspace = group.space
-    rspace = Space(system.name, 'returns', gspace.fractal)
+    rspace = Space(system, 'returns', gspace.fractal)
     rfname = frame_name(gname, rspace)
     del rspace
 
@@ -794,17 +792,15 @@ def plot_positions(model, system, group):
 
     # Unpack the model data.
 
-    base_dir = model.specs['base_dir']
+    directory = model.specs['directory']
     extension = model.specs['extension']
-    project = model.specs['project']
     separator = model.specs['separator']
-    directory = SSEP.join([base_dir, project])
 
     # Form file name
 
     gname = group.name
     gspace = group.space
-    pspace = Space(system.name, 'positions', gspace.fractal)
+    pspace = Space(system, 'positions', gspace.fractal)
     pfname = frame_name(gname, pspace)
     del pspace
 
@@ -828,17 +824,15 @@ def plot_transactions(model, system, group):
 
     # Unpack the model data.
 
-    base_dir = model.specs['base_dir']
+    directory = model.specs['directory']
     extension = model.specs['extension']
-    project = model.specs['project']
     separator = model.specs['separator']
-    directory = SSEP.join([base_dir, project])
 
     # Form file name
 
     gname = group.name
     gspace = group.space
-    tspace = Space(system.name, 'transactions', gspace.fractal)
+    tspace = Space(system, 'transactions', gspace.fractal)
     tfname = frame_name(gname, tspace)
     del tspace
 

@@ -70,7 +70,6 @@ def system_pipeline(model, market_specs):
     # Get any market specifications
 
     features = market_specs['features']
-    fractal = market_specs['fractal']
     lookback_period = market_specs['lookback_period']
     target_group = market_specs['target_group']
 
@@ -85,17 +84,17 @@ def system_pipeline(model, market_specs):
 
     # Apply the features to all of the frames
 
-    vmapply(gs, features)
+    # vmapply(gs, features)
 
     # Create and run systems
 
-    ts = System('trend', 'bigup', 'bigdown')
-    tfs = run_system(model, ts, gs)
-    gen_portfolio(model, ts, gs, tfs)
+    system_name = 'open_range_breakout'
+    tfs = run_system(model, system_name, gs)
+    gen_portfolio(model, system_name, gs, tfs)
 
     # cs = System('closer', 'hc', 'lc')
     # tfs = run_system(model, cs, gs)
-    # gen_portfolio(model, cs, gs, tfs)
+    # gen_portfolio(model, cs.name, gs, tfs)
 
     return
 
