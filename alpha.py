@@ -20,7 +20,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Example: python ../AlphaPy/alpha.py
+# Example: python ../AlphaPy/alpha.py -d './config'
 #
 ################################################################################
 

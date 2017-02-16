@@ -115,7 +115,7 @@ class Orders:
 # Function long_short
 #
 
-def long_short(system, name, group, quantity):
+def long_short(system, name, space, quantity):
     """
     Generate the list of trades based on the long and short events
     """
@@ -127,7 +127,7 @@ def long_short(system, name, group, quantity):
     holdperiod = system.holdperiod
     scale = system.scale
     # price frame
-    pf = Frame.frames[frame_name(name, group.space)].df
+    pf = Frame.frames[frame_name(name, space)].df
     # initialize the trade list
     tradelist = []
     # evaluate the long and short events
@@ -224,7 +224,8 @@ def open_range_breakout(name, space, quantity):
     Open Range Breakout
     """
     # system parameters
-    trigger_bar = 3
+    trigger_first = 7
+    trigger_last = 56
     # price frame
     pf = Frame.frames[frame_name(name, space)].df
     # initialize the trade list
@@ -245,25 +246,24 @@ def open_range_breakout(name, space, quantity):
             inshort = False
             hh = h
             ll = l
-        elif bar_number < trigger_bar:
+        elif bar_number < trigger_first:
             # set opening range
             if h > hh:
                 hh = h
             if l < ll:
                 ll = l
         else:
-            if not traded:
+            if not traded and bar_number < trigger_last:
                 # trigger trade
-                if h > hh and not inlong:
+                if h > hh:
                     # long breakout triggers
                     tradelist.append((dt, [name, Orders.le, quantity, hh]))
                     inlong = True
-                if l < ll and not inshort:
+                    traded = True
+                if l < ll and not traded:
                     # short breakout triggers
                     tradelist.append((dt, [name, Orders.se, -quantity, ll]))
                     inshort = True
-                # set traded flag
-                if inlong or inshort:
                     traded = True
             # test stop loss
             if inlong and l < ll:
@@ -320,9 +320,9 @@ def run_system(model,
         # generate the trades for this member
         if system.__class__ == str:
             try:
-                tlist = locals()[system_name](symbol, gspace, quantity)
+                tlist = globals()[system_name](symbol, gspace, quantity)
             except:
-                logger.error('Could not find system %s', system_name)
+                logger.info('Could not execute system for %s', symbol)
         else:
             # call default long/short system
             tlist = long_short(system, symbol, gspace, quantity)

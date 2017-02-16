@@ -57,6 +57,7 @@ import numpy as np
 import pandas as pd
 import pandas_datareader.data as web
 import re
+import requests
 from scipy import sparse
 from sklearn.preprocessing import LabelEncoder
 
@@ -308,18 +309,25 @@ def get_google_data(symbol, lookback_period, fractal):
                 offset = 0
             else:
                 offset = float(dt_item)
-            dt = datetime.datetime.fromtimestamp(day_item + (interval * offset))
+            dt = datetime.fromtimestamp(day_item + (interval * offset))
             dt = pd.to_datetime(dt)
             dt_date = dt.strftime('%Y-%m-%d')
             record = (dt, dt_date, open_item, high_item, low_item, close_item, volume_item)
             records.append(record)
+    # create data frame
     cols = ['datetime', 'date', 'open', 'high', 'low', 'close', 'volume']
-    df = DataFrame.from_records(records, columns=cols)
+    df = pd.DataFrame.from_records(records, columns=cols)
+    # number the intraday bars
     date_group = df.groupby('date')
     df['bar_number'] = date_group.cumcount()
+    # mark the end of the trading day
     df['end_of_day'] = False
     del df['date']
     df.loc[date_group.tail(1).index, 'end_of_day'] = True
+    # set the index to datetime
+    df.index = df['datetime']
+    del df['datetime']
+    # save the file
     df.to_csv('data.csv', index=False)
     return df
 
@@ -341,6 +349,17 @@ def get_yahoo_data(symbol, lookback_period):
     # Call the Pandas Web data reader.
 
     df = web.DataReader(symbol, 'yahoo', start, end)
+
+    # Set time series as index
+
+    if len(df) > 0:
+        df.reset_index(level=0, inplace=True)
+        df = df.rename(columns = lambda x: x.lower().replace(' ',''))
+        df['datetime'] = pd.to_datetime(df['date'])
+        del df['date']
+        df.index = df['datetime']
+        del df['datetime']
+
     return df
 
 
@@ -360,12 +379,10 @@ def get_feed_data(group, lookback_period):
         # intraday data (date and time)
         logger.info("Getting Intraday Data (Google 50-day limit)")
         daily_data = False
-        dtcol = 'datetime'
     else:
         # daily data (date only)
         logger.info("Getting Daily Data")
         daily_data = True
-        dtcol = 'date'
     # Get the data from the relevant feed
     for item in group.members:
         logger.info("Getting %s data for last %d days", item, lookback_period)
@@ -373,13 +390,7 @@ def get_feed_data(group, lookback_period):
             df = get_yahoo_data(item, lookback_period)
         else:
             df = get_google_data(item, lookback_period, fractal)
-        if df is not None:
-            df.reset_index(level=0, inplace=True)
-            df = df.rename(columns = lambda x: x.lower().replace(' ',''))
-            # time series, so set date/time as index
-            df[dtcol] = pd.to_datetime(df[dtcol])
-            df.index = df[dtcol]
-            del df[dtcol]
+        if len(df) > 0:
             # allocate global Frame
             newf = Frame(item.lower(), gspace, df)
             if newf is None:

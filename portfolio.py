@@ -35,6 +35,7 @@ from globs import MULTIPLIERS
 from globs import SSEP
 import logging
 import math
+import numpy as np
 from pandas import DataFrame
 from pandas import date_range
 from pandas import Series
@@ -215,8 +216,8 @@ class Trade:
                  tdate):
         self.name = name
         self.order = order
-        self.quantity = quantity
-        self.price = price
+        self.quantity = float(quantity)
+        self.price = float(price)
         self.tdate = tdate
 
 
@@ -266,7 +267,7 @@ def valuate_position(position, tdate):
     # get current price
     pdata = position.pdata
     if tdate in pdata.index:
-        cp = pdata.ix[tdate]['close']
+        cp = float(pdata.ix[tdate]['close'])
         # start valuation
         multiplier = position.multiplier
         netpos = 0
@@ -590,7 +591,7 @@ def exec_trade(p, name, order, quantity, price, tdate):
     else:
         if order == 'le' or order == 'se':
             pf = Frame.frames[frame_name(name, p.space)].df
-            cv = pf.ix[tdate][p.posby]
+            cv = float(pf.ix[tdate][p.posby])
             tsize = math.trunc((p.value * p.fixedfrac) / cv)
             if quantity < 0:
                 tsize = -tsize
@@ -611,6 +612,8 @@ def exec_trade(p, name, order, quantity, price, tdate):
         if pflat:
             close_position(p, pos, tdate)
             p.npos -= 1
+    else:
+        logger.info("Trade Allocation for %s is 0", name)
     # return trade size
     return tsize
 
@@ -642,6 +645,7 @@ def gen_portfolio(model, system, group, tframe,
 
     p = Portfolio(gname,
                   system,
+                  gspace,
                   startcap = startcap,
                   posby = posby,
                   restricted = False,
@@ -653,7 +657,8 @@ def gen_portfolio(model, system, group, tframe,
 
     start = tframe.index[0]
     end = tframe.index[-1]
-    drange = date_range(start, end, freq=gspace.fractal)
+    trange = np.unique(tframe.index.map(lambda x: x.date().strftime('%Y-%m-%d'))).tolist()
+    drange = date_range(start, end).map(lambda x: x.date().strftime('%Y-%m-%d'))
 
     # Initialize return, position, and transaction data.
 
@@ -664,10 +669,9 @@ def gen_portfolio(model, system, group, tframe,
     ts = []
 
     # Iterate through the date range, updating the portfolio.
-
     for d in drange:
         # process today's trades
-        if d in tframe.index:
+        if d in trange:
             trades = tframe.ix[d]
             if isinstance(trades, Series):
                 trades = DataFrame(trades).transpose()
