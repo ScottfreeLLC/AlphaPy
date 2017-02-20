@@ -488,7 +488,11 @@ def first_fit(model, algo, est):
     # Extract model parameters.
 
     esr = model.specs['esr']
-    sample_weights = model.specs['sample_weights']
+    model_type = model.specs['model_type']
+    if model_type == ModelType.classification:
+        sample_weights = model.specs['sample_weights']
+    else:
+        sample_weights = None
     scorer = model.specs['scorer']
     seed = model.specs['seed']
     split = model.specs['split']
@@ -507,7 +511,7 @@ def first_fit(model, algo, est):
         eval_metric = xgb_score_map[scorer]
         est.fit(X1, y1, eval_set=eval_set, eval_metric=eval_metric,
                 early_stopping_rounds=esr)
-    elif sample_weights:
+    elif sample_weights and model_type != ModelType.classification:
         est.fit(X_train, y_train, sample_weight=sample_weights)
     else:
         est.fit(X_train, y_train)
@@ -567,14 +571,15 @@ def make_predictions(model, algo, calibrate):
 
     # Calibration
 
-    if calibrate and model_type == ModelType.classification:
-        logger.info("Calibrating Classifier")
-        est = CalibratedClassifierCV(est, cv=cv_folds, method=cal_type)
-        est.fit(X_train, y_train, sample_weight=sample_weights)
-        model.estimators[algo] = est
-        logger.info("Calibration Complete")
-    else:
-        logger.info("Skipping Calibration")
+    if model_type == ModelType.classification:
+        if calibrate:
+            logger.info("Calibrating Classifier")
+            est = CalibratedClassifierCV(est, cv=cv_folds, method=cal_type)
+            est.fit(X_train, y_train, sample_weight=sample_weights)
+            model.estimators[algo] = est
+            logger.info("Calibration Complete")
+        else:
+            logger.info("Skipping Calibration")
 
     # Make predictions on original training and test data.
 
@@ -800,7 +805,7 @@ def generate_metrics(model, partition):
             except:
                 logger.info("Median Absolute Error not calculated")
             try:
-                model.metrics[(algo, partition, 'mean_squared_error')] = mean_squared_error(expected, predicted)
+                model.metrics[(algo, partition, 'neg_mean_squared_error')] = mean_squared_error(expected, predicted)
             except:
                 logger.info("Mean Squared Error not calculated")
             try:

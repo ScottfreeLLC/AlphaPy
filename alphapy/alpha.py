@@ -169,6 +169,7 @@ def model_pipeline(model):
     calibration = model.specs['calibration']
     feature_selection = model.specs['feature_selection']
     grid_search = model.specs['grid_search']
+    model_type = model.specs['model_type']
     rfe = model.specs['rfe']
     sampling = model.specs['sampling']
     scorer = model.specs['scorer']
@@ -180,14 +181,13 @@ def model_pipeline(model):
 
     # Oversampling or Undersampling [if specified]
 
-    if sampling:
-        model = sample_data(model)
-    else:
-        logger.info("Skipping Sampling")
-
-    # Get sample weights
-
-    model = get_sample_weights(model)
+    if model_type == ModelType.classification:
+        if sampling:
+            model = sample_data(model)
+        else:
+            logger.info("Skipping Sampling")
+        # Get sample weights (classification only)
+        model = get_sample_weights(model)
 
     # Get the available classifiers and regressors 
 

@@ -81,33 +81,33 @@ class Objective(Enum):
 # Define scorers
 #
 
-scorers = {'accuracy'              : (ModelType.classification, Objective.maximize),
-           'average_precision'     : (ModelType.classification, Objective.maximize),
-           'f1'                    : (ModelType.classification, Objective.maximize),
-           'f1_macro'              : (ModelType.classification, Objective.maximize),
-           'f1_micro'              : (ModelType.classification, Objective.maximize),
-           'f1_samples'            : (ModelType.classification, Objective.maximize),
-           'f1_weighted'           : (ModelType.classification, Objective.maximize),
-           'neg_log_loss'          : (ModelType.classification, Objective.minimize),
-           'precision'             : (ModelType.classification, Objective.maximize),
-           'recall'                : (ModelType.classification, Objective.maximize),
-           'roc_auc'               : (ModelType.classification, Objective.maximize),
-           'adjusted_rand_score'   : (ModelType.clustering,     Objective.maximize),
-           'mean_absolute_error'   : (ModelType.regression,     Objective.minimize),
-           'mean_squared_error'    : (ModelType.regression,     Objective.minimize),
-           'median_absolute_error' : (ModelType.regression,     Objective.minimize),
-           'r2'                    : (ModelType.regression,     Objective.maximize)}
+scorers = {'accuracy'               : (ModelType.classification, Objective.maximize),
+           'average_precision'      : (ModelType.classification, Objective.maximize),
+           'f1'                     : (ModelType.classification, Objective.maximize),
+           'f1_macro'               : (ModelType.classification, Objective.maximize),
+           'f1_micro'               : (ModelType.classification, Objective.maximize),
+           'f1_samples'             : (ModelType.classification, Objective.maximize),
+           'f1_weighted'            : (ModelType.classification, Objective.maximize),
+           'neg_log_loss'           : (ModelType.classification, Objective.minimize),
+           'precision'              : (ModelType.classification, Objective.maximize),
+           'recall'                 : (ModelType.classification, Objective.maximize),
+           'roc_auc'                : (ModelType.classification, Objective.maximize),
+           'adjusted_rand_score'    : (ModelType.clustering,     Objective.maximize),
+           'mean_absolute_error'    : (ModelType.regression,     Objective.minimize),
+           'neg_mean_squared_error' : (ModelType.regression,     Objective.minimize),
+           'median_absolute_error'  : (ModelType.regression,     Objective.minimize),
+           'r2'                     : (ModelType.regression,     Objective.maximize)}
 
 
 #
 # Define XGB scoring map
 #
 
-xgb_score_map = {'neg_log_loss'        : 'logloss',
-                 'mean_absolute_error' : 'mae',
-                 'mean_squared_error'  : 'rmse',
-                 'precision'           : 'map',
-                 'roc_auc'             : 'auc'}
+xgb_score_map = {'neg_log_loss'           : 'logloss',
+                 'mean_absolute_error'    : 'mae',
+                 'neg_mean_squared_error' : 'rmse',
+                 'precision'              : 'map',
+                 'roc_auc'                : 'auc'}
 
 
 #
@@ -380,10 +380,10 @@ def get_estimators(model):
               "n_estimators" : n_estimators,
               "seed" : seed,
               "max_depth" : 10,
-              "learning_rate" : 0.01,
-              "min_child_weight" : 1.05,
-              "subsample" : 0.85,
-              "colsample_bytree" : 0.8,
+              "learning_rate" : 0.1,
+              "min_child_weight" : 1.1,
+              "subsample" : 0.9,
+              "colsample_bytree" : 0.9,
               "nthread" : n_jobs,
               "silent" : True}
     est = xgb.XGBClassifier(**params)
@@ -394,11 +394,11 @@ def get_estimators(model):
     params = {"objective" : 'reg:linear',
               "n_estimators" : n_estimators,
               "seed" : seed,
-              "max_depth" : 10,
-              "learning_rate" : 0.01,
-              "min_child_weight" : 1.05,
-              "subsample" : 0.85,
-              "colsample_bytree" : 0.8,
+              "max_depth" : 5,
+              "learning_rate" : 0.1,
+              "min_child_weight" : 1.1,
+              "subsample" : 0.9,
+              "colsample_bytree" : 0.9,
               "seed" : seed,
               "nthread" : n_jobs,
               "silent" : True}
