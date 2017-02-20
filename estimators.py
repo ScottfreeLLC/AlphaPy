@@ -359,13 +359,13 @@ def get_estimators(model):
               "seed" : seed,
               "max_depth" : 5,
               "learning_rate" : 0.1,
-              "min_child_weight" : 1.0,
-              "subsample" : 0.8,
-              "colsample_bytree" : 0.8,
+              "min_child_weight" : 1.1,
+              "subsample" : 0.9,
+              "colsample_bytree" : 0.9,
               "nthread" : n_jobs,
               "silent" : True}
     est = xgb.XGBClassifier(**params)
-    grid = {"n_estimators" : [21, 51, 101, 201, 501, 1001],
+    grid = {"n_estimators" : [21, 51, 101, 201, 501],
             "max_depth" : [5, 6, 7, 8, 9, 10, 12, 15, 20],
             "learning_rate" : [0.01, 0.02, 0.05, 0.1, 0.2],
             "min_child_weight" : [1.0, 1.1],

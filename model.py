@@ -543,7 +543,10 @@ def make_predictions(model, algo, calibrate):
     # Extract model parameters.
 
     cal_type = model.specs['cal_type']
+    cv_folds = model.specs['cv_folds']
     model_type = model.specs['model_type']
+    sample_weights = model.specs['sample_weights']
+    test_labels = model.specs['test_labels']
 
     # Get the estimator
 
@@ -559,13 +562,15 @@ def make_predictions(model, algo, calibrate):
         X_train = model.X_train
         X_test = model.X_test
     y_train = model.y_train
+    if test_labels:
+        y_test = model.y_test
 
     # Calibration
 
     if calibrate and model_type == ModelType.classification:
         logger.info("Calibrating Classifier")
-        est = CalibratedClassifierCV(est, cv="prefit", method=cal_type)
-        est.fit(X_train, y_train)
+        est = CalibratedClassifierCV(est, cv=cv_folds, method=cal_type)
+        est.fit(X_train, y_train, sample_weight=sample_weights)
         model.estimators[algo] = est
         logger.info("Calibration Complete")
     else:
@@ -580,6 +585,12 @@ def make_predictions(model, algo, calibrate):
         model.probas[(algo, 'train')] = est.predict_proba(X_train)[:, 1]
         model.probas[(algo, 'test')] = est.predict_proba(X_test)[:, 1]
     logger.info("Predictions Complete")
+
+    # Log the training and testing scores
+
+    logger.info("Training Score: %f", est.score(X_train, y_train))
+    if test_labels:
+        logger.info("Testing Score: %f", est.score(X_test, y_test))
 
     # Return the model
     return model

@@ -161,9 +161,9 @@ def run_analysis(analysis, forecast_period, leaders, splits=True):
                         new_test = new_test.dropna()
                     test_frame = test_frame.append(new_test)
                 else:
-                    logger.info("A test frame has zero rows. Check for discontinued or stale data.")
+                    logger.info("A test frame has zero rows. Check prediction date.")
             else:
-                logger.warning("A training frame has zero rows.")
+                logger.warning("A training frame has zero rows. Check data source.")
         # write out the training and test files
         if len(train_frame) > 0 and len(test_frame) > 0:
             directory = SSEP.join([directory, 'input'])
@@ -171,11 +171,6 @@ def run_analysis(analysis, forecast_period, leaders, splits=True):
                         index=True, index_label='date')
             write_frame(test_frame, directory, test_file, extension, separator,
                         index=True, index_label='date')
-        else:
-            if len(train_frame) <= 0:
-                raise Exception("Training frame has zero rows. Check data source.")
-            if len(test_frame) <= 0:
-                raise Exception("Test frame has zero rows. Check prediction date.")
         # run the AlphaPy pipeline
         analysis.model = main_pipeline(model)
     else:
