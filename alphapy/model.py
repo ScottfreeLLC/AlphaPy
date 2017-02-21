@@ -549,7 +549,10 @@ def make_predictions(model, algo, calibrate):
     cal_type = model.specs['cal_type']
     cv_folds = model.specs['cv_folds']
     model_type = model.specs['model_type']
-    sample_weights = model.specs['sample_weights']
+    if model_type == ModelType.classification:
+        sample_weights = model.specs['sample_weights']
+    else:
+        sample_weights = None
     test_labels = model.specs['test_labels']
 
     # Get the estimator
@@ -926,8 +929,11 @@ def save_model(model, tag, partition):
     logger.info("Saving Ranked Predictions")
     tf = read_frame(input_dir, test_file, extension, separator)
     tf['prediction'] = pd.Series(preds, index=tf.index)
-    tf['probability'] = pd.Series(probas, index=tf.index)
-    tf.sort_values('probability', ascending=False, inplace=True)
+    if model_type == ModelType.classification:
+        tf['probability'] = pd.Series(probas, index=tf.index)
+        tf.sort_values('probability', ascending=False, inplace=True)
+    else:
+        tf.sort_values('prediction', ascending=False, inplace=True)
     output_file = USEP.join(['rankings', timestamp])
     write_frame(tf, output_dir, output_file, extension, separator)
 

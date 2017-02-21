@@ -30,6 +30,7 @@
 from datetime import datetime
 from datetime import timedelta
 from enum import Enum, unique
+from estimators import ModelType
 from frame import Frame
 from frame import frame_name
 from frame import read_frame
@@ -106,6 +107,7 @@ def get_data(model, partition):
     directory = model.specs['directory']
     extension = model.specs['extension']
     features = model.specs['features']
+    model_type = model.specs['model_type']
     separator = model.specs['separator']
     target = model.specs['target']
     test_file = model.specs['test_file']
@@ -132,8 +134,9 @@ def get_data(model, partition):
     if target in df.columns:
         logger.info("Found target %s in data frame", target)
         y = df[target]
-        # transform with label encoder
-        y = LabelEncoder().fit_transform(y)
+        # encode label only for classification
+        if model_type == ModelType.classification:
+             y = LabelEncoder().fit_transform(y)
         # drop the target as it has already been extracted into y
         logger.info("Dropping target %s from data frame", target)
         df = df.drop([target], axis=1)

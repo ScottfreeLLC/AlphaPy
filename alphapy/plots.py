@@ -448,6 +448,12 @@ def plot_confusion_matrix(model, partition):
 
     logger.info("Generating Confusion Matrices")
 
+    # For classification only
+
+    if model.specs['model_type'] != ModelType.classification:
+        logger.info('Confusion Matrix is for classification only')
+        return None
+
     # Get X, Y for correct partition.
 
     X, y = get_partition_data(model, partition)

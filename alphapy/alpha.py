@@ -89,6 +89,7 @@ def data_pipeline(model):
     # Unpack the model specifications
 
     drop = model.specs['drop']
+    model_type = model.specs['model_type']
     target = model.specs['target']
     test_labels = model.specs['test_labels']
 
@@ -107,12 +108,13 @@ def data_pipeline(model):
     logger.info("Original Feature Statistics")
     logger.info("Number of Training Rows    : %d", X_train.shape[0])
     logger.info("Number of Training Columns : %d", X_train.shape[1])
-    uv, uc = np.unique(y_train, return_counts=True)
-    logger.info("Unique Training Values for %s : %s", target, uv)
-    logger.info("Unique Training Counts for %s : %s", target, uc)
+    if model_type == ModelType.classification:
+        uv, uc = np.unique(y_train, return_counts=True)
+        logger.info("Unique Training Values for %s : %s", target, uv)
+        logger.info("Unique Training Counts for %s : %s", target, uc)
     logger.info("Number of Testing Rows     : %d", X_test.shape[0])
     logger.info("Number of Testing Columns  : %d", X_test.shape[1])
-    if test_labels:
+    if model_type == ModelType.classification and test_labels:
         uv, uc = np.unique(y_test, return_counts=True)
         logger.info("Unique Testing Values for %s : %s", target, uv)
         logger.info("Unique Testing Counts for %s : %s", target, uc)
@@ -144,7 +146,6 @@ def data_pipeline(model):
 
     # Save the model's feature set
 
-    logger.info("Feature Names : %s", sig_features.dtype.names)
     X_train, X_test = np.array_split(sig_features, [split_point])
     model = save_features(model, X_train, X_test)
 
