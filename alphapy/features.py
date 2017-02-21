@@ -360,7 +360,7 @@ def float_factor(x, rounding):
 #
 
 def get_factors(fnum, fname, df, nvalues, dtype, encoder, rounding,
-                sentinel, target_value, X, y):
+                sentinel, target_value, X, y, classify=False):
     """
     Factorize a feature.
     """
@@ -393,18 +393,22 @@ def get_factors(fnum, fname, df, nvalues, dtype, encoder, rounding,
         enc = ce.BackwardDifferenceEncoder(cols=[fname])
     else:
         raise ValueError("Unknown Encoder %s", encoder)
+    # If encoding worked, calculate target percentages for classifiers.
+    all_features = None
     if enc is not None:
-        ce_features = enc.fit_transform(ef, None)
-    # get the crosstab between feature labels and target
-    logger.info("Calculating target percentages")
-    ct = pd.crosstab(X[fname], y).apply(lambda r : r / r.sum(), axis=1)
-    # map target percentages to the new feature
-    ct_map = ct.to_dict()[target_value]
-    ct_feature = df[[fname]].applymap(ct_map.get)
-    # impute sentinel for any values that could not be mapped
-    ct_feature.fillna(value=sentinel, inplace=True)
-    # concatenate all generated features
-    all_features = np.column_stack((ce_features, ct_feature))
+        all_features = enc.fit_transform(ef, None)
+        # Calculate target percentages for classifiers
+        if classify:
+            # get the crosstab between feature labels and target
+            logger.info("Calculating target percentages")
+            ct = pd.crosstab(X[fname], y).apply(lambda r : r / r.sum(), axis=1)
+            # map target percentages to the new feature
+            ct_map = ct.to_dict()[target_value]
+            ct_feature = df[[fname]].applymap(ct_map.get)
+            # impute sentinel for any values that could not be mapped
+            ct_feature.fillna(value=sentinel, inplace=True)
+            # concatenate all generated features
+            all_features = np.column_stack((all_features, ct_feature))
     return all_features
 
 
@@ -674,6 +678,10 @@ def create_features(X, model, split_point, y_train):
     logger.info("Original Features : %s", X.columns)
     logger.info("Feature Count     : %d", X.shape[1])
 
+    # Set classification flag
+
+    classify = True if model_type == ModelType.classification else False
+
     # Count zero and NaN values
 
     if counts_flag:
@@ -704,7 +712,8 @@ def create_features(X, model, split_point, y_train):
         # standard processing of numerical, categorical, and text features
         if nunique <= dummy_limit:
             features = get_factors(fnum, fc, X, nunique, dtype, encoder, rounding,
-                                   sentinel, target_value, X_train, y_train)            
+                                   sentinel, target_value, X_train, y_train,
+                                   classify)            
         elif dtype == 'float64' or dtype == 'int64' or dtype == 'bool':
             features = get_numerical_features(fnum, fc, X, nunique, dtype,
                                               logtransform, pvalue_level)
