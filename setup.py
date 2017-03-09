@@ -1,23 +1,60 @@
-from setuptools import setup, find_packages
+ #!/usr/bin/env python
+from setuptools import setup
 
-setup(name='funniest',
-      version='0.1',
-      description='The funniest joke in the world',
-      long_description='Really, the funniest around.',
-      classifiers=[
-        'Development Status :: 3 - Alpha',
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 2.7',
-        'Topic :: Text Processing :: Linguistic',
-      ],
-      keywords='funniest joke comedy flying circus',
-      url='http://github.com/storborg/funniest',
-      author='Flying Circus',
-      author_email='flyingcircus@example.com',
-      license='MIT',
-      packages=find_packages(),
-      install_requires=[
-          'markdown',
-      ],
-      include_package_data=True,
-      zip_safe=False)
+DISTNAME = 'alphapy'
+DESCRIPTION = "AlphaPy: A Machine Learning Pipeline for Speculators"
+LONG_DESCRIPTION = """alphapy is a Python library for machine learning
+using scikit-learn, developed by `Alpha314`_. We have a stock market
+pipeline and a sports pipeline so that speculators can test predictive
+models, along with functions for trading systems and portfolio management.
+.. _Alpha314: https://www.alpha314.com
+"""
+MAINTAINER = 'Alpha314 (Mark Conway, Robert D. Scott II)'
+MAINTAINER_EMAIL = 'alphapy@alpha314.com'
+URL = "https://github.com/MarkRConway/AlphaPy"
+LICENSE = "Apache License, Version 2.0"
+VERSION = "0.1.0"
+
+classifiers = ['Development Status :: 4 - Beta',
+               'Programming Language :: Python',
+               'Programming Language :: Python :: 3',
+               'Programming Language :: Python :: 3.4',
+               'Programming Language :: Python :: 3.5',
+               'License :: OSI Approved :: Apache Software License',
+               'Intended Audience :: Science/Research',
+               'Topic :: Scientific/Engineering',
+               'Topic :: Scientific/Engineering :: Mathematics',
+               'Operating System :: OS Independent']
+
+install_reqs = [
+    'bokeh>=0.12.4',
+    'category_encoders>=1.2.3',
+    'gplearn>=0.1',
+    'imblearn>=0.2.1',
+    'ipython>=3.2.3',
+    'matplotlib>=2.0.0',
+    'numpy>=1.9.1',
+    'pandas>=0.19.0',
+    'pandas-datareader>=0.3',
+    'pyfolio>=0.7',
+    'pyyaml>=3.12',
+    'scikit-learn>=0.17.1',
+    'scipy>=0.18.1',
+    'seaborn>=0.7.1',
+    'tensorflow>=1.0.0',
+]
+
+if __name__ == "__main__":
+    setup(
+        name=DISTNAME,
+        version=VERSION,
+        maintainer=MAINTAINER,
+        maintainer_email=MAINTAINER_EMAIL,
+        description=DESCRIPTION,
+        license=LICENSE,
+        url=URL,
+        long_description=LONG_DESCRIPTION,
+        packages=find_packages(),
+        classifiers=classifiers,
+        install_requires=install_reqs,
+    )
