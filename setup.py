@@ -1,19 +1,16 @@
  #!/usr/bin/env python
+from setuptools import find_packages
 from setuptools import setup
 
 DISTNAME = 'alphapy'
 DESCRIPTION = "AlphaPy: A Machine Learning Pipeline for Speculators"
-LONG_DESCRIPTION = """alphapy is a Python library for machine learning
-using scikit-learn, developed by `Alpha314`_. We have a stock market
-pipeline and a sports pipeline so that speculators can test predictive
-models, along with functions for trading systems and portfolio management.
-.. _Alpha314: https://www.alpha314.com
-"""
+LONG_DESCRIPTION = "alphapy is a Python library for machine learning using scikit-learn. We have a stock market pipeline and a sports pipeline so that speculators can test predictive models, along with functions for trading systems and portfolio management."
+
 MAINTAINER = 'Alpha314 (Mark Conway, Robert D. Scott II)'
 MAINTAINER_EMAIL = 'alphapy@alpha314.com'
 URL = "https://github.com/MarkRConway/AlphaPy"
 LICENSE = "Apache License, Version 2.0"
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 
 classifiers = ['Development Status :: 4 - Beta',
                'Programming Language :: Python',
@@ -27,10 +24,10 @@ classifiers = ['Development Status :: 4 - Beta',
                'Operating System :: OS Independent']
 
 install_reqs = [
-    'bokeh>=0.12.4',
-    'category_encoders>=1.2.3',
-    'gplearn>=0.1',
-    'imblearn>=0.2.1',
+    'bokeh>=0.12',
+    'category_encoders>=1.2.0',
+    'gplearn>=0.1.0',
+    'imblearn>=0.0',
     'ipython>=3.2.3',
     'matplotlib>=2.0.0',
     'numpy>=1.9.1',
@@ -42,6 +39,7 @@ install_reqs = [
     'scipy>=0.18.1',
     'seaborn>=0.7.1',
     'tensorflow>=1.0.0',
+    'xgboost>=0.6',
 ]
 
 if __name__ == "__main__":
