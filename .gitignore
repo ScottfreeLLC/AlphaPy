@@ -12,3 +12,6 @@
 *.egg-info*
 
 *build*
+*.whl
+
+*.gz
