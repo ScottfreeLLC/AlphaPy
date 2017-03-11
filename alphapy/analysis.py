@@ -2,8 +2,7 @@
 #
 # Package   : AlphaPy
 # Module    : analysis
-# Version   : 1.0
-# Date      : July 11, 2013
+# Created   : July 11, 2013
 #
 # Copyright 2017 @ Alpha314
 # Mark Conway & Robert D. Scott II
@@ -27,11 +26,11 @@
 # Imports
 #
 
-from alpha import main_pipeline
-from frame import load_frames
-from frame import write_frame
-from globs import SSEP
-from globs import USEP
+from alphapy.alpha import main_pipeline
+from alphapy.frame import load_frames
+from alphapy.frame import write_frame
+from alphapy.globs import SSEP, USEP
+
 import logging
 import pandas as pd
 from pandas.tseries.offsets import BDay

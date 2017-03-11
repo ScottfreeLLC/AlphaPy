@@ -2,8 +2,7 @@
 #
 # Package   : AlphaPy
 # Module    : var
-# Version   : 1.0
-# Date      : July 11, 2013
+# Created   : July 11, 2013
 #
 # Copyright 2017 @ Alpha314
 # Mark Conway & Robert D. Scott II
@@ -46,21 +45,19 @@
 # Imports
 #
 
-from alias import get_alias
+from alphapy.alias import get_alias
+from alphapy.frame import Frame
+from alphapy.frame import frame_name
+from alphapy.globs import BSEP, LOFF, ROFF, USEP
+from alphapy.util import valid_name
+
 from collections import OrderedDict
-from frame import Frame
-from frame import frame_name
-from globs import BSEP
-from globs import LOFF
-from globs import ROFF
-from globs import USEP
 import logging
 import numpy as np
 import pandas as pd
 import parser
 import re
 import sys
-from util import valid_name
 
 
 #

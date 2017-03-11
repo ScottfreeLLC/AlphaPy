@@ -2,7 +2,7 @@
 #
 # Package   : AlphaPy
 # Module    : alpha_system
-# Date      : July 11, 2013
+# Created   : July 11, 2013
 #
 # Copyright 2017 @ Alpha314
 # Mark Conway & Robert D. Scott II
@@ -19,7 +19,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Example: python ../AlphaPy/alpha_system.py -d 'Stocks/config'
+# Example: python alpha_system.py -d 'Stocks/config'
 #
 ################################################################################
 
@@ -28,18 +28,18 @@
 # Imports
 #
 
-from alpha_market import get_market_config
+from alphapy.config import get_market_config
+from alphapy.config import get_model_config
+from alphapy.data import get_feed_data
+from alphapy.group import Group
+from alphapy.model import Model
+from alphapy.portfolio import gen_portfolio
+from alphapy.space import Space
+from alphapy.system import System
+from alphapy.system import run_system
+
 import argparse
-from data import get_feed_data
-from group import Group
 import logging
-from model import get_model_config
-from model import Model
-from portfolio import gen_portfolio
-from space import Space
-from system import System
-from system import run_system
-from var import vmapply
 
 
 #
@@ -81,19 +81,19 @@ def system_pipeline(model, market_specs):
 
     get_feed_data(gs, lookback_period)
 
-    # Apply the features to all of the frames
-
-    # vmapply(gs, features)
-
     # Create and run systems
 
-    system_name = 'open_range_breakout'
-    tfs = run_system(model, system_name, gs)
+    intraday = True
+    if intraday:
+        system_name = 'open_range_breakout'
+        tfs = run_system(model, system_name, gs)
+    else:
+        system_name = 'closer'
+        cs = System(system_name, 'hc', 'lc')
+        tfs = run_system(model, cs, gs)
+ 
+    # Generate a portfolio
     gen_portfolio(model, system_name, gs, tfs)
-
-    # cs = System('closer', 'hc', 'lc')
-    # tfs = run_system(model, cs, gs)
-    # gen_portfolio(model, cs.name, gs, tfs)
 
     return
 

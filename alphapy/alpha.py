@@ -2,7 +2,7 @@
 #
 # Package   : AlphaPy
 # Module    : alpha_sport
-# Date      : July 11, 2013
+# Created   : July 11, 2013
 #
 # Copyright 2017 @ Alpha314
 # Mark Conway & Robert D. Scott II
@@ -19,7 +19,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Example: python ../AlphaPy/alpha.py -d './config'
+# Example: python alpha.py -d './config'
 #
 ################################################################################
 
@@ -28,42 +28,39 @@
 # Imports
 #
 
-from __future__ import division
+from alphapy.data import get_data
+from alphapy.data import sample_data
+from alphapy.data import shuffle_data
+from alphapy.estimators import get_estimators
+from alphapy.estimators import ModelType
+from alphapy.estimators import scorers
+from alphapy.features import create_features
+from alphapy.features import create_interactions
+from alphapy.features import drop_features
+from alphapy.features import remove_lv_features
+from alphapy.features import save_features
+from alphapy.features import select_features
+from alphapy.globs import CSEP, PSEP, SSEP
+from alphapy.globs import WILDCARD
+from alphapy.model import first_fit
+from alphapy.model import generate_metrics
+from alphapy.model import get_model_config
+from alphapy.model import get_sample_weights
+from alphapy.model import load_model_object
+from alphapy.model import make_predictions
+from alphapy.model import Model
+from alphapy.model import predict_best
+from alphapy.model import predict_blend
+from alphapy.model import save_model
+from alphapy.optimize import hyper_grid_search
+from alphapy.optimize import rfe_search
+from alphapy.optimize import rfecv_search
+from alphapy.plots import generate_plots
+
 import argparse
-from data import get_data
-from data import sample_data
-from data import shuffle_data
-from estimators import get_estimators
-from estimators import ModelType
-from estimators import scorers
-from features import create_features
-from features import create_interactions
-from features import drop_features
-from features import remove_lv_features
-from features import save_features
-from features import select_features
-from globs import CSEP
-from globs import PSEP
-from globs import SSEP
-from globs import WILDCARD
 import logging
-from model import first_fit
-from model import generate_metrics
-from model import get_model_config
-from model import get_sample_weights
-from model import load_model_object
-from model import make_predictions
-from model import Model
-from model import predict_best
-from model import predict_blend
-from model import save_model
 import numpy as np
-from optimize import hyper_grid_search
-from optimize import rfe_search
-from optimize import rfecv_search
 import pandas as pd
-from plots import generate_plots
-import yaml
 
 
 #

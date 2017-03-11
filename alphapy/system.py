@@ -2,8 +2,7 @@
 #
 # Package   : AlphaPy
 # Module    : system
-# Version   : 1.0
-# Date      : July 11, 2013
+# Created   : July 11, 2013
 #
 # Copyright 2017 @ Alpha314
 # Mark Conway & Robert D. Scott II
@@ -27,15 +26,16 @@
 # Imports
 #
 
-from frame import Frame
-from frame import frame_name
-from frame import write_frame
-from globs import SSEP
+from alphapy.frame import Frame
+from alphapy.frame import frame_name
+from alphapy.frame import write_frame
+from alphapy.globs import SSEP
+from alphapy.space import Space
+from alphapy.portfolio import Trade
+from alphapy.var import vexec
+
 import logging
 from pandas import DataFrame
-from space import Space
-from portfolio import Trade
-from var import vexec
 
 
 #

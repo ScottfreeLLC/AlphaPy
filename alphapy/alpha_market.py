@@ -2,7 +2,7 @@
 #
 # Package   : AlphaPy
 # Module    : alpha_market
-# Date      : July 11, 2013
+# Created   : July 11, 2013
 #
 # Copyright 2017 @ Alpha314
 # Mark Conway & Robert D. Scott II
@@ -19,7 +19,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Example: python ../AlphaPy/alpha_market.py -d 'Stocks/config'
+# Example: python alpha_market.py -d 'Stocks/config'
 #
 ################################################################################
 
@@ -28,20 +28,22 @@
 # Imports
 #
 
-from alias import Alias
-from analysis import Analysis
-from analysis import run_analysis
+from alphapy.alias import Alias
+from alphapy.analysis import Analysis
+from alphapy.analysis import run_analysis
+from alphapy.config import get_market_config
+from alphapy.config import get_model_config
+from alphapy.data import get_feed_data
+from alphapy.globs import SSEP
+from alphapy.group import Group
+from alphapy.model import get_model_config
+from alphapy.model import Model
+from alphapy.space import Space
+from alphapy.var import Variable
+from alphapy.var import vmapply
+
 import argparse
-from data import get_feed_data
-from globs import SSEP
-from group import Group
 import logging
-from model import get_model_config
-from model import Model
-from space import Space
-from var import Variable
-from var import vmapply
-import yaml
 
 
 #
@@ -49,95 +51,6 @@ import yaml
 #
 
 logger = logging.getLogger(__name__)
-
-
-#
-# Function get_market_config
-#
-
-def get_market_config(cfg_dir):
-
-    logger.info("Market Configuration")
-
-    # Read the configuration file
-
-    full_path = SSEP.join([cfg_dir, 'market.yml'])
-    with open(full_path, 'r') as ymlfile:
-        cfg = yaml.load(ymlfile)
-
-    # Store configuration parameters in dictionary
-
-    specs = {}
-
-    # Section: market [this section must be first]
-
-    specs['forecast_period'] = cfg['market']['forecast_period']
-    specs['fractal'] = cfg['market']['fractal']
-    specs['leaders'] = cfg['market']['leaders']
-    specs['lookback_period'] = cfg['market']['lookback_period']
-    specs['predict_date'] = cfg['market']['predict_date']
-    specs['schema'] = cfg['market']['schema']
-    specs['target_group'] = cfg['market']['target_group']
-    specs['train_date'] = cfg['market']['train_date']
-
-    # Create the subject/schema/fractal namespace
-
-    sspecs = ['stock', specs['schema'], specs['fractal']]    
-    space = Space(*sspecs)
-
-    # Section: features
-
-    try:
-        logger.info("Getting Features")
-        specs['features'] = cfg['features']
-    except:
-        logger.info("No Features Found")
-
-    # Section: groups
-
-    try:
-        logger.info("Defining Groups")
-        for g, m in cfg['groups'].items():
-            command = 'Group(\'' + g + '\', space)'
-            exec(command)
-            Group.groups[g].add(m)
-    except:
-        logger.info("No Groups Found")
-
-    # Section: aliases
-
-    try:
-        logger.info("Defining Aliases")
-        for k, v in cfg['aliases'].items():
-            Alias(k, v)
-    except:
-        logger.info("No Aliases Found")
-
-    # Section: variables
-
-    try:
-        logger.info("Defining Variables")
-        for k, v in cfg['variables'].items():
-            Variable(k, v)
-    except:
-        logger.info("No Variables Found")
-
-    # Log the stock parameters
-
-    logger.info('MARKET PARAMETERS:')
-    logger.info('features        = %s', specs['features'])
-    logger.info('forecast_period = %d', specs['forecast_period'])
-    logger.info('fractal         = %s', specs['fractal'])
-    logger.info('leaders         = %s', specs['leaders'])
-    logger.info('lookback_period = %d', specs['lookback_period'])
-    logger.info('predict_date    = %s', specs['predict_date'])
-    logger.info('schema          = %s', specs['schema'])
-    logger.info('target_group    = %s', specs['target_group'])
-    logger.info('train_date      = %s', specs['train_date'])
-
-    # Stock Specifications
-
-    return specs
 
 
 #

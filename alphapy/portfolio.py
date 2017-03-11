@@ -1,9 +1,8 @@
 ################################################################################
 #
 # Package   : AlphaPy
-# Module    : portfolo
-# Version   : 1.0
-# Date      : July 11, 2013
+# Module    : portfolio
+# Created   : July 11, 2013
 #
 # Copyright 2017 @ Alpha314
 # Mark Conway & Robert D. Scott II
@@ -27,12 +26,14 @@
 # Imports
 #
 
-from frame import Frame
-from frame import frame_name
-from frame import read_frame
-from frame import write_frame
-from globs import MULTIPLIERS
-from globs import SSEP
+from alphapy.frame import Frame
+from alphapy.frame import frame_name
+from alphapy.frame import read_frame
+from alphapy.frame import write_frame
+from alphapy.globs import MULTIPLIERS
+from alphapy.globs import SSEP
+from alphapy.space import Space
+
 import logging
 import math
 import numpy as np
@@ -51,7 +52,6 @@ from pyfolio import plot_rolling_sharpe
 from pyfolio import show_perf_stats
 from pyfolio import show_worst_drawdown_periods
 from pyfolio.utils import get_symbol_rets
-from space import Space
 
 
 #

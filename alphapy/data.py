@@ -2,8 +2,7 @@
 #
 # Package   : AlphaPy
 # Module    : data
-# Version   : 1.0
-# Date      : July 11, 2013
+# Created   : July 11, 2013
 #
 # Copyright 2017 @ Alpha314
 # Mark Conway & Robert D. Scott II
@@ -27,16 +26,16 @@
 # Imports
 #
 
+from alphapy.estimators import ModelType
+from alphapy.frame import Frame
+from alphapy.frame import frame_name
+from alphapy.frame import read_frame
+from alphapy.globs import PSEP, SSEP
+from alphapy.globs import WILDCARD
+
 from datetime import datetime
 from datetime import timedelta
 from enum import Enum, unique
-from estimators import ModelType
-from frame import Frame
-from frame import frame_name
-from frame import read_frame
-from globs import PSEP
-from globs import SSEP
-from globs import WILDCARD
 from imblearn.combine import SMOTEENN
 from imblearn.combine import SMOTETomek
 from imblearn.ensemble import BalanceCascade

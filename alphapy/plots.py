@@ -2,8 +2,7 @@
 #
 # Package   : AlphaPy
 # Module    : plots
-# Version   : 1.0
-# Date      : July 11, 2013
+# Created   : July 11, 2013
 #
 # Copyright 2017 @ Alpha314
 # Mark Conway & Robert D. Scott II
@@ -56,11 +55,13 @@ print(__doc__)
 # Imports
 #
 
+from alphapy.estimators import get_estimators
+from alphapy.estimators import ModelType
+from alphapy.globs import BSEP, PSEP, SSEP, USEP
+from alphapy.globs import Q1, Q3
+from alphapy.util import remove_list_items
+
 from bokeh.plotting import figure, show, output_file
-from estimators import get_estimators
-from estimators import ModelType
-from globs import BSEP, PSEP, SSEP, USEP
-from globs import Q1, Q3
 from itertools import cycle
 from itertools import product
 import logging
@@ -82,7 +83,6 @@ from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import learning_curve
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import train_test_split
-from util import remove_list_items
 
 
 #

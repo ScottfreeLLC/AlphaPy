@@ -2,8 +2,7 @@
 #
 # Package   : AlphaPy
 # Module    : optimize
-# Version   : 1.0
-# Date      : July 11, 2013
+# Created   : July 11, 2013
 #
 # Copyright 2017 @ Alpha314
 # Mark Conway & Robert D. Scott II
@@ -27,9 +26,9 @@
 # Imports
 #
 
-from __future__ import division
+from alphapy.estimators import ModelType
+
 from datetime import datetime
-from estimators import ModelType
 import logging
 import numpy as np
 from sklearn.feature_selection import RFE

@@ -2,8 +2,7 @@
 #
 # Package   : AlphaPy
 # Module    : util
-# Version   : 1.0
-# Date      : July 11, 2013
+# Created   : July 11, 2013
 #
 # Copyright 2017 @ Alpha314
 # Mark Conway & Robert D. Scott II
@@ -27,8 +26,8 @@
 # Imports
 #
 
-from globs import PSEP
-from globs import USEP
+from alphapy.globs import PSEP, USEP
+
 from itertools import groupby
 from os import listdir
 from os.path import isfile, join

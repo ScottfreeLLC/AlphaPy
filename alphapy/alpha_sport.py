@@ -2,8 +2,7 @@
 #
 # Package   : AlphaPy
 # Module    : alpha_sport
-# Version   : 1.0
-# Date      : July 11, 2013
+# Created   : July 11, 2013
 #
 # Copyright 2017 @ Alpha314
 # Mark Conway & Robert D. Scott II
@@ -20,7 +19,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Example: python ../AlphaPy/alpha_sport.py -d 'NBA/config'
+# Example: python alpha_sport.py -d 'NBA/config'
 #
 ################################################################################
 
@@ -31,26 +30,25 @@
 
 print(__doc__)
 
-from alpha import main_pipeline
+from alphapy.alpha import main_pipeline
+from alphapy.config import get_game_config
+from alphapy.config import get_model_config
+from alphapy.estimators import ModelType
+from alphapy.frame import read_frame
+from alphapy.frame import write_frame
+from alphapy.globs import PSEP, SSEP, USEP
+from alphapy.globs import WILDCARD
+from alphapy.model import Model
+from alphapy.space import Space
+
 import argparse
 import datetime
-from estimators import ModelType
-from frame import read_frame
-from frame import write_frame
-from globs import PSEP
-from globs import SSEP
-from globs import USEP
-from globs import WILDCARD
 from itertools import groupby
 import logging
 import math
-from model import get_model_config
-from model import Model
 import numpy as np
 from numpy.random import randn
 import pandas as pd
-from space import Space
-import yaml
 
 
 #
@@ -131,48 +129,6 @@ game_dict = {'point_margin_game' : int,
              'overunder_margin' : float,
              'over' : bool,
              'under' : bool}
-
-
-#
-# Function get_game_config
-#
-
-def get_game_config(cfg_dir):
-
-    # Read the configuration file
-
-    full_path = SSEP.join([cfg_dir, 'game.yml'])
-    with open(full_path, 'r') as ymlfile:
-        cfg = yaml.load(ymlfile)
-
-    # Store configuration parameters in dictionary
-
-    specs = {}
-
-    # Section: game
-
-    specs['points_max'] = cfg['game']['points_max']
-    specs['points_min'] = cfg['game']['points_min']
-    specs['predict_date'] = cfg['game']['predict_date']
-    specs['random_scoring'] = cfg['game']['random_scoring']
-    specs['rolling_window'] = cfg['game']['rolling_window']   
-    specs['seasons'] = cfg['game']['seasons']
-    specs['train_date'] = cfg['game']['train_date']
-
-    # Log the game parameters
-
-    logger.info('GAME PARAMETERS:')
-    logger.info('points_max       = %d', specs['points_max'])
-    logger.info('points_min       = %d', specs['points_min'])
-    logger.info('predict_date     = %s', specs['predict_date'])
-    logger.info('random_scoring   = %r', specs['random_scoring'])
-    logger.info('rolling_window   = %d', specs['rolling_window'])
-    logger.info('seasons          = %s', specs['seasons'])
-    logger.info('train_date       = %s', specs['train_date'])
-
-    # Game Specifications
-
-    return specs
 
 
 #

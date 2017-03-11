@@ -2,8 +2,7 @@
 #
 # Package   : AlphaPy
 # Module    : estimators
-# Version   : 1.0
-# Date      : July 11, 2013
+# Created   : July 11, 2013
 #
 # Copyright 2017 @ Alpha314
 # Mark Conway & Robert D. Scott II
@@ -27,8 +26,9 @@
 # Imports
 #
 
+from alphapy.estimator import Estimator
+
 from enum import Enum, unique
-from estimator import Estimator
 import numpy as np
 from scipy.stats import randint as sp_randint
 from sklearn.ensemble import AdaBoostClassifier

@@ -2,8 +2,7 @@
 #
 # Package   : AlphaPy
 # Module    : space
-# Version   : 1.0
-# Date      : July 11, 2013
+# Created   : July 11, 2013
 #
 # Copyright 2017 @ Alpha314
 # Mark Conway & Robert D. Scott II
@@ -27,7 +26,7 @@
 # Imports
 #
 
-from globs import USEP
+from alphapy.globs import USEP
 
 
 #

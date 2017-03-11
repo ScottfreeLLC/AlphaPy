@@ -2,8 +2,7 @@
 #
 # Package   : AlphaPy
 # Module    : features
-# Version   : 1.0
-# Date      : July 11, 2013
+# Created   : July 11, 2013
 #
 # Copyright 2017 @ Alpha314
 # Mark Conway & Robert D. Scott II
@@ -27,12 +26,12 @@
 # Imports
 #
 
+from alphapy.estimators import ModelType
+from alphapy.globs import BSEP, NULLTEXT, USEP
+from alphapy.var import Variable
+
 import category_encoders as ce
 from enum import Enum, unique
-from estimators import ModelType
-from globs import BSEP
-from globs import NULLTEXT
-from globs import USEP
 from gplearn.genetic import SymbolicTransformer
 from itertools import groupby
 import logging
@@ -60,7 +59,6 @@ from sklearn.manifold import TSNE
 from sklearn.preprocessing import Imputer
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.preprocessing import StandardScaler
-from var import Variable
 
 
 #

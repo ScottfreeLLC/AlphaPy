@@ -2,8 +2,7 @@
 #
 # Package   : AlphaPy
 # Module    : model
-# Version   : 1.0
-# Date      : July 11, 2013
+# Created   : July 11, 2013
 #
 # Copyright 2017 @ Alpha314
 # Mark Conway & Robert D. Scott II
@@ -27,20 +26,19 @@
 # Imports
 #
 
-from data import SamplingMethod
+from alphapy.data import SamplingMethod
+from alphapy.estimators import Objective
+from alphapy.estimators import ModelType
+from alphapy.estimators import scorers
+from alphapy.estimators import xgb_score_map
+from alphapy.features import Encoders
+from alphapy.features import feature_scorers
+from alphapy.frame import read_frame
+from alphapy.frame import write_frame
+from alphapy.globs import PSEP, SSEP, USEP
+
 from datetime import datetime
-from estimators import Objective
-from estimators import ModelType
-from estimators import scorers
-from estimators import xgb_score_map
-from features import Encoders
-from features import feature_scorers
-from frame import read_frame
-from frame import write_frame
 import glob
-from globs import PSEP
-from globs import SSEP
-from globs import USEP
 import logging
 import numpy as np
 import os

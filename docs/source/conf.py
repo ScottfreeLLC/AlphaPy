@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# alphapy documentation build configuration file, created by
-# sphinx-quickstart on Fri Mar 10 11:37:44 2017.
+# AlphaPy documentation build configuration file, created by
+# sphinx-quickstart on Fri Mar 10 17:45:50 2017.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -31,10 +31,11 @@
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc']
+extensions = ['sphinx.ext.autodoc',
+    'sphinx.ext.mathjax']
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['ntemplates']
+templates_path = ['_templates']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -46,7 +47,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'alphapy'
+project = 'AlphaPy'
 copyright = '2017, Mark Conway, Robert D. Scott II'
 author = 'Mark Conway, Robert D. Scott II'
 
@@ -94,13 +95,13 @@ html_theme = 'alabaster'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['nstatic']
+html_static_path = ['_static']
 
 
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'alphapydoc'
+htmlhelp_basename = 'AlphaPydoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -127,7 +128,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'alphapy.tex', 'alphapy Documentation',
+    (master_doc, 'AlphaPy.tex', 'AlphaPy Documentation',
      'Mark Conway, Robert D. Scott II', 'manual'),
 ]
 
@@ -137,7 +138,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'alphapy', 'alphapy Documentation',
+    (master_doc, 'alphapy', 'AlphaPy Documentation',
      [author], 1)
 ]
 
@@ -148,10 +149,31 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'alphapy', 'alphapy Documentation',
-     author, 'alphapy', 'One line description of project.',
+    (master_doc, 'AlphaPy', 'AlphaPy Documentation',
+     author, 'AlphaPy', 'One line description of project.',
      'Miscellaneous'),
 ]
 
+
+
+# -- Options for Epub output ----------------------------------------------
+
+# Bibliographic Dublin Core info.
+epub_title = project
+epub_author = author
+epub_publisher = author
+epub_copyright = copyright
+
+# The unique identifier of the text. This can be a ISBN number
+# or the project homepage.
+#
+# epub_identifier = ''
+
+# A unique identification for the text.
+#
+# epub_uid = ''
+
+# A list of files that should not be packed into the epub file.
+epub_exclude_files = ['search.html']
 
 
