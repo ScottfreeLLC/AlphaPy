@@ -8,7 +8,7 @@ LONG_DESCRIPTION = "alphapy is a Python library for machine learning using sciki
 
 MAINTAINER = 'Alpha314 [Mark Conway, Robert D. Scott II]'
 MAINTAINER_EMAIL = 'alphapy@alpha314.com'
-URL = "https://github.com/MarkRConway/AlphaPy"
+URL = "https://github.com/Alpha314/AlphaPy"
 LICENSE = "Apache License, Version 2.0"
 VERSION = "0.1.4"
 
