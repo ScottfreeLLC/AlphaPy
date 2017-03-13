@@ -5,48 +5,38 @@ AlphaPy Documentation
    :maxdepth: 2
    :caption: Introduction
 
-   install
-   quickstart
-   support
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Key Concepts
-
-   pipelines
-   project
-   configuration
-   treatment
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Market Pipeline
-
-   marketintro
-   aliases
-   variables
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Sports Pipeline
-
-   sportsintro
-   sportsdata
+   introduction/install
+   introduction/quickstart
+   introduction/command
+   source/modules
+   introduction/support
 
 .. toctree::
    :maxdepth: 2
    :caption: Tutorials
 
-   kaggle
-   numerai
-   ncaab
-   trading
+   tutorials/kaggle
+   tutorials/numerai
+   tutorials/ncaab
+   tutorials/trading
+
+.. toctree::
+   :maxdepth: 2
+   :caption: User Guide
+
+   user_guide/introduction
+   user_guide/project
+   user_guide/configuration
+   user_guide/pipelines
+   user_guide/treatment
+   user_guide/market
+   user_guide/sports
 
 .. toctree::
    :maxdepth: 2
    :caption: API Reference
 
-   reference
+   source/alphapy
 
 Indices and tables
 ==================
