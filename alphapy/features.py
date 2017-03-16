@@ -750,7 +750,8 @@ def create_features(X, model, split_point, y_train):
     # Create clustering features
 
     if clustering:
-        all_features = create_clusters(base_features, model)
+        cfeatures = create_clusters(base_features, model)
+        all_features = np.column_stack((all_features, cfeatures))
         logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Create PCA features
