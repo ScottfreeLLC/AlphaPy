@@ -42,3 +42,12 @@ Treatments Section
    :width:  1000 px
    :alt: Treatments Section
    :align: center
+
+Other Sections
+~~~~~~~~~~~~~~
+
+.. image:: config_others.png
+   :height:  500 px
+   :width:  1000 px
+   :alt: Treatments Section
+   :align: center
