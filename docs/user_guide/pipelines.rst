@@ -25,6 +25,16 @@ Creating a Blended Model
    :alt: Blended Model Creation
    :align: center
 
+Algorithms
+----------
+
+.. image:: mp_estimators.png
+   :height:  500 px
+   :width:  1000 px
+   :alt: Algorithms
+   :align: center
+
+
 Pipeline Logging
 ----------------
 
