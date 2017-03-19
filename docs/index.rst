@@ -5,8 +5,8 @@ AlphaPy Documentation
    :maxdepth: 2
    :caption: Introduction
 
-   introduction/install
    introduction/quickstart
+   introduction/install
    introduction/command
    source/modules
    introduction/support
@@ -26,9 +26,8 @@ AlphaPy Documentation
 
    user_guide/introduction
    user_guide/project
-   user_guide/configuration
    user_guide/pipelines
-   user_guide/treatment
+   user_guide/features
    user_guide/market
    user_guide/sports
 
