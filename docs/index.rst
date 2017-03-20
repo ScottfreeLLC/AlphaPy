@@ -35,7 +35,6 @@ AlphaPy Documentation
    :caption: API Reference
 
    source/modules
-   source/alphapy
 
 Indices and tables
 ==================

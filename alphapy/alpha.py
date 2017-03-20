@@ -1,7 +1,7 @@
 ################################################################################
 #
 # Package   : AlphaPy
-# Module    : alpha_sport
+# Module    : alpha
 # Created   : July 11, 2013
 #
 # Copyright 2017 @ Alpha314

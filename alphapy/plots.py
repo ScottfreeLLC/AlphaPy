@@ -193,7 +193,6 @@ def plot_calibration(model, partition):
     Display calibration plots
 
     Parameters
-    ----------
 
     model : object that encapsulates all of the model parameters
     partition : 'train' or 'test'
@@ -202,7 +201,6 @@ def plot_calibration(model, partition):
     
     Author: Jan Hendrik Metzen <jhm@informatik.uni-bremen.de>
     License: BSD Style.
-
     """
 
     logger.info("Generating Calibration Plot")
@@ -260,11 +258,9 @@ def plot_importance(model, partition):
     Display feature importances
 
     Parameters
-    ----------
 
     model : object that encapsulates all of the model parameters
     partition : 'train' or 'test'
-
     """
 
     logger.info("Generating Feature Importance Plots")
@@ -310,11 +306,9 @@ def plot_learning_curve(model, partition):
     Generate learning curves for a given partition.
 
     Parameters
-    ----------
 
     model : object that encapsulates all of the model parameters
     partition : 'train' or 'test'
-
     """
 
     logger.info("Generating Learning Curves")
@@ -508,13 +502,11 @@ def plot_validation_curve(model, partition, pname, prange):
     Generate validation curves.
 
     Parameters
-    ----------
 
     model     : object that encapsulates all of the model parameters
     partition : data subset ['train' or 'test']
     pname     : hyperparameter name ['gamma']
     prange    : hyperparameter values [np.logspace(-6, -1, 5)]
-
     """
 
     logger.info("Generating Validation Curves")
