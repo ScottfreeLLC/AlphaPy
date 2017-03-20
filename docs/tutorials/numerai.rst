@@ -1,2 +1,0 @@
-Numerai Tutorial
-================

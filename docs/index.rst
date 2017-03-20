@@ -16,9 +16,9 @@ AlphaPy Documentation
    :caption: Tutorials
 
    tutorials/kaggle
-   tutorials/numerai
+   tutorials/market
    tutorials/ncaab
-   tutorials/trading
+   tutorials/system
 
 .. toctree::
    :maxdepth: 2
