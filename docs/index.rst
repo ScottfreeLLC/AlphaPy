@@ -8,7 +8,6 @@ AlphaPy Documentation
    introduction/quickstart
    introduction/install
    introduction/command
-   source/modules
    introduction/support
 
 .. toctree::
@@ -35,6 +34,7 @@ AlphaPy Documentation
    :maxdepth: 2
    :caption: API Reference
 
+   source/modules
    source/alphapy
 
 Indices and tables
