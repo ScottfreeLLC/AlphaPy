@@ -4,7 +4,7 @@
 # Module    : data
 # Created   : July 11, 2013
 #
-# Copyright 2017 @ Alpha314
+# Copyright 2017 ScottFree Analytics LLC
 # Mark Conway & Robert D. Scott II
 #
 # Licensed under the Apache License, Version 2.0 (the "License");

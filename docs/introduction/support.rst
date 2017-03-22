@@ -7,4 +7,4 @@ http://github.com/Alpha314/AlphaPy/issues
 
 Follow us on Twitter:
 
-https://twitter.com/_Alpha314?lang=en
+https://twitter.com/alphapy314?lang=en
