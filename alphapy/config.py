@@ -142,6 +142,15 @@ def get_model_config(cfg_dir):
     specs['pca_max'] = cfg['features']['pca']['maximum']
     specs['pca_inc'] = cfg['features']['pca']['increment']
     specs['pca_whiten'] = cfg['features']['pca']['whiten']
+    # Scaling
+    specs['scaler_option'] = cfg['features']['scaling']['option']
+    # determine whether or not scaling type is valid
+    scaler_types = {x.name: x.value for x in Scalers}
+    scaler_type = cfg['features']['scaling']['type']
+    if scaler_type in scaler_types:
+        specs['scaler_type'] = Scalers(scaler_types[scaler_type])
+    else:
+        raise ValueError(".yml features:scaling:type %s unrecognized", scaler_type)
     # SciPy
     specs['scipy'] = cfg['features']['scipy']['option']
     # text
@@ -253,7 +262,7 @@ def get_model_config(cfg_dir):
     logger.info('gs_sample_pct     = %f', specs['gs_sample_pct'])
     logger.info('importances       = %r', specs['importances'])
     logger.info('interactions      = %r', specs['interactions'])
-    logger.info('isomap            = %r', specs['interactions'])
+    logger.info('isomap            = %r', specs['isomap'])
     logger.info('iso_components    = %d', specs['iso_components'])
     logger.info('iso_neighbors     = %d', specs['iso_neighbors'])
     logger.info('isample_pct       = %d', specs['isample_pct'])
@@ -279,6 +288,8 @@ def get_model_config(cfg_dir):
     logger.info('sampling          = %r', specs['sampling'])
     logger.info('sampling_method   = %r', specs['sampling_method'])
     logger.info('sampling_ratio    = %f', specs['sampling_ratio'])
+    logger.info('scaler_option     = %r', specs['scaler_option'])
+    logger.info('scaler_type       = %r', specs['scaler_type'])
     logger.info('scipy             = %r', specs['scipy'])
     logger.info('scorer            = %s', specs['scorer'])
     logger.info('scoring_mode      = %r', specs['scoring_mode'])
@@ -302,6 +313,7 @@ def get_model_config(cfg_dir):
     logger.info('verbosity         = %d', specs['verbosity'])
 
     # Specifications to create the model
+
     return specs
 
 
