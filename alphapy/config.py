@@ -31,6 +31,7 @@ from alphapy.data import SamplingMethod
 from alphapy.estimators import ModelType
 from alphapy.features import Encoders
 from alphapy.features import feature_scorers
+from alphapy.features import Scalers
 from alphapy.globs import SSEP
 from alphapy.group import Group
 from alphapy.space import Space
