@@ -57,6 +57,7 @@ from sklearn.feature_selection import VarianceThreshold
 from sklearn.manifold import Isomap
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import Imputer
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.preprocessing import StandardScaler
 
@@ -82,6 +83,16 @@ class Encoders(Enum):
     sumcont = 6
     polynomial = 7
     backdiff = 8
+
+
+#
+# Scaler Types
+#
+
+@unique
+class Scalers(Enum):
+    standard = 1
+    minmax = 2
 
 
 #
@@ -664,6 +675,8 @@ def create_features(X, model, split_point, y_train):
     pca = model.specs['pca']
     pvalue_level = model.specs['pvalue_level']
     rounding = model.specs['rounding']
+    scaling = model.specs['scaler_option']
+    scaler = model.specs['scaler_type']
     scipy_flag = model.specs['scipy']
     sentinel = model.specs['sentinel']
     target_value = model.specs['target_value']
@@ -728,9 +741,19 @@ def create_features(X, model, split_point, y_train):
 
     # Call standard scaler for all features
 
-    logger.info("Scaling Base Features")
+    if scaling:
+        logger.info("Scaling Base Features")
+        if scaler == Scalers.standard:
+            all_features = StandardScaler().fit_transform(all_features)
+        elif scaler == Scalers.minmax:
+            all_features = MinMaxScaler().fit_transform(all_features)
+        else:
+            logger.info("Unrecognized scaler: %s", scaler)
+    else:
+        logger.info("Skipping Scaling")
 
-    all_features = StandardScaler().fit_transform(all_features)
+    # Perform dimensionality reduction only on base feature set
+
     base_features = all_features
 
     # Calculate the total, mean, standard deviation, and variance
@@ -806,20 +829,27 @@ def select_features(model):
     fs = SelectPercentile(score_func=fs_score_func,
                           percentile=fs_percentage)
 
-    # Use combined features to transform dataset.
+    # Perform feature selection and get the support mask
 
-    X = fs.fit(X_train, y_train).transform(X_train)
+    fsfit = fs.fit(X_train, y_train)
+    support = fsfit.get_support()
+
+    # Record the support vector
+
+    X_train_new = model.X_train[:, support]
+    X_test_new = model.X_test[:, support]
 
     # Count the number of new features.
 
     logger.info("Old Feature Count : %d", X_train.shape[1])
-    logger.info("New Feature Count : %d", X.shape[1])
+    logger.info("New Feature Count : %d", X_train_new.shape[1])
 
-    # Store the new features in the model.
+    # Store the reduced features in the model.
 
-    model.X_train = X
+    model.X_train = X_train_new
+    model.X_test = X_test_new
 
-    # Return the model with the support vector
+    # Return the modified model
 
     return model
 
@@ -936,9 +966,7 @@ def drop_features(X, drop):
     Drop any specified features.
     """
 
-    logger.info("Dropping Features: %s", drop)
     X.drop(drop, axis=1, inplace=True, errors='ignore')
-
     return X
 
 

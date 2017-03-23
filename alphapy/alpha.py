@@ -96,6 +96,7 @@ def data_pipeline(model):
 
     # Drop features
 
+    logger.info("Dropping Features: %s", drop)
     X_train = drop_features(X_train, drop)
     X_test = drop_features(X_test, drop)
 
@@ -210,7 +211,7 @@ def model_pipeline(model):
         except KeyError:
             logger.info("Algorithm %s not found", algo)
         # feature selection
-        if feature_selection and not grid_search:
+        if feature_selection:
             model = select_features(model)
         # initial fit
         model = first_fit(model, algo, est)

@@ -52,9 +52,8 @@ Configuration
 
 My output looks like this:
 
-.. literalinclude:: quickstart-output.txt
+.. literalinclude:: model.yml
    :language: text
-   :linenos:
 
 Data Section
 ~~~~~~~~~~~~

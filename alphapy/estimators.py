@@ -277,7 +277,7 @@ def get_estimators(model):
     algo = 'NB'
     model_type = ModelType.classification
     est = MultinomialNB()
-    grid = {"alpha" : [0.01, 0.1, 0.5, 1.0, 2.0, 5.0, 10.0],
+    grid = {"alpha" : [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 1.0, 2.0, 5.0, 10.0],
             "fit_prior" : [True, False]}
     scoring = True
     estimators[algo] = Estimator(algo, model_type, est, grid, scoring)

@@ -6,11 +6,11 @@ DISTNAME = 'alphapy'
 DESCRIPTION = "AlphaPy: A Machine Learning Pipeline for Speculators"
 LONG_DESCRIPTION = "alphapy is a Python library for machine learning using scikit-learn. We have a stock market pipeline and a sports pipeline so that speculators can test predictive models, along with functions for trading systems and portfolio management."
 
-MAINTAINER = 'Alpha314 [Mark Conway, Robert D. Scott II]'
-MAINTAINER_EMAIL = 'alphapy@alpha314.com'
+MAINTAINER = 'ScottFree LLC [Mark Conway, Robert D. Scott II]'
+MAINTAINER_EMAIL = 'alphapy@scottfreellc.com'
 URL = "https://github.com/Alpha314/AlphaPy"
 LICENSE = "Apache License, Version 2.0"
-VERSION = "0.1.4"
+VERSION = "0.1.7"
 
 classifiers = ['Development Status :: 4 - Beta',
                'Programming Language :: Python',
