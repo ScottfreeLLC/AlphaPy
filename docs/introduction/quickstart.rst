@@ -13,10 +13,10 @@ From your command line application, clone the repository::
 
 Change your directory to the examples location::
   
-    cd AlphaPy/alphapy/examples
+    cd alphapy/examples
 
-Currently, there are four examples, two from the command line
-and two from a Jupyter Notebook:
+Currently, there are four examples, two of which you run from
+the command line and the other two in a Jupyter Notebook:
 
 * :doc:`../tutorials/kaggle`
 * :doc:`../tutorials/ncaab`

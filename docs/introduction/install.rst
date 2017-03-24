@@ -6,8 +6,11 @@ your system. Run the following command::
 
     pip install alphapy
 
-.. important:: This is a note admonition.
-   This is the second line of the first paragraph.
+.. important:: For MacOS users, the ``xgboost`` package may not
+   install automatically through ``pip``. If you have errors,
+   then install ``xgboost`` before installing ``alphapy``. You
+   will first have to build the package using the following
+   instructions. 
 
     .. line-block::
 
@@ -16,7 +19,9 @@ your system. Run the following command::
         ./build.sh
         pip install -e python-package
 
-.. note:: Advanced users can install this in a virtualenv if they wish.
+.. note:: If you already have the Anaconda Python distribution,
+   then you can create a virtual environment with *conda* using
+   the following instructions.
 
     .. line-block::
 
@@ -27,8 +32,8 @@ your system. Run the following command::
         pip install imblearn
         pip install category_encoders
         pip install gplearn
+        pip install pyfolio
         conda install -c conda-forge pyyaml
         conda install -c conda-forge bokeh
         conda install -c conda-forge matplotlib
         conda install -c conda-forge seaborn
-        pip install pyfolio
