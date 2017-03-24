@@ -220,7 +220,9 @@ def sample_data(model):
         ratio = sampling_ratio
     else:
         uv, uc = np.unique(y_train, return_counts=True)
-        ratio = (uc[not target_value] / uc[target_value]) - 1.0
+        target_index = np.where(uv == target_value)[0][0]
+        nontarget_index = np.where(uv != target_value)[0][0]
+        ratio = (uc[nontarget_index] / uc[target_index]) - 1.0
     logger.info("Sampling Ratio for target %s [%r]: %f",
                 target, target_value, ratio)
 

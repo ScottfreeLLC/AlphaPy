@@ -337,12 +337,6 @@ def make_predictions(model, algo, calibrate):
         model.probas[(algo, 'test')] = est.predict_proba(X_test)[:, 1]
     logger.info("Predictions Complete")
 
-    # Log the training and testing scores
-
-    logger.info("Training Score: %f", est.score(X_train, y_train))
-    if test_labels:
-        logger.info("Testing Score: %f", est.score(X_test, y_test))
-
     # Return the model
     return model
 
