@@ -10,7 +10,7 @@ MAINTAINER = 'ScottFree LLC [Mark Conway, Robert D. Scott II]'
 MAINTAINER_EMAIL = 'alphapy@scottfreellc.com'
 URL = "https://github.com/Alpha314/AlphaPy"
 LICENSE = "Apache License, Version 2.0"
-VERSION = "0.1.11"
+VERSION = "0.1.21"
 
 classifiers = ['Development Status :: 4 - Beta',
                'Programming Language :: Python',
@@ -55,4 +55,9 @@ if __name__ == "__main__":
         packages=find_packages(),
         classifiers=classifiers,
         install_requires=install_reqs,
+        entry_points={
+            'console_scripts': [
+                'alphapy = alphapy.__main__:main',
+            ],
+        }
     )

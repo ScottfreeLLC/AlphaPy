@@ -82,8 +82,9 @@ def rfecv_search(model, algo):
     logger.info("Algorithm: %s, Selected Features: %d, Ranking: %s",
                 algo, selector.n_features_, selector.ranking_)
 
-    # Record the support vector
+    # Record the new estimator and support vector
 
+    model.estimators[algo] = selector.estimator_
     model.support[algo] = selector.support_
 
     # Return the model with the support vector
@@ -122,8 +123,9 @@ def rfe_search(model, algo):
     logger.info("Algorithm: %s, Selected Features: %d, Ranking: %s",
                 algo, selector.n_features_, selector.ranking_)
 
-    # Record the support vector
+    # Record the new estimator and support vector
 
+    model.estimators[algo] = selector.estimator_
     model.support[algo] = selector.support_
 
     # Return the model with the support vector

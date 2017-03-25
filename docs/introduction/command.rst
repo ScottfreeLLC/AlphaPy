@@ -9,8 +9,14 @@ First, change the directory to your project location, which has been
 set up according to the :doc:`../user_guide/project` specifications::
   
     cd path/to/project
-    python path/to/alpha.py -d './config'
+    alphapy -d './config'
 
-The AlphaPy CLI has a single option:
+Usage::
 
--d  Directory location of the model.yml configuration file
+    alphapy -d config_dir [--score | --train]
+
+The AlphaPy CLI has the following options:
+
+-d          Directory location of the model.yml configuration file
+--score     Make predictions from a saved model
+--train     Train a new model and make predictions [Default]

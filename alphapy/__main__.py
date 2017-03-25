@@ -1,7 +1,7 @@
 ################################################################################
 #
 # Package   : AlphaPy
-# Module    : alpha
+# Module    : __main__
 # Created   : July 11, 2013
 #
 # Copyright 2017 ScottFree Analytics LLC
@@ -19,7 +19,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Example: python alpha.py -d './config'
+# Example: alphapy -d './config'
 #
 ################################################################################
 
@@ -294,15 +294,11 @@ def score_with_model(model):
 # Function main_pipeline
 #
 
-def main_pipeline(model):
+def main_pipeline(model, scoring):
     """
     AlphaPy Main Pipeline
     :rtype : model object
     """
-
-    # Unpack the model specifications
-
-    scoring_mode = model.specs['scoring_mode']
 
     # Call the data pipeline
 
@@ -310,7 +306,7 @@ def main_pipeline(model):
 
     # Scoring Only or Calibration
 
-    if scoring_mode:
+    if scoring:
         score_with_model(model)
     else:
         model = model_pipeline(model)
@@ -321,10 +317,10 @@ def main_pipeline(model):
 
 
 #
-# MAIN PROGRAM
+# Function main
 #
 
-if __name__ == '__main__':
+def main(args=None):
 
     # Logging
 
@@ -349,6 +345,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Alpha314 Parser")
     parser.add_argument("-d", dest="cfg_dir", default=".",
                         help="directory location of configuration file")
+    parser.add_mutually_exclusive_group(required=False)
+    parser.add_argument('--score', dest='scoring', action='store_true')
+    parser.add_argument('--train', dest='scoring', action='store_false')
+    parser.set_defaults(scoring=False)
     args = parser.parse_args()
 
     # Read configuration file
@@ -369,10 +369,18 @@ if __name__ == '__main__':
 
     logger.info("Calling Pipeline")
 
-    model = main_pipeline(model)
+    model = main_pipeline(model, args.scoring)
 
     # Complete the pipeline
 
     logger.info('*'*80)
     logger.info("END PIPELINE")
     logger.info('*'*80)
+
+
+#
+# MAIN PROGRAM
+#
+
+if __name__ == "__main__":
+    main()
