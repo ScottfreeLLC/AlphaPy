@@ -4,18 +4,18 @@ alphapy package
 Submodules
 ----------
 
-alphapy.alias module
---------------------
+alphapy.__main__ module
+-----------------------
 
-.. automodule:: alphapy.alias
+.. automodule:: alphapy.__main__
     :members:
     :undoc-members:
     :show-inheritance:
 
-alphapy.alpha module
+alphapy.alias module
 --------------------
 
-.. automodule:: alphapy.alpha
+.. automodule:: alphapy.alias
     :members:
     :undoc-members:
     :show-inheritance:
@@ -152,15 +152,6 @@ alphapy.var module
 ------------------
 
 .. automodule:: alphapy.var
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: alphapy
     :members:
     :undoc-members:
     :show-inheritance:

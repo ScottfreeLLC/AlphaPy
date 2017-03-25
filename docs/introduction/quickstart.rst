@@ -1,7 +1,7 @@
 Quick Start
 ===========
 
-Install alphapy::
+Install the ``alphapy`` package::
 
     pip install alphapy
 

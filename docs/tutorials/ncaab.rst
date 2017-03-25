@@ -4,4 +4,4 @@ NCAA Basketball Tutorial
 From the ``examples`` directory, run the following commands::
 
     cd NCAAB
-    python ../../alpha.py -d './config'
+    alphapy -d './config'

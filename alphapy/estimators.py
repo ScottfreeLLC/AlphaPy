@@ -27,8 +27,10 @@
 #
 
 from alphapy.estimator import Estimator
+from alphapy.globs import SSEP
 
 from enum import Enum, unique
+import logging
 import numpy as np
 from scipy.stats import randint as sp_randint
 from sklearn.ensemble import AdaBoostClassifier
@@ -52,6 +54,14 @@ from sklearn.svm import SVC
 import tensorflow as tf
 import tensorflow.contrib.learn as skflow
 import xgboost as xgb
+import yaml
+
+
+#
+# Initialize logger
+#
+
+logger = logging.getLogger(__name__)
 
 
 #
@@ -136,6 +146,69 @@ class GradientBoostingClassifierCoef(GradientBoostingClassifier):
 
 
 #
+# Define estimator map
+#
+
+estimator_map = {'AB'     : AdaBoostClassifierCoef,
+                 'GB'     : GradientBoostingClassifierCoef,
+                 'GBR'    : GradientBoostingRegressor,
+                 'KNN'    : KNeighborsClassifier,
+                 'KNR'    : KNeighborsRegressor,
+                 'LOGR'   : LogisticRegression,
+                 'LR'     : LinearRegression,
+                 'LSVC'   : LinearSVC,
+                 'LSVM'   : SVC,
+                 'NB'     : MultinomialNB,
+                 'RBF'    : SVC,
+                 'RF'     : RandomForestClassifierCoef,
+                 'RFR'    : RandomForestRegressor,
+                 'SVM'    : SVC,
+                 'TF_DNN' : skflow.DNNClassifier,
+                 'XGB'    : xgb.XGBClassifier,
+                 'XGBM'   : xgb.XGBClassifier,
+                 'XGBR'   : xgb.XGBRegressor,
+                 'XT'     : ExtraTreesClassifierCoef,
+                 'XTR'    : ExtraTreesRegressor
+                }
+
+
+#
+# Function get_algos_config
+#
+
+def get_algos_config(cfg_dir):
+
+    logger.info("Algorithm Configuration")
+
+    # Read the configuration file
+
+    full_path = SSEP.join([cfg_dir, 'algos.yml'])
+    with open(full_path, 'r') as ymlfile:
+        specs = yaml.load(ymlfile)
+
+    # Ensure each algorithm has required keys
+
+    required_keys = ['model_type', 'params', 'grid', 'scoring']
+    for algo in specs:
+        algo_keys = specs[algo].keys()
+        if set(algo_keys) != set(required_keys):
+            logger.warning("Algorithm %s is missing the required keys %s",
+                           algo, required_keys)
+            logger.warning("Keys found instead: %s", algo_keys)
+        else:
+            # determine whether or not model type is valid
+            model_types = {x.name: x.value for x in ModelType}
+            model_type = specs[algo]['model_type']
+            if model_type in model_types:
+                specs[algo]['model_type'] = ModelType(model_types[model_type])
+            else:
+                raise ValueError("algos.yml model:type %s unrecognized", model_type)
+
+    # Algorithm Specifications
+    return specs
+
+
+#
 # Function get_estimators
 #
 
@@ -158,277 +231,40 @@ class GradientBoostingClassifierCoef(GradientBoostingClassifier):
 def get_estimators(model):
 
     # Extract model data
+
+    directory = model.specs['directory']
     n_estimators = model.specs['n_estimators']
     n_jobs = model.specs['n_jobs']
-    verbosity = model.specs['verbosity']
     seed = model.specs['seed']
+    verbosity = model.specs['verbosity']
 
     # Initialize estimator dictionary
     estimators = {}
 
-    # AdaBoost
-    algo = 'AB'
-    model_type = ModelType.classification
-    params = {"n_estimators" : n_estimators,
-              "random_state" : seed}
-    est = AdaBoostClassifierCoef(**params)
-    grid = {"n_estimators" : [10, 50, 100, 150, 200],
-            "learning_rate" : [0.2, 0.5, 0.7, 1.0, 1.5, 2.0],
-            "algorithm" : ['SAMME', 'SAMME.R']}
-    scoring = True
-    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
-    # Gradient Boosting
-    algo = 'GB'
-    model_type = ModelType.classification
-    params = {"n_estimators" : n_estimators,
-              "max_depth" : 3,
-              "random_state" : seed,
-              "verbose" : verbosity}
-    est = GradientBoostingClassifierCoef(**params)
-    grid = {"loss" : ['deviance', 'exponential'],
-            "learning_rate" : [0.05, 0.1, 0.15],
-            "n_estimators" : [50, 100, 200],
-            "max_depth" : [3, 5, 10],
-            "min_samples_split" : [2, 3],
-            "min_samples_leaf" : [1, 2]
-            }
-    scoring = True
-    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
-    # Gradient Boosting Regression
-    algo = 'GBR'
-    model_type = ModelType.regression
-    params = {"n_estimators" : n_estimators,
-              "random_state" : seed,
-              "verbose" : verbosity}
-    est = GradientBoostingRegressor()
-    estimators[algo] = Estimator(algo, model_type, est, grid)
-    # K-Nearest Neighbors
-    algo = 'KNN'
-    model_type = ModelType.classification
-    params = {"n_jobs" : n_jobs}
-    est = KNeighborsClassifier(**params)
-    grid = {"n_neighbors" : [3, 5, 7, 10],
-            "weights" : ['uniform', 'distance'],
-            "algorithm" : ['ball_tree', 'kd_tree', 'brute', 'auto'],
-            "leaf_size" : [10, 20, 30, 40, 50]}
-    scoring = False
-    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
-    # K-Nearest Neighbor Regression
-    algo = 'KNR'
-    model_type = ModelType.regression
-    params = {"n_jobs" : n_jobs}
-    est = KNeighborsRegressor(**params)
-    estimators[algo] = Estimator(algo, model_type, est, grid)
-    # Linear Support Vector Classification
-    algo = 'LSVC'
-    model_type = ModelType.classification
-    params = {"C" : 0.01,
-              "max_iter" : 2000,
-              "penalty" : 'l1',
-              "dual" : False,
-              "random_state" : seed,
-              "verbose" : verbosity}
-    est = LinearSVC(**params)
-    grid = {"C" : np.logspace(-2, 10, 13),
-            "penalty" : ['l1', 'l2'],
-            "dual" : [True, False],
-            "tol" : [0.0005, 0.001, 0.005],
-            "max_iter" : [500, 1000, 2000]}
-    scoring = False
-    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
-    # Linear Support Vector Machine
-    algo = 'LSVM'
-    model_type = ModelType.classification
-    params = {"kernel" : 'linear',
-              "probability" : True,
-              "random_state" : seed,
-              "verbose" : verbosity}
-    est = SVC(**params)
-    grid = {"C" : np.logspace(-2, 10, 13),
-            "gamma" : np.logspace(-9, 3, 13),
-            "shrinking" : [True, False],
-            "tol" : [0.0005, 0.001, 0.005],
-            "decision_function_shape" : ['ovo', 'ovr']}
-    scoring = False
-    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
-    # Logistic Regression
-    algo = 'LOGR'
-    model_type = ModelType.classification
-    params = {"random_state" : seed,
-              "n_jobs" : n_jobs,
-              "verbose" : verbosity}
-    est = LogisticRegression(**params)
-    grid = {"penalty" : ['l2'],
-            "C" : [0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000, 1e4, 1e5, 1e6, 1e7],
-            "fit_intercept" : [True, False],
-            "solver" : ['newton-cg', 'lbfgs', 'liblinear', 'sag']}
-    scoring = True
-    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
-    # Linear Regression
-    algo = 'LR'
-    model_type = ModelType.regression
-    params = {"n_jobs" : n_jobs}
-    est = LinearRegression()
-    grid = {"fit_intercept" : [True, False],
-            "normalize" : [True, False],
-            "copy_X" : [True, False]}
-    estimators[algo] = Estimator(algo, model_type, est, grid)
-    # Naive Bayes
-    algo = 'NB'
-    model_type = ModelType.classification
-    est = MultinomialNB()
-    grid = {"alpha" : [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 1.0, 2.0, 5.0, 10.0],
-            "fit_prior" : [True, False]}
-    scoring = True
-    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
-    # Radial Basis Function
-    algo = 'RBF'
-    model_type = ModelType.classification
-    params = {"kernel" : 'rbf',
-              "probability" : True,
-              "random_state" : seed,
-              "verbose" : verbosity}
-    est = SVC(**params)
-    grid = {"C" : np.logspace(-2, 10, 13),
-            "gamma" : np.logspace(-9, 3, 13),
-            "shrinking" : [True, False],
-            "tol" : [0.0005, 0.001, 0.005],
-            "decision_function_shape" : ['ovo', 'ovr']}
-    scoring = False
-    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
-    # Random Forest
-    algo = 'RF'
-    model_type = ModelType.classification
-    params = {"n_estimators" : n_estimators,
-              "max_depth" : 10,
-              "min_samples_split" : 5,
-              "min_samples_leaf" : 3,
-              "bootstrap" : True,
-              "criterion" : 'entropy',
-              "random_state" : seed,
-              "n_jobs" : n_jobs,
-              "verbose" : verbosity}
-    est = RandomForestClassifierCoef(**params)
-    grid = {"n_estimators" : [21, 51, 101, 201, 501],
-            "max_depth" : [5, 7, 10, 20],
-            "min_samples_split" : [2, 3, 5, 10],
-            "min_samples_leaf" : [1, 2, 3],
-            "bootstrap" : [True, False],
-            "criterion" : ['gini', 'entropy']}
-    scoring = True
-    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
-    # Random Forest Regression
-    algo = 'RFR'
-    model_type = ModelType.regression
-    params = {"n_estimators" : n_estimators,
-              "random_state" : seed,
-              "n_jobs" : n_jobs,
-              "verbose" : verbosity}
-    est = RandomForestRegressor(**params)
-    estimators[algo] = Estimator(algo, model_type, est, grid)
-    # Support Vector Machine
-    algo = 'SVM'
-    model_type = ModelType.classification
-    params = {"probability" : True,
-              "random_state" : seed,
-              "verbose" : verbosity}
-    est = SVC(**params)
-    grid = {"C" : np.logspace(-2, 10, 13),
-            "gamma" : np.logspace(-9, 3, 13),
-            "shrinking" : [True, False],
-            "tol" : [0.0005, 0.001, 0.005],
-            "decision_function_shape" : ['ovo', 'ovr']}
-    scoring = False
-    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
-    # Google TensorFlow Deep Neural Network
-    algo = 'TF_DNN'
-    model_type = ModelType.classification
-    feature_columns = [tf.contrib.layers.real_valued_column("", dimension=4)]
-    params = {"feature_columns" : feature_columns,
-              "n_classes" : 2,
-              "hidden_units" : [20, 40, 20]}
-    est = skflow.DNNClassifier(**params)
-    grid = None
-    scoring = False
-    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
-    # XGBoost Binary
-    algo = 'XGB'
-    model_type = ModelType.classification
-    params = {"objective" : 'binary:logistic',
-              "n_estimators" : n_estimators,
-              "seed" : seed,
-              "max_depth" : 6,
-              "learning_rate" : 0.1,
-              "min_child_weight" : 1.1,
-              "subsample" : 0.9,
-              "colsample_bytree" : 0.9,
-              "nthread" : n_jobs,
-              "silent" : True}
-    est = xgb.XGBClassifier(**params)
-    grid = {"n_estimators" : [21, 51, 101, 201, 501],
-            "max_depth" : [5, 6, 7, 8, 9, 10, 12, 15, 20],
-            "learning_rate" : [0.01, 0.02, 0.05, 0.1, 0.2],
-            "min_child_weight" : [1.0, 1.1],
-            "subsample" : [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-            "colsample_bytree" : [0.5, 0.6, 0.7, 0.8, 0.9, 1.0]}
-    scoring = False
-    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
-    # XGBoost Multiclass
-    algo = 'XGBM'
-    model_type = ModelType.multiclass
-    params = {"objective" : 'multi:softmax',
-              "n_estimators" : n_estimators,
-              "seed" : seed,
-              "max_depth" : 10,
-              "learning_rate" : 0.1,
-              "min_child_weight" : 1.1,
-              "subsample" : 0.9,
-              "colsample_bytree" : 0.9,
-              "nthread" : n_jobs,
-              "silent" : True}
-    est = xgb.XGBClassifier(**params)
-    estimators[algo] = Estimator(algo, model_type, est, grid)
-    # XGBoost Regression
-    algo = 'XGBR'
-    model_type = ModelType.regression
-    params = {"objective" : 'reg:linear',
-              "n_estimators" : n_estimators,
-              "seed" : seed,
-              "max_depth" : 10,
-              "learning_rate" : 0.1,
-              "min_child_weight" : 1.1,
-              "subsample" : 0.9,
-              "colsample_bytree" : 0.9,
-              "seed" : seed,
-              "nthread" : n_jobs,
-              "silent" : True}
-    est = xgb.XGBRegressor(**params)
-    estimators[algo] = Estimator(algo, model_type, est, grid)
-    # Extra Trees
-    algo = 'XT'
-    model_type = ModelType.classification
-    params = {"n_estimators" : n_estimators,
-              "random_state" : seed,
-              "n_jobs" : n_jobs,
-              "verbose" : verbosity}
-    est = ExtraTreesClassifierCoef(**params)
-    grid = {"n_estimators" : [21, 51, 101, 201, 501, 1001, 2001],
-            "max_features" : ['auto', 'sqrt', 'log2'],
-            "max_depth" : [3, 5, 7, 10, 20, 30],
-            "min_samples_split" : [2, 3],
-            "min_samples_leaf" : [1, 2],
-            "bootstrap" : [True, False],
-            "warm_start" : [True, False]}
-    scoring = True
-    estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
-    # Extra Trees Regression
-    algo = 'XTR'
-    model_type = ModelType.regression
-    params = {"n_estimators" : n_estimators,
-              "random_state" : seed,
-              "n_jobs" : n_jobs,
-              "verbose" : verbosity}
-    est = ExtraTreesRegressor(**params)
-    estimators[algo] = Estimator(algo, model_type, est, grid)
+    # Global parameter substitution fields
+    ps_fields = {'n_estimators' : 'n_estimators',
+                 'n_jobs'       : 'n_jobs',
+                 'random_state' : 'seed',
+                 'verbose'      : 'verbosity'}
+
+    # Get algorithm specifications
+
+    config_dir = SSEP.join([directory, 'config'])
+    algo_specs = get_algos_config(config_dir)
+
+    # Create estimators for all of the algorithms
+
+    for algo in algo_specs:
+        model_type = algo_specs[algo]['model_type']
+        params = algo_specs[algo]['params']
+        for param in params:
+            if param in ps_fields and isinstance(param, str):
+                algo_specs[algo]['params'][param] = eval(ps_fields[param])
+        func = estimator_map[algo]
+        est = func(**params)
+        grid = algo_specs[algo]['grid']
+        scoring = algo_specs[algo]['scoring']
+        estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
+
     # return the entire classifier list
     return estimators

@@ -28,7 +28,6 @@
 # Imports
 #
 
-from alphapy.config import get_model_config
 from alphapy.data import get_data
 from alphapy.data import sample_data
 from alphapy.data import shuffle_data
@@ -45,6 +44,7 @@ from alphapy.globs import CSEP, PSEP, SSEP
 from alphapy.globs import WILDCARD
 from alphapy.model import first_fit
 from alphapy.model import generate_metrics
+from alphapy.model import get_model_config
 from alphapy.model import get_sample_weights
 from alphapy.model import load_model_object
 from alphapy.model import make_predictions
