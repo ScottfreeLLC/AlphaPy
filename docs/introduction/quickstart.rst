@@ -15,8 +15,7 @@ Change your directory to the examples location::
   
     cd alphapy/examples
 
-Currently, there are four examples, two of which you run from
-the command line and the other two in a Jupyter Notebook:
+Go to any of the examples below:
 
 * :doc:`../tutorials/kaggle`
 * :doc:`../tutorials/ncaab`

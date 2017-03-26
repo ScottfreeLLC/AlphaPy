@@ -244,7 +244,9 @@ def get_estimators(model):
     # Global parameter substitution fields
     ps_fields = {'n_estimators' : 'n_estimators',
                  'n_jobs'       : 'n_jobs',
+                 'nthread'      : 'n_jobs',
                  'random_state' : 'seed',
+                 'seed'         : 'seed',
                  'verbose'      : 'verbosity'}
 
     # Get algorithm specifications

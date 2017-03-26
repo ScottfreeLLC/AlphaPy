@@ -28,14 +28,6 @@ alphapy.analysis module
     :undoc-members:
     :show-inheritance:
 
-alphapy.config module
----------------------
-
-.. automodule:: alphapy.config
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 alphapy.data module
 -------------------
 
@@ -132,10 +124,34 @@ alphapy.space module
     :undoc-members:
     :show-inheritance:
 
+alphapy.sportstream module
+--------------------------
+
+.. automodule:: alphapy.sportstream
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+alphapy.stockstream module
+--------------------------
+
+.. automodule:: alphapy.stockstream
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 alphapy.system module
 ---------------------
 
 .. automodule:: alphapy.system
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+alphapy.systemstream module
+---------------------------
+
+.. automodule:: alphapy.systemstream
     :members:
     :undoc-members:
     :show-inheritance:

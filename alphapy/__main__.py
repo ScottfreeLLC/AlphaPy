@@ -294,11 +294,15 @@ def score_with_model(model):
 # Function main_pipeline
 #
 
-def main_pipeline(model, scoring):
+def main_pipeline(model):
     """
     AlphaPy Main Pipeline
     :rtype : model object
     """
+
+    # Extract any model specifications
+
+    scoring = model.specs['scoring']
 
     # Call the data pipeline
 
@@ -340,9 +344,12 @@ def main(args=None):
     logger.info("START PIPELINE")
     logger.info('*'*80)
 
+    # Debug the program
+    logger.debug('\n' + '='*80 + '\n')
+
     # Argument Parsing
 
-    parser = argparse.ArgumentParser(description="Alpha314 Parser")
+    parser = argparse.ArgumentParser(description="AlphaPy Parser")
     parser.add_argument("-d", dest="cfg_dir", default=".",
                         help="directory location of configuration file")
     parser.add_mutually_exclusive_group(required=False)
@@ -354,22 +361,17 @@ def main(args=None):
     # Read configuration file
 
     specs = get_model_config(args.cfg_dir)
-
-    # Debug the program
-
-    logger.debug('\n' + '='*50 + '\n')
+    specs['scoring'] = args.scoring
 
     # Create a model from the arguments
 
     logger.info("Creating Model")
-
     model = Model(specs)
 
     # Start the pipeline
 
     logger.info("Calling Pipeline")
-
-    model = main_pipeline(model, args.scoring)
+    model = main_pipeline(model)
 
     # Complete the pipeline
 

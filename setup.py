@@ -58,6 +58,9 @@ if __name__ == "__main__":
         entry_points={
             'console_scripts': [
                 'alphapy = alphapy.__main__:main',
+                'sportstream = alphapy.sportstream:main',
+                'stockstream = alphapy.stockstream:main',
+                'systemstream = alphapy.systemstream:main',
             ],
         }
     )
