@@ -26,9 +26,9 @@ AlphaPy Documentation
    user_guide/introduction
    user_guide/project
    user_guide/pipelines
-   user_guide/features
-   user_guide/market
-   user_guide/sports
+   user_guide/marketstream
+   user_guide/sportstream
+   user_guide/systemstream
 
 .. toctree::
    :maxdepth: 2

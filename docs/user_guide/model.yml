@@ -1,9 +1,8 @@
 project:
     directory         : /Users/markconway/Projects/Titanic
     file_extension    : csv
-    sample_submission : True
-    scoring_mode      : False
     submission_file   : 'gender_submission'
+    submit_probas     : False
 
 data:
     drop              : ['PassengerId']
@@ -13,7 +12,7 @@ data:
         option        : False
         method        : under_random
         ratio         : 0.5
-    sentinel          : 0
+    sentinel          : -1
     separator         : ','
     shuffle           : False
     split             : 0.4
@@ -24,7 +23,7 @@ data:
     train             : 'train'
 
 model:
-    algorithms        : ['RF']
+    algorithms        : ['RF', 'XGB']
     balance_classes   : True
     calibration       :
         option        : False
@@ -32,7 +31,7 @@ model:
     cv_folds          : 5
     estimators        : 51
     feature_selection :
-        option        : True
+        option        : False
         percentage    : 50
         uni_grid      : [5, 10, 15, 20, 25]
         score_func    : f_classif
@@ -65,7 +64,7 @@ features:
         features      : 10
     interactions      :
         option        : True
-        poly_degree   : 2
+        poly_degree   : 5
         sampling_pct  : 10
     isomap            :
         option        : False

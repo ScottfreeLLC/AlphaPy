@@ -1,5 +1,5 @@
-The Model Pipeline
-==================
+AlphaPy Pipeline
+================
 
 .. image:: model_pipeline.png
    :height:  500 px
@@ -7,8 +7,79 @@ The Model Pipeline
    :alt: AlphaPy Model Pipeline
    :align: center
 
-Best Model Selection
---------------------
+Data Ingestion
+--------------
+
+Data Sampling
+-------------
+
+Different techniques to handle unbalanced classes Undersampling
+Oversampling
+Combined Sampling (SMOTE)
+Ensemble Sampling
+
+Feature Extraction
+------------------
+
+Imputation
+Row Statistics and Distributions
+Clustering and PCA
+Standard Scaling (e.g., mean-centering)
+Interactions (n-way)
+
+.. image:: features.png
+   :height:  500 px
+   :width:  1000 px
+   :alt: Feature Pipeline
+   :align: center
+
+Encoders
+~~~~~~~~
+
+• Factorization • One-Hot
+• Ordinal
+• Binary
+• Helmert Contrast
+• Sum Contrast
+• Polynomial Contrast
+• Backward Difference Contrast
+• Simple Hashing
+
+Treatments
+~~~~~~~~~~
+
+Some features require special treatment, for example, a date column
+•
+that is split into separate columns for month, day, and year.
+Treatments are specified in the configuration file with the feature
+•
+name, the treatment function, and its parameters.
+In the following example, we apply a runs test to 6 features in the
+•
+YAML file:
+
+Feature Selection
+-----------------
+
+Univariate selection based on the percentile of
+•
+highest feature scores
+•
+Scoring functions for both classification and regression, e.g., ANOVA F-value or chi-squared statistic
+Recursive Feature Elimination (RFE) with Cross- Validation (CV) with configurable scoring function and step size
+
+Grid Search
+-----------
+
+Full or Randomized Distributed Grid Search with
+•
+subsampling (Spark if available)
+
+Model Selection
+---------------
+
+Best Model
+~~~~~~~~~~
 
 .. image:: model_best.png
    :height:  500 px
@@ -16,8 +87,8 @@ Best Model Selection
    :alt: Best Model Selection
    :align: center
 
-Creating a Blended Model
-------------------------
+Blended Model
+~~~~~~~~~~~~~
 
 .. image:: model_blend.png
    :height:  500 px
@@ -25,18 +96,17 @@ Creating a Blended Model
    :alt: Blended Model Creation
    :align: center
 
-Algorithms
-----------
-
-.. image:: mp_estimators.png
-   :height:  500 px
-   :width:  1000 px
-   :alt: Algorithms
-   :align: center
-
-
-Pipeline Logging
+Model Evaluation
 ----------------
+
+Metrics
+Calibration Plot
+Confusion Matrix
+Learning Curve
+ROC Curve
+
+Logging
+-------
 
 Pipeline Start
 ~~~~~~~~~~~~~~

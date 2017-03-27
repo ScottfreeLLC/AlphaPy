@@ -1,0 +1,259 @@
+#
+# Algorithms
+#
+
+AB:
+    # AdaBoost
+    model_type : classification
+    params     : {"n_estimators" : n_estimators,
+                  "random_state" : seed}
+    grid       : {"n_estimators" : [10, 50, 100, 150, 200],
+                  "learning_rate" : [0.2, 0.5, 0.7, 1.0, 1.5, 2.0],
+                  "algorithm" : ['SAMME', 'SAMME.R']}
+    scoring    : True
+
+GB:
+    # Gradient Boosting
+    model_type : classification
+    params     : {"n_estimators" : n_estimators,
+                  "max_depth" : 3,
+                  "random_state" : seed,
+                  "verbose" : verbosity}
+    grid       : {"loss" : ['deviance', 'exponential'],
+                  "learning_rate" : [0.05, 0.1, 0.15],
+                  "n_estimators" : [50, 100, 200],
+                  "max_depth" : [3, 5, 10],
+                  "min_samples_split" : [2, 3],
+                  "min_samples_leaf" : [1, 2]}
+    scoring    : True
+
+GBR:
+    # Gradient Boosting Regression
+    model_type : regression
+    params     : {"n_estimators" : n_estimators,
+                  "random_state" : seed,
+                  "verbose" : verbosity}
+    grid       : {}
+    scoring    : False
+
+KNN:
+    # K-Nearest Neighbors
+    model_type : classification
+    params     : {"n_jobs" : n_jobs}
+    grid       : {"n_neighbors" : [3, 5, 7, 10],
+                  "weights" : ['uniform', 'distance'],
+                  "algorithm" : ['ball_tree', 'kd_tree', 'brute', 'auto'],
+                  "leaf_size" : [10, 20, 30, 40, 50]}
+    scoring    : False
+
+KNR:
+    # K-Nearest Neighbor Regression
+    model_type : regression
+    params     : {"n_jobs" : n_jobs}
+    grid       : {}
+    scoring    : False
+
+LOGR:
+    # Logistic Regression
+    model_type : classification
+    params     : {"random_state" : seed,
+                  "n_jobs" : n_jobs,
+                  "verbose" : verbosity}
+    grid       : {"penalty" : ['l2'],
+                  "C" : [0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000, 1e4, 1e5, 1e6, 1e7],
+                  "fit_intercept" : [True, False],
+                  "solver" : ['newton-cg', 'lbfgs', 'liblinear', 'sag']}
+    scoring    : True
+
+LR:
+    # Linear Regression
+    model_type : regression
+    params     : {"n_jobs" : n_jobs}
+    grid       : {"fit_intercept" : [True, False],
+                  "normalize" : [True, False],
+                  "copy_X" : [True, False]}
+    scoring    : False
+
+LSVC:
+    # Linear Support Vector Classification
+    model_type : classification
+    params     : {"C" : 0.01,
+                  "max_iter" : 2000,
+                  "penalty" : 'l1',
+                  "dual" : False,
+                  "random_state" : seed,
+                  "verbose" : verbosity}
+    grid       : {"C" : np.logspace(-2, 10, 13),
+                  "penalty" : ['l1', 'l2'],
+                  "dual" : [True, False],
+                  "tol" : [0.0005, 0.001, 0.005],
+                  "max_iter" : [500, 1000, 2000]}
+    scoring    : False
+
+LSVM:
+    # Linear Support Vector Machine
+    model_type : classification
+    params     : {"kernel" : 'linear',
+                  "probability" : True,
+                  "random_state" : seed,
+                  "verbose" : verbosity}
+    grid       : {"C" : np.logspace(-2, 10, 13),
+                  "gamma" : np.logspace(-9, 3, 13),
+                  "shrinking" : [True, False],
+                  "tol" : [0.0005, 0.001, 0.005],
+                  "decision_function_shape" : ['ovo', 'ovr']}
+    scoring    : False
+
+NB:
+    # Naive Bayes
+    model_type : classification
+    params     : {}
+    grid       : {"alpha" : [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 1.0, 2.0, 5.0, 10.0],
+                  "fit_prior" : [True, False]}
+    scoring    : True
+
+RBF:
+    # Radial Basis Function
+    model_type : classification
+    params     : {"kernel" : 'rbf',
+                  "probability" : True,
+                  "random_state" : seed,
+                  "verbose" : verbosity}
+    grid       : {"C" : np.logspace(-2, 10, 13),
+                  "gamma" : np.logspace(-9, 3, 13),
+                  "shrinking" : [True, False],
+                  "tol" : [0.0005, 0.001, 0.005],
+                  "decision_function_shape" : ['ovo', 'ovr']}
+    scoring    : False
+
+RF:
+    # Random Forest
+    model_type : classification
+    params     : {"n_estimators" : n_estimators,
+                  "max_depth" : 10,
+                  "min_samples_split" : 5,
+                  "min_samples_leaf" : 3,
+                  "bootstrap" : True,
+                  "criterion" : 'entropy',
+                  "random_state" : seed,
+                  "n_jobs" : n_jobs,
+                  "verbose" : verbosity}
+    grid       : {"n_estimators" : [21, 51, 101, 201, 501],
+                  "max_depth" : [5, 7, 10, 20],
+                  "min_samples_split" : [2, 3, 5, 10],
+                  "min_samples_leaf" : [1, 2, 3],
+                  "bootstrap" : [True, False],
+                  "criterion" : ['gini', 'entropy']}
+    scoring    : True
+
+RFR:
+    # Random Forest Regression
+    model_type : regression
+    params     : {"n_estimators" : n_estimators,
+                  "random_state" : seed,
+                  "n_jobs" : n_jobs,
+                  "verbose" : verbosity}
+    grid       : {}
+    scoring    : False
+
+SVM:
+    # Support Vector Machine
+    model_type : classification
+    params     : {"probability" : True,
+                  "random_state" : seed,
+                  "verbose" : verbosity}
+    grid       : {"C" : np.logspace(-2, 10, 13),
+                  "gamma" : np.logspace(-9, 3, 13),
+                  "shrinking" : [True, False],
+                  "tol" : [0.0005, 0.001, 0.005],
+                  "decision_function_shape" : ['ovo', 'ovr']}
+    scoring    : False
+
+TF_DNN:
+    # Google TensorFlow Deep Neural Network
+    model_type : classification
+    params     : {"feature_columns" : [tf.contrib.layers.real_valued_column("", dimension=4)],
+                  "n_classes" : 2,
+                  "hidden_units" : [20, 40, 20]}
+    grid       : {}
+    scoring    : False
+
+XGB:
+    # XGBoost Binary
+    model_type : classification
+    params     : {"objective" : 'binary:logistic',
+                  "n_estimators" : n_estimators,
+                  "seed" : seed,
+                  "max_depth" : 6,
+                  "learning_rate" : 0.1,
+                  "min_child_weight" : 1.1,
+                  "subsample" : 0.9,
+                  "colsample_bytree" : 0.9,
+                  "nthread" : n_jobs,
+                  "silent" : True}
+    grid       : {"n_estimators" : [21, 51, 101, 201, 501],
+                  "max_depth" : [5, 6, 7, 8, 9, 10, 12, 15, 20],
+                  "learning_rate" : [0.01, 0.02, 0.05, 0.1, 0.2],
+                  "min_child_weight" : [1.0, 1.1],
+                  "subsample" : [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+                  "colsample_bytree" : [0.5, 0.6, 0.7, 0.8, 0.9, 1.0]}
+    scoring    : False
+
+XGBM:
+    # XGBoost Multiclass
+    model_type : multiclass
+    params     : {"objective" : 'multi:softmax',
+                  "n_estimators" : n_estimators,
+                  "seed" : seed,
+                  "max_depth" : 10,
+                  "learning_rate" : 0.1,
+                  "min_child_weight" : 1.1,
+                  "subsample" : 0.9,
+                  "colsample_bytree" : 0.9,
+                  "nthread" : n_jobs,
+                  "silent" : True}
+    grid       : {}
+    scoring    : False
+
+XGBR:
+    # XGBoost Regression
+    model_type : regression
+    params     : {"objective" : 'reg:linear',
+                  "n_estimators" : n_estimators,
+                  "seed" : seed,
+                  "max_depth" : 10,
+                  "learning_rate" : 0.1,
+                  "min_child_weight" : 1.1,
+                  "subsample" : 0.9,
+                  "colsample_bytree" : 0.9,
+                  "seed" : seed,
+                  "nthread" : n_jobs,
+                  "silent" : True}
+    grid       : {}
+    scoring    : False
+
+XT:
+    # Extra Trees
+    model_type : classification
+    params     : {"n_estimators" : n_estimators,
+                  "random_state" : seed,
+                  "n_jobs" : n_jobs,
+                  "verbose" : verbosity}
+    grid       : {"n_estimators" : [21, 51, 101, 201, 501, 1001, 2001],
+                  "max_features" : ['auto', 'sqrt', 'log2'],
+                  "max_depth" : [3, 5, 7, 10, 20, 30],
+                  "min_samples_split" : [2, 3],
+                  "min_samples_leaf" : [1, 2],
+                  "bootstrap" : [True, False],
+                  "warm_start" : [True, False]}
+    scoring    : True
+
+XTR:
+    # Extra Trees Regression
+    model_type : regression
+    params     : {"n_estimators" : n_estimators,
+                  "random_state" : seed,
+                  "n_jobs" : n_jobs,
+                  "verbose" : verbosity}
+    grid       : {}
+    scoring    : False

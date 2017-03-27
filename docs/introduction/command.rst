@@ -18,3 +18,9 @@ The AlphaPy CLI has the following options:
 -d          Directory location of the model.yml configuration file
 --score     Make predictions from a saved model
 --train     Train a new model and make predictions [Default]
+
+The domain pipelines have the same syntax::
+
+    sportstream -d config_dir [--score | --train]
+    stockstream -d config_dir [--score | --train]
+    systemstream -d config_dir [--score | --train]
