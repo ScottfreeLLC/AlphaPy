@@ -82,13 +82,17 @@ Project Section
 
 The ``project`` section has the following keys:
 
-* ``directory``: full specification of project location
-* ``file_extension``: usually ``csv`` but could also be ``tsv``
-  or other types
-* ``submission_file`` : file name of submission template, which
-  is usually provided in Kaggle competitions
-* ``submit_probas`` : ``True`` if submitting probabilities, else
-  ``False`` if predictions are just the labels
+``directory``:
+    The full specification of the project location
+``file_extension``:
+    The extension is usually ``csv`` but could also be ``tsv`` or other
+    types using different delimiters between values
+``submission_file``:
+    The file name of the submission template, which is usually provided
+    in Kaggle competitions
+``submit_probas``:
+    Set the value to ``True`` if submitting probabilities, or set to
+    ``False`` if the predictions are the actual labels or real values.
 
 .. literalinclude:: model.yml
    :language: yaml
@@ -96,12 +100,45 @@ The ``project`` section has the following keys:
    :lines: 1-5
 
 .. warning:: If you do not supply a value on the right-hand side of
-   the colon [**:**], then Python will interpret that key as having
+   the colon [:], then Python will interpret that key as having
    a ``None`` value, which is correct. Do not spell out *None*;
    otherwise, the value will be interpreted as the string 'None'.
 
 Data Section
 ~~~~~~~~~~~~
+
+The ``data`` section has the following keys:
+
+``drop``:
+    A list of features to be dropped from the data frame
+``dummy_limit``:
+    Features with unique value counts less than or equal to this
+    limit are converted to factors and encoded
+``features``:
+    A list of features for training. ``'*'`` means all features
+    will be used in training.
+``sampling``:
+    Resample imbalanced classes with one of the sampling methods
+    in :py:data:`alphapy.data.SamplingMethod`
+``sentinel``:
+    The designated value to replace any missing values
+``separator``:
+    The delimiter separating values in the training and test files
+``shuffle``:
+    If ``True``, randomly shuffle the data.
+``split``:
+    The proportion of data to include in training, which is a fraction
+    between 0 and 1
+``target``:
+    The name of the feature that designates the label to predict
+``target_value``:
+    The value of the target label to predict
+``test``:
+    Name of the testing file
+``test_labels``:
+    Set to ``True`` if labels are included in the testing file.
+``train``:
+    Name of the training file
 
 .. literalinclude:: model.yml
    :language: yaml
@@ -111,6 +148,37 @@ Data Section
 Model Section
 ~~~~~~~~~~~~~
 
+The ``model`` section has the following keys:
+
+``algorithms``:
+    Full specification of project location
+``balance_classes``:
+    usually ``csv`` but could also be ``tsv``
+    or other types
+``calibration``:
+    file name of submission template, which
+    is usually provided in Kaggle competitions
+``cv_folds``:
+    full specification of project location
+``estimators``:
+    usually ``csv`` but could also be ``tsv``
+    or other types
+``feature_selection``:
+    file name of submission template, which
+    is usually provided in Kaggle competitions
+``grid_search``:
+    full specification of project location
+``pvalue_level``:
+    usually ``csv`` but could also be ``tsv``
+    or other types
+``rfe``:
+    file name of submission template, which
+    is usually provided in Kaggle competitions
+``scoring_function``:
+    full specification of project location
+``type``:
+    usually ``csv`` but could also be ``tsv`` or other types
+
 .. literalinclude:: model.yml
    :language: yaml
    :caption: **model.yml**
@@ -118,6 +186,40 @@ Model Section
 
 Features Section
 ~~~~~~~~~~~~~~~~
+
+The ``features`` section has the following keys:
+
+``clustering``:
+    full specification of project location
+``counts``:
+    usually ``csv`` but could also be ``tsv`` or other types
+``encoding``:
+    file name of submission template, which
+    is usually provided in Kaggle competitions
+``genetic``:
+    full specification of project location
+``interactions``:
+    usually ``csv`` but could also be ``tsv`` or other types
+``isomap``:
+    file name of submission template, which
+    is usually provided in Kaggle competitions
+``logtransform``:
+    full specification of project location
+``numpy``:
+    usually ``csv`` but could also be ``tsv`` or other types
+``pca``:
+    file name of submission template, which
+    is usually provided in Kaggle competitions
+``scaling``:
+    full specification of project location
+``scipy``:
+    usually ``csv`` but could also be ``tsv`` or other types
+``text``:
+    file name of submission template, which
+    is usually provided in Kaggle competitions
+``tsne``:
+    file name of submission template, which
+    is usually provided in Kaggle competitions
 
 .. literalinclude:: model.yml
    :language: yaml
@@ -164,6 +266,16 @@ Although there is no
 Pipeline Section
 ~~~~~~~~~~~~~~~~
 
+The ``pipeline`` section has the following keys:
+
+``number_jobs``:
+    full specification of project location
+``seed``:
+    usually ``csv`` but could also be ``tsv`` or other types
+``verbosity``:
+    file name of submission template, which is usually provided in
+    Kaggle competitions
+
 .. literalinclude:: model.yml
    :language: yaml
    :caption: **model.yml**
@@ -171,6 +283,9 @@ Pipeline Section
 
 Plots Section
 ~~~~~~~~~~~~~
+
+To turn on the automatic generation of any plot in the ``plots``
+section, simply set the corresponding value to ``True``.
 
 .. literalinclude:: model.yml
    :language: yaml
@@ -180,6 +295,11 @@ Plots Section
 XGBoost Section
 ~~~~~~~~~~~~~~~
 
+The ``xgboost`` section has the following keys:
+
+``stopping_rounds``:
+    early stopping rounds for XGBoost
+
 .. literalinclude:: model.yml
    :language: yaml
    :caption: **model.yml**
@@ -187,6 +307,19 @@ XGBoost Section
 
 Algorithms Configuration
 ------------------------
+
+Each algorithm section:
+
+``directory``:
+    full specification of project location
+``file_extension``
+    usually ``csv`` but could also be ``tsv`` or other types
+``submission_file``:
+    file name of submission template, which is usually provided in
+    Kaggle competitions
+``submit_probas``:
+    ``True`` if submitting probabilities, else ``False`` if
+    predictions are just the labels
 
 .. literalinclude:: algos.yml
    :language: yaml

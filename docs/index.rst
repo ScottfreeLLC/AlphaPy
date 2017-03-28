@@ -26,7 +26,7 @@ AlphaPy Documentation
    user_guide/introduction
    user_guide/project
    user_guide/pipelines
-   user_guide/marketstream
+   user_guide/stockstream
    user_guide/sportstream
    user_guide/systemstream
 

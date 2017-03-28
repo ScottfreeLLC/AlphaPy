@@ -1,5 +1,5 @@
-MarketStream
-============
+StockStream
+===========
 
 Market data consist of standard primitives such as open, high, low, and close; the latter three are postdictive and cause data leakage. Leaders and laggards must be identified and possibly column-shifted, which is handled by the Model Pipeline.
 
@@ -125,4 +125,3 @@ Variable Creation
    :width:  1000 px
    :alt: Variable Creation
    :align: center
-
