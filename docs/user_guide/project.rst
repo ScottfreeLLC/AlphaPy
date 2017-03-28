@@ -151,33 +151,47 @@ Model Section
 The ``model`` section has the following keys:
 
 ``algorithms``:
-    Full specification of project location
+    The list of algorithms to test for model selection. Refer to
+    :ref:`algo-config` for the abbreviation codes.
 ``balance_classes``:
-    usually ``csv`` but could also be ``tsv``
-    or other types
+    If ``True``, calculate sample weights to offset the majority
+    class when training a model.
 ``calibration``:
-    file name of submission template, which
-    is usually provided in Kaggle competitions
+    Calibrate final probabilities for a classification. Refer to
+    the scikit-learn documentation for Calibration_.
 ``cv_folds``:
-    full specification of project location
+    The number of folds for cross-validation
 ``estimators``:
-    usually ``csv`` but could also be ``tsv``
-    or other types
+    The number of estimators to be used in the machine learning algorithm,
+    e.g., the number of trees in a random forest
 ``feature_selection``:
-    file name of submission template, which
-    is usually provided in Kaggle competitions
+    Perform univariate feature selection based on percentile. Refer to
+    the scikit-learn documentation for FeatureSelection_.
 ``grid_search``:
-    full specification of project location
+    The grid search is either random with a fixed number of iterations, or
+    it is a full grid search. Refer to the scikit-learn documentation
+    for GridSearch_.
 ``pvalue_level``:
-    usually ``csv`` but could also be ``tsv``
-    or other types
+    The p-value threshold to determine whether or not a numerical feature is
+    normally distributed.
 ``rfe``:
-    file name of submission template, which
-    is usually provided in Kaggle competitions
+    Perform Recursive Feature Elimination (RFE). Refer to the scikit-learn
+    documentation for RecursiveFeatureElimination_.
 ``scoring_function``:
-    full specification of project location
+    The scoring function is an objective function for model evaluation. Use one
+    of the values in ScoringFunction_.
 ``type``:
-    usually ``csv`` but could also be ``tsv`` or other types
+    The model type is either ``classification`` or ``regression``.
+
+.. _Calibration: http://scikit-learn.org/stable/modules/calibration.html#calibration
+
+.. _FeatureSelection: http://scikit-learn.org/stable/modules/feature_selection.html#univariate-feature-selection
+
+.. _GridSearch: http://scikit-learn.org/stable/modules/grid_search.html#grid-search
+
+.. _RecursiveFeatureElimination: http://scikit-learn.org/stable/modules/feature_selection.html#rfe
+
+.. _ScoringFunction: http://scikit-learn.org/stable/modules/model_evaluation.html#common-cases-predefined-values
 
 .. literalinclude:: model.yml
    :language: yaml
@@ -190,36 +204,48 @@ Features Section
 The ``features`` section has the following keys:
 
 ``clustering``:
-    full specification of project location
+    For clustering, specify the minimum and maximum number of clusters
+    and the increment from min-to-max.
 ``counts``:
-    usually ``csv`` but could also be ``tsv`` or other types
+    Create features that record counts of the NA values, zero values,
+    and the digits 1-9 in each row.
 ``encoding``:
-    file name of submission template, which
-    is usually provided in Kaggle competitions
+    Encode factors from features, selecting an encoding type and any
+    rounding if necessary. Refer to :py:data:`alphapy.features.Encoders`
+    for the encoding type.
 ``genetic``:
-    full specification of project location
+    Create genetic features using gplearn_.
 ``interactions``:
-    usually ``csv`` but could also be ``tsv`` or other types
+    Calculate polynomical interactions of a given degree, and select
+    the percentage of interactions included in the feature set.
 ``isomap``:
-    file name of submission template, which
-    is usually provided in Kaggle competitions
+    Use isomap embedding. Refer to isomap_.
 ``logtransform``:
-    full specification of project location
+    For numerical features that do not fit a normal distribution, perform
+    a log transformation.
 ``numpy``:
-    usually ``csv`` but could also be ``tsv`` or other types
+    Calculate the total, mean, standard deviation, and variance of
+    each row.
 ``pca``:
-    file name of submission template, which
-    is usually provided in Kaggle competitions
+    For Principal Component Analysis, specify the minimum and maximum
+    number of components, the increment from min-to-max, and whether or
+    not whitening is applied.
 ``scaling``:
-    full specification of project location
+    To scale features, specify ``standard`` or ``minmax``.
 ``scipy``:
-    usually ``csv`` but could also be ``tsv`` or other types
+    Calculate skew and kurtosis for row distributions.
 ``text``:
-    file name of submission template, which
-    is usually provided in Kaggle competitions
+    If there are text features, then apply vectorization and TF-IDF. If
+    vectorization does not work, then apply factorization.
 ``tsne``:
-    file name of submission template, which
-    is usually provided in Kaggle competitions
+    Perform t-distributed Stochastic Neighbor Embedding (TSNE), which
+    can be very memory-intensive. Refer to TSNE_.
+
+.. _gplearn: http://gplearn.readthedocs.io/en/stable/
+
+.. _isomap: http://scikit-learn.org/stable/modules/generated/sklearn.manifold.Isomap.html#examples-using-sklearn-manifold-isomap
+
+.. _TSNE: http://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html
 
 .. literalinclude:: model.yml
    :language: yaml
@@ -229,7 +255,12 @@ The ``features`` section has the following keys:
 Treatments Section
 ~~~~~~~~~~~~~~~~~~
 
-Although there is no 
+Treatments are special functions for feature extraction. In the
+``treatments`` section below, we are applying treatments to two
+features *doji* and *hc*. Within the Python list, we are calling
+the ``runs_test`` function; the function is always the first element
+of the list. The remaining elements of the list are the actual
+parameters to the function.
 
 .. code-block:: yaml
    :caption: **model.yml**
@@ -237,6 +268,14 @@ Although there is no
     treatments:
         doji : ['runs_test', ['all'], 18]
         hc   : ['runs_test', ['all'], 18]
+
+Here is the code for the ``runs_test`` function, which calculates
+runs for Boolean features. For a treatment function, the first and
+second arguments are always the same. The first argument ``f`` is
+the data frame, and the second argument ``c`` is the column (or feature)
+to which we are going to apply the treatment. The remaining function
+arguments correspond to the actual parameters that were specified
+in the configuration file, in this case ``wfuncs`` and ``window``.
 
 .. code-block:: python
    :caption: **features.py**
@@ -262,6 +301,10 @@ Although there is no
                 logger.info("Runs Function %s not found", w)
         return new_features
 
+When the ``runs_test`` function is invoked, a new data frame is
+created, as multiple feature columns may be generated from a
+single treatment function. These new features are returned and
+appended to the original data frame.
 
 Pipeline Section
 ~~~~~~~~~~~~~~~~
@@ -269,12 +312,11 @@ Pipeline Section
 The ``pipeline`` section has the following keys:
 
 ``number_jobs``:
-    full specification of project location
+    Number of jobs to run in parallel [-1 for all cores]
 ``seed``:
-    usually ``csv`` but could also be ``tsv`` or other types
+    A random seed integer to ensure reproducible results
 ``verbosity``:
-    file name of submission template, which is usually provided in
-    Kaggle competitions
+    The logging level from 0 (no logging) to 10 (highest)
 
 .. literalinclude:: model.yml
    :language: yaml
@@ -305,21 +347,32 @@ The ``xgboost`` section has the following keys:
    :caption: **model.yml**
    :lines: 109-110
 
+.. _algo-config:
+
 Algorithms Configuration
 ------------------------
 
-Each algorithm section:
+Each algorithm has its own section represented by abbreviations in
+capital letters. The following elements are required for every
+algorithm in this file:
 
-``directory``:
-    full specification of project location
-``file_extension``
-    usually ``csv`` but could also be ``tsv`` or other types
-``submission_file``:
-    file name of submission template, which is usually provided in
-    Kaggle competitions
-``submit_probas``:
-    ``True`` if submitting probabilities, else ``False`` if
-    predictions are just the labels
+``model_type``:
+    Specify ``classification`` or ``regression``
+``params``
+    The initial parameters for the first fitting
+``grid``:
+    The grid search dictionary for hyper-parameter tuning of an
+    estimator. If you are using randomized grid search, then make
+    sure that the total number of grid combinations exceeds the
+    number of random iterations.
+``scoring``:
+    Set to ``True`` if a specific scoring function will be applied.
+
+.. note:: The parameters ``n_estimators``, ``n_jobs``, ``seed``, and
+   ``verbosity`` are informed by the ``model.yml`` file. When the
+   estimators are created, the proper values for these parameters are
+   automatically substituted in the ``algos.yml`` file on a global
+   basis.
 
 .. literalinclude:: algos.yml
    :language: yaml
