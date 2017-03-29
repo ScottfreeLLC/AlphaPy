@@ -352,16 +352,16 @@ The ``xgboost`` section has the following keys:
 Algorithms Configuration
 ------------------------
 
-Each algorithm has its own section represented by abbreviations in
-capital letters. The following elements are required for every
-algorithm in this file:
+Each algorithm has its own section in the ``algos.yml`` file, e.g.,
+**AB** or **RF**. The following elements are required for every
+algorithm entry in the YAML file:
 
 ``model_type``:
     Specify ``classification`` or ``regression``
 ``params``
     The initial parameters for the first fitting
 ``grid``:
-    The grid search dictionary for hyper-parameter tuning of an
+    The grid search dictionary for hyperparameter tuning of an
     estimator. If you are using randomized grid search, then make
     sure that the total number of grid combinations exceeds the
     number of random iterations.

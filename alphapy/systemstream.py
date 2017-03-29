@@ -126,9 +126,6 @@ def main(args=None):
     logger.info("START SystemStream PIPELINE")
     logger.info('*'*80)
 
-    # Debug the program
-    logger.debug('\n' + '='*80 + '\n')
-
     # Argument Parsing
 
     parser = argparse.ArgumentParser(description="SystemStream Parser")

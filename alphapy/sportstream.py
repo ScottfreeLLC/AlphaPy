@@ -418,9 +418,6 @@ def main(args=None):
     logger.info("START SportStream PIPELINE")
     logger.info('*'*80)
 
-    # Debug the program
-    logger.debug('\n' + '='*80 + '\n')
-
     # Argument Parsing
 
     parser = argparse.ArgumentParser(description="SportStream Parser")

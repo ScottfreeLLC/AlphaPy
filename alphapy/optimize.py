@@ -243,10 +243,10 @@ def hyper_grid_search(model, estimator):
     start = time()
     gscv.fit(X_train, y_train)
     if gs_iters > 0:
-        logger.info("Randomized Grid SearchSearch took %.2f seconds for %d candidate"
+        logger.info("Grid Search took %.2f seconds for %d candidate"
                     " parameter settings." % ((time() - start), gs_iters))
     else:
-        logger.info("Full Grid Search took %.2f seconds for %d candidate parameter"
+        logger.info("Grid Search took %.2f seconds for %d candidate parameter"
                     " settings." % (time() - start, len(gscv.cv_results_['params'])))
 
     # Log the grid search scoring statistics.

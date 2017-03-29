@@ -467,14 +467,16 @@ def get_sample_weights(model):
 
     sw = None
     if balance_classes:
-        logger.info("Getting Sample Weights")
+        logger.info("Getting Class Weights")
         uv, uc = np.unique(y_train, return_counts=True)
-        weight = uc[not target_value] / uc[target_value]
-        logger.info("Sample Weight for target %s [%r]: %f",
+        target_index = np.where(uv == target_value)[0][0]
+        nontarget_index = np.where(uv != target_value)[0][0]
+        weight = uc[nontarget_index] / uc[target_index]
+        logger.info("Class Weight for target %s [%r]: %f",
                     target, target_value, weight)
         sw = [weight if x==target_value else 1.0 for x in y_train]
     else:
-        logger.info("Skipping Sample Weights")  
+        logger.info("Skipping Class Weights")  
 
     # Set weights
 

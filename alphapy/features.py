@@ -385,9 +385,10 @@ def get_factors(fnum, fname, df, nvalues, dtype, encoder, rounding,
     enc = None
     ef = pd.DataFrame(feature)
     if encoder == Encoders.factorize:
-        ce_features, uniques = pd.factorize(feature)
+        pd_factors = pd.factorize(feature)[0]
+        pd_features = pd.DataFrame(pd_factors)
     elif encoder == Encoders.onehot:
-        ce_features = pd.get_dummies(feature)
+        pd_features = pd.get_dummies(feature)
     elif encoder == Encoders.ordinal:
         enc = ce.OrdinalEncoder(cols=[fname])
     elif encoder == Encoders.binary:
@@ -403,9 +404,14 @@ def get_factors(fnum, fname, df, nvalues, dtype, encoder, rounding,
     else:
         raise ValueError("Unknown Encoder %s", encoder)
     # If encoding worked, calculate target percentages for classifiers.
+    pd_exists = not pd_features.empty
+    enc_exists = enc is not None
     all_features = None
-    if enc is not None:
-        all_features = enc.fit_transform(ef, None)
+    if pd_exists or enc_exists:
+        if pd_exists:
+            all_features = pd_features
+        elif enc_exists:
+            all_features = enc.fit_transform(ef, None)
         # Calculate target percentages for classifiers
         if classify:
             # get the crosstab between feature labels and target
@@ -418,6 +424,8 @@ def get_factors(fnum, fname, df, nvalues, dtype, encoder, rounding,
             ct_feature.fillna(value=sentinel, inplace=True)
             # concatenate all generated features
             all_features = np.column_stack((all_features, ct_feature))
+    else:
+        raise RuntimeError("Encoding for feature %s failed", fname)
     return all_features
 
 
