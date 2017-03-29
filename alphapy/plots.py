@@ -280,6 +280,7 @@ def generate_plots(model, partition):
 
     """
 
+    logger.info('='*80)
     logger.info("Generating Plots for Partition: %s", partition)
 
     # Extract model parameters

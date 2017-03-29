@@ -71,7 +71,7 @@ x
 .. literalinclude:: alphapy.log
    :language: text
    :caption: **alphapy.log**
-   :lines: 211-226
+   :lines: 211-271
 
 Feature Selection
 -----------------
@@ -97,10 +97,29 @@ Full or Randomized Distributed Grid Search with subsampling (Spark if available)
    :caption: **alphapy.log**
    :lines: 234-245
 
+Model Evaluation
+----------------
+
+Metrics
+Calibration Plot
+Confusion Matrix
+Learning Curve
+ROC Curve
+
+.. literalinclude:: alphapy.log
+   :language: text
+   :caption: **alphapy.log**
+   :lines: 272-311
+
 Model Selection
 ---------------
 
 x
+
+.. literalinclude:: alphapy.log
+   :language: text
+   :caption: **alphapy.log**
+   :lines: 312-318
 
 Best Model
 ~~~~~~~~~~
@@ -120,20 +139,18 @@ Blended Model
    :alt: Blended Model Creation
    :align: center
 
-Model Evaluation
-----------------
-
-Metrics
-Calibration Plot
-Confusion Matrix
-Learning Curve
-ROC Curve
+Plot Generation
+---------------
 
 .. literalinclude:: alphapy.log
    :language: text
    :caption: **alphapy.log**
-   :lines: 1-87
+   :lines: 319-378
 
-Plot Generation
----------------
+Recording
+---------
 
+.. literalinclude:: alphapy.log
+   :language: text
+   :caption: **alphapy.log**
+   :lines: 379-389

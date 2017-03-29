@@ -1197,6 +1197,7 @@ def predict_best(model):
 
     """
 
+    logger.info('='*80)
     logger.info("Selecting Best Model")
 
     best_tag = 'BEST'
@@ -1819,6 +1820,7 @@ def save_model(model, tag, partition):
 
     # Dump the model object itself
 
+    logger.info('='*80)
     save_model_object(model, timestamp)
 
     # Specify input and output directories
