@@ -44,6 +44,29 @@ logger = logging.getLogger(__name__)
 #
 
 class Group(object):
+    """Exceptions are documented in the same way as classes.
+
+    The __init__ method may be documented in either the class level
+    docstring, or as a docstring on the __init__ method itself.
+
+    Either form is acceptable, but the two should not be mixed. Choose one
+    convention to document the __init__ method and be consistent with it.
+
+    Parameters
+    ----------
+    msg : str
+        Human readable string describing the exception.
+    code : :obj:`int`, optional
+        Numeric error code.
+
+    Attributes
+    ----------
+    msg : str
+        Human readable string describing the exception.
+    code : int
+        Numeric error code.
+
+    """
 
     # class variable to track all groups
 
@@ -80,7 +103,27 @@ class Group(object):
             
     def add(self,
             newlist):
-        # code
+        r"""Read in data from the given directory in a given format.
+
+        Parameters
+        ----------
+        var1 : array_like
+            Array_like means all those objects -- lists, nested lists, etc. --
+            that can be converted to an array.  We can also refer to
+            variables like `var1`.
+        var2 : int
+            The type above can either refer to an actual Python type
+            (e.g. ``int``), or describe the type of the variable in more
+            detail, e.g. ``(N,) ndarray`` or ``array_like``.
+        long_var_name : {'hi', 'ho'}, optional
+            Choices in brackets, default first when optional.
+
+        Returns
+        -------
+        type
+            Explanation of anonymous return value of type ``type``.
+
+        """
         if all([type(item) is str for item in newlist]):
             newset = set(newlist)
             if self.dynamic:
@@ -98,13 +141,53 @@ class Group(object):
     # function member
             
     def member(self, item):
-        # code
+        r"""Read in data from the given directory in a given format.
+
+        Parameters
+        ----------
+        var1 : array_like
+            Array_like means all those objects -- lists, nested lists, etc. --
+            that can be converted to an array.  We can also refer to
+            variables like `var1`.
+        var2 : int
+            The type above can either refer to an actual Python type
+            (e.g. ``int``), or describe the type of the variable in more
+            detail, e.g. ``(N,) ndarray`` or ``array_like``.
+        long_var_name : {'hi', 'ho'}, optional
+            Choices in brackets, default first when optional.
+
+        Returns
+        -------
+        type
+            Explanation of anonymous return value of type ``type``.
+
+        """
         return item in self.members
         
     # function remove
     
     def remove(self, remlist):
-        # code
+        r"""Read in data from the given directory in a given format.
+
+        Parameters
+        ----------
+        var1 : array_like
+            Array_like means all those objects -- lists, nested lists, etc. --
+            that can be converted to an array.  We can also refer to
+            variables like `var1`.
+        var2 : int
+            The type above can either refer to an actual Python type
+            (e.g. ``int``), or describe the type of the variable in more
+            detail, e.g. ``(N,) ndarray`` or ``array_like``.
+        long_var_name : {'hi', 'ho'}, optional
+            Choices in brackets, default first when optional.
+
+        Returns
+        -------
+        type
+            Explanation of anonymous return value of type ``type``.
+
+        """
         if self.dynamic:
             nonefound = not any([self.member(item) for item in remlist])
             if nonefound == True:

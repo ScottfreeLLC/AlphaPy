@@ -27,8 +27,17 @@ x
    :caption: **alphapy.log**
    :lines: 89-103
 
-Feature Encoding
+Feature Pipeline
 ----------------
+
+.. image:: features.png
+   :height:  500 px
+   :width:  1000 px
+   :alt: Feature Flowchart
+   :align: center
+
+Feature Encoding
+~~~~~~~~~~~~~~~~
 
 * Different techniques to handle unbalanced classes Undersampling
 * Oversampling
@@ -38,16 +47,10 @@ Feature Encoding
 .. literalinclude:: alphapy.log
    :language: text
    :caption: **alphapy.log**
-   :lines: 1-87
+   :lines: 104-173
 
 Feature Extraction
-------------------
-
-.. image:: features.png
-   :height:  500 px
-   :width:  1000 px
-   :alt: Feature Flowchart
-   :align: center
+~~~~~~~~~~~~~~~~~~
 
 * Imputation
 * Row Statistics and Distributions
@@ -58,7 +61,7 @@ Feature Extraction
 .. literalinclude:: alphapy.log
    :language: text
    :caption: **alphapy.log**
-   :lines: 1-87
+   :lines: 174-210
 
 Model Estimation
 ----------------
@@ -68,7 +71,7 @@ x
 .. literalinclude:: alphapy.log
    :language: text
    :caption: **alphapy.log**
-   :lines: 1-87
+   :lines: 211-226
 
 Feature Selection
 -----------------
@@ -82,7 +85,7 @@ Recursive Feature Elimination (RFE) with Cross- Validation (CV) with configurabl
 .. literalinclude:: alphapy.log
    :language: text
    :caption: **alphapy.log**
-   :lines: 1-87
+   :lines: 227-233
 
 Grid Search
 -----------
@@ -92,7 +95,7 @@ Full or Randomized Distributed Grid Search with subsampling (Spark if available)
 .. literalinclude:: alphapy.log
    :language: text
    :caption: **alphapy.log**
-   :lines: 1-87
+   :lines: 234-245
 
 Model Selection
 ---------------
@@ -130,3 +133,7 @@ ROC Curve
    :language: text
    :caption: **alphapy.log**
    :lines: 1-87
+
+Plot Generation
+---------------
+

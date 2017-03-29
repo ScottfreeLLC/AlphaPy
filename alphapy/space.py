@@ -34,6 +34,42 @@ from alphapy.globs import USEP
 #
 
 def space_name(subject, schema, fractal):
+    r"""Read in data from the given directory in a given format.
+
+    Several sentences providing an extended description. Refer to
+    variables using back-ticks, e.g. `var`.
+
+    Parameters
+    ----------
+    subject : array_like
+        Array_like means all those objects -- lists, nested lists, etc. --
+        that can be converted to an array.  We can also refer to
+        variables like `var1`.
+    schema : int
+        The type above can either refer to an actual Python type
+        (e.g. ``int``), or describe the type of the variable in more
+        detail, e.g. ``(N,) ndarray`` or ``array_like``.
+    fractal : {'hi', 'ho'}, optional
+        Choices in brackets, default first when optional.
+
+    Returns
+    -------
+    describe : type
+        Explanation of return value named `describe`.
+
+    Examples
+    --------
+    These are written in doctest format, and should illustrate how to
+    use the function.
+
+    >>> a = [1, 2, 3]
+    >>> print [x + 3 for x in a]
+    [4, 5, 6]
+    >>> print "a\n\nb"
+    a
+    b
+
+    """
     return USEP.join([subject, schema, fractal])
     
 
@@ -42,6 +78,22 @@ def space_name(subject, schema, fractal):
 #
 
 class Space:
+    """Exceptions are documented in the same way as classes.
+
+    The __init__ method may be documented in either the class level
+    docstring, or as a docstring on the __init__ method itself.
+
+    Either form is acceptable, but the two should not be mixed. Choose one
+    convention to document the __init__ method and be consistent with it.
+
+    Parameters
+    ----------
+    msg : str
+        Human readable string describing the exception.
+    code : :obj:`int`, optional
+        Numeric error code.
+
+    """
     
     # __init__
     

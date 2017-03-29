@@ -38,6 +38,7 @@ from alphapy.frame import read_frame
 from alphapy.frame import write_frame
 from alphapy.globs import PSEP, SSEP, USEP
 
+from copy import copy
 from datetime import datetime
 import glob
 import logging
@@ -85,6 +86,29 @@ logger = logging.getLogger(__name__)
 #
 
 class Model:
+    """Exceptions are documented in the same way as classes.
+
+    The __init__ method may be documented in either the class level
+    docstring, or as a docstring on the __init__ method itself.
+
+    Either form is acceptable, but the two should not be mixed. Choose one
+    convention to document the __init__ method and be consistent with it.
+
+    Parameters
+    ----------
+    msg : str
+        Human readable string describing the exception.
+    code : :obj:`int`, optional
+        Numeric error code.
+
+    Attributes
+    ----------
+    msg : str
+        Human readable string describing the exception.
+    code : int
+        Numeric error code.
+
+    """
             
     # __init__
             
@@ -127,6 +151,88 @@ class Model:
 #
 
 def get_model_config(cfg_dir):
+    r"""Read in data from the given directory in a given format.
+
+    Several sentences providing an extended description. Refer to
+    variables using back-ticks, e.g. `var`.
+
+    Parameters
+    ----------
+    var1 : array_like
+        Array_like means all those objects -- lists, nested lists, etc. --
+        that can be converted to an array.  We can also refer to
+        variables like `var1`.
+    var2 : int
+        The type above can either refer to an actual Python type
+        (e.g. ``int``), or describe the type of the variable in more
+        detail, e.g. ``(N,) ndarray`` or ``array_like``.
+    long_var_name : {'hi', 'ho'}, optional
+        Choices in brackets, default first when optional.
+
+    Returns
+    -------
+    type
+        Explanation of anonymous return value of type ``type``.
+    describe : type
+        Explanation of return value named `describe`.
+    out : type
+        Explanation of `out`.
+
+    Other Parameters
+    ----------------
+    only_seldom_used_keywords : type
+        Explanation
+    common_parameters_listed_above : type
+        Explanation
+
+    Raises
+    ------
+    BadException
+        Because you shouldn't have done that.
+
+    See Also
+    --------
+    otherfunc : relationship (optional)
+    newfunc : Relationship (optional), which could be fairly long, in which
+              case the line wraps here.
+    thirdfunc, fourthfunc, fifthfunc
+
+    Notes
+    -----
+    Notes about the implementation algorithm (if needed).
+
+    This can have multiple paragraphs.
+
+    You may include some math:
+
+    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
+
+    And even use a greek symbol like :math:`omega` inline.
+
+    References
+    ----------
+    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    references in the notes section above.
+
+    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+       expert systems and adaptive co-kriging for environmental habitat
+       modelling of the Highland Haggis using object-oriented, fuzzy-logic
+       and neural-network techniques," Computers & Geosciences, vol. 22,
+       pp. 585-588, 1996.
+
+    Examples
+    --------
+    These are written in doctest format, and should illustrate how to
+    use the function.
+
+    >>> a = [1, 2, 3]
+    >>> print [x + 3 for x in a]
+    [4, 5, 6]
+    >>> print "a\n\nb"
+    a
+    b
+
+    """
 
     logger.info("Model Configuration")
 
@@ -392,8 +498,87 @@ def get_model_config(cfg_dir):
 #
 
 def load_model_object(directory):
-    """
-    Load the model from storage.
+    r"""Load the model from storage.
+
+    Several sentences providing an extended description. Refer to
+    variables using back-ticks, e.g. `var`.
+
+    Parameters
+    ----------
+    var1 : array_like
+        Array_like means all those objects -- lists, nested lists, etc. --
+        that can be converted to an array.  We can also refer to
+        variables like `var1`.
+    var2 : int
+        The type above can either refer to an actual Python type
+        (e.g. ``int``), or describe the type of the variable in more
+        detail, e.g. ``(N,) ndarray`` or ``array_like``.
+    long_var_name : {'hi', 'ho'}, optional
+        Choices in brackets, default first when optional.
+
+    Returns
+    -------
+    type
+        Explanation of anonymous return value of type ``type``.
+    describe : type
+        Explanation of return value named `describe`.
+    out : type
+        Explanation of `out`.
+
+    Other Parameters
+    ----------------
+    only_seldom_used_keywords : type
+        Explanation
+    common_parameters_listed_above : type
+        Explanation
+
+    Raises
+    ------
+    BadException
+        Because you shouldn't have done that.
+
+    See Also
+    --------
+    otherfunc : relationship (optional)
+    newfunc : Relationship (optional), which could be fairly long, in which
+              case the line wraps here.
+    thirdfunc, fourthfunc, fifthfunc
+
+    Notes
+    -----
+    Notes about the implementation algorithm (if needed).
+
+    This can have multiple paragraphs.
+
+    You may include some math:
+
+    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
+
+    And even use a greek symbol like :math:`omega` inline.
+
+    References
+    ----------
+    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    references in the notes section above.
+
+    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+       expert systems and adaptive co-kriging for environmental habitat
+       modelling of the Highland Haggis using object-oriented, fuzzy-logic
+       and neural-network techniques," Computers & Geosciences, vol. 22,
+       pp. 585-588, 1996.
+
+    Examples
+    --------
+    These are written in doctest format, and should illustrate how to
+    use the function.
+
+    >>> a = [1, 2, 3]
+    >>> print [x + 3 for x in a]
+    [4, 5, 6]
+    >>> print "a\n\nb"
+    a
+    b
+
     """
 
     logger.info("Loading Model")
@@ -420,8 +605,87 @@ def load_model_object(directory):
 #
 
 def save_model_object(model, timestamp):
-    """
-    Save the model to storage.
+    r"""Save the model to storage.
+
+    Several sentences providing an extended description. Refer to
+    variables using back-ticks, e.g. `var`.
+
+    Parameters
+    ----------
+    var1 : array_like
+        Array_like means all those objects -- lists, nested lists, etc. --
+        that can be converted to an array.  We can also refer to
+        variables like `var1`.
+    var2 : int
+        The type above can either refer to an actual Python type
+        (e.g. ``int``), or describe the type of the variable in more
+        detail, e.g. ``(N,) ndarray`` or ``array_like``.
+    long_var_name : {'hi', 'ho'}, optional
+        Choices in brackets, default first when optional.
+
+    Returns
+    -------
+    type
+        Explanation of anonymous return value of type ``type``.
+    describe : type
+        Explanation of return value named `describe`.
+    out : type
+        Explanation of `out`.
+
+    Other Parameters
+    ----------------
+    only_seldom_used_keywords : type
+        Explanation
+    common_parameters_listed_above : type
+        Explanation
+
+    Raises
+    ------
+    BadException
+        Because you shouldn't have done that.
+
+    See Also
+    --------
+    otherfunc : relationship (optional)
+    newfunc : Relationship (optional), which could be fairly long, in which
+              case the line wraps here.
+    thirdfunc, fourthfunc, fifthfunc
+
+    Notes
+    -----
+    Notes about the implementation algorithm (if needed).
+
+    This can have multiple paragraphs.
+
+    You may include some math:
+
+    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
+
+    And even use a greek symbol like :math:`omega` inline.
+
+    References
+    ----------
+    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    references in the notes section above.
+
+    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+       expert systems and adaptive co-kriging for environmental habitat
+       modelling of the Highland Haggis using object-oriented, fuzzy-logic
+       and neural-network techniques," Computers & Geosciences, vol. 22,
+       pp. 585-588, 1996.
+
+    Examples
+    --------
+    These are written in doctest format, and should illustrate how to
+    use the function.
+
+    >>> a = [1, 2, 3]
+    >>> print [x + 3 for x in a]
+    [4, 5, 6]
+    >>> print "a\n\nb"
+    a
+    b
+
     """
 
     logger.info("Saving Model Object")
@@ -449,8 +713,87 @@ def save_model_object(model, timestamp):
 #
 
 def get_sample_weights(model):
-    """
-    Set sample weights for fitting the model
+    r"""Set sample weights for fitting the model.
+
+    Several sentences providing an extended description. Refer to
+    variables using back-ticks, e.g. `var`.
+
+    Parameters
+    ----------
+    var1 : array_like
+        Array_like means all those objects -- lists, nested lists, etc. --
+        that can be converted to an array.  We can also refer to
+        variables like `var1`.
+    var2 : int
+        The type above can either refer to an actual Python type
+        (e.g. ``int``), or describe the type of the variable in more
+        detail, e.g. ``(N,) ndarray`` or ``array_like``.
+    long_var_name : {'hi', 'ho'}, optional
+        Choices in brackets, default first when optional.
+
+    Returns
+    -------
+    type
+        Explanation of anonymous return value of type ``type``.
+    describe : type
+        Explanation of return value named `describe`.
+    out : type
+        Explanation of `out`.
+
+    Other Parameters
+    ----------------
+    only_seldom_used_keywords : type
+        Explanation
+    common_parameters_listed_above : type
+        Explanation
+
+    Raises
+    ------
+    BadException
+        Because you shouldn't have done that.
+
+    See Also
+    --------
+    otherfunc : relationship (optional)
+    newfunc : Relationship (optional), which could be fairly long, in which
+              case the line wraps here.
+    thirdfunc, fourthfunc, fifthfunc
+
+    Notes
+    -----
+    Notes about the implementation algorithm (if needed).
+
+    This can have multiple paragraphs.
+
+    You may include some math:
+
+    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
+
+    And even use a greek symbol like :math:`omega` inline.
+
+    References
+    ----------
+    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    references in the notes section above.
+
+    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+       expert systems and adaptive co-kriging for environmental habitat
+       modelling of the Highland Haggis using object-oriented, fuzzy-logic
+       and neural-network techniques," Computers & Geosciences, vol. 22,
+       pp. 585-588, 1996.
+
+    Examples
+    --------
+    These are written in doctest format, and should illustrate how to
+    use the function.
+
+    >>> a = [1, 2, 3]
+    >>> print [x + 3 for x in a]
+    [4, 5, 6]
+    >>> print "a\n\nb"
+    a
+    b
+
     """
 
     # Extract model parameters.
@@ -489,8 +832,87 @@ def get_sample_weights(model):
 #
 
 def first_fit(model, algo, est):
-    """
-    Fit the model before optimization.
+    r"""Fit the model before optimization.
+
+    Several sentences providing an extended description. Refer to
+    variables using back-ticks, e.g. `var`.
+
+    Parameters
+    ----------
+    var1 : array_like
+        Array_like means all those objects -- lists, nested lists, etc. --
+        that can be converted to an array.  We can also refer to
+        variables like `var1`.
+    var2 : int
+        The type above can either refer to an actual Python type
+        (e.g. ``int``), or describe the type of the variable in more
+        detail, e.g. ``(N,) ndarray`` or ``array_like``.
+    long_var_name : {'hi', 'ho'}, optional
+        Choices in brackets, default first when optional.
+
+    Returns
+    -------
+    type
+        Explanation of anonymous return value of type ``type``.
+    describe : type
+        Explanation of return value named `describe`.
+    out : type
+        Explanation of `out`.
+
+    Other Parameters
+    ----------------
+    only_seldom_used_keywords : type
+        Explanation
+    common_parameters_listed_above : type
+        Explanation
+
+    Raises
+    ------
+    BadException
+        Because you shouldn't have done that.
+
+    See Also
+    --------
+    otherfunc : relationship (optional)
+    newfunc : Relationship (optional), which could be fairly long, in which
+              case the line wraps here.
+    thirdfunc, fourthfunc, fifthfunc
+
+    Notes
+    -----
+    Notes about the implementation algorithm (if needed).
+
+    This can have multiple paragraphs.
+
+    You may include some math:
+
+    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
+
+    And even use a greek symbol like :math:`omega` inline.
+
+    References
+    ----------
+    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    references in the notes section above.
+
+    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+       expert systems and adaptive co-kriging for environmental habitat
+       modelling of the Highland Haggis using object-oriented, fuzzy-logic
+       and neural-network techniques," Computers & Geosciences, vol. 22,
+       pp. 585-588, 1996.
+
+    Examples
+    --------
+    These are written in doctest format, and should illustrate how to
+    use the function.
+
+    >>> a = [1, 2, 3]
+    >>> print [x + 3 for x in a]
+    [4, 5, 6]
+    >>> print "a\n\nb"
+    a
+    b
+
     """
 
     logger.info("Fitting Initial Model")
@@ -548,8 +970,87 @@ def first_fit(model, algo, est):
 #
 
 def make_predictions(model, algo, calibrate):
-    """
-    Make predictions for training and test set.
+    r"""Make predictions for training and test set.
+
+    Several sentences providing an extended description. Refer to
+    variables using back-ticks, e.g. `var`.
+
+    Parameters
+    ----------
+    var1 : array_like
+        Array_like means all those objects -- lists, nested lists, etc. --
+        that can be converted to an array.  We can also refer to
+        variables like `var1`.
+    var2 : int
+        The type above can either refer to an actual Python type
+        (e.g. ``int``), or describe the type of the variable in more
+        detail, e.g. ``(N,) ndarray`` or ``array_like``.
+    long_var_name : {'hi', 'ho'}, optional
+        Choices in brackets, default first when optional.
+
+    Returns
+    -------
+    type
+        Explanation of anonymous return value of type ``type``.
+    describe : type
+        Explanation of return value named `describe`.
+    out : type
+        Explanation of `out`.
+
+    Other Parameters
+    ----------------
+    only_seldom_used_keywords : type
+        Explanation
+    common_parameters_listed_above : type
+        Explanation
+
+    Raises
+    ------
+    BadException
+        Because you shouldn't have done that.
+
+    See Also
+    --------
+    otherfunc : relationship (optional)
+    newfunc : Relationship (optional), which could be fairly long, in which
+              case the line wraps here.
+    thirdfunc, fourthfunc, fifthfunc
+
+    Notes
+    -----
+    Notes about the implementation algorithm (if needed).
+
+    This can have multiple paragraphs.
+
+    You may include some math:
+
+    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
+
+    And even use a greek symbol like :math:`omega` inline.
+
+    References
+    ----------
+    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    references in the notes section above.
+
+    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+       expert systems and adaptive co-kriging for environmental habitat
+       modelling of the Highland Haggis using object-oriented, fuzzy-logic
+       and neural-network techniques," Computers & Geosciences, vol. 22,
+       pp. 585-588, 1996.
+
+    Examples
+    --------
+    These are written in doctest format, and should illustrate how to
+    use the function.
+
+    >>> a = [1, 2, 3]
+    >>> print [x + 3 for x in a]
+    [4, 5, 6]
+    >>> print "a\n\nb"
+    a
+    b
+
     """
 
     logger.info("Final Model Predictions for %s", algo)
@@ -613,11 +1114,93 @@ def make_predictions(model, algo, calibrate):
 #
 
 def predict_best(model):
-    """
-    Select the best model based on score.
+    r"""Select the best model based on score.
+
+    Several sentences providing an extended description. Refer to
+    variables using back-ticks, e.g. `var`.
+
+    Parameters
+    ----------
+    var1 : array_like
+        Array_like means all those objects -- lists, nested lists, etc. --
+        that can be converted to an array.  We can also refer to
+        variables like `var1`.
+    var2 : int
+        The type above can either refer to an actual Python type
+        (e.g. ``int``), or describe the type of the variable in more
+        detail, e.g. ``(N,) ndarray`` or ``array_like``.
+    long_var_name : {'hi', 'ho'}, optional
+        Choices in brackets, default first when optional.
+
+    Returns
+    -------
+    type
+        Explanation of anonymous return value of type ``type``.
+    describe : type
+        Explanation of return value named `describe`.
+    out : type
+        Explanation of `out`.
+
+    Other Parameters
+    ----------------
+    only_seldom_used_keywords : type
+        Explanation
+    common_parameters_listed_above : type
+        Explanation
+
+    Raises
+    ------
+    BadException
+        Because you shouldn't have done that.
+
+    See Also
+    --------
+    otherfunc : relationship (optional)
+    newfunc : Relationship (optional), which could be fairly long, in which
+              case the line wraps here.
+    thirdfunc, fourthfunc, fifthfunc
+
+    Notes
+    -----
+    Notes about the implementation algorithm (if needed).
+
+    This can have multiple paragraphs.
+
+    You may include some math:
+
+    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
+
+    And even use a greek symbol like :math:`omega` inline.
+
+    References
+    ----------
+    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    references in the notes section above.
+
+    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+       expert systems and adaptive co-kriging for environmental habitat
+       modelling of the Highland Haggis using object-oriented, fuzzy-logic
+       and neural-network techniques," Computers & Geosciences, vol. 22,
+       pp. 585-588, 1996.
+
+    Examples
+    --------
+    These are written in doctest format, and should illustrate how to
+    use the function.
+
+    >>> a = [1, 2, 3]
+    >>> print [x + 3 for x in a]
+    [4, 5, 6]
+    >>> print "a\n\nb"
+    a
+    b
+
     """
 
     logger.info("Selecting Best Model")
+
+    best_tag = 'BEST'
+    blend_tag = 'BLEND'
 
     # Extract model parameters.
 
@@ -632,7 +1215,6 @@ def predict_best(model):
 
     # Initialize best parameters.
 
-    best_tag = 'BEST'
     partition = 'train' if y_test is None else 'test'
     maximize = True if scorers[scorer][1] == Objective.maximize else False
     if maximize:
@@ -640,12 +1222,20 @@ def predict_best(model):
     else:
         best_score = sys.float_info.max
 
-    # Iterate through the models, getting the best score for each one.
+    # Initialize the model selection process.
 
     start_time = datetime.now()
     logger.info("Best Model Selection Start: %s", start_time)
 
-    for algorithm in model.algolist:
+    # Add blended model to the list of algorithms.
+
+    algolist = copy(model.algolist)
+    algolist.append(blend_tag)
+
+    # Iterate through the models, getting the best score for each one.
+
+    for algorithm in algolist:
+        logger.info("Scoring %s Model", algorithm)
         top_score = model.metrics[(algorithm, partition, scorer)]
         # objective is to either maximize or minimize score
         if maximize:
@@ -681,8 +1271,87 @@ def predict_best(model):
 #
 
 def predict_blend(model):
-    """
-    Make predictions from a blended model.
+    r"""Make predictions from a blended model.
+
+    Several sentences providing an extended description. Refer to
+    variables using back-ticks, e.g. `var`.
+
+    Parameters
+    ----------
+    var1 : array_like
+        Array_like means all those objects -- lists, nested lists, etc. --
+        that can be converted to an array.  We can also refer to
+        variables like `var1`.
+    var2 : int
+        The type above can either refer to an actual Python type
+        (e.g. ``int``), or describe the type of the variable in more
+        detail, e.g. ``(N,) ndarray`` or ``array_like``.
+    long_var_name : {'hi', 'ho'}, optional
+        Choices in brackets, default first when optional.
+
+    Returns
+    -------
+    type
+        Explanation of anonymous return value of type ``type``.
+    describe : type
+        Explanation of return value named `describe`.
+    out : type
+        Explanation of `out`.
+
+    Other Parameters
+    ----------------
+    only_seldom_used_keywords : type
+        Explanation
+    common_parameters_listed_above : type
+        Explanation
+
+    Raises
+    ------
+    BadException
+        Because you shouldn't have done that.
+
+    See Also
+    --------
+    otherfunc : relationship (optional)
+    newfunc : Relationship (optional), which could be fairly long, in which
+              case the line wraps here.
+    thirdfunc, fourthfunc, fifthfunc
+
+    Notes
+    -----
+    Notes about the implementation algorithm (if needed).
+
+    This can have multiple paragraphs.
+
+    You may include some math:
+
+    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
+
+    And even use a greek symbol like :math:`omega` inline.
+
+    References
+    ----------
+    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    references in the notes section above.
+
+    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+       expert systems and adaptive co-kriging for environmental habitat
+       modelling of the Highland Haggis using object-oriented, fuzzy-logic
+       and neural-network techniques," Computers & Geosciences, vol. 22,
+       pp. 585-588, 1996.
+
+    Examples
+    --------
+    These are written in doctest format, and should illustrate how to
+    use the function.
+
+    >>> a = [1, 2, 3]
+    >>> print [x + 3 for x in a]
+    [4, 5, 6]
+    >>> print "a\n\nb"
+    a
+    b
+
     """
 
     logger.info("Blending Models")
@@ -761,6 +1430,88 @@ def predict_blend(model):
 #
 
 def generate_metrics(model, partition):
+    r"""Read in data from the given directory in a given format.
+
+    Several sentences providing an extended description. Refer to
+    variables using back-ticks, e.g. `var`.
+
+    Parameters
+    ----------
+    var1 : array_like
+        Array_like means all those objects -- lists, nested lists, etc. --
+        that can be converted to an array.  We can also refer to
+        variables like `var1`.
+    var2 : int
+        The type above can either refer to an actual Python type
+        (e.g. ``int``), or describe the type of the variable in more
+        detail, e.g. ``(N,) ndarray`` or ``array_like``.
+    long_var_name : {'hi', 'ho'}, optional
+        Choices in brackets, default first when optional.
+
+    Returns
+    -------
+    type
+        Explanation of anonymous return value of type ``type``.
+    describe : type
+        Explanation of return value named `describe`.
+    out : type
+        Explanation of `out`.
+
+    Other Parameters
+    ----------------
+    only_seldom_used_keywords : type
+        Explanation
+    common_parameters_listed_above : type
+        Explanation
+
+    Raises
+    ------
+    BadException
+        Because you shouldn't have done that.
+
+    See Also
+    --------
+    otherfunc : relationship (optional)
+    newfunc : Relationship (optional), which could be fairly long, in which
+              case the line wraps here.
+    thirdfunc, fourthfunc, fifthfunc
+
+    Notes
+    -----
+    Notes about the implementation algorithm (if needed).
+
+    This can have multiple paragraphs.
+
+    You may include some math:
+
+    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
+
+    And even use a greek symbol like :math:`omega` inline.
+
+    References
+    ----------
+    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    references in the notes section above.
+
+    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+       expert systems and adaptive co-kriging for environmental habitat
+       modelling of the Highland Haggis using object-oriented, fuzzy-logic
+       and neural-network techniques," Computers & Geosciences, vol. 22,
+       pp. 585-588, 1996.
+
+    Examples
+    --------
+    These are written in doctest format, and should illustrate how to
+    use the function.
+
+    >>> a = [1, 2, 3]
+    >>> print [x + 3 for x in a]
+    [4, 5, 6]
+    >>> print "a\n\nb"
+    a
+    b
+
+    """
 
     logger.info('='*80)
     logger.info("Metrics for Partition: %s", partition)
@@ -779,8 +1530,14 @@ def generate_metrics(model, partition):
     # Generate Metrics
 
     if expected is not None:
+
+        # Add blended model to the list of algorithms.
+
+        algolist = copy(model.algolist)
+        algolist.append('BLEND')
+
         # get the metrics for each algorithm
-        for algo in model.algolist:
+        for algo in algolist:
             # get predictions for the given algorithm
             predicted = model.preds[(algo, partition)]
             try:
@@ -855,8 +1612,6 @@ def generate_metrics(model, partition):
     else:
         logger.info("No labels for generating %s metrics", partition)
 
-    logger.info('='*80)
-
     return model
 
 
@@ -865,8 +1620,87 @@ def generate_metrics(model, partition):
 #
 
 def np_store_data(data, dir_name, file_name, extension, separator):
-    """
-    Store NumPy data in a file.
+    r"""Store NumPy data in a file.
+
+    Several sentences providing an extended description. Refer to
+    variables using back-ticks, e.g. `var`.
+
+    Parameters
+    ----------
+    var1 : array_like
+        Array_like means all those objects -- lists, nested lists, etc. --
+        that can be converted to an array.  We can also refer to
+        variables like `var1`.
+    var2 : int
+        The type above can either refer to an actual Python type
+        (e.g. ``int``), or describe the type of the variable in more
+        detail, e.g. ``(N,) ndarray`` or ``array_like``.
+    long_var_name : {'hi', 'ho'}, optional
+        Choices in brackets, default first when optional.
+
+    Returns
+    -------
+    type
+        Explanation of anonymous return value of type ``type``.
+    describe : type
+        Explanation of return value named `describe`.
+    out : type
+        Explanation of `out`.
+
+    Other Parameters
+    ----------------
+    only_seldom_used_keywords : type
+        Explanation
+    common_parameters_listed_above : type
+        Explanation
+
+    Raises
+    ------
+    BadException
+        Because you shouldn't have done that.
+
+    See Also
+    --------
+    otherfunc : relationship (optional)
+    newfunc : Relationship (optional), which could be fairly long, in which
+              case the line wraps here.
+    thirdfunc, fourthfunc, fifthfunc
+
+    Notes
+    -----
+    Notes about the implementation algorithm (if needed).
+
+    This can have multiple paragraphs.
+
+    You may include some math:
+
+    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
+
+    And even use a greek symbol like :math:`omega` inline.
+
+    References
+    ----------
+    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    references in the notes section above.
+
+    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+       expert systems and adaptive co-kriging for environmental habitat
+       modelling of the Highland Haggis using object-oriented, fuzzy-logic
+       and neural-network techniques," Computers & Geosciences, vol. 22,
+       pp. 585-588, 1996.
+
+    Examples
+    --------
+    These are written in doctest format, and should illustrate how to
+    use the function.
+
+    >>> a = [1, 2, 3]
+    >>> print [x + 3 for x in a]
+    [4, 5, 6]
+    >>> print "a\n\nb"
+    a
+    b
+
     """
 
     output_file = PSEP.join([file_name, extension])
@@ -879,8 +1713,87 @@ def np_store_data(data, dir_name, file_name, extension, separator):
 #
 
 def save_model(model, tag, partition):
-    """
-    Save the results in the model file.
+    r"""Save the results in the model file.
+
+    Several sentences providing an extended description. Refer to
+    variables using back-ticks, e.g. `var`.
+
+    Parameters
+    ----------
+    var1 : array_like
+        Array_like means all those objects -- lists, nested lists, etc. --
+        that can be converted to an array.  We can also refer to
+        variables like `var1`.
+    var2 : int
+        The type above can either refer to an actual Python type
+        (e.g. ``int``), or describe the type of the variable in more
+        detail, e.g. ``(N,) ndarray`` or ``array_like``.
+    long_var_name : {'hi', 'ho'}, optional
+        Choices in brackets, default first when optional.
+
+    Returns
+    -------
+    type
+        Explanation of anonymous return value of type ``type``.
+    describe : type
+        Explanation of return value named `describe`.
+    out : type
+        Explanation of `out`.
+
+    Other Parameters
+    ----------------
+    only_seldom_used_keywords : type
+        Explanation
+    common_parameters_listed_above : type
+        Explanation
+
+    Raises
+    ------
+    BadException
+        Because you shouldn't have done that.
+
+    See Also
+    --------
+    otherfunc : relationship (optional)
+    newfunc : Relationship (optional), which could be fairly long, in which
+              case the line wraps here.
+    thirdfunc, fourthfunc, fifthfunc
+
+    Notes
+    -----
+    Notes about the implementation algorithm (if needed).
+
+    This can have multiple paragraphs.
+
+    You may include some math:
+
+    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
+
+    And even use a greek symbol like :math:`omega` inline.
+
+    References
+    ----------
+    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    references in the notes section above.
+
+    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+       expert systems and adaptive co-kriging for environmental habitat
+       modelling of the Highland Haggis using object-oriented, fuzzy-logic
+       and neural-network techniques," Computers & Geosciences, vol. 22,
+       pp. 585-588, 1996.
+
+    Examples
+    --------
+    These are written in doctest format, and should illustrate how to
+    use the function.
+
+    >>> a = [1, 2, 3]
+    >>> print [x + 3 for x in a]
+    [4, 5, 6]
+    >>> print "a\n\nb"
+    a
+    b
+
     """
 
     # Extract model parameters.
