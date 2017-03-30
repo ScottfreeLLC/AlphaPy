@@ -711,7 +711,7 @@ def vexec(f, v, vfuncs=None):
                         module = m
                         break
             # If the module was found, import the external treatment function,
-            # else search this namespace.
+            # else search the local namespace.
             if module:
                 ext_module = import_module(module)
                 func = getattr(my_module, func_name)
