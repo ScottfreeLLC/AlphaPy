@@ -147,6 +147,7 @@ def system_pipeline(model, market_specs):
     # Get any market specifications
 
     features = market_specs['features']
+    functions = market_specs['functions']
     lookback_period = market_specs['lookback_period']
     target_group = market_specs['target_group']
 
@@ -159,7 +160,7 @@ def system_pipeline(model, market_specs):
     get_feed_data(gs, lookback_period)
 
     # Apply the features to all of the frames
-    vmapply(gs, features)
+    vmapply(gs, features, functions)
 
     # Get the system specifications
 

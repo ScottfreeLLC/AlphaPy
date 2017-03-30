@@ -52,6 +52,7 @@ from alphapy.globs import BSEP, LOFF, ROFF, USEP
 from alphapy.util import valid_name
 
 from collections import OrderedDict
+from importlib import import_module
 import logging
 import numpy as np
 import pandas as pd
@@ -581,107 +582,12 @@ def vsub(v, expr):
     newexpr += expr[estart:elen]
     return newexpr
 
-
-#
-# Function vquote
-#
-
-def vquote(param):
-    r"""Generate the list of trades based on the long and short events
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
-
-    Parameters
-    ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
-
-    Returns
-    -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
-
-    """
-    npat = '[-+]?[0-9]*\.?[0-9]+'
-    nreg = re.compile(npat)
-    if nreg.findall(param):
-        return "%s" % param
-    else:
-        return '\'%s\'' % param
-
     
 #
 # Function vexec
 #
 
-def vexec(f, v):
+def vexec(f, v, vfuncs=None):
     r"""Generate the list of trades based on the long and short events
 
     Several sentences providing an extended description. Refer to
@@ -783,24 +689,43 @@ def vexec(f, v):
             f.eval(estr, inplace=True)
         else:
             logger.debug("Did not find variable: %s", root)
-            # must be a function call
-            fname = root
-            modname = globals()['__name__']
-            module = sys.modules[modname]
-            # create a call if the function was found
-            if fname in dir(module):
-                if plist:
-                    params = [vquote(p) for p in plist]
-                    fcall = fname + '(f, ' + ', '.join(params) + ')'
-                    logger.debug("Function Call: %s", fcall)
-                else:
-                    fcall = fname + '(f)'    
-                estr = "%s" % fcall
-                vstr = "f['%s'] = " % v
-                estr = vstr + estr
-                exec(estr)
+            # Must be a function call
+            func_name = root
+            # Convert the parameter list and prepend the data frame
+            newlist = []
+            for p in plist:
+                try:
+                    newlist.append(int(p))
+                except:
+                    try:
+                        newlist.append(float(p))
+                    except:
+                        newlist.append(p)
+            newlist.insert(0, f)
+            # Find the module and function
+            module = None
+            if vfuncs:
+                for m in vfuncs:
+                    funcs = vfuncs[m]
+                    if func_name in funcs:
+                        module = m
+                        break
+            # If the module was found, import the external treatment function,
+            # else search this namespace.
+            if module:
+                ext_module = import_module(module)
+                func = getattr(my_module, func_name)
+                # Create the variable by calling the function
+                f[v] = func(*newlist)
             else:
-                logger.debug("Could not find function %s", fname)
+                modname = globals()['__name__']
+                module = sys.modules[modname]
+                if func_name in dir(module):
+                    func = getattr(module, func_name)
+                    # Create the variable
+                    f[v] = func(*newlist)
+                else:
+                    logger.debug("Could not find function %s", func_name)
     # if necessary, add the lagged variable
     if lag > 0 and vxlag in f.columns:
         f[v] = f[vxlag].shift(lag)
@@ -812,7 +737,7 @@ def vexec(f, v):
 # Function vapply
 #
 
-def vapply(group, vname):
+def vapply(group, vname, vfuncs=None):
     r"""Generate the list of trades based on the long and short events
 
     Several sentences providing an extended description. Refer to
@@ -906,7 +831,7 @@ def vapply(group, vname):
             f = Frame.frames[fname].df
             for v in allv:
                 logger.debug("Applying variable %s to %s", v, g)
-                f = vexec(f, v)
+                f = vexec(f, v, vfuncs)
         else:
             logger.info("Frame not found: %s", fname)
                 
@@ -915,7 +840,7 @@ def vapply(group, vname):
 # Function vmapply
 #
 
-def vmapply(group, vs):
+def vmapply(group, vs, vfuncs=None):
     r"""Generate the list of trades based on the long and short events
 
     Several sentences providing an extended description. Refer to
@@ -1000,7 +925,7 @@ def vmapply(group, vs):
     """
     for v in vs:
         logger.info("Applying variable: %s", v)
-        vapply(group, v)
+        vapply(group, v, vfuncs)
 
         
 #

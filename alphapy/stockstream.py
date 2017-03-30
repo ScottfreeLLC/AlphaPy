@@ -213,6 +213,15 @@ def get_market_config(cfg_dir):
     except:
         logger.info("No Variables Found")
 
+    # Section: functions
+
+    try:
+        logger.info("Getting Variable Functions")
+        specs['functions'] = cfg['functions']
+    except:
+        logger.info("No Variable Functions Found")
+        specs['functions'] = {}
+
     # Log the stock parameters
 
     logger.info('MARKET PARAMETERS:')
@@ -327,6 +336,7 @@ def market_pipeline(model, market_specs):
 
     features = market_specs['features']
     forecast_period = market_specs['forecast_period']
+    functions = market_specs['functions']
     leaders = market_specs['leaders']
     lookback_period = market_specs['lookback_period']
     predict_date = market_specs['predict_date']
@@ -344,8 +354,8 @@ def market_pipeline(model, market_specs):
 
     # Apply the features to all of the frames
 
-    vmapply(gs, features)
-    vmapply(gs, [target])
+    vmapply(gs, features, functions)
+    vmapply(gs, [target], functions)
 
     # Run the analysis, including the model pipeline
 

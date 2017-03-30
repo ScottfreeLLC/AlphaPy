@@ -33,6 +33,7 @@ from alphapy.var import Variable
 import category_encoders as ce
 from enum import Enum, unique
 from gplearn.genetic import SymbolicTransformer
+from importlib import import_module
 from itertools import groupby
 import logging
 import math
@@ -1020,17 +1021,20 @@ def apply_treatment(fnum, fname, df, nvalues, fparams):
 
     logger.info("Feature %d: %s is a special treatment with %d unique values",
                 fnum, fname, nvalues)
-    func = fparams[0]
-    plist = fparams[1:]
-    logger.info("Applying function %s to feature %s", func, fname)
-    if plist:
-        params = [str(p) for p in plist]
-        fcall = func + '(df, \'' + fname + '\', ' + ', '.join(params) + ')'
-    else:
-        fcall = func + '(df, \'' + fname + '\', ' + ')'
-    logger.info("Function Call: %s", fcall)
+    # Extract the treatment parameter list
+    module = fparams[0]
+    func_name = fparams[1]
+    plist = fparams[2:]
+    # Import the external treatment function
+    ext_module = import_module(module)
+    func = getattr(ext_module, func_name)
+    # Prepend the parameter list with the data frame and feature name
+    plist.insert(0, fname)
+    plist.insert(0, df)
     # Apply the treatment
-    return eval(fcall)
+    logger.info("Applying function %s from module %s to feature %s",
+                func_name, module, fname)
+    return func(*plist)
 
 
 #

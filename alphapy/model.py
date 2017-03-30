@@ -1230,8 +1230,11 @@ def predict_best(model):
 
     # Add blended model to the list of algorithms.
 
-    algolist = copy(model.algolist)
-    algolist.append(blend_tag)
+    if len(model.algolist) > 1:
+        algolist = copy(model.algolist)
+        algolist.append(blend_tag)
+    else:
+        algolist = model.algolist
 
     # Iterate through the models, getting the best score for each one.
 
@@ -1534,8 +1537,11 @@ def generate_metrics(model, partition):
 
         # Add blended model to the list of algorithms.
 
-        algolist = copy(model.algolist)
-        algolist.append('BLEND')
+        if len(model.algolist) > 1:
+            algolist = copy(model.algolist)
+            algolist.append('BLEND')
+        else:
+            algolist = model.algolist
 
         # get the metrics for each algorithm
         for algo in algolist:
