@@ -11,6 +11,11 @@ Machine Learning Pipeline for Python
 StockStream
 -----------
 
+.. image:: https://github.com/Alpha314/AlphaPy/blob/master/images/market_pipeline.png
+    :width: 100%
+    :alt: StockStream Pipeline
+    :align: center
+
 SportStream
 -----------
 
