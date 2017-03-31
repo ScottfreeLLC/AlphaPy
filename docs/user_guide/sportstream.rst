@@ -1,6 +1,12 @@
 SportStream
 ===========
 
+.. image:: sports_pipeline.png
+   :height:  500 px
+   :width:  1000 px
+   :alt: Sports Pipeline
+   :align: center
+
 Keeping general strategy in mind, apply machine learning algorithms to predict game outcomes using supervised learning, i.e., classification.
 We will create binary features to determine whether or not a team will win the game or cover the spread.
 •
