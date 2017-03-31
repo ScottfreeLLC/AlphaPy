@@ -34,40 +34,27 @@ from alphapy.globs import USEP
 #
 
 def space_name(subject, schema, fractal):
-    r"""Read in data from the given directory in a given format.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Find an alias value with the given key.
 
     Parameters
     ----------
-    subject : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    schema : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    fractal : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    subject : str
+        Key for finding the alias value.
+    schema : str
+        Key for finding the alias value.
+    fractal : str
+        Key for finding the alias value.
 
     Returns
     -------
-    describe : type
-        Explanation of return value named `describe`.
+    name : str
+        Value for the corresponding key.
 
     Examples
     --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
 
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    >>> name = space_name('atr')
+    >>> name = space_name('hc')
 
     """
     return USEP.join([subject, schema, fractal])
@@ -78,20 +65,24 @@ def space_name(subject, schema, fractal):
 #
 
 class Space:
-    """Exceptions are documented in the same way as classes.
-
-    The __init__ method may be documented in either the class level
-    docstring, or as a docstring on the __init__ method itself.
-
-    Either form is acceptable, but the two should not be mixed. Choose one
-    convention to document the __init__ method and be consistent with it.
+    """Create a new alias as a key-value pair. All aliases are stored
+    in Alias.aliases. Duplicate keys or values are not allowed, unless
+    the ``replace`` parameter is ``True``.
 
     Parameters
     ----------
-    msg : str
-        Human readable string describing the exception.
-    code : :obj:`int`, optional
-        Numeric error code.
+    subject : str, optional
+        Alias key.
+    schema : str, optional
+        Alias value.
+    fractal : bool, optional
+        Replace the current key-value pair if it already exists.
+
+    Examples
+    --------
+    
+    >>> Space('atr', 'ma_truerange')
+    >>> Space('hc', 'higher_close')
 
     """
     
