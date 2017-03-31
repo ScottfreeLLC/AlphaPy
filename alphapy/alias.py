@@ -44,8 +44,8 @@ logger = logging.getLogger(__name__)
 
 class Alias(object):
     """Create a new alias as a key-value pair. All aliases are stored
-    in Alias.aliases. Duplicate keys or values are not allowed, unless
-    the ``replace`` parameter is ``True``.
+    in ``Alias.aliases``. Duplicate keys or values are not allowed,
+    unless the ``replace`` parameter is ``True``.
 
     Parameters
     ----------
