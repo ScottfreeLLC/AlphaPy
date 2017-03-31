@@ -1,0 +1,127 @@
+project:
+    directory         : /Users/markconway/Projects/AlphaPy-Markets/Models/rrover
+    file_extension    : csv
+    submission_file   :
+    submit_probas     : False
+
+data:
+    drop              : ['date', 'tag', 'open', 'high', 'low', 'close', 'volume', 'adjclose',
+                         'low[1]', 'high[1]', 'net', 'close[1]', 'rmin_3', 'rmin_4', 'rmin_5',
+                         'rmin_7', 'rmin_8', 'rmin_10', 'rmin_18', 'pval', 'mval', 'vma',
+                         'rmax_2', 'rmax_3', 'rmax_4', 'rmax_5', 'rmax_6', 'rmax_7', 'rmax_10']
+    dummy_limit       : 100
+    features          : '*'
+    sampling          :
+        option        : True
+        method        : under_random
+        ratio         : 0.5
+    sentinel          : -1
+    separator         : ','
+    shuffle           : True
+    split             : 0.4
+    target            : rrover
+    target_value      : True
+    test              : 'test'
+    test_labels       : True
+    train             : 'train'
+
+model:
+    algorithms        : ['XGB']
+    balance_classes   : True
+    calibration       :
+        option        : False
+        type          : isotonic
+    cv_folds          : 3
+    estimators        : 501
+    feature_selection :
+        option        : False
+        percentage    : 10
+        uni_grid      : [5, 10, 15, 20, 25]
+        score_func    : f_classif
+    grid_search       :
+        option        : False
+        iterations    : 100
+        random        : True
+        subsample     : True
+        sampling_pct  : 0.25
+    pvalue_level      : 0.01
+    rfe               :
+        option        : False
+        step          : 10
+    scoring_function  : 'roc_auc'
+    type              : classification
+
+features:
+    clustering        :
+        option        : False
+        increment     : 3
+        maximum       : 30
+        minimum       : 3
+    counts            :
+        option        : False
+    encoding          :
+        rounding      : 3
+        type          : factorize
+    genetic           :
+        option        : False
+        features      : 20
+    interactions      :
+        option        : True
+        poly_degree   : 2
+        sampling_pct  : 5
+    isomap            :
+        option        : False
+        components    : 2
+        neighbors     : 5
+    logtransform      :
+        option        : False
+    numpy             :
+        option        : False
+    pca               :
+        option        : False
+        increment     : 3
+        maximum       : 15
+        minimum       : 3
+        whiten        : False
+    scaling           :
+        option        : True
+        type          : standard
+    scipy             :
+        option        : False
+    text              :
+        ngrams        : 1
+        vectorize     : False
+    tsne              :
+        option        : False
+        components    : 2
+        learning_rate : 1000.0
+        perplexity    : 30.0
+
+treatments:
+    doji              : ['alphapy.features', 'runs_test', ['all'], 18]
+    hc                : ['alphapy.features', 'runs_test', ['all'], 18]
+    hh                : ['alphapy.features', 'runs_test', ['all'], 18]
+    hl                : ['alphapy.features', 'runs_test', ['all'], 18]
+    ho                : ['alphapy.features', 'runs_test', ['all'], 18]
+    rrhigh            : ['alphapy.features', 'runs_test', ['all'], 18]
+    rrlow             : ['alphapy.features', 'runs_test', ['all'], 18]
+    rrover            : ['alphapy.features', 'runs_test', ['all'], 18]
+    rrunder           : ['alphapy.features', 'runs_test', ['all'], 18]
+    sephigh           : ['alphapy.features', 'runs_test', ['all'], 18]
+    seplow            : ['alphapy.features', 'runs_test', ['all'], 18]
+    trend             : ['alphapy.features', 'runs_test', ['all'], 18]
+
+pipeline:
+    number_jobs       : -1
+    seed              : 10231
+    verbosity         : 1
+
+plots:
+    calibration       : True
+    confusion_matrix  : True
+    importances       : True
+    learning_curve    : False
+    roc_curve         : True
+
+xgboost:
+    stopping_rounds   : 20

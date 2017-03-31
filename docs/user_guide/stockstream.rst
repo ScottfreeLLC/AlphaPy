@@ -2,7 +2,13 @@ StockStream
 ===========
 
 **StockStream** transforms financial market data into machine learning
-models for making market predictions. 
+models for making market predictions. The platform gets stock price
+data from Yahoo Finance (end-of-day) and Google Finance (intraday),
+transforming the data into canonical form for training and testing.
+StockStream is powerful because you can easily apply new features
+to groups of stocks simultaneously using our *Feature Definition
+Language* (FDL). All of the dataframes are aggregated and split
+into training and testing files for input into *AlphaPy*.
 
 .. image:: market_pipeline.png
    :height:  500 px
@@ -30,11 +36,11 @@ handled by the Model Pipeline.
 Configuration
 -------------
 
-Here is an example of a model configuration file. It is written in YAML
-and is divided into logical sections reflecting different parts of the
-pipeline.
+Here is an example of a market configuration file. It is written in YAML
+and is divided into logical sections reflecting different parts of
+**StockStream**.
 
-.. literalinclude:: marketstream.yml
+.. literalinclude:: market.yml
    :language: yaml
    :caption: **market.yml**
 
@@ -46,17 +52,26 @@ x
 Groups
 ------
 
-.. image:: ms_groups.png
-   :height:  500 px
-   :width:  1000 px
-   :alt: Market Groups
-   :align: center
+.. literalinclude:: market.yml
+   :language: yaml
+   :caption: **market.yml**
+   :lines: 11-52
 
 Features
 --------
 
+.. literalinclude:: market.yml
+   :language: yaml
+   :caption: **market.yml**
+   :lines: 54-70
+
 Aliases
 -------
+
+.. literalinclude:: market.yml
+   :language: yaml
+   :caption: **market.yml**
+   :lines: 72-105
 
 Variables
 ---------
@@ -80,7 +95,14 @@ these variables map to functions with parameters.
 # 'xmaup_20_50_20_200'
 # 'xmaup_10_50_20_50'
 
-Market Pipeline
----------------
+.. literalinclude:: market.yml
+   :language: yaml
+   :caption: **market.yml**
+   :lines: 107-137
 
-x
+AlphaPy Configuration
+---------------------
+
+.. literalinclude:: market_model.yml
+   :language: text
+   :caption: **model.yml**
