@@ -10,11 +10,11 @@ Machine Learning Pipeline for Python
    :align: center
 
 StockStream
-===========
+-----------
 
 SportStream
-===========
+-----------
 
 SystemStream
-============
+------------
 
