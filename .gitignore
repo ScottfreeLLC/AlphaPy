@@ -3,8 +3,6 @@
 
 *.pyc
 
-*.png
-
 *.iml
 
 .idea/.name
@@ -12,6 +10,7 @@
 *.egg-info*
 
 *build*
+
 *.whl
 
 *.gz
