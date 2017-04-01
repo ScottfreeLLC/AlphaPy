@@ -44,27 +44,27 @@ logger = logging.getLogger(__name__)
 #
 
 class Group(object):
-    """Exceptions are documented in the same way as classes.
-
-    The __init__ method may be documented in either the class level
-    docstring, or as a docstring on the __init__ method itself.
-
-    Either form is acceptable, but the two should not be mixed. Choose one
-    convention to document the __init__ method and be consistent with it.
+    """Create a new Frame that points to a dataframe in memory. All
+    frames are stored in ``Frame.frames``. Names must be unique.
 
     Parameters
     ----------
-    msg : str
-        Human readable string describing the exception.
-    code : :obj:`int`, optional
-        Numeric error code.
+    name : str
+        Frame key.
+    space : alphapy.Space
+        Name space.
+    df : pandas.DataFrame
+        The contents of the actual dataframe.
 
     Attributes
     ----------
-    msg : str
-        Human readable string describing the exception.
-    code : int
-        Numeric error code.
+    frames : dict
+        Class variable for storing all known frames
+
+    Examples
+    --------
+    
+    >>> Frame('tech', Space('stock', 'prices', '5m'), df)
 
     """
 

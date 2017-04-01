@@ -2,9 +2,8 @@ AlphaPy Pipeline
 ================
 
 .. image:: model_pipeline.png
-   :height:  500 px
-   :width:  1000 px
    :alt: AlphaPy Model Pipeline
+   :width: 100%
    :align: center
 
 Model Object Creation
@@ -60,9 +59,8 @@ is applied. Otherwise, the feature is generally either text
 or a number.
 
 .. image:: features.png
-   :height:  500 px
-   :width:  1000 px
    :alt: Feature Flowchart
+   :width: 100%
    :align: center
 
 In the example below, each feature's type is identified along
@@ -194,9 +192,8 @@ For example, the Area Under the Curve (AUC) must be
 maximized, and negative log loss must be minimized.
 
 .. image:: model_best.png
-   :height:  500 px
-   :width:  1000 px
    :alt: Best Model Selection
+   :width: 100%
    :align: center
 
 When more than one algorithm is scored in the estimation stage,
@@ -210,9 +207,8 @@ Blended Model
 ~~~~~~~~~~~~~
 
 .. image:: model_blend.png
-   :height:  500 px
-   :width:  1000 px
    :alt: Blended Model Creation
+   :width: 100%
    :align: center
 
 .. _ridge: http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html
@@ -244,45 +240,40 @@ Calibration Plot
 ~~~~~~~~~~~~~~~~
 
 .. image:: plot_calibration.png
-   :height:  500 px
-   :width:  1000 px
    :alt: Calibration Plot
+   :width: 100%
    :align: center
 
 Confusion Matrix
 ~~~~~~~~~~~~~~~~
 
 .. image:: plot_confusion_matrix.png
-   :height:  500 px
-   :width:  1000 px
    :alt: Confusion Matrix
+   :width: 100%
    :align: center
 
 Feature Importances
 ~~~~~~~~~~~~~~~~~~~
 
 .. image:: plot_feature_importances.png
-   :height:  500 px
-   :width:  1000 px
    :alt: Feature Importances
+   :width: 100%
    :align: center
 
 Learning Curve
 ~~~~~~~~~~~~~~
 
 .. image:: plot_learning_curve.png
-   :height:  500 px
-   :width:  1000 px
    :alt: Learning Curve
+   :width: 100%
    :align: center
 
 ROC Curve
 ~~~~~~~~~
 
 .. image:: plot_roc_curve.png
-   :height:  500 px
-   :width:  1000 px
    :alt: ROC Curve
+   :width: 100%
    :align: center
 
 Final Results

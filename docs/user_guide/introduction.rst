@@ -24,9 +24,8 @@ enough to handle any project and evolved over many Kaggle
 competitions.
 
 .. image:: alphapy_pipeline.png
-   :height: 400 px
-   :width:  800 px
    :alt: AlphaPy Model Pipeline
+   :width: 100%
    :align: center
 
 Let's review all of the components in the diagram:

@@ -2,9 +2,8 @@ SportStream
 ===========
 
 .. image:: sports_pipeline.png
-   :height:  500 px
-   :width:  1000 px
    :alt: Sports Pipeline
+   :width: 100%
    :align: center
 
 Keeping general strategy in mind, apply machine learning algorithms to predict game outcomes using supervised learning, i.e., classification.
@@ -21,14 +20,8 @@ after gathering team and player data.
 Data Sources
 ------------
 
-.. csv-table:: Frozen Delights!
-   :header: "Treat", "Quantity", "Description"
-   :widths: 15, 10, 30
-
-   "Albatross", 2.99, "On a stick!"
-   "Crunchy Frog", 1.49, "If we took the bones out, it wouldn't be
-   crunchy, now would it?"
-   "Gannet Ripple", 1.99, "On a stick!"
+.. csv-table:: Amazon Daily Stock Prices (Source: Yahoo)
+   :file: amzn_daily.csv
 
 Configuration
 -------------

@@ -11,40 +11,99 @@ Language* (FDL). All of the dataframes are aggregated and split
 into training and testing files for input into *AlphaPy*.
 
 .. image:: market_pipeline.png
-   :height:  500 px
-   :width:  1000 px
    :alt: Market Pipeline
+   :width: 100%
    :align: center
 
 Data Sources
 ------------
 
-Market data consist of standard primitives such as open, high, low, and
-close; the latter three are postdictive and cause data leakage. Leaders
-and laggards must be identified and possibly column-shifted, which is
-handled by the Model Pipeline.
+StockStream gets daily stock prices from Yahoo Finance and intraday
+stock prices from Google Finance. Both data sources have the standard
+primitives: ``Open``, ``High``, ``Low``, ``Close``, and ``Volume``.
+For daily data, there is a ``Date`` timestamp and for intraday data,
+there is a ``Datetime`` timestamp. We augment the intraday data with
+a ``bar_number`` field to mark the end of the trading day. All trading
+days do not end at 4:00 pm EST, as there are holiday trading days
+that are shortened.
 
-.. csv-table:: Frozen Delights!
-   :header: "Treat", "Quantity", "Description"
-   :widths: 15, 10, 30
+.. note:: Normal market hours are 9:30 am to 4:00 pm EST. Here, we
+   retrieved the data from the CST time zone, one hour ahead.
 
-   "Albatross", 2.99, "On a stick!"
-   "Crunchy Frog", 1.49, "If we took the bones out, it wouldn't be
-   crunchy, now would it?"
-   "Gannet Ripple", 1.99, "On a stick!"
+.. csv-table:: Amazon Daily Stock Prices (Source: Yahoo)
+   :file: amzn_daily.csv
+
+.. csv-table:: Amazon Intraday Stock Prices (Source: Google)
+   :file: amzn_intraday.csv
+
+.. note:: You can get Google intraday data going back a maximum of
+   50 days. If you want to build your own historical record, then
+   we recommend that you save the data on an ongoing basis for a
+   a larger backtesting window.
 
 Configuration
 -------------
 
-Here is an example of a market configuration file. It is written in YAML
-and is divided into logical sections reflecting different parts of
-**StockStream**.
+The market configuration file (``market.yml``) is written in YAML
+and is divided into logical sections reflecting different parts
+of **StockStream**. This file is stored in the ``config`` directory
+of your project, along with the ``model.yml`` and ``algos.yml`` files.
+The ``market`` section has the following parameters:
+
+``forecast_period``:
+    This directory contains all of the YAML files. At a minimum, it must
+    contain ``model.yml`` and ``algos.yml``.
+
+``fractal``: 
+    If required, any data for the domain pipeline is stored here. Data
+    from this directory will be transformed into ``train.csv`` and
+    ``test.csv`` in the ``input`` directory.
+
+``leaders``: 
+    The training file ``train.csv`` and the testing file ``test.csv``
+    are stored here. Note that these file names can be named anything
+    as configured in the ``model.yml`` file.
+
+``lookback_period``:  
+    The final model is dumped here as a pickle file in the format
+    ``model_[yyyymmdd].pkl``.
+
+``predict_date``: 
+    This directory contains predictions, probabilities, rankings,
+    and any submission files:
+
+    * ``predictions_[yyyymmdd].csv``
+    * ``probabilities_[yyyymmdd].csv``
+    * ``rankings_[yyyymmdd].csv``
+    * ``submission_[yyyymmdd].csv``
+
+``schema``: 
+    All generated plots are stored here. The file name has the
+    following elements:
+
+    * plot name
+    * 'train' or 'test'
+    * algorithm abbreviation
+    * format suffix
+
+    For example, a calibration plot for the testing data for all
+    algorithms will be named ``calibration_test.png``. The file
+    name for a confusion matrix for XGBoost training data will be
+    ``confusion_train_XGB.png``.
+
+``train_date``:  
+    The final model is dumped here as a pickle file in the format
+    ``model_[yyyymmdd].pkl``.
+
+``target_group``:  
+    The final model is dumped here as a pickle file in the format
+    ``model_[yyyymmdd].pkl``.
 
 .. literalinclude:: market.yml
    :language: yaml
    :caption: **market.yml**
 
-Analysis
+Analyses
 --------
 
 x

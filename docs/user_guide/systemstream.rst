@@ -1,6 +1,20 @@
 SystemStream
 ============
 
+**SystemStream** transforms financial market data into machine learning
+models for making market predictions. The platform gets stock price
+data from Yahoo Finance (end-of-day) and Google Finance (intraday),
+transforming the data into canonical form for training and testing.
+StockStream is powerful because you can easily apply new features
+to groups of stocks simultaneously using our *Feature Definition
+Language* (FDL). All of the dataframes are aggregated and split
+into training and testing files for input into *AlphaPy*.
+
+.. image:: system_pipeline.png
+   :alt: Market Pipeline
+   :width: 100%
+   :align: center
+
 Configuration
 -------------
 
@@ -15,11 +29,8 @@ pipeline.
 Data Sources
 ------------
 
-.. csv-table:: Frozen Delights!
-   :header: "Treat", "Quantity", "Description"
-   :widths: 15, 10, 30
+.. csv-table:: Amazon Daily Stock Prices (Source: Yahoo)
+   :file: amzn_daily.csv
 
-   "Albatross", 2.99, "On a stick!"
-   "Crunchy Frog", 1.49, "If we took the bones out, it wouldn't be
-   crunchy, now would it?"
-   "Gannet Ripple", 1.99, "On a stick!"
+.. csv-table:: Amazon Intraday Stock Prices (Source: Google)
+   :file: amzn_intraday.csv
