@@ -180,7 +180,7 @@ def model_pipeline(model):
     Parameters
     ----------
     model : alphapy.Model
-        The model specifications for controlling the pipeline.
+        The model object for controlling the pipeline.
 
     Returns
     -------
@@ -344,7 +344,7 @@ def score_with_model(model):
 #
 
 def main_pipeline(model):
-    r"""AlphaPy Data Pipeline
+    r"""AlphaPy Main Pipeline
 
     Parameters
     ----------

@@ -54,22 +54,27 @@ logger = logging.getLogger(__name__)
 #
 
 def system_pipeline(model, market_specs):
-    r"""Run the main logic for SystemStream
+    r"""AlphaPy Model Pipeline
 
     Parameters
     ----------
-    model : Model
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
+    model : alphapy.Model
+        The model object for controlling the pipeline.
     market_specs : dict
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
+        The market specifications for running the system.
 
     Returns
     -------
-    None
+    None : None
+
+    Notes
+    -----
+    (1) Define a group.
+    (2) Get the market data.
+    (3) Apply system features.
+    (4) Create the system.
+    (5) Run the system.
+    (6) Generate a portfolio.
 
     """
 
@@ -124,50 +129,16 @@ def system_pipeline(model, market_specs):
 #
 
 def main(args=None):
-    r"""SystemStream Pipeline
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
-
-    Parameters
-    ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
-
-    Returns
-    -------
-    None
+    r"""SystemStream Main Program
 
     Notes
     -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
+    (1) Initialize logging.
+    (2) Parse the command line arguments.
+    (3) Get the market configuration.
+    (4) Get the model configuration.
+    (5) Create the model object.
+    (6) Call the main SystemStream pipeline.
 
     """
 
