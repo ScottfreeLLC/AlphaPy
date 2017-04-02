@@ -27,11 +27,11 @@ a ``bar_number`` field to mark the end of the trading day. All trading
 days do not end at 4:00 pm EST, as there are holiday trading days
 that are shortened.
 
-.. note:: Normal market hours are 9:30 am to 4:00 pm EST. Here, we
-   retrieved the data from the CST time zone, one hour ahead.
-
 .. csv-table:: Amazon Daily Stock Prices (Source: Yahoo)
    :file: amzn_daily.csv
+
+.. note:: Normal market hours are 9:30 am to 4:00 pm EST. Here, we
+   retrieved the data from the CST time zone, one hour ahead.
 
 .. csv-table:: Amazon Intraday Stock Prices (Source: Google)
    :file: amzn_intraday.csv
