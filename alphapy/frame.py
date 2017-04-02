@@ -81,7 +81,7 @@ class Frame(object):
     name : str
         Frame key.
     space : alphapy.Space
-        Name space.
+        Namespace of the given frame.
     df : pandas.DataFrame
         The contents of the actual dataframe.
 

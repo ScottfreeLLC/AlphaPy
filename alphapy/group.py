@@ -44,27 +44,32 @@ logger = logging.getLogger(__name__)
 #
 
 class Group(object):
-    """Create a new Frame that points to a dataframe in memory. All
-    frames are stored in ``Frame.frames``. Names must be unique.
+    """Create a new Group that contains common members. All
+    defined groups are stored in ``Group.groups``. Group
+    names must be unique.
 
     Parameters
     ----------
     name : str
-        Frame key.
-    space : alphapy.Space
-        Name space.
-    df : pandas.DataFrame
-        The contents of the actual dataframe.
+        Group name.
+    space : alphapy.Space, optional
+        Namespace for the given group.
+    dynamic : bool, optional, default ``True``
+        Flag for defining whether or not the group membership
+        can change.
+    members : set, optional
+        The initial members of the group, especially if the
+        new group is fixed, e.g., not ``dynamic``.
 
     Attributes
     ----------
-    frames : dict
-        Class variable for storing all known frames
+    groups : dict
+        Class variable for storing all known groups
 
     Examples
     --------
     
-    >>> Frame('tech', Space('stock', 'prices', '5m'), df)
+    >>> Group('tech')
 
     """
 
@@ -77,18 +82,14 @@ class Group(object):
     def __init__(self,
                  name,
                  space = Space(),
-                 dynamic = True):
+                 dynamic = True,
+                 members = set()):
         # code
         if not name in Group.groups:
             self.name = name
             self.space = space
             self.dynamic =  dynamic
-            self.members = set()
-            if dynamic == False:
-                # load members from fixed groups
-                pass
-                # dir = getdirectory(name)
-                # members = with(dir, dir$key)
+            self.members = members
             # add group to groups list
             Group.groups[name] = self
         else:
@@ -103,25 +104,21 @@ class Group(object):
             
     def add(self,
             newlist):
-        r"""Read in data from the given directory in a given format.
+        r"""Add new members to the group.
 
         Parameters
         ----------
-        var1 : array_like
-            Array_like means all those objects -- lists, nested lists, etc. --
-            that can be converted to an array.  We can also refer to
-            variables like `var1`.
-        var2 : int
-            The type above can either refer to an actual Python type
-            (e.g. ``int``), or describe the type of the variable in more
-            detail, e.g. ``(N,) ndarray`` or ``array_like``.
-        long_var_name : {'hi', 'ho'}, optional
-            Choices in brackets, default first when optional.
+        newlist : list
+            New members or identifiers to add to the group.
 
         Returns
         -------
-        type
-            Explanation of anonymous return value of type ``type``.
+        None : None
+
+        Notes
+        -----
+
+        New members cannot be added to a fixed or non-dynamic group.
 
         """
         if all([type(item) is str for item in newlist]):
@@ -141,25 +138,17 @@ class Group(object):
     # function member
             
     def member(self, item):
-        r"""Read in data from the given directory in a given format.
+        r"""Find a member in the group.
 
         Parameters
         ----------
-        var1 : array_like
-            Array_like means all those objects -- lists, nested lists, etc. --
-            that can be converted to an array.  We can also refer to
-            variables like `var1`.
-        var2 : int
-            The type above can either refer to an actual Python type
-            (e.g. ``int``), or describe the type of the variable in more
-            detail, e.g. ``(N,) ndarray`` or ``array_like``.
-        long_var_name : {'hi', 'ho'}, optional
-            Choices in brackets, default first when optional.
+        item : str
+            The member to find the group.
 
         Returns
         -------
-        type
-            Explanation of anonymous return value of type ``type``.
+        member_exists : bool
+            Flag indicating whether or not the member is in the group.
 
         """
         return item in self.members
@@ -171,21 +160,17 @@ class Group(object):
 
         Parameters
         ----------
-        var1 : array_like
-            Array_like means all those objects -- lists, nested lists, etc. --
-            that can be converted to an array.  We can also refer to
-            variables like `var1`.
-        var2 : int
-            The type above can either refer to an actual Python type
-            (e.g. ``int``), or describe the type of the variable in more
-            detail, e.g. ``(N,) ndarray`` or ``array_like``.
-        long_var_name : {'hi', 'ho'}, optional
-            Choices in brackets, default first when optional.
+        remlist : list
+            The list of members to remove from the group.
 
         Returns
         -------
-        type
-            Explanation of anonymous return value of type ``type``.
+        None : None
+
+        Notes
+        -----
+
+        Members cannot be removed from a fixed or non-dynamic group.
 
         """
         if self.dynamic:
