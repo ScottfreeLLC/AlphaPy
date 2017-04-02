@@ -48,86 +48,27 @@ logger = logging.getLogger(__name__)
 #
 
 def analysis_name(gname, target):
-    r"""AlphaPy Data Pipeline
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Find an alias value with the given key.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    subject : str
+        Key for finding the alias value.
+    schema : str
+        Key for finding the alias value.
+    fractal : str
+        Key for finding the alias value.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
+    name : str
+        Value for the corresponding key.
 
     Examples
     --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
 
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    >>> name = space_name('atr')
+    >>> name = space_name('hc')
 
     """
 
@@ -139,31 +80,29 @@ def analysis_name(gname, target):
 #
 
 class Analysis(object):
-    """Exceptions are documented in the same way as classes.
-
-    The __init__ method may be documented in either the class level
-    docstring, or as a docstring on the __init__ method itself.
-
-    Either form is acceptable, but the two should not be mixed. Choose one
-    convention to document the __init__ method and be consistent with it.
-
-    Note
-    ----
-    Do not include the `self` parameter in the ``Parameters`` section.
+    """Create a new variable as a key-value pair. All variables are stored
+    in ``Variable.variables``. Duplicate keys or values are not allowed,
+    unless the ``replace`` parameter is ``True``.
 
     Parameters
     ----------
-    msg : str
-        Human readable string describing the exception.
-    code : :obj:`int`, optional
-        Numeric error code.
+    name : str
+        Variable key.
+    expr : str
+        Variable value.
+    replace : bool, optional
+        Replace the current key-value pair if it already exists.
 
     Attributes
     ----------
-    msg : str
-        Human readable string describing the exception.
-    code : int
-        Numeric error code.
+    variables : dict
+        Class variable for storing all known variables
+
+    Examples
+    --------
+    
+    >>> Variable('rrunder', 'rr_3_20 <= 0.9')
+    >>> Variable('hc', 'higher_close')
 
     """
 

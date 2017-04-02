@@ -86,27 +86,29 @@ logger = logging.getLogger(__name__)
 #
 
 class Model:
-    """Exceptions are documented in the same way as classes.
-
-    The __init__ method may be documented in either the class level
-    docstring, or as a docstring on the __init__ method itself.
-
-    Either form is acceptable, but the two should not be mixed. Choose one
-    convention to document the __init__ method and be consistent with it.
+    """Create a new variable as a key-value pair. All variables are stored
+    in ``Variable.variables``. Duplicate keys or values are not allowed,
+    unless the ``replace`` parameter is ``True``.
 
     Parameters
     ----------
-    msg : str
-        Human readable string describing the exception.
-    code : :obj:`int`, optional
-        Numeric error code.
+    name : str
+        Variable key.
+    expr : str
+        Variable value.
+    replace : bool, optional
+        Replace the current key-value pair if it already exists.
 
     Attributes
     ----------
-    msg : str
-        Human readable string describing the exception.
-    code : int
-        Numeric error code.
+    variables : dict
+        Class variable for storing all known variables
+
+    Examples
+    --------
+    
+    >>> Variable('rrunder', 'rr_3_20 <= 0.9')
+    >>> Variable('hc', 'higher_close')
 
     """
             
