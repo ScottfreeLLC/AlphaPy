@@ -1568,14 +1568,14 @@ def gtval0(f, c1, c2):
 
     Returns
     -------
-    new_value : float
+    new_val : float
         A positive value or zero.
 
     """
     if f[c1] > f[c2] and f[c1] > 0:
-        new_value = f[c1]
+        new_val = f[c1]
     else:
-        new_value = 0
+        new_val = 0
     return new_val
 
 
