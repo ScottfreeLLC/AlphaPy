@@ -324,17 +324,6 @@ def vtree(vname):
 
     And even use a greek symbol like :math:`omega` inline.
 
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
     Examples
     --------
     These are written in doctest format, and should illustrate how to
@@ -429,17 +418,6 @@ def vsub(v, expr):
     .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
 
     And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
 
     Examples
     --------
@@ -553,17 +531,6 @@ def vexec(f, v, vfuncs=None):
     .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
 
     And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
 
     Examples
     --------
@@ -704,17 +671,6 @@ def vapply(group, vname, vfuncs=None):
 
     And even use a greek symbol like :math:`omega` inline.
 
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
     Examples
     --------
     These are written in doctest format, and should illustrate how to
@@ -807,17 +763,6 @@ def vmapply(group, vs, vfuncs=None):
 
     And even use a greek symbol like :math:`omega` inline.
 
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
     Examples
     --------
     These are written in doctest format, and should illustrate how to
@@ -898,17 +843,6 @@ def vunapply(group, vname):
     .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
 
     And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
 
     Examples
     --------
@@ -1004,17 +938,6 @@ def vmunapply(group, vs):
 
     And even use a greek symbol like :math:`omega` inline.
 
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
     Examples
     --------
     These are written in doctest format, and should illustrate how to
@@ -1064,89 +987,25 @@ def vmunapply(group, vs):
 #
     
 def c2max(f, c1, c2):
-    r"""Generate the list of trades based on the long and short events
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Take the maximum value between two columns in a dataframe.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    f : pandas.DataFrame
+        Dataframe containing the two columns ``c1`` and ``c2``.
+    c1 : str
+        Name of the first column in the dataframe ``f``.
+    c2 : str
+        Name of the second column in the dataframe ``f``.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    new_column : pandas.Series
+        The array containing the new feature.
 
     """
-    return max(f[c1], f[c2])
+    new_column = max(f[c1], f[c2])
+    return new_column
 
 
 #
@@ -1154,89 +1013,25 @@ def c2max(f, c1, c2):
 #
     
 def c2min(f, c1, c2):
-    r"""Generate the list of trades based on the long and short events
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Take the minimum value between two columns in a dataframe.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    f : pandas.DataFrame
+        Dataframe containing the two columns ``c1`` and ``c2``.
+    c1 : str
+        Name of the first column in the dataframe ``f``.
+    c2 : str
+        Name of the second column in the dataframe ``f``.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    new_column : pandas.Series
+        The array containing the new feature.
 
     """
-    return min(f[c1], f[c2])
+    new_column = min(f[c1], f[c2])
+    return new_column
 
 
 #
@@ -1301,17 +1096,6 @@ def pchange1(f, c, o = 1):
     .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
 
     And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
 
     Examples
     --------
@@ -1392,17 +1176,6 @@ def pchange2(f, c1, c2):
 
     And even use a greek symbol like :math:`omega` inline.
 
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
     Examples
     --------
     These are written in doctest format, and should illustrate how to
@@ -1482,17 +1255,6 @@ def diff(f, c, n = 1):
 
     And even use a greek symbol like :math:`omega` inline.
 
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
     Examples
     --------
     These are written in doctest format, and should illustrate how to
@@ -1514,89 +1276,23 @@ def diff(f, c, n = 1):
 #
 
 def down(f, c):
-    r"""Generate the list of trades based on the long and short events
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Find the negative values in the series.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    f : pandas.DataFrame
+        Dataframe containing the column ``c``.
+    c : str
+        Name of the column in the dataframe ``f``.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    new_column : pandas.Series
+        The array containing the new feature.
 
     """
-    return f[c] < 0
+    new_column = f[c] < 0
+    return new_column
 
 
 #
@@ -1604,89 +1300,23 @@ def down(f, c):
 #
 
 def up(f, c):
-    r"""Generate the list of trades based on the long and short events
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Find the positive values in the series.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    f : pandas.DataFrame
+        Dataframe containing the column ``c``.
+    c : str
+        Name of the column in the dataframe ``f``.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    new_column : pandas.Series
+        The array containing the new feature.
 
     """
-    return f[c] > 0
+    new_column = f[c] > 0
+    return new_column
 
 
 #
@@ -1694,89 +1324,26 @@ def up(f, c):
 #
 
 def higher(f, c, o = 1):
-    r"""Generate the list of trades based on the long and short events
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Determine whether or not a series value is higher than
+    the value ``o`` periods back.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    f : pandas.DataFrame
+        Dataframe containing the column ``c``.
+    c : str
+        Name of the column in the dataframe ``f``.
+    o : int, optional
+        Offset value for shifting the series.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    new_column : pandas.Series
+        The array containing the new feature.
 
     """
-    return f[c] > f[c].shift(o)
+    new_column = f[c] > f[c].shift(o)
+    return new_column
 
 
 #
@@ -1874,89 +1441,26 @@ def highest(f, c, p = 20):
 #
 
 def lower(f, c, o = 1):
-    r"""Generate the list of trades based on the long and short events
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Determine whether or not a series value is lower than
+    the value ``o`` periods back.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    f : pandas.DataFrame
+        Dataframe containing the column ``c``.
+    c : str
+        Name of the column in the dataframe ``f``.
+    o : int, optional
+        Offset value for shifting the series.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    new_column : pandas.Series
+        The array containing the new feature.
 
     """
-    return f[c] < f[c].shift(o)
+    new_column = f[c] < f[c].shift(o)
+    return new_column
 
 
 #
@@ -2204,10 +1708,10 @@ def ema(f, c, p = 20):
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    Cite the relevant literature, e.g. [2]_.  You may also cite these
     references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+    .. [2] O. McNoleg, "The integration of GIS, remote sensing,
        expert systems and adaptive co-kriging for environmental habitat
        modelling of the Highland Haggis using object-oriented, fuzzy-logic
        and neural-network techniques," Computers & Geosciences, vol. 22,
@@ -2292,17 +1796,6 @@ def maratio(f, c, p1 = 1, p2 = 10):
 
     And even use a greek symbol like :math:`omega` inline.
 
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
     Examples
     --------
     These are written in doctest format, and should illustrate how to
@@ -2384,10 +1877,10 @@ def net(f, c='close', o = 1):
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    Cite the relevant literature, e.g. [3]_.  You may also cite these
     references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+    .. [3] O. McNoleg, "The integration of GIS, remote sensing,
        expert systems and adaptive co-kriging for environmental habitat
        modelling of the Highland Haggis using object-oriented, fuzzy-logic
        and neural-network techniques," Computers & Geosciences, vol. 22,
@@ -2474,10 +1967,10 @@ def gap(f):
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    Cite the relevant literature, e.g. [4]_.  You may also cite these
     references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+    .. [4] O. McNoleg, "The integration of GIS, remote sensing,
        expert systems and adaptive co-kriging for environmental habitat
        modelling of the Highland Haggis using object-oriented, fuzzy-logic
        and neural-network techniques," Computers & Geosciences, vol. 22,
@@ -2567,10 +2060,10 @@ def gapdown(f):
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    Cite the relevant literature, e.g. [5]_.  You may also cite these
     references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+    .. [5] O. McNoleg, "The integration of GIS, remote sensing,
        expert systems and adaptive co-kriging for environmental habitat
        modelling of the Highland Haggis using object-oriented, fuzzy-logic
        and neural-network techniques," Computers & Geosciences, vol. 22,
@@ -2657,10 +2150,10 @@ def gapup(f):
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    Cite the relevant literature, e.g. [6]_.  You may also cite these
     references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+    .. [6] O. McNoleg, "The integration of GIS, remote sensing,
        expert systems and adaptive co-kriging for environmental habitat
        modelling of the Highland Haggis using object-oriented, fuzzy-logic
        and neural-network techniques," Computers & Geosciences, vol. 22,
@@ -2747,10 +2240,10 @@ def gapbadown(f):
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    Cite the relevant literature, e.g. [7]_.  You may also cite these
     references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+    .. [7] O. McNoleg, "The integration of GIS, remote sensing,
        expert systems and adaptive co-kriging for environmental habitat
        modelling of the Highland Haggis using object-oriented, fuzzy-logic
        and neural-network techniques," Computers & Geosciences, vol. 22,
@@ -2837,10 +2330,10 @@ def gapbaup(f):
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    Cite the relevant literature, e.g. [8]_.  You may also cite these
     references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+    .. [8] O. McNoleg, "The integration of GIS, remote sensing,
        expert systems and adaptive co-kriging for environmental habitat
        modelling of the Highland Haggis using object-oriented, fuzzy-logic
        and neural-network techniques," Computers & Geosciences, vol. 22,
@@ -2927,10 +2420,10 @@ def truehigh(f):
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    Cite the relevant literature, e.g. [9]_.  You may also cite these
     references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+    .. [9] O. McNoleg, "The integration of GIS, remote sensing,
        expert systems and adaptive co-kriging for environmental habitat
        modelling of the Highland Haggis using object-oriented, fuzzy-logic
        and neural-network techniques," Computers & Geosciences, vol. 22,
@@ -3020,10 +2513,10 @@ def truelow(f):
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    Cite the relevant literature, e.g. [10]_.  You may also cite these
     references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+    .. [10] O. McNoleg, "The integration of GIS, remote sensing,
        expert systems and adaptive co-kriging for environmental habitat
        modelling of the Highland Haggis using object-oriented, fuzzy-logic
        and neural-network techniques," Computers & Geosciences, vol. 22,
@@ -3113,10 +2606,10 @@ def truerange(f):
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    Cite the relevant literature, e.g. [11]_.  You may also cite these
     references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+    .. [11] O. McNoleg, "The integration of GIS, remote sensing,
        expert systems and adaptive co-kriging for environmental habitat
        modelling of the Highland Haggis using object-oriented, fuzzy-logic
        and neural-network techniques," Computers & Geosciences, vol. 22,
@@ -3201,17 +2694,6 @@ def hlrange(f, p = 1):
 
     And even use a greek symbol like :math:`omega` inline.
 
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
     Examples
     --------
     These are written in doctest format, and should illustrate how to
@@ -3293,10 +2775,10 @@ def netreturn(f, c, o = 1):
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    Cite the relevant literature, e.g. [12]_.  You may also cite these
     references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+    .. [12] O. McNoleg, "The integration of GIS, remote sensing,
        expert systems and adaptive co-kriging for environmental habitat
        modelling of the Highland Haggis using object-oriented, fuzzy-logic
        and neural-network techniques," Computers & Geosciences, vol. 22,
@@ -3380,17 +2862,6 @@ def rindex(f, ci, ch, cl, p = 1):
     .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
 
     And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
 
     Examples
     --------
@@ -3476,17 +2947,6 @@ def mval(f, c):
 
     And even use a greek symbol like :math:`omega` inline.
 
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
     Examples
     --------
     These are written in doctest format, and should illustrate how to
@@ -3565,17 +3025,6 @@ def pval(f, c):
     .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
 
     And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
 
     Examples
     --------
@@ -3656,17 +3105,6 @@ def dpc(f, c):
 
     And even use a greek symbol like :math:`omega` inline.
 
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
     Examples
     --------
     These are written in doctest format, and should illustrate how to
@@ -3745,17 +3183,6 @@ def upc(f, c):
     .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
 
     And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
 
     Examples
     --------
@@ -3838,10 +3265,10 @@ def rsi(f, c, p = 14):
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    Cite the relevant literature, e.g. [13]_.  You may also cite these
     references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+    .. [13] O. McNoleg, "The integration of GIS, remote sensing,
        expert systems and adaptive co-kriging for environmental habitat
        modelling of the Highland Haggis using object-oriented, fuzzy-logic
        and neural-network techniques," Computers & Geosciences, vol. 22,
@@ -3932,17 +3359,6 @@ def gtval(f, c1, c2):
 
     And even use a greek symbol like :math:`omega` inline.
 
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
     Examples
     --------
     These are written in doctest format, and should illustrate how to
@@ -4021,17 +3437,6 @@ def gtval0(f, c1, c2):
     .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
 
     And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
 
     Examples
     --------
@@ -4117,10 +3522,10 @@ def dmplus(f):
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    Cite the relevant literature, e.g. [14]_.  You may also cite these
     references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+    .. [14] O. McNoleg, "The integration of GIS, remote sensing,
        expert systems and adaptive co-kriging for environmental habitat
        modelling of the Highland Haggis using object-oriented, fuzzy-logic
        and neural-network techniques," Computers & Geosciences, vol. 22,
@@ -4211,10 +3616,10 @@ def dminus(f):
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    Cite the relevant literature, e.g. [15]_.  You may also cite these
     references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+    .. [15] O. McNoleg, "The integration of GIS, remote sensing,
        expert systems and adaptive co-kriging for environmental habitat
        modelling of the Highland Haggis using object-oriented, fuzzy-logic
        and neural-network techniques," Computers & Geosciences, vol. 22,
@@ -4305,10 +3710,10 @@ def diplus(f, p = 14):
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    Cite the relevant literature, e.g. [16]_.  You may also cite these
     references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+    .. [16] O. McNoleg, "The integration of GIS, remote sensing,
        expert systems and adaptive co-kriging for environmental habitat
        modelling of the Highland Haggis using object-oriented, fuzzy-logic
        and neural-network techniques," Computers & Geosciences, vol. 22,
@@ -4401,10 +3806,10 @@ def diminus(f, p = 14):
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    Cite the relevant literature, e.g. [17]_.  You may also cite these
     references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+    .. [17] O. McNoleg, "The integration of GIS, remote sensing,
        expert systems and adaptive co-kriging for environmental habitat
        modelling of the Highland Haggis using object-oriented, fuzzy-logic
        and neural-network techniques," Computers & Geosciences, vol. 22,
@@ -4497,10 +3902,10 @@ def adx(f, p = 14):
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    Cite the relevant literature, e.g. [18]_.  You may also cite these
     references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+    .. [18] O. McNoleg, "The integration of GIS, remote sensing,
        expert systems and adaptive co-kriging for environmental habitat
        modelling of the Highland Haggis using object-oriented, fuzzy-logic
        and neural-network techniques," Computers & Geosciences, vol. 22,
@@ -4594,17 +3999,6 @@ def abovema(f, c, p = 50):
 
     And even use a greek symbol like :math:`omega` inline.
 
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
     Examples
     --------
     These are written in doctest format, and should illustrate how to
@@ -4683,17 +4077,6 @@ def belowma(f, c, p = 50):
     .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
 
     And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
 
     Examples
     --------
@@ -4776,10 +4159,10 @@ def xmaup(f, c, pshort = 20, plong = 50):
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    Cite the relevant literature, e.g. [19]_.  You may also cite these
     references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+    .. [19] O. McNoleg, "The integration of GIS, remote sensing,
        expert systems and adaptive co-kriging for environmental habitat
        modelling of the Highland Haggis using object-oriented, fuzzy-logic
        and neural-network techniques," Computers & Geosciences, vol. 22,

@@ -176,7 +176,7 @@ def get_market_config(cfg_dir):
 #
 
 def market_pipeline(model, market_specs):
-    r"""AlphaPy Market Pipeline
+    r"""AlphaPy StockStream Pipeline
 
     Parameters
     ----------
@@ -189,6 +189,14 @@ def market_pipeline(model, market_specs):
     -------
     model : alphapy.Model
         The final results are stored in the model object.
+
+    Notes
+    -----
+    (1) Define a group.
+    (2) Get the market data.
+    (3) Apply system features.
+    (4) Create an analysis.
+    (5) Run the analysis, which calls AlphaPy.
 
     """
 
