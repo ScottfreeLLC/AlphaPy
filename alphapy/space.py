@@ -50,12 +50,6 @@ def space_name(subject, schema, fractal):
     name : str
         Value for the corresponding key.
 
-    Examples
-    --------
-
-    >>> name = space_name('atr')
-    >>> name = space_name('hc')
-
     """
     return USEP.join([subject, schema, fractal])
     
