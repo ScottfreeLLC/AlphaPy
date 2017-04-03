@@ -937,9 +937,9 @@ def ma(f, c, p = 20):
     ----------
     *In statistics, a moving average (rolling average or running average)
     is a calculation to analyze data points by creating series of averages
-    of different subsets of the full data set* [12]_.
+    of different subsets of the full data set* [WIKI_MA]_.
 
-    .. [12] https://en.wikipedia.org/wiki/Moving_average
+    .. [WIKI_MA] https://en.wikipedia.org/wiki/Moving_average
 
     """
     new_column = f[c].rolling(p).mean()
@@ -971,9 +971,9 @@ def ema(f, c, p = 20):
     ----------
     *An exponential moving average (EMA) is a type of moving average
     that is similar to a simple moving average, except that more weight
-    is given to the latest data* [6]_.
+    is given to the latest data* [IP_EMA]_.
 
-    .. [6] http://www.investopedia.com/terms/e/ema.asp
+    .. [IP_EMA] http://www.investopedia.com/terms/e/ema.asp
 
     """
     new_column = pd.ewma(f[c], span=p)
@@ -1033,9 +1033,9 @@ def net(f, c='close', o = 1):
     ----------
     *Net change is the difference between the closing price of a security
     on the day's trading and the previous day's closing price. Net change
-    can be positive or negative and is quoted in terms of dollars* [13]_.
+    can be positive or negative and is quoted in terms of dollars* [IP_NET]_.
 
-    .. [13] http://www.investopedia.com/terms/n/netchange.asp
+    .. [IP_NET] http://www.investopedia.com/terms/n/netchange.asp
 
     """
     new_column = f[c] - f[c].shift(o)
@@ -1064,9 +1064,9 @@ def gap(f):
     ----------
     *A gap is a break between prices on a chart that occurs when the
     price of a stock makes a sharp move up or down with no trading
-    occurring in between* [7]_.
+    occurring in between* [IP_GAP]_.
 
-    .. [7] http://www.investopedia.com/terms/g/gap.asp
+    .. [IP_GAP] http://www.investopedia.com/terms/g/gap.asp
 
     """
     c1 = 'open'
@@ -1097,9 +1097,7 @@ def gapdown(f):
     ----------
     *A gap is a break between prices on a chart that occurs when the
     price of a stock makes a sharp move up or down with no trading
-    occurring in between* [10]_.
-
-    .. [10] http://www.investopedia.com/terms/g/gap.asp
+    occurring in between* [IP_GAP]_.
 
     """
     new_column = f['open'] < f['close'].shift(1)
@@ -1127,9 +1125,7 @@ def gapup(f):
     ----------
     *A gap is a break between prices on a chart that occurs when the
     price of a stock makes a sharp move up or down with no trading
-    occurring in between* [11]_.
-
-    .. [11] http://www.investopedia.com/terms/g/gap.asp
+    occurring in between* [IP_GAP]_.
 
     """
     new_column = f['open'] > f['close'].shift(1)
@@ -1156,9 +1152,9 @@ def gapbadown(f):
     References
     ----------
     *A breakaway gap represents a gap in the movement of a stock price
-    supported by levels of high volume* [8]_.
+    supported by levels of high volume* [IP_BAGAP]_.
 
-    .. [8] http://www.investopedia.com/terms/b/breakawaygap.asp
+    .. [IP_BAGAP] http://www.investopedia.com/terms/b/breakawaygap.asp
 
     """
     new_column = f['open'] < f['low'].shift(1)
@@ -1185,9 +1181,7 @@ def gapbaup(f):
     References
     ----------
     *A breakaway gap represents a gap in the movement of a stock price
-    supported by levels of high volume* [9]_.
-
-    .. [9] http://www.investopedia.com/terms/b/breakawaygap.asp
+    supported by levels of high volume* [IP_BAGAP]_.
 
     """
     new_column = f['open'] > f['high'].shift(1)
@@ -1213,9 +1207,9 @@ def truehigh(f):
 
     References
     ----------
-    *Today's high, or the previous close, whichever is higher* [16]_.
+    *Today's high, or the previous close, whichever is higher* [TS_TR]_.
 
-    .. [16] http://help.tradestation.com/09_01/tradestationhelp/charting_definitions/true_range.htm
+    .. [TS_TR] http://help.tradestation.com/09_01/tradestationhelp/charting_definitions/true_range.htm
 
     """
     c1 = 'low[1]'
@@ -1244,9 +1238,7 @@ def truelow(f):
 
     References
     ----------
-    *Today's low, or the previous close, whichever is lower* [17]_.
-
-    .. [17] http://help.tradestation.com/09_01/tradestationhelp/charting_definitions/true_range.htm
+    *Today's low, or the previous close, whichever is lower* [TS_TR]_.
 
     """
     c1 = 'high[1]'
@@ -1275,9 +1267,7 @@ def truerange(f):
 
     References
     ----------
-    *True High - True Low* [18]_.
-
-    .. [18] http://help.tradestation.com/09_01/tradestationhelp/charting_definitions/true_range.htm
+    *True High - True Low* [TS_TR]_.
 
     """
     new_column = truehigh(f) - truelow(f)
@@ -1334,9 +1324,9 @@ def netreturn(f, c, o = 1):
     *ROI measures the amount of return on an investment relative to the
     investment’s cost. To calculate ROI, the benefit (or return) of an
     investment is divided by the cost of the investment, and the result
-    is expressed as a percentage or a ratio* [14]_.
+    is expressed as a percentage or a ratio* [IP_ROI]_.
 
-    .. [14] http://www.investopedia.com/terms/r/returnoninvestment.asp
+    .. [IP_ROI] http://www.investopedia.com/terms/r/returnoninvestment.asp
 
     """
     new_column = 100 * pchange1(f, c, o)
@@ -1506,9 +1496,9 @@ def rsi(f, c, p = 14):
     References
     ----------
     *Developed J. Welles Wilder, the Relative Strength Index (RSI) is a momentum
-    oscillator that measures the speed and change of price movements* [15]_.
+    oscillator that measures the speed and change of price movements* [SC_RSI]_.
 
-    .. [15] http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi
+    .. [SC_RSI] http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi
 
     """
     cdiff = 'net'
@@ -1602,9 +1592,9 @@ def dmplus(f):
     the prior high is greater than the prior low minus the current low.
     This so-called Plus Directional Movement (+DM) then equals the current
     high minus the prior high, provided it is positive. A negative value
-    would simply be entered as zero* [5]_.
+    would simply be entered as zero* [SC_ADX]_.
 
-    .. [5] http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:average_directional_index_adx
+    .. [SC_ADX] http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:average_directional_index_adx
 
     """
     c1 = 'upmove'
@@ -1638,9 +1628,7 @@ def dminus(f):
     the current low is greater than the current high minus the prior high.
     This so-called Minus Directional Movement (-DM) equals the prior low
     minus the current low, provided it is positive. A negative value
-    would simply be entered as zero* [4]_.
-
-    .. [4] http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:average_directional_index_adx
+    would simply be entered as zero* [SC_ADX]_.
 
     """
     c1 = 'downmove'
@@ -1674,9 +1662,9 @@ def diplus(f, p = 14):
     ----------
     *A component of the average directional index (ADX) that is used to
     measure the presence of an uptrend. When the +DI is sloping upward,
-    it is a signal that the uptrend is getting stronger* [3]_.
+    it is a signal that the uptrend is getting stronger* [IP_PDI]_.
 
-    .. [3] http://www.investopedia.com/terms/p/positivedirectionalindicator.asp
+    .. [IP_PDI] http://www.investopedia.com/terms/p/positivedirectionalindicator.asp
 
     """
     tr = 'truerange'
@@ -1712,9 +1700,9 @@ def diminus(f, p = 14):
     ----------
     *A component of the average directional index (ADX) that is used to
     measure the presence of a downtrend. When the -DI is sloping downward,
-    it is a signal that the downtrend is getting stronger* [2]_.
+    it is a signal that the downtrend is getting stronger* [IP_NDI]_.
 
-    .. [2] http://www.investopedia.com/terms/n/negativedirectionalindicator.asp
+    .. [IP_NDI] http://www.investopedia.com/terms/n/negativedirectionalindicator.asp
 
     """
     tr = 'truerange'
@@ -1751,10 +1739,10 @@ def adx(f, p = 14):
     References
     ----------
     The Average Directional Movement Index (ADX) was invented by J. Welles
-    Wilder in 1978 [1]_.  Its value reflects the strength of trend in any
+    Wilder in 1978 [WIKI_ADX]_.  Its value reflects the strength of trend in any
     given instrument.
 
-    .. [1] https://en.wikipedia.org/wiki/Average_directional_movement_index
+    .. [WIKI_ADX] https://en.wikipedia.org/wiki/Average_directional_movement_index
 
     """
     c1 = 'diplus'
@@ -1852,9 +1840,9 @@ def xmadown(f, c, pshort = 20, plong = 50):
     of financial time series for stock trading purposes, a moving-average
     crossover occurs when, on plotting two moving averages each based
     on different degrees of smoothing, the traces of these moving averages
-    cross* [19]_.
+    cross* [WIKI_XMA]_.
 
-    .. [19] https://en.wikipedia.org/wiki/Moving_average_crossover
+    .. [WIKI_XMA] https://en.wikipedia.org/wiki/Moving_average_crossover
 
     """
     sma = ma(f, c, pshort)
@@ -1893,9 +1881,7 @@ def xmaup(f, c, pshort = 20, plong = 50):
     of financial time series for stock trading purposes, a moving-average
     crossover occurs when, on plotting two moving averages each based
     on different degrees of smoothing, the traces of these moving averages
-    cross* [20]_.
-
-    .. [20] https://en.wikipedia.org/wiki/Moving_average_crossover
+    cross* [WIKI_XMA]_.
 
     """
     sma = ma(f, c, pshort)
