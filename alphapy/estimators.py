@@ -70,27 +70,10 @@ logger = logging.getLogger(__name__)
 
 @unique
 class ModelType(Enum):
-    """Exceptions are documented in the same way as classes.
+    """AlphaPy Model Types.
 
-    The __init__ method may be documented in either the class level
-    docstring, or as a docstring on the __init__ method itself.
-
-    Either form is acceptable, but the two should not be mixed. Choose one
-    convention to document the __init__ method and be consistent with it.
-
-    Parameters
-    ----------
-    msg : str
-        Human readable string describing the exception.
-    code : :obj:`int`, optional
-        Numeric error code.
-
-    Attributes
-    ----------
-    msg : str
-        Human readable string describing the exception.
-    code : int
-        Numeric error code.
+    .. note:: One-Class Classification ``oneclass`` is not yet
+       implemented.
 
     """
     classification = 1
@@ -106,27 +89,12 @@ class ModelType(Enum):
 
 @unique
 class Objective(Enum):
-    """Exceptions are documented in the same way as classes.
+    """Scoring Function Objectives.
 
-    The __init__ method may be documented in either the class level
-    docstring, or as a docstring on the __init__ method itself.
-
-    Either form is acceptable, but the two should not be mixed. Choose one
-    convention to document the __init__ method and be consistent with it.
-
-    Parameters
-    ----------
-    msg : str
-        Human readable string describing the exception.
-    code : :obj:`int`, optional
-        Numeric error code.
-
-    Attributes
-    ----------
-    msg : str
-        Human readable string describing the exception.
-    code : int
-        Numeric error code.
+    Best model selection is based on the scoring or Objective
+    function, which must be either maximized or minimized. Forest
+    example, ``roc_auc`` is maximized, while ``neg_log_loss``
+    is minimized.
 
     """
     maximize = 1
@@ -171,119 +139,43 @@ xgb_score_map = {'neg_log_loss'           : 'logloss',
 #
 
 class AdaBoostClassifierCoef(AdaBoostClassifier):
-    """Exceptions are documented in the same way as classes.
-
-    The __init__ method may be documented in either the class level
-    docstring, or as a docstring on the __init__ method itself.
-
-    Either form is acceptable, but the two should not be mixed. Choose one
-    convention to document the __init__ method and be consistent with it.
-
-    Parameters
-    ----------
-    msg : str
-        Human readable string describing the exception.
-    code : :obj:`int`, optional
-        Numeric error code.
-
-    Attributes
-    ----------
-    msg : str
-        Human readable string describing the exception.
-    code : int
-        Numeric error code.
+    """An AdaBoost classifier where the coefficients are set to
+    the feature importances for Recursive Feature Elimination
+    to work.
 
     """
-
     def fit(self, *args, **kwargs):
         super(AdaBoostClassifierCoef, self).fit(*args, **kwargs)
         self.coef_ = self.feature_importances_
 
 
 class ExtraTreesClassifierCoef(ExtraTreesClassifier):
-    """Exceptions are documented in the same way as classes.
-
-    The __init__ method may be documented in either the class level
-    docstring, or as a docstring on the __init__ method itself.
-
-    Either form is acceptable, but the two should not be mixed. Choose one
-    convention to document the __init__ method and be consistent with it.
-
-    Parameters
-    ----------
-    msg : str
-        Human readable string describing the exception.
-    code : :obj:`int`, optional
-        Numeric error code.
-
-    Attributes
-    ----------
-    msg : str
-        Human readable string describing the exception.
-    code : int
-        Numeric error code.
+    """An Extra Trees classifier where the coefficients are set to
+    the feature importances for Recursive Feature Elimination
+    to work.
 
     """
-
     def fit(self, *args, **kwargs):
         super(ExtraTreesClassifierCoef, self).fit(*args, **kwargs)
         self.coef_ = self.feature_importances_
 
 
 class RandomForestClassifierCoef(RandomForestClassifier):
-    """Exceptions are documented in the same way as classes.
-
-    The __init__ method may be documented in either the class level
-    docstring, or as a docstring on the __init__ method itself.
-
-    Either form is acceptable, but the two should not be mixed. Choose one
-    convention to document the __init__ method and be consistent with it.
-
-    Parameters
-    ----------
-    msg : str
-        Human readable string describing the exception.
-    code : :obj:`int`, optional
-        Numeric error code.
-
-    Attributes
-    ----------
-    msg : str
-        Human readable string describing the exception.
-    code : int
-        Numeric error code.
+    """A Random Forest classifier where the coefficients are set to
+    the feature importances for Recursive Feature Elimination
+    to work.
 
     """
-
     def fit(self, *args, **kwargs):
         super(RandomForestClassifierCoef, self).fit(*args, **kwargs)
         self.coef_ = self.feature_importances_
 
 class GradientBoostingClassifierCoef(GradientBoostingClassifier):
-    """Exceptions are documented in the same way as classes.
-
-    The __init__ method may be documented in either the class level
-    docstring, or as a docstring on the __init__ method itself.
-
-    Either form is acceptable, but the two should not be mixed. Choose one
-    convention to document the __init__ method and be consistent with it.
-
-    Parameters
-    ----------
-    msg : str
-        Human readable string describing the exception.
-    code : :obj:`int`, optional
-        Numeric error code.
-
-    Attributes
-    ----------
-    msg : str
-        Human readable string describing the exception.
-    code : int
-        Numeric error code.
+    """A Gradient Boostin classifier where the coefficients are set to
+    the feature importances for Recursive Feature Elimination
+    to work.
 
     """
-
     def fit(self, *args, **kwargs):
         super(GradientBoostingClassifierCoef, self).fit(*args, **kwargs)
         self.coef_ = self.feature_importances_
@@ -321,82 +213,18 @@ estimator_map = {'AB'     : AdaBoostClassifierCoef,
 #
 
 def get_algos_config(cfg_dir):
-    r"""Read in data from the given directory in a given format.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Read the algorithms configuration file.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    cfg_dir : str
+        The directory where the configuration file ``algos.yml``
+        is stored.
 
     Returns
     -------
-    describe : type
-        Explanation of return value named `describe`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    specs : dict
+        The specifications for determining which algorithms to run.
 
     """
 
@@ -451,75 +279,18 @@ def get_algos_config(cfg_dir):
 # Randomized Lasso
 
 def get_estimators(model):
-    r"""Read in data from the given directory in a given format.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Define all the AlphaPy estimators based on the contents
+    of the ``algos.yml`` file.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
+    model : alphapy.Model
+        The model object containing global AlphaPy parameters.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    estimators : dict
+        All of the estimators required for running the pipeline.
 
     """
 
