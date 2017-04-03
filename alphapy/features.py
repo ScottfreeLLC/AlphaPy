@@ -99,14 +99,14 @@ class Encoders(Enum):
         Numeric error code.
 
     """
-    factorize = 1
-    onehot = 2
-    ordinal = 3
-    binary = 4
-    helmert = 5
-    sumcont = 6
+    backdiff = 1
+    binary = 2
+    factorize = 3
+    helmert = 4
+    onehot = 5
+    ordinal = 6
     polynomial = 7
-    backdiff = 8
+    sumcont = 8
 
 
 #
@@ -138,8 +138,8 @@ class Scalers(Enum):
         Numeric error code.
 
     """
-    standard = 1
-    minmax = 2
+    minmax = 1
+    standard = 2
 
 
 #

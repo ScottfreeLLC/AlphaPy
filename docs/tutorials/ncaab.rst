@@ -5,4 +5,3 @@ From the ``examples`` directory, run the following commands::
 
     cd NCAAB
     sportstream -d './config'
-    jupyter notebook
