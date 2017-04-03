@@ -48,31 +48,23 @@ logger = logging.getLogger(__name__)
 #
 
 def analysis_name(gname, target):
-    r"""Find an alias value with the given key.
+    r"""Get the name of the analysis.
 
     Parameters
     ----------
-    subject : str
-        Key for finding the alias value.
-    schema : str
-        Key for finding the alias value.
-    fractal : str
-        Key for finding the alias value.
+    gname : str
+        Group name.
+    target : str
+        Target of the analysis.
 
     Returns
     -------
     name : str
         Value for the corresponding key.
 
-    Examples
-    --------
-
-    >>> name = space_name('atr')
-    >>> name = space_name('hc')
-
     """
-
-    return USEP.join([gname, target])
+    name = USEP.join([gname, target])
+    return name
 
 
 #
@@ -80,29 +72,29 @@ def analysis_name(gname, target):
 #
 
 class Analysis(object):
-    """Create a new variable as a key-value pair. All variables are stored
-    in ``Variable.variables``. Duplicate keys or values are not allowed,
-    unless the ``replace`` parameter is ``True``.
+    """Create a new analysis for a group. All analyses are stored
+    in ``Analysis.analyses``. Duplicate keys are not allowed.
 
     Parameters
     ----------
-    name : str
-        Variable key.
-    expr : str
-        Variable value.
-    replace : bool, optional
-        Replace the current key-value pair if it already exists.
+    model : alphapy.Model
+        Model object for the analysis.
+    group : alphapy.Group
+        The group of members in the analysis.
+    train_date : pandas.datetime, optional
+        The starting date for training the model.
+    predict_date : pandas.datetime, optional
+        The starting date for model predictions.
 
     Attributes
     ----------
-    variables : dict
-        Class variable for storing all known variables
+    Analysis.analyses : dict
+        Class variable for storing all known analyses
 
-    Examples
-    --------
-    
-    >>> Variable('rrunder', 'rr_3_20 <= 0.9')
-    >>> Variable('hc', 'higher_close')
+    Raises
+    ------
+    ValueError
+        ``predict_date`` must be later than ``train_date``.
 
     """
 
@@ -159,86 +151,30 @@ class Analysis(object):
 #
 
 def run_analysis(analysis, forecast_period, leaders, splits=True):
-    r"""Run an analysis for a given model and group
+    r"""Run an analysis for a given model and group.
 
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    First, the data are loaded for each member of the analysis group.
+    Then, the target value is lagged for the ``forecast_period``, and
+    any ``leaders`` are lagged as well. Each frame is split along
+    the ``predict_date`` from the ``analysis``, and finally the
+    train and test files are generated.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    analysis : alphapy.Analysis
+        The analysis to run.
+    forecast_period : int
+        The period for forecasting the target of the analysis.
+    leaders : list
+        The features that are contemporaneous with the target.
+    splits : bool, optional
+        If ``True``, then the data for each member of the analysis
+        group are in separate files.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    analysis : alphapy.Analysis
+        The completed analysis.
 
     """
 

@@ -58,7 +58,7 @@ class Alias(object):
 
     Attributes
     ----------
-    aliases : dict
+    Alias.aliases : dict
         Class variable for storing all known aliases
 
     Examples
