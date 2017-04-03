@@ -34,24 +34,25 @@ from alphapy.globs import USEP
 #
 
 def space_name(subject, schema, fractal):
-    r"""Find an alias value with the given key.
+    r"""Get the namespace string.
 
     Parameters
     ----------
     subject : str
-        Key for finding the alias value.
+        An identifier for a group of related items.
     schema : str
-        Key for finding the alias value.
+        The data related to the ``subject``.
     fractal : str
-        Key for finding the alias value.
+        The time fractal of the data, e.g., "5m" or "1d".
 
     Returns
     -------
     name : str
-        Value for the corresponding key.
+        The joined namespace string.
 
     """
-    return USEP.join([subject, schema, fractal])
+    name = USEP.join([subject, schema, fractal])
+    return name
     
 
 #
@@ -59,24 +60,16 @@ def space_name(subject, schema, fractal):
 #
 
 class Space:
-    """Create a new alias as a key-value pair. All aliases are stored
-    in Alias.aliases. Duplicate keys or values are not allowed, unless
-    the ``replace`` parameter is ``True``.
+    """Create a new namespace.
 
     Parameters
     ----------
-    subject : str, optional
-        Alias key.
-    schema : str, optional
-        Alias value.
-    fractal : bool, optional
-        Replace the current key-value pair if it already exists.
-
-    Examples
-    --------
-    
-    >>> Space('atr', 'ma_truerange')
-    >>> Space('hc', 'higher_close')
+    subject : str
+        An identifier for a group of related items.
+    schema : str
+        The data related to the ``subject``.
+    fractal : str
+        The time fractal of the data, e.g., "5m" or "1d".
 
     """
     
