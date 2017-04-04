@@ -50,29 +50,35 @@ logger = logging.getLogger(__name__)
 #
 
 class System(object):
-    """Create a new variable as a key-value pair. All variables are stored
-    in ``Variable.variables``. Duplicate keys or values are not allowed,
-    unless the ``replace`` parameter is ``True``.
+    """Create a new system. All systems are stored in
+    ``System.systems``. Duplicate names are not allowed.
 
     Parameters
     ----------
     name : str
-        Variable key.
-    expr : str
-        Variable value.
-    replace : bool, optional
-        Replace the current key-value pair if it already exists.
+        The system name.
+    longentry : str
+        Name of the conditional feature for a long entry.
+    shortentry : str, optional
+        Name of the conditional feature for a short entry.
+    longexit : str, optional
+        Name of the conditional feature for a long exit.
+    shortexit : str, optional
+        Name of the conditional feature for a short exit.
+    holdperiod : int, optional
+        Holding period of a position.
+    scale : bool, optional
+        Add to a position for a signal in the same direction.
 
     Attributes
     ----------
-    variables : dict
-        Class variable for storing all known variables
+    systems : dict
+        Class variable for storing all known systems
 
     Examples
     --------
     
-    >>> Variable('rrunder', 'rr_3_20 <= 0.9')
-    >>> Variable('hc', 'higher_close')
+    >>> System('closer', hc, lc)
 
     """
 
@@ -128,20 +134,22 @@ class System(object):
 #
 
 class Orders:
-    """Exceptions are documented in the same way as classes.
-
-    The __init__ method may be documented in either the class level
-    docstring, or as a docstring on the __init__ method itself.
-
-    Either form is acceptable, but the two should not be mixed. Choose one
-    convention to document the __init__ method and be consistent with it.
+    """System Order Types.
 
     Attributes
     ----------
-    msg : str
-        Human readable string describing the exception.
-    code : int
-        Numeric error code.
+    le : str
+        long entry
+    se : str
+        short entry
+    lx : str
+        long exit
+    sx : str
+        short exit
+    lh : str
+        long exit at the end of the holding period
+    sh : str
+        short exit at the end of the holding period
 
     """
     le = 'le'
@@ -157,86 +165,32 @@ class Orders:
 #
 
 def long_short(system, name, space, quantity):
-    r"""Generate the list of trades based on the long and short events
+    r"""Run a long/short system.
 
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    A long/short system is always in the market. At any given
+    time, either a long position is active, or a short position
+    is active.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    system : alphapy.System
+        The long/short system to run.
+    name : str
+        The symbol to trade.
+    space : alphapy.Space
+        Namespace of instrument prices.
+    quantity : float
+        The amount of the ``name`` to trade, e.g., number of shares
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
+    tradelist : list
+        List of trade entries and exits.
 
     Other Parameters
     ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    Frame.frames : dict
+        All of the data frames containing price data.
 
     """
     # extract the system parameters
@@ -340,86 +294,35 @@ def long_short(system, name, space, quantity):
 #
 
 def open_range_breakout(name, space, quantity):
-    r"""Open Range Breakout
+    r"""Run an Opening Range Breakout (ORB) system.
 
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    An ORB system is an intraday strategy that waits for price to
+    "break out" in a certain direction after establishing an
+    initial High-Low range. The timing of the trade is either
+    time-based (e.g., 30 minutes after the Open) or price-based
+    (e.g., 20% of the average daily range). Either the position
+    is held until the end of the trading day, or the position is
+    closed with a stop loss (e.g., the other side of the opening
+    range).
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    name : str
+        The symbol to trade.
+    space : alphapy.Space
+        Namespace of instrument prices.
+    quantity : float
+        The amount of the ``name`` to trade, e.g., number of shares
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
+    tradelist : list
+        List of trade entries and exits.
 
     Other Parameters
     ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    Frame.frames : dict
+        All of the data frames containing price data.
 
     """
     # system parameters
@@ -489,86 +392,24 @@ def run_system(model,
                system,
                group,
                quantity = 1):
-    r"""Run a system for a given group, creating a trades frame
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Run a system for a given group, creating a trades frame.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    model : alphapy.Model
+        The model object with specifications.
+    system : alphapy.System or str
+        The system to run, either a long/short system or a local one
+        identified by function name, e.g., 'open_range_breakout'.
+    group : alphapy.Group
+        The group of symbols to test.
+    quantity : float
+        The amount to trade for each symbol, e.g., number of shares
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    tf : pandas.DataFrame
+        All of the trades for this ``group``.
 
     """
 
