@@ -170,15 +170,6 @@ def runs(vec):
 
     Returns
     -------
-
-
-
-
-
-
-
-    ----------
-
     runs_value : int
         The total number of runs.
 
@@ -194,7 +185,6 @@ def runs(vec):
 
 #
 # Function streak
-#
 #
 
 def streak(vec):
@@ -215,18 +205,25 @@ def streak(vec):
 
     >>> vec.rolling(window=20).apply(streak)
 
+    """
     latest_streak = [len(list(g)) for k, g in groupby(vec)][-1]
     return latest_streak
 
 
+#
 # Function zscore
+#
 
 def zscore(vec):
     r"""Calculate the Z-Score.
 
+    Parameters
+    ----------
     vec : pandas.Series
         The input array for calculating the Z-Score.
 
+    Returns
+    -------
     zscore : float
         The value of the Z-Score.
 
@@ -340,6 +337,9 @@ def split_to_letters(f, c):
     new_feature : pandas.Series
         The array containing the new feature.
 
+    Example
+    -------
+    The value 'abc' becomes 'a b c'.
 
     """
     fc = f[c]
@@ -358,38 +358,50 @@ def split_to_letters(f, c):
 #
 
 def texplode(f, c):
+    r"""Get dummy values for a text column.
 
     Parameters
     ----------
+    f : pandas.DataFrame
+        Dataframe containing the column ``c``.
+    c : str
+        Name of the text column in the dataframe ``f``.
 
     Returns
     -------
+    dummies : pandas.DataFrame
+        The dataframe containing the dummy variables.
 
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
+    Example
+    -------
 
+    This function is useful for columns that appear to
+    have separate character codes but are consolidated
+    into a single column. Here, the column ``c`` is
+    transformed into five dummy variables.
 
+    .. table::
+       :widths: auto
 
-
-
-
-    ----------
-
-
-
+    === === === === === ===
+     c  0_a 1_x 1_b 2_x 2_z
+    === === === === === ===
+    abz   1   0   1   0   1
+    abz   1   0   1   0   1
+    axx   1   1   0   1   0
+    abz   1   0   1   0   1
+    axz   1   1   0   0   1
+    === === === === === ===
 
     """
-
     fc = f[c]
     maxlen = fc.str.len().max()
     fc.fillna(maxlen * BSEP, inplace=True)
     fpad = str().join(['{:', BSEP, '>', str(maxlen), '}'])
     fcpad = fc.apply(fpad.format)
     fcex = fcpad.apply(lambda x: pd.Series(list(x)))
+    dummies = pd.get_dummies(fcex)
+    return dummies
 
 
 #
@@ -397,17 +409,28 @@ def texplode(f, c):
 #
 
 def cvectorize(f, c, n):
+    r"""Use the Count Vectorizer and TF-IDF Transformer.
 
     Parameters
     ----------
+    f : pandas.DataFrame
+        Dataframe containing the column ``c``.
+    c : str
+        Name of the text column in the dataframe ``f``.
+    n : int
+        The number of n-grams.
 
     Returns
     -------
+    new_features : sparse matrix
+        The transformed features.
 
     References
     ----------
+    To use count vectorization and TF-IDF, you can find more
+    information here [TFE]_.
 
-
+    .. [TFE] http://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction
 
     """
     fc = f[c]
@@ -415,6 +438,8 @@ def cvectorize(f, c, n):
     cvect = CountVectorizer(ngram_range=[1, n], analyzer='char')
     cfeat = cvect.fit_transform(fc)
     tfidf_transformer = TfidfTransformer()
+    new_features = tfidf_transformer.fit_transform(cfeat).toarray()
+    return new_features
 
 
 #
@@ -422,12 +447,26 @@ def cvectorize(f, c, n):
 #
 
 def apply_treatment(fnum, fname, df, nvalues, fparams):
+    r"""Apply a treatment function to a column of the dataframe.
 
     Parameters
     ----------
+    fnum : int
+        Feature number, strictly for logging purposes
+    fname : str
+        Name of the column to be treated in the dataframe ``df``.
+    df : pandas.DataFrame
+        Dataframe containing the column ``fname``.
+    nvalues : int
+        The number of unique values.
+    fparams : list
+        The module, function, and parameter list of the treatment
+        function
 
     Returns
     -------
+    new_features : pandas.DataFrame
+        The set of features after applying a treatment function.
 
     """
     logger.info("Feature %d: %s is a special treatment with %d unique values",
@@ -443,16 +482,42 @@ def apply_treatment(fnum, fname, df, nvalues, fparams):
     plist.insert(0, fname)
     plist.insert(0, df)
     # Apply the treatment
+    logger.info("Applying function %s from module %s to feature %s",
+                func_name, module, fname)
+    return func(*plist)
 
 
+#
+# Function impute_values
+#
 
+def impute_values(features, dt):
+    r"""Impute values for a given data type. The *median* strategy
+    is applied for floating point values, and the *most frequent*
+    strategy is applied for integer or Boolean values.
 
+    Parameters
+    ----------
+    features : pandas.DataFrame
+        Dataframe containing the features for imputation.
+    dt : str
+        The values ``'float64'``, ``'int64'``, or ``'bool'``.
 
+    Returns
+    -------
+    new_features : numpy array
+        The features after imputation.
 
+    Raises
+    ------
+    TypeError
+        Data type ``dt`` is invalid for imputation.
 
     References
     ----------
+    You can find more information on feature imputation here [IMP]_.
 
+    .. [IMP] http://scikit-learn.org/stable/modules/preprocessing.html#imputation
 
     """
     try:
@@ -474,12 +539,30 @@ def apply_treatment(fnum, fname, df, nvalues, fparams):
 #
 
 def get_numerical_features(fnum, fname, df, nvalues, dt, logt, plevel):
+    r"""Transform numerical features with imputation and possibly
+    log-transformation.
 
     Parameters
     ----------
+    fnum : int
+        Feature number, strictly for logging purposes
+    fname : str
+        Name of the numerical column in the dataframe ``df``.
+    df : pandas.DataFrame
+        Dataframe containing the column ``fname``.
+    nvalues : int
+        The number of unique values.
+    dt : str
+        The values ``'float64'``, ``'int64'``, or ``'bool'``.
+    logt : bool
+        If ``True``, then log-transform numerical values.
+    plevel : float
+        The p-value threshold to test if a feature is normally distributed.
 
     Returns
     -------
+    new_values : numpy array
+        The set of imputed and transformed features.
 
     """
     feature = df[fname]
@@ -505,16 +588,26 @@ def get_numerical_features(fnum, fname, df, nvalues, dt, logt, plevel):
 # Function get_polynomials
 #
 
+def get_polynomials(features, poly_degree):
+    r"""Generate interactions that are products of distinct features.
 
     Parameters
     ----------
+    features : pandas.DataFrame
+        Dataframe containing the features for generating interactions.
+    poly_degree : int
+        The degree of the polynomial features.
 
     Returns
     -------
+    poly_features : numpy array
+        The interaction features only.
 
     References
     ----------
+    You can find more information on polynomial interactions here [POLY]_.
 
+    .. [POLY] http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.PolynomialFeatures.html
 
     """
     polyf = PolynomialFeatures(interaction_only=True,
@@ -528,20 +621,34 @@ def get_numerical_features(fnum, fname, df, nvalues, dt, logt, plevel):
 # Function get_text_features
 #
 
+def get_text_features(fnum, fname, df, nvalues, vectorize, ngrams_max):
+    r"""Transform text features with count vectorization and TF-IDF,
+    or alternatively factorization.
 
     Parameters
     ----------
+    fnum : int
+        Feature number, strictly for logging purposes
+    fname : str
+        Name of the text column in the dataframe ``df``.
+    df : pandas.DataFrame
+        Dataframe containing the column ``fname``.
+    nvalues : int
+        The number of unique values.
+    vectorize : bool
+        If ``True``, then attempt count vectorization.
+    ngrams_max : int
+        The maximum number of n-grams for count vectorization.
 
     Returns
     -------
-
-
-
+    new_features : numpy array
+        The vectorized or factorized text features.
 
     References
     ----------
-
-
+    To use count vectorization and TF-IDF, you can find more
+    information here [TFE]_.
 
     """
     feature = df[fname]
@@ -578,89 +685,21 @@ def get_numerical_features(fnum, fname, df, nvalues, dt, logt, plevel):
 #
 
 def float_factor(x, rounding):
-    r"""Read in data from the given directory in a given format.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Convert a floating point number to a factor.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    x : float
+        The value to convert to a factor.
+    rounding : int
+        The number of places to round.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    ffactor : int
+        The resulting factor.
 
     """
-
     num2str = '{0:.{1}f}'.format
     fstr = re.sub("[^0-9]", "", num2str(x, rounding))
     ffactor = int(fstr) if len(fstr) > 0 else 0
@@ -673,86 +712,39 @@ def float_factor(x, rounding):
 
 def get_factors(fnum, fname, df, nvalues, dtype, encoder, rounding,
                 sentinel, target_value, X, y, classify=False):
-    r"""Factorize a feature.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Convert the original feature to a factor.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    fnum : int
+        Feature number, strictly for logging purposes
+    fname : str
+        Name of the text column in the dataframe ``df``.
+    df : pandas.DataFrame
+        Dataframe containing the column ``fname``.
+    nvalues : int
+        The number of unique values.
+    dtype : str
+        The values ``'float64'``, ``'int64'``, or ``'bool'``.
+    encoder : alphapy.features.Encoders
+        Type of encoder to apply.
+    rounding : int
+        Number of places to round.
+    sentinel : float
+        The number to be imputed for NaN values.
+    target_value : any
+        Actual value of the target variable.
+    X : pandas.DataFrame
+        Training features.
+    y : pandas.Series
+        Array of target values.
+    classify : bool, optional
+        If ``True``, calculate target percentages.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    all_features : numpy array
+        The features that have been transformed to factors.
 
     """
 
@@ -817,86 +809,18 @@ def get_factors(fnum, fname, df, nvalues, dtype, encoder, rounding,
 #
 
 def create_numpy_features(base_features):
-    r"""Create NumPy features.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Calculate the sum, mean, standard deviation, and variance
+    of each row.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    base_features : numpy array
+        The feature dataframe.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    np_features : numpy array
+        The calculated NumPy features.
 
     """
 
@@ -930,86 +854,18 @@ def create_numpy_features(base_features):
 #
 
 def create_scipy_features(base_features):
-    r"""Create SciPy features.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Calculate the skew, kurtosis, and other statistical features
+    for each row.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    base_features : numpy array
+        The feature dataframe.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    sp_features : numpy array
+        The calculated SciPy features.
 
     """
 
@@ -1053,86 +909,25 @@ def create_scipy_features(base_features):
 #
 
 def create_clusters(features, model):
-    r"""Create clustering features.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Cluster the given features.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    features : numpy array
+        The features to cluster.
+    model : alphapy.Model
+        The model object with the clustering parameters.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
+    cfeatures : numpy array
+        The calculated clusters.
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
+    You can find more information on clustering here [CLUS]_.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    .. [CLUS] http://scikit-learn.org/stable/modules/clustering.html
 
     """
 
@@ -1175,86 +970,25 @@ def create_clusters(features, model):
 #
 
 def create_pca_features(features, model):
-    r"""Create PCA features.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Apply Principal Component Analysis (PCA) to the features.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    features : numpy array
+        The input features.
+    model : alphapy.Model
+        The model object with the PCA parameters.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
+    pfeatures : numpy array
+        The PCA features.
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
+    You can find more information on Principal Component Analysis here [PCA]_.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    .. [PCA] http://scikit-learn.org/stable/modules/decomposition.html#pca
 
     """
 
@@ -1296,84 +1030,29 @@ def create_pca_features(features, model):
 def create_isomap_features(features, model):
     r"""Create Isomap features.
 
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
-
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    features : numpy array
+        The input features.
+    model : alphapy.Model
+        The model object with the Isomap parameters.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
+    ifeatures : numpy array
+        The Isomap features.
 
     Notes
     -----
-    Notes about the implementation algorithm (if needed).
 
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
+    Isomaps are very memory-intensive. Your process will be killed
+    if you run out of memory.
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
+    You can find more information on Principal Component Analysis here [ISO]_.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    .. [ISO] http://scikit-learn.org/stable/modules/manifold.html#isomap
 
     """
 
@@ -1407,86 +1086,25 @@ def create_isomap_features(features, model):
 #
 
 def create_tsne_features(features, model):
-    r"""Create T-SNE features.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Create t-SNE features.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    features : numpy array
+        The input features.
+    model : alphapy.Model
+        The model object with the t-SNE parameters.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
+    tfeatures : numpy array
+        The t-SNE features.
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
+    You can find more information on the t-SNE technique here [TSNE]_.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    .. [TSNE] http://scikit-learn.org/stable/modules/manifold.html#t-distributed-stochastic-neighbor-embedding-t-sne
 
     """
 
@@ -1522,86 +1140,28 @@ def create_tsne_features(features, model):
 #
 
 def create_features(X, model, split_point, y_train):
-    r"""Extract features from the training and test set.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Create features for the train and test set.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    X : pandas.DataFrame
+        Combined train and test data.
+    model : alphapy.Model
+        Model object with the feature specifications.
+    split_point : int
+        The last row number of the train data.
+    y_train : pandas.Series
+        Training labels.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
+    all_features : numpy array
+        The new features.
 
     Raises
     ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    TypeError
+        Unrecognized data type.
 
     """
 
@@ -1673,6 +1233,7 @@ def create_features(X, model, split_point, y_train):
             features = get_numerical_features(fnum, fc, X, nunique, dtype,
                                               logtransform, pvalue_level)
         elif dtype == 'object':
+            features = get_text_features(fnum, fc, X, nunique, vectorize, ngrams_max)
         else:
             raise TypeError("Base Feature Error with unrecognized type %s", dtype)
         if features is not None:
@@ -1752,84 +1313,21 @@ def create_features(X, model, split_point, y_train):
 def select_features(model):
     r"""Select features with univariate selection.
 
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
-
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    model : alphapy.Model
+        Model object with the feature selection specifications.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
+    model : alphapy.Model
+        Model object with the revised number of features.
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
+    You can find more information on univariate feature selection here [UNI]_.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    .. [UNI] http://scikit-learn.org/stable/modules/feature_selection.html#univariate-feature-selection
 
     """
 
