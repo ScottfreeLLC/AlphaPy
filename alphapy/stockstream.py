@@ -107,6 +107,7 @@ def get_market_config(cfg_dir):
         specs['features'] = cfg['features']
     except:
         logger.info("No Features Found")
+        specs['features'] = {}
 
     # Section: groups
 
@@ -135,6 +136,7 @@ def get_market_config(cfg_dir):
         specs['system'] = cfg['system']
     except:
         logger.info("No System Parameters Found")
+        specs['system'] = {}
 
     # Section: variables
 
@@ -164,6 +166,7 @@ def get_market_config(cfg_dir):
     logger.info('lookback_period = %d', specs['lookback_period'])
     logger.info('predict_date    = %s', specs['predict_date'])
     logger.info('schema          = %s', specs['schema'])
+    logger.info('system          = %s', specs['system'])
     logger.info('target_group    = %s', specs['target_group'])
     logger.info('train_date      = %s', specs['train_date'])
 

@@ -76,27 +76,13 @@ logger = logging.getLogger(__name__)
 
 @unique
 class Encoders(Enum):
-    """Exceptions are documented in the same way as classes.
+    """AlphaPy Encoders.
 
-    The __init__ method may be documented in either the class level
-    docstring, or as a docstring on the __init__ method itself.
+    These are the encoders used in AlphaPy, as configured in the
+    ``model.yml`` file (features:encoding:type) You can learn more
+    about encoders here [ENC]_.
 
-    Either form is acceptable, but the two should not be mixed. Choose one
-    convention to document the __init__ method and be consistent with it.
-
-    Parameters
-    ----------
-    msg : str
-        Human readable string describing the exception.
-    code : :obj:`int`, optional
-        Numeric error code.
-
-    Attributes
-    ----------
-    msg : str
-        Human readable string describing the exception.
-    code : int
-        Numeric error code.
+    .. [ENC] https://github.com/scikit-learn-contrib/categorical-encoding
 
     """
     backdiff = 1
@@ -115,27 +101,13 @@ class Encoders(Enum):
 
 @unique
 class Scalers(Enum):
-    """Exceptions are documented in the same way as classes.
+    """AlphaPy Scalers.
 
-    The __init__ method may be documented in either the class level
-    docstring, or as a docstring on the __init__ method itself.
+    These are the scaling methods used in AlphaPy, as configured in the
+    ``model.yml`` file (features:scaling:type) You can learn more about
+    feature scaling here [SCALE]_.
 
-    Either form is acceptable, but the two should not be mixed. Choose one
-    convention to document the __init__ method and be consistent with it.
-
-    Parameters
-    ----------
-    msg : str
-        Human readable string describing the exception.
-    code : :obj:`int`, optional
-        Numeric error code.
-
-    Attributes
-    ----------
-    msg : str
-        Human readable string describing the exception.
-    code : int
-        Numeric error code.
+    .. [SCALE] http://scikit-learn.org/stable/modules/preprocessing.html
 
     """
     minmax = 1
@@ -158,374 +130,118 @@ feature_scorers = {'f_classif'    : f_classif,
 #
 # Function rtotal
 #
-# Example: rvec.rolling(window=20).apply(rtotal)
-#
 
 def rtotal(vec):
-    r"""Read in data from the given directory in a given format.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Calculate the running total.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    vec : pandas.Series
+        The input array for calculating the running total.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
+    running_total : int
+        The final running total.
 
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
+    Example
+    -------
 
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    >>> vec.rolling(window=20).apply(rtotal)
 
     """
-
     tcount = np.count_nonzero(vec)
     fcount = len(vec) - tcount
-    return tcount - fcount
+    running_total = tcount - fcount
+    return running_total
 
 
 #
 # Function runs
 #
-# Example: rvec.rolling(window=20).apply(runs)
-#
 
 def runs(vec):
-    r"""Read in data from the given directory in a given format.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Calculate the total number of runs.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    vec : pandas.Series
+        The input array for calculating the number of runs.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
 
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
 
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
 
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
 
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
 
-    This can have multiple paragraphs.
 
-    You may include some math:
 
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
+    runs_value : int
+        The total number of runs.
 
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
+    Example
+    -------
 
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    >>> vec.rolling(window=20).apply(runs)
 
     """
-
-    return len(list(groupby(vec)))
+    runs_value = len(list(groupby(vec)))
+    return runs_value
 
 
 #
 # Function streak
 #
-# Example: rvec.rolling(window=20).apply(streak)
 #
 
 def streak(vec):
-    r"""Read in data from the given directory in a given format.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Determine the length of the latest streak.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    vec : pandas.Series
+        The input array for calculating the latest streak.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
+    latest_streak : int
+        The length of the latest streak.
 
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
+    Example
+    -------
 
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
+    >>> vec.rolling(window=20).apply(streak)
 
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
-
-    """
-
-    return [len(list(g)) for k, g in groupby(vec)][-1]
+    latest_streak = [len(list(g)) for k, g in groupby(vec)][-1]
+    return latest_streak
 
 
-#
 # Function zscore
-#
-# Example: rvec.rolling(window=20).apply(zscore)
-#
 
 def zscore(vec):
-    r"""Read in data from the given directory in a given format.
+    r"""Calculate the Z-Score.
 
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    vec : pandas.Series
+        The input array for calculating the Z-Score.
 
-    Parameters
-    ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
-
-    Returns
-    -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
+    zscore : float
+        The value of the Z-Score.
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
+    To calculate the Z-Score, you can find more information here [ZSCORE]_.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
+    .. [ZSCORE] https://en.wikipedia.org/wiki/Standard_score
 
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
+    Example
+    -------
 
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    >>> vec.rolling(window=20).apply(zscore)
 
     """
-
     n1 = np.count_nonzero(vec)
     n2 = len(vec) - n1
     fac1 = float(2 * n1 * n2)
@@ -546,86 +262,41 @@ def zscore(vec):
 #
 
 def runs_test(f, c, wfuncs, window):
-    r"""Read in data from the given directory in a given format.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Perform a runs test on binary series.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    f : pandas.DataFrame
+        Dataframe containing the column ``c``.
+    c : str
+        Name of the column in the dataframe ``f``.
+    wfuncs : list
+        The set of runs test functions to apply to the column:
+
+        ``'all'``:
+            Run all of the functions below.
+        ``'rtotal'``:
+            The running total over the ``window`` period.
+        ``'runs'``:
+            Total number of runs in ``window``.
+        ``'streak'``:
+            The length of the latest streak.
+        ``'zscore'``:
+            The Z-Score over the ``window`` period.
+    window : int
+        The rolling period.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
+    new_features : pandas.DataFrame
+        The dataframe containing the runs test features.
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
+    For more information about runs tests for detecting non-randomness,
+    refer to [RUNS]_.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    .. [RUNS] http://www.itl.nist.gov/div898/handbook/eda/section3/eda35d.htm
 
     """
 
@@ -655,78 +326,22 @@ def runs_test(f, c, wfuncs, window):
 #
 
 def split_to_letters(f, c):
-    r"""Read in data from the given directory in a given format.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Separate text into distinct characters.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    f : pandas.DataFrame
+        Dataframe containing the column ``c``.
+    c : str
+        Name of the text column in the dataframe ``f``.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
+    new_feature : pandas.Series
+        The array containing the new feature.
 
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
 
     """
-
     fc = f[c]
     new_feature = None
     dtype = fc.dtypes
@@ -743,44 +358,12 @@ def split_to_letters(f, c):
 #
 
 def texplode(f, c):
-    r"""Read in data from the given directory in a given format.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
 
     See Also
     --------
@@ -789,40 +372,15 @@ def texplode(f, c):
               case the line wraps here.
     thirdfunc, fourthfunc, fifthfunc
 
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
 
-    This can have multiple paragraphs.
 
-    You may include some math:
 
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
 
-    And even use a greek symbol like :math:`omega` inline.
 
-    References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
 
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
 
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
 
     """
 
@@ -832,7 +390,6 @@ def texplode(f, c):
     fpad = str().join(['{:', BSEP, '>', str(maxlen), '}'])
     fcpad = fc.apply(fpad.format)
     fcex = fcpad.apply(lambda x: pd.Series(list(x)))
-    return pd.get_dummies(fcex)
 
 
 #
@@ -840,95 +397,24 @@ def texplode(f, c):
 #
 
 def cvectorize(f, c, n):
-    r"""Read in data from the given directory in a given format.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
 
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
 
     """
-
     fc = f[c]
     fc.fillna(BSEP, inplace=True)
     cvect = CountVectorizer(ngram_range=[1, n], analyzer='char')
     cfeat = cvect.fit_transform(fc)
     tfidf_transformer = TfidfTransformer()
-    return tfidf_transformer.fit_transform(cfeat).toarray()
 
 
 #
@@ -936,89 +422,14 @@ def cvectorize(f, c, n):
 #
 
 def apply_treatment(fnum, fname, df, nvalues, fparams):
-    r"""Process any special treatments from the configuration file.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
 
     """
-
     logger.info("Feature %d: %s is a special treatment with %d unique values",
                 fnum, fname, nvalues)
     # Extract the treatment parameter list
@@ -1032,99 +443,18 @@ def apply_treatment(fnum, fname, df, nvalues, fparams):
     plist.insert(0, fname)
     plist.insert(0, df)
     # Apply the treatment
-    logger.info("Applying function %s from module %s to feature %s",
-                func_name, module, fname)
-    return func(*plist)
 
 
-#
-# Function impute_values
-#
 
-def impute_values(features, dt):
-    r"""Read in data from the given directory in a given format.
 
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
 
-    Parameters
-    ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
 
-    Returns
-    -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
 
     """
-
     try:
         nfeatures = features.shape[1]
     except:
@@ -1144,89 +474,14 @@ def impute_values(features, dt):
 #
 
 def get_numerical_features(fnum, fname, df, nvalues, dt, logt, plevel):
-    r"""Get numerical features by looking for float and integer values.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
 
     """
-
     feature = df[fname]
     if len(feature) == nvalues:
         logger.info("Feature %d: %s is a numerical feature of type %s with maximum number of values %d",
@@ -1250,90 +505,18 @@ def get_numerical_features(fnum, fname, df, nvalues, dt, logt, plevel):
 # Function get_polynomials
 #
 
-def get_polynomials(features, poly_degree, input_names=None):
-    r"""Get feature interactions and possibly polynomial interactions.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
 
     """
-
     polyf = PolynomialFeatures(interaction_only=True,
                                degree=poly_degree,
                                include_bias=False)
@@ -1345,91 +528,22 @@ def get_polynomials(features, poly_degree, input_names=None):
 # Function get_text_features
 #
 
-def get_text_features(fnum, fname, df, nvalues, dummy_limit,
-                      vectorize, ngrams_max):
-    r"""Vectorize a text feature and transform to TF-IDF format.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
 
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
 
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
 
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
 
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
 
     """
-
     feature = df[fname]
     min_length = int(feature.str.len().min())
     max_length = int(feature.str.len().max())
@@ -2559,8 +1673,6 @@ def create_features(X, model, split_point, y_train):
             features = get_numerical_features(fnum, fc, X, nunique, dtype,
                                               logtransform, pvalue_level)
         elif dtype == 'object':
-            features = get_text_features(fnum, fc, X, nunique, dummy_limit,
-                                         vectorize, ngrams_max)
         else:
             raise TypeError("Base Feature Error with unrecognized type %s", dtype)
         if features is not None:

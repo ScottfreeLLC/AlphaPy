@@ -92,7 +92,7 @@ class Objective(Enum):
     """Scoring Function Objectives.
 
     Best model selection is based on the scoring or Objective
-    function, which must be either maximized or minimized. Forest
+    function, which must be either maximized or minimized. For
     example, ``roc_auc`` is maximized, while ``neg_log_loss``
     is minimized.
 

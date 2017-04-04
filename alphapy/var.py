@@ -1816,7 +1816,7 @@ def belowma(f, c, p = 50):
 # Function xmadown
 #
 
-def xmadown(f, c, pshort = 20, plong = 50):
+def xmadown(f, c='close', pfast = 20, pslow = 50):
     r"""Determine those values of the dataframe that are below the
     moving average.
 
@@ -1824,10 +1824,12 @@ def xmadown(f, c, pshort = 20, plong = 50):
     ----------
     f : pandas.DataFrame
         Dataframe containing the column ``c``.
-    c : str
+    c : str, optional
         Name of the column in the dataframe ``f``.
-    p : int
-        The period of the moving average.
+    pfast : int, optional
+        The period of the fast moving average.
+    pslow : int, optional
+        The period of the slow moving average.
 
     Returns
     -------
@@ -1845,11 +1847,11 @@ def xmadown(f, c, pshort = 20, plong = 50):
     .. [WIKI_XMA] https://en.wikipedia.org/wiki/Moving_average_crossover
 
     """
-    sma = ma(f, c, pshort)
+    sma = ma(f, c, pfast)
     sma_prev = sma.shift(1)
-    lma = ma(f, c, plong)
+    lma = ma(f, c, pslow)
     lma_prev = lma.shift(1)
-    new_column = sma < lma and sma_prev > lma_prev
+    new_column = (sma < lma) & (sma_prev > lma_prev)
     return new_column
 
 
@@ -1857,7 +1859,7 @@ def xmadown(f, c, pshort = 20, plong = 50):
 # Function xmaup
 #
 
-def xmaup(f, c, pshort = 20, plong = 50):
+def xmaup(f, c='close', pfast = 20, pslow = 50):
     r"""Determine those values of the dataframe that are below the
     moving average.
 
@@ -1865,10 +1867,12 @@ def xmaup(f, c, pshort = 20, plong = 50):
     ----------
     f : pandas.DataFrame
         Dataframe containing the column ``c``.
-    c : str
+    c : str, optional
         Name of the column in the dataframe ``f``.
-    p : int
-        The period of the moving average.
+    pfast : int, optional
+        The period of the fast moving average.
+    pslow : int, optional
+        The period of the slow moving average.
 
     Returns
     -------
@@ -1884,9 +1888,9 @@ def xmaup(f, c, pshort = 20, plong = 50):
     cross* [WIKI_XMA]_.
 
     """
-    sma = ma(f, c, pshort)
+    sma = ma(f, c, pfast)
     sma_prev = sma.shift(1)
-    lma = ma(f, c, plong)
+    lma = ma(f, c, pslow)
     lma_prev = lma.shift(1)
-    new_column = sma > lma and sma_prev < lma_prev
+    new_column = (sma > lma) & (sma_prev < lma_prev)
     return new_column

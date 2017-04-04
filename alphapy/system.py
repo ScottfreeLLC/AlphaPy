@@ -600,25 +600,32 @@ def run_system(model,
             try:
                 tlist = globals()[system_name](symbol, gspace, quantity)
             except:
-                logger.info('Could not execute system for %s', symbol)
+                logger.info("Could not execute system for %s", symbol)
         else:
             # call default long/short system
             tlist = long_short(system, symbol, gspace, quantity)
-        # create the local trades frame
-        df = DataFrame.from_items(tlist, orient='index', columns=Trade.states)
-        # add trades to global trade list
-        for item in tlist:
-            gtlist.append(item)
+        if tlist:
+            # create the local trades frame
+            df = DataFrame.from_items(tlist, orient='index', columns=Trade.states)
+            # add trades to global trade list
+            for item in tlist:
+                gtlist.append(item)
+        else:
+            logger.info("No trades for symbol %s", symbol)
 
     # Create group trades frame
 
-    tspace = Space(system_name, "trades", group.space.fractal)
-    gtlist = sorted(gtlist, key=lambda x: x[0])
-    tf = DataFrame.from_items(gtlist, orient='index', columns=Trade.states)
-    tfname = frame_name(gname, tspace)
-    system_dir = SSEP.join([directory, 'systems'])
-    write_frame(tf, system_dir, tfname, extension, separator, index=True)
-    del tspace
+    tf = None
+    if gtlist:
+        tspace = Space(system_name, "trades", group.space.fractal)
+        gtlist = sorted(gtlist, key=lambda x: x[0])
+        tf = DataFrame.from_items(gtlist, orient='index', columns=Trade.states)
+        tfname = frame_name(gname, tspace)
+        system_dir = SSEP.join([directory, 'systems'])
+        write_frame(tf, system_dir, tfname, extension, separator, index=True)
+        del tspace
+    else:
+        logger.info("No trades were found")
 
     # Return trades frame
     return tf
