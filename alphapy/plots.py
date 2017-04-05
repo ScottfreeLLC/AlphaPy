@@ -104,79 +104,22 @@ def get_partition_data(model, partition):
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    model : alphapy.Model
+        The model object with stored predictions.
+    partition : str
+        ``train`` or ``test``
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
     describe : type
         Explanation of return value named `describe`.
     out : type
         Explanation of `out`.
 
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
     Raises
     ------
     BadException
         Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
 
     """
 
@@ -307,10 +250,33 @@ def generate_plots(model, partition):
 
 
 #
+# Function get_plot_directory
+#
+
+def get_plot_directory(model):
+    r"""Get the plot output directory of a model.
+
+    Parameters
+    ----------
+    model : alphapy.Model
+        The model object with directory information.
+
+    Returns
+    -------
+    plot_directory : str
+        The output directory to write the plot.
+
+    """
+    directory = model.specs['directory']
+    plot_directory = SSEP.join([directory, 'plots'])
+    return plot_directory
+
+
+#
 # Function write_plot
 #
 
-def write_plot(model, vizlib, plot, plot_type, tag, display=False):
+def write_plot(vizlib, plot, plot_type, tag, directory=None):
     r"""Save plot to a file.
 
     Several sentences providing an extended description. Refer to
@@ -393,21 +359,9 @@ def write_plot(model, vizlib, plot, plot_type, tag, display=False):
     b
 
     """
-
-    # Extract model parameters
-
-    directory = model.specs['directory']
-
-    # Create output file specification
-
-    file_only = ''.join([plot_type, USEP, tag, '.png'])
-    file_all = SSEP.join([directory, 'plots', file_only])
-
-    # Show or write plot
-
-    if display:
-        plot.plot()
-    else:
+    if directory:
+        file_only = ''.join([plot_type, USEP, tag, '.png'])
+        file_all = SSEP.join([directory, 'plots', file_only])
         logger.info("Writing plot to %s", file_all)
         if vizlib == 'matplotlib':
             plot.tight_layout()
@@ -420,6 +374,9 @@ def write_plot(model, vizlib, plot, plot_type, tag, display=False):
             raise ValueError("Unsupported data visualization library: %s", vizlib)
         else:
             raise ValueError("Unrecognized data visualization library: %s", vizlib)
+    else:
+        plot.plot()
+
 
 
 #
@@ -563,7 +520,8 @@ def plot_calibration(model, partition):
     ax2.set_ylabel("Count")
     ax2.legend(loc="upper center", ncol=2)
 
-    write_plot(model, 'matplotlib', plt, 'calibration', partition)
+    plot_dir = get_plot_directory(model)
+    write_plot('matplotlib', plt, 'calibration', partition, plot_dir)
 
 
 #
@@ -660,6 +618,7 @@ def plot_importance(model, partition):
     """
 
     logger.info("Generating Feature Importance Plots")
+    plot_dir = get_plot_directory(model)
 
     # Get X, Y for correct partition
 
@@ -688,7 +647,7 @@ def plot_importance(model, partition):
             plt.xlim([-1, n_top])
             # save the plot
             tag = USEP.join([partition, algo])
-            write_plot(model, 'matplotlib', plt, 'feature_importance', tag)
+            write_plot('matplotlib', plt, 'feature_importance', tag, plot_dir)
         except:
             logger.info("%s does not have feature importances", algo)
 
@@ -787,6 +746,7 @@ def plot_learning_curve(model, partition):
     """
 
     logger.info("Generating Learning Curves")
+    plot_dir = get_plot_directory(model)
 
     # Extract model parameters.
 
@@ -849,7 +809,7 @@ def plot_learning_curve(model, partition):
         plt.legend(loc="lower right")
         # save the plot
         tag = USEP.join([partition, algo])
-        write_plot(model, 'matplotlib', plt, 'learning_curve', tag)
+        write_plot('matplotlib', plt, 'learning_curve', tag, plot_dir)
 
 
 #
@@ -982,7 +942,8 @@ def plot_roc_curve(model, partition):
     plt.title(title)
     plt.legend(loc="lower right")
     # save chart
-    write_plot(model, 'matplotlib', plt, 'roc_curve', partition)
+    plot_dir = get_plot_directory(model)
+    write_plot('matplotlib', plt, 'roc_curve', partition, plot_dir)
 
 
 #
@@ -1074,6 +1035,7 @@ def plot_confusion_matrix(model, partition):
     """
 
     logger.info("Generating Confusion Matrices")
+    plot_dir = get_plot_directory(model)
 
     # For classification only
 
@@ -1123,7 +1085,7 @@ def plot_confusion_matrix(model, partition):
         plt.xlabel('Predicted Label')
         # save the chart
         tag = USEP.join([partition, algo])
-        write_plot(model, 'matplotlib', plt, 'confusion', tag)
+        write_plot('matplotlib', plt, 'confusion', tag, plot_dir)
 
 
 #
@@ -1229,6 +1191,7 @@ def plot_validation_curve(model, partition, pname, prange):
     """
 
     logger.info("Generating Validation Curves")
+    plot_dir = get_plot_directory(model)
 
     # Extract model parameters.
 
@@ -1283,122 +1246,7 @@ def plot_validation_curve(model, partition, pname, prange):
                          test_scores_mean + test_scores_std, alpha=alpha, color="g")
         plt.legend(loc="best")        # save the plot
         tag = USEP.join([partition, algo])
-        write_plot(model, 'matplotlib', plt, 'validation_curve', tag)
-
-
-#
-# Function plot_partial_dependence
-#
-
-def plot_partial_dependence(model, partition, algo, features, names=None):
-    r"""Partial Dependence Plot
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
-
-    Parameters
-    ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
-
-    Returns
-    -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
-
-    """
-
-    logger.info("Generating Partial Dependence Plot")
-
-    # Extract model parameters.
-
-    est = model.estimators[algo]
-    n_jobs = model.specs['n_jobs']
-    verbosity = model.specs['verbosity']
-
-    # Get X, Y for correct partition
-
-    X, y = get_partition_data(model, partition)
-
-    # Plot partial dependence
-
-    fig, axs = plot_partial_dependence(est, X, features, feature_names=names,
-                                       grid_resolution=50, n_jobs=n_jobs,
-                                       verbose=verbosity)
-    title = BSEP.join([algo, "Partial Dependence [", partition, "]"])
-    fig.suptitle(title)
-    plt.subplots_adjust(top=0.9)  # tight_layout causes overlap with suptitle
-
-    # Save the plot
-
-    tag = USEP.join([partition, algo])
-    write_plot(model, 'matplotlib', plt, 'partial_dependence', tag)
+        write_plot('matplotlib', plt, 'validation_curve', tag, plot_dir)
 
 
 #
@@ -1547,8 +1395,112 @@ def plot_boundary(model, partition, f1=0, f2=1):
     plt.colorbar(imshow_handle, cax=ax, orientation='horizontal')
 
     # Save the plot
+    plot_dir = get_plot_directory(model)
+    write_plot('matplotlib', figure, 'boundary', partition, plot_dir)
 
-    write_plot(model, 'matplotlib', figure, 'boundary', partition)
+
+#
+# Function plot_partial_dependence
+#
+
+def plot_partial_dependence(est, X, features, fnames=None, n_jobs=-1,
+                            verbosity=0, tag, directory=None):
+    r"""Partial Dependence Plot
+
+    Several sentences providing an extended description. Refer to
+    variables using back-ticks, e.g. `var`.
+
+    Parameters
+    ----------
+    var1 : array_like
+        Array_like means all those objects -- lists, nested lists, etc. --
+        that can be converted to an array.  We can also refer to
+        variables like `var1`.
+    var2 : int
+        The type above can either refer to an actual Python type
+        (e.g. ``int``), or describe the type of the variable in more
+        detail, e.g. ``(N,) ndarray`` or ``array_like``.
+    long_var_name : {'hi', 'ho'}, optional
+        Choices in brackets, default first when optional.
+
+    Returns
+    -------
+    type
+        Explanation of anonymous return value of type ``type``.
+    describe : type
+        Explanation of return value named `describe`.
+    out : type
+        Explanation of `out`.
+
+    Other Parameters
+    ----------------
+    only_seldom_used_keywords : type
+        Explanation
+    common_parameters_listed_above : type
+        Explanation
+
+    Raises
+    ------
+    BadException
+        Because you shouldn't have done that.
+
+    See Also
+    --------
+    otherfunc : relationship (optional)
+    newfunc : Relationship (optional), which could be fairly long, in which
+              case the line wraps here.
+    thirdfunc, fourthfunc, fifthfunc
+
+    Notes
+    -----
+    Notes about the implementation algorithm (if needed).
+
+    This can have multiple paragraphs.
+
+    You may include some math:
+
+    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
+
+    And even use a greek symbol like :math:`omega` inline.
+
+    References
+    ----------
+    Cite the relevant literature, e.g. [1]_.  You may also cite these
+    references in the notes section above.
+
+    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
+       expert systems and adaptive co-kriging for environmental habitat
+       modelling of the Highland Haggis using object-oriented, fuzzy-logic
+       and neural-network techniques," Computers & Geosciences, vol. 22,
+       pp. 585-588, 1996.
+
+    Examples
+    --------
+    These are written in doctest format, and should illustrate how to
+    use the function.
+
+    >>> a = [1, 2, 3]
+    >>> print [x + 3 for x in a]
+    [4, 5, 6]
+    >>> print "a\n\nb"
+    a
+    b
+
+    """
+
+    logger.info("Generating Partial Dependence Plot")
+
+    # Plot partial dependence
+
+    fig, axs = plot_partial_dependence(est, X, features, feature_names=fnames,
+                                       grid_resolution=50, n_jobs=n_jobs,
+                                       verbose=verbosity)
+    title = "Partial Dependence Plot"
+    fig.suptitle(title)
+    plt.subplots_adjust(top=0.9)  # tight_layout causes overlap with suptitle
+
+    # Save the plot
+    write_plot(model, 'matplotlib', plt, 'partial_dependence', tag, directory)
 
 
 #
@@ -1560,7 +1512,7 @@ def plot_boundary(model, partition, f1=0, f2=1):
 # Function plot_scatter
 #
 
-def plot_scatter(model, data, features, target, tag='eda'):
+def plot_scatter(df, features, target, tag='eda', directory=None):
     r"""Plot a scatterplot matrix
 
     Several sentences providing an extended description. Refer to
@@ -1649,7 +1601,7 @@ def plot_scatter(model, data, features, target, tag='eda'):
     # Get the feature subset
 
     features.append(target)
-    df = data[features]
+    df = df[features]
 
     # Generate the pair plot
 
@@ -1657,15 +1609,14 @@ def plot_scatter(model, data, features, target, tag='eda'):
     sns_plot = sns.pairplot(df, hue=target)
 
     # Save the plot
-
-    write_plot(model, 'seaborn', sns_plot, 'scatter_plot', tag)
+    write_plot('seaborn', sns_plot, 'scatter_plot', tag, directory)
 
 
 #
 # Function plot_facet_grid
 #
 
-def plot_facet_grid(model, data, target, frow, fcol, tag='eda'):
+def plot_facet_grid(df, target, frow, fcol, tag='eda', directory=None):
     r"""Plot a Seaborn faceted histogram grid
 
     Several sentences providing an extended description. Refer to
@@ -1753,11 +1704,11 @@ def plot_facet_grid(model, data, target, frow, fcol, tag='eda'):
 
     # Calculate the number of bins using the Freedman-Diaconis rule.
 
-    tlen = len(data[target])
-    tmax = data[target].max()
-    tmin = data[target].min()
+    tlen = len(df[target])
+    tmax = df[target].max()
+    tmin = df[target].min()
     trange = tmax - tmin
-    iqr = data[target].quantile(Q3) - data[target].quantile(Q1)
+    iqr = df[target].quantile(Q3) - df[target].quantile(Q1)
     h = 2 * iqr * (tlen ** (-1/3))
     nbins = math.ceil(trange / h)
 
@@ -1765,20 +1716,19 @@ def plot_facet_grid(model, data, target, frow, fcol, tag='eda'):
 
     sns.set(style="darkgrid")
 
-    fg = sns.FacetGrid(data, row=frow, col=fcol, margin_titles=True)
+    fg = sns.FacetGrid(df, row=frow, col=fcol, margin_titles=True)
     bins = np.linspace(tmin, tmax, nbins)
     fg.map(plt.hist, target, color="steelblue", bins=bins, lw=0)
 
     # Save the plot
-
-    write_plot(model, 'seaborn', fg, 'facet_grid', tag)
+    write_plot('seaborn', fg, 'facet_grid', tag, directory)
 
 
 #
 # Function plot_distribution
 #
 
-def plot_distribution(model, data, target, tag='eda'):
+def plot_distribution(df, target, tag='eda', directory=None):
     r"""Distribution Plot
 
     Several sentences providing an extended description. Refer to
@@ -1866,19 +1816,18 @@ def plot_distribution(model, data, target, tag='eda'):
 
     # Generate the distribution plot
 
-    dist_plot = sns.distplot(data[target])
+    dist_plot = sns.distplot(df[target])
     dist_fig = dist_plot.get_figure()
 
     # Save the plot
-
-    write_plot(model, 'seaborn', dist_fig, 'distribution_plot', tag)
+    write_plot('seaborn', dist_fig, 'distribution_plot', tag, directory)
 
 
 #
 # Function plot_box
 #
 
-def plot_box(model, data, x, y, hue, tag='eda'):
+def plot_box(df, x, y, hue, tag='eda', directory=None):
     r"""Box Plot
 
     Several sentences providing an extended description. Refer to
@@ -1966,20 +1915,19 @@ def plot_box(model, data, x, y, hue, tag='eda'):
 
     # Generate the box plot
 
-    box_plot = sns.boxplot(x=x, y=y, hue=hue, data=data)
+    box_plot = sns.boxplot(x=x, y=y, hue=hue, data=df)
     sns.despine(offset=10, trim=True)
     box_fig = box_plot.get_figure()
 
     # Save the plot
-
-    write_plot(model, 'seaborn', box_fig, 'box_plot', tag)
+    write_plot('seaborn', box_fig, 'box_plot', tag, directory)
 
 
 #
 # Function plot_swarm
 #
 
-def plot_swarm(model, data, x, y, hue, tag='eda'):
+def plot_swarm(df, x, y, hue, tag='eda', directory):
     r"""Swarm Plot
 
     Several sentences providing an extended description. Refer to
@@ -2067,12 +2015,11 @@ def plot_swarm(model, data, x, y, hue, tag='eda'):
 
     # Generate the swarm plot
 
-    swarm_plot = sns.swarmplot(x=x, y=y, hue=hue, data=data)
+    swarm_plot = sns.swarmplot(x=x, y=y, hue=hue, data=df)
     swarm_fig = swarm_plot.get_figure()
 
     # Save the plot
-
-    write_plot(model, 'seaborn', swarm_fig, 'swarm_plot', tag)
+    write_plot('seaborn', swarm_fig, 'swarm_plot', tag, directory)
 
 
 #
@@ -2084,7 +2031,7 @@ def plot_swarm(model, data, x, y, hue, tag='eda'):
 # Function plot_time_series
 #
 
-def plot_time_series(model, data, target, tag='eda'):
+def plot_time_series(df, target, tag='eda', directory=None):
     r"""Time Series Plot
 
     Several sentences providing an extended description. Refer to
@@ -2172,19 +2119,18 @@ def plot_time_series(model, data, target, tag='eda'):
 
     # Generate the time series plot
 
-    ts_plot = sns.tsplot(data=data[target])
+    ts_plot = sns.tsplot(data=df[target])
     ts_fig = ts_plot.get_figure()
 
     # Save the plot
-
-    write_plot(model, 'seaborn', ts_fig, 'time_series_plot', tag)
+    write_plot('seaborn', ts_fig, 'time_series_plot', tag, directory)
 
 
 #
 # Function plot_candlestick
 #
 
-def plot_candlestick(df, symbol, cols=[], model=None):
+def plot_candlestick(df, symbol, datecol='date', directory=None):
     r"""Candlestick Charts
 
     Several sentences providing an extended description. Refer to
@@ -2268,7 +2214,7 @@ def plot_candlestick(df, symbol, cols=[], model=None):
 
     """
 
-    df["date"] = pd.to_datetime(df["date"])
+    df[datecol] = pd.to_datetime(df[datecol])
 
     mids = (df.open + df.close) / 2
     spans = abs(df.close - df.open)
@@ -2289,8 +2235,5 @@ def plot_candlestick(df, symbol, cols=[], model=None):
     p.rect(df.date[inc], mids[inc], w, spans[inc], fill_color="#D5E1DD", line_color="black")
     p.rect(df.date[dec], mids[dec], w, spans[dec], fill_color="#F2583E", line_color="black")
 
-    if model is not None:
-        # save the plot
-        write_plot(model, 'bokeh', p, 'candlestick_chart', symbol)
-    else:
-        show(p)
+    # Save the plot
+    write_plot('bokeh', p, 'candlestick_chart', symbol, directory)
