@@ -361,7 +361,7 @@ def write_plot(vizlib, plot, plot_type, tag, directory=None):
     """
     if directory:
         file_only = ''.join([plot_type, USEP, tag, '.png'])
-        file_all = SSEP.join([directory, 'plots', file_only])
+        file_all = SSEP.join([directory, file_only])
         logger.info("Writing plot to %s", file_all)
         if vizlib == 'matplotlib':
             plot.tight_layout()
@@ -1403,8 +1403,8 @@ def plot_boundary(model, partition, f1=0, f2=1):
 # Function plot_partial_dependence
 #
 
-def plot_partial_dependence(est, X, features, fnames=None, n_jobs=-1,
-                            verbosity=0, tag, directory=None):
+def plot_partial_dependence(est, X, features, fnames, tag,
+                            n_jobs=-1, verbosity=0, directory=None):
     r"""Partial Dependence Plot
 
     Several sentences providing an extended description. Refer to
@@ -1927,7 +1927,7 @@ def plot_box(df, x, y, hue, tag='eda', directory=None):
 # Function plot_swarm
 #
 
-def plot_swarm(df, x, y, hue, tag='eda', directory):
+def plot_swarm(df, x, y, hue, tag='eda', directory=None):
     r"""Swarm Plot
 
     Several sentences providing an extended description. Refer to
