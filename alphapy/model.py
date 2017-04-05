@@ -962,7 +962,7 @@ def generate_metrics(model, partition):
     model : alphapy.Model
         The model object with stored predictions.
     partition : str
-        ``train`` or ``test``
+        ``'train'`` or ``'test'``
 
     Returns
     -------
@@ -1134,7 +1134,7 @@ def save_model(model, tag, partition):
     tag : str
         A unique identifier for the output files, e.g., a date stamp.
     partition : str
-        ``train`` or ``test``
+        ``'train'`` or ``'test'``
 
     Returns
     -------
