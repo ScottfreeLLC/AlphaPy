@@ -45,8 +45,8 @@ from alphapy.globs import WILDCARD
 from alphapy.model import first_fit
 from alphapy.model import generate_metrics
 from alphapy.model import get_model_config
-from alphapy.model import get_sample_weights
-from alphapy.model import load_model_object
+from alphapy.model import get_class_weights
+from alphapy.model import load_predictor
 from alphapy.model import make_predictions
 from alphapy.model import Model
 from alphapy.model import predict_best
@@ -220,7 +220,7 @@ def model_pipeline(model):
         else:
             logger.info("Skipping Sampling")
         # Get sample weights (classification only)
-        model = get_sample_weights(model)
+        model = get_class_weights(model)
 
     # Get the available classifiers and regressors 
 

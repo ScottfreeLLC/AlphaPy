@@ -380,9 +380,6 @@ def texplode(f, c):
     into a single column. Here, the column ``c`` is
     transformed into five dummy variables.
 
-    .. table::
-       :widths: auto
-
     === === === === === ===
      c  0_a 1_x 1_b 2_x 2_z
     === === === === === ===

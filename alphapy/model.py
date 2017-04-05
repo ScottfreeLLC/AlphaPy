@@ -86,29 +86,48 @@ logger = logging.getLogger(__name__)
 #
 
 class Model:
-    """Create a new variable as a key-value pair. All variables are stored
-    in ``Variable.variables``. Duplicate keys or values are not allowed,
-    unless the ``replace`` parameter is ``True``.
+    """Create a new model.
 
     Parameters
     ----------
-    name : str
-        Variable key.
-    expr : str
-        Variable value.
-    replace : bool, optional
-        Replace the current key-value pair if it already exists.
+    specs : dict
+        The model specifications obtained by reading the ``model.yml``
+        file.
 
     Attributes
     ----------
-    variables : dict
-        Class variable for storing all known variables
+    specs : dict
+        The model specifications.
+    X_train : pandas.DataFrame
+        Training features in matrix format.
+    X_test  : pandas.Series
+        Testing features in matrix format.
+    y_train : pandas.DataFrame
+        Training labels in vector format.
+    y_test  : pandas.Series
+        Testing labels in vector format.
+    algolist : list
+        Algorithms to use in training.
+    estimators : dict
+        Dictionary of estimators (key: algorithm)
+    importances : dict
+        Feature Importances (key: algorithm)
+    coefs : dict
+        Coefficients, if applicable (key: algorithm)
+    support : dict
+        Support Vectors, if applicable (key: algorithm)
+    preds : dict
+        Predictions or labels (keys: algorithm, partition)
+    probas : dict
+        Probabilities from classification (keys: algorithm, partition)
+    metrics : dict
+        Model evaluation metrics (keys: algorith, partition, metric)
 
-    Examples
-    --------
-    
-    >>> Variable('rrunder', 'rr_3_20 <= 0.9')
-    >>> Variable('hc', 'higher_close')
+    Raises
+    ------
+    KeyError
+        Model specs must include the key *algorithms*, which is
+        stored in ``algolist``.
 
     """
             
@@ -153,86 +172,23 @@ class Model:
 #
 
 def get_model_config(cfg_dir):
-    r"""Read in data from the given directory in a given format.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Read in the configuration file for AlphaPy.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    cfg_dir : str
+        The directory where the configuration file ``model.yml``
+        is stored.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
+    specs : dict
+        The parameters for controlling AlphaPy.
 
     Raises
     ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    ValueError
+        Unrecognized value of a ``model.yml`` field.
 
     """
 
@@ -491,99 +447,30 @@ def get_model_config(cfg_dir):
     logger.info('verbosity         = %d', specs['verbosity'])
 
     # Specifications to create the model
-
     return specs
 
 
 #
-# Function load_model_object
+# Function load_predictor
 #
 
-def load_model_object(directory):
-    r"""Load the model from storage.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+def load_predictor(directory):
+    r"""Load the model predictor from storage. By default, the
+    latest model is loaded into memory.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    directory : str
+        Full directory specification of the predictor's location.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    predictor : function
+        The scoring function.
 
     """
 
-    logger.info("Loading Model")
+    logger.info("Loading Model Predictor")
 
     # Create search path
 
@@ -603,94 +490,26 @@ def load_model_object(directory):
 
 
 #
-# Function save_model_object
+# Function save_predictor
 #
 
-def save_model_object(model, timestamp):
-    r"""Save the model to storage.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+def save_predictor(model, timestamp):
+    r"""Save the time-stamped model predictor to disk.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    model : alphapy.Model
+        The model object that contains the best estimator.
+    timestamp : str
+        Date in yyyy-mm-dd format.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    None : None
 
     """
 
-    logger.info("Saving Model Object")
+    logger.info("Saving Model Predictor")
 
     # Extract model parameters.
 
@@ -711,90 +530,21 @@ def save_model_object(model, timestamp):
 
 
 #
-# Function get_sample_weights
+# Function get_class_weights
 #
 
-def get_sample_weights(model):
-    r"""Set sample weights for fitting the model.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+def get_class_weights(model):
+    r"""Set the class weights for fitting the model.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    model : alphapy.Model
+        The model object with specifications.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    model : alphapy.Model
+        The model object with class weights.
 
     """
 
@@ -825,7 +575,7 @@ def get_sample_weights(model):
 
     # Set weights
 
-    model.specs['sample_weights'] = sw
+    model.specs['class_weights'] = sw
     return model
 
 
@@ -836,84 +586,27 @@ def get_sample_weights(model):
 def first_fit(model, algo, est):
     r"""Fit the model before optimization.
 
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
-
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    model : alphapy.Model
+        The model object with specifications.
+    algo : str
+        Abbreviation of the algorithm to run.
+    est : alphapy.Estimator
+        The estimator to fit.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
+    model : alphapy.Model
+        The model object with the initial estimator.
 
     Notes
     -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    AlphaPy fits an initial model because the user may choose to get
+    a first score without any additional feature selection or grid
+    search. XGBoost is a special case because it has the advantage
+    of an ``eval_set`` and ``early_stopping_rounds``, which can
+    speed up the estimation phase.
 
     """
 
@@ -923,13 +616,16 @@ def first_fit(model, algo, est):
 
     esr = model.specs['esr']
     model_type = model.specs['model_type']
-    if model_type == ModelType.classification:
-        sample_weights = model.specs['sample_weights']
-    else:
-        sample_weights = None
     scorer = model.specs['scorer']
     seed = model.specs['seed']
     split = model.specs['split']
+
+    # Initialize class weights.
+
+    if model_type == ModelType.classification:
+        class_weights = model.specs['class_weights']
+    else:
+        class_weights = None
 
     # Extract model data.
 
@@ -945,8 +641,8 @@ def first_fit(model, algo, est):
         eval_metric = xgb_score_map[scorer]
         est.fit(X1, y1, eval_set=eval_set, eval_metric=eval_metric,
                 early_stopping_rounds=esr)
-    elif sample_weights and model_type != ModelType.classification:
-        est.fit(X_train, y_train, sample_weight=sample_weights)
+    elif class_weights and model_type != ModelType.classification:
+        est.fit(X_train, y_train, sample_weight=class_weights)
     else:
         est.fit(X_train, y_train)
 
@@ -963,7 +659,6 @@ def first_fit(model, algo, est):
         model.coefs[algo] = est.coef_
 
     # Save the estimator in the model and return the model
-
     return model
 
 
@@ -972,86 +667,27 @@ def first_fit(model, algo, est):
 #
 
 def make_predictions(model, algo, calibrate):
-    r"""Make predictions for training and test set.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Make predictions for the training and testing data.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    model : alphapy.Model
+        The model object with specifications.
+    algo : str
+        Abbreviation of the algorithm to make predictions.
+    calibrate : bool
+        If ``True``, calibrate the probabilities for a classifier.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
+    model : alphapy.Model
+        The model object with the predictions.
 
     Notes
     -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    For classification, calibration is a precursor to making the
+    actual predictions. In this case, AlphaPy predicts both labels
+    and probabilities. For regression, real values are predicted.
 
     """
 
@@ -1062,11 +698,14 @@ def make_predictions(model, algo, calibrate):
     cal_type = model.specs['cal_type']
     cv_folds = model.specs['cv_folds']
     model_type = model.specs['model_type']
-    if model_type == ModelType.classification:
-        sample_weights = model.specs['sample_weights']
-    else:
-        sample_weights = None
     test_labels = model.specs['test_labels']
+
+    # Initialize class weights.
+
+    if model_type == ModelType.classification:
+        class_weights = model.specs['class_weights']
+    else:
+        class_weights = None
 
     # Get the estimator
 
@@ -1091,7 +730,7 @@ def make_predictions(model, algo, calibrate):
         if calibrate:
             logger.info("Calibrating Classifier")
             est = CalibratedClassifierCV(est, cv=cv_folds, method=cal_type)
-            est.fit(X_train, y_train, sample_weight=sample_weights)
+            est.fit(X_train, y_train, sample_weight=class_weights)
             model.estimators[algo] = est
             logger.info("Calibration Complete")
         else:
@@ -1118,84 +757,27 @@ def make_predictions(model, algo, calibrate):
 def predict_best(model):
     r"""Select the best model based on score.
 
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
-
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    model : alphapy.Model
+        The model object with all of the estimators.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
+    model : alphapy.Model
+        The model object with the best estimator.
 
     Notes
     -----
-    Notes about the implementation algorithm (if needed).
+    Best model selection is based on a scoring function. If the
+    objective is to minimize (e.g., negative log loss), then we
+    select the model with the algorithm that has the lowest score.
+    If the objective is to maximize, then we select the algorithm
+    with the highest score (e.g., AUC).
 
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    For multiple algorithms, AlphaPy always creates a blended model.
+    Therefore, the best algorithm that is selected could actually
+    be the blended model itself.
 
     """
 
@@ -1279,84 +861,20 @@ def predict_best(model):
 def predict_blend(model):
     r"""Make predictions from a blended model.
 
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
-
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    model : alphapy.Model
+        The model object with all of the estimators.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
+    model : alphapy.Model
+        The model object with the blended estimator.
 
     Notes
     -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    For classification, AlphaPy uses logistic regression for creating
+    a blended model. For regression, ridge regression is applied.
 
     """
 
@@ -1391,6 +909,7 @@ def predict_blend(model):
     for i, algorithm in enumerate(model.algolist):
         # get the best estimator
         estimator = model.estimators[algorithm]
+        # update coefficients and feature importances
         if hasattr(estimator, "coef_"):
             model.coefs[algorithm] = estimator.coef_
         if hasattr(estimator, "feature_importances_"):
@@ -1436,86 +955,33 @@ def predict_blend(model):
 #
 
 def generate_metrics(model, partition):
-    r"""Read in data from the given directory in a given format.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Generate model evaluation metrics for all estimators.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    model : alphapy.Model
+        The model object with stored predictions.
+    partition : str
+        ``train`` or ``test``
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
+    model : alphapy.Model
+        The model object with the completed metrics.
 
     Notes
     -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
+    AlphaPy takes a brute-force approach to calculating each metric.
+    It calls every scikit-learn function without exception. If the
+    calculation fails for any reason, then the evaluation will still
+    continue without error.
 
     References
     ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
+    For more information about model evaluation and the associated metrics,
+    refer to [EVAL]_.
 
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    .. [EVAL] http://scikit-learn.org/stable/modules/model_evaluation.html
 
     """
 
@@ -1631,87 +1097,24 @@ def generate_metrics(model, partition):
 def np_store_data(data, dir_name, file_name, extension, separator):
     r"""Store NumPy data in a file.
 
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
-
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    data : numpy array
+        The model component to store
+    dir_name : str
+        Full directory specification.
+    file_name : str
+        Name of the file to read, excluding the ``extension``.
+    extension : str
+        File name extension, e.g., ``csv``.
+    separator : str
+        The delimiter between fields in the file.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    None : None
 
     """
-
     output_file = PSEP.join([file_name, extension])
     output = SSEP.join([dir_name, output_file])
     np.savetxt(output, data, delimiter=separator)
@@ -1724,84 +1127,30 @@ def np_store_data(data, dir_name, file_name, extension, separator):
 def save_model(model, tag, partition):
     r"""Save the results in the model file.
 
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
-
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    model : alphapy.Model
+        The model object to save.
+    tag : str
+        A unique identifier for the output files, e.g., a date stamp.
+    partition : str
+        ``train`` or ``test``
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
+    None : None
 
     Notes
     -----
-    Notes about the implementation algorithm (if needed).
 
-    This can have multiple paragraphs.
+    The following components are extracted from the model object
+    and saved to disk:
 
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    * Model predictor (via joblib/pickle)
+    * Predictions
+    * Probabilities (classification only)
+    * Rankings
+    * Submission File (optional)
 
     """
 
@@ -1829,7 +1178,7 @@ def save_model(model, tag, partition):
     # Dump the model object itself
 
     logger.info('='*80)
-    save_model_object(model, timestamp)
+    save_predictor(model, timestamp)
 
     # Specify input and output directories
 
