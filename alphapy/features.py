@@ -26,12 +26,13 @@
 # Imports
 #
 
-from alphapy.estimators import ModelType
 from alphapy.globs import BSEP, NULLTEXT, USEP
+from alphapy.globs import Encoders
+from alphapy.globs import ModelType
+from alphapy.globs import Scalers
 from alphapy.var import Variable
 
 import category_encoders as ce
-from enum import Enum, unique
 from gplearn.genetic import SymbolicTransformer
 from importlib import import_module
 from itertools import groupby
@@ -68,50 +69,6 @@ from sklearn.preprocessing import StandardScaler
 #
 
 logger = logging.getLogger(__name__)
-
-
-#
-# Encoder Types
-#
-
-@unique
-class Encoders(Enum):
-    """AlphaPy Encoders.
-
-    These are the encoders used in AlphaPy, as configured in the
-    ``model.yml`` file (features:encoding:type) You can learn more
-    about encoders here [ENC]_.
-
-    .. [ENC] https://github.com/scikit-learn-contrib/categorical-encoding
-
-    """
-    backdiff = 1
-    binary = 2
-    factorize = 3
-    helmert = 4
-    onehot = 5
-    ordinal = 6
-    polynomial = 7
-    sumcont = 8
-
-
-#
-# Scaler Types
-#
-
-@unique
-class Scalers(Enum):
-    """AlphaPy Scalers.
-
-    These are the scaling methods used in AlphaPy, as configured in the
-    ``model.yml`` file (features:scaling:type) You can learn more about
-    feature scaling here [SCALE]_.
-
-    .. [SCALE] http://scikit-learn.org/stable/modules/preprocessing.html
-
-    """
-    minmax = 1
-    standard = 2
 
 
 #

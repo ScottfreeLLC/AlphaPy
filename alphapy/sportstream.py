@@ -31,9 +31,9 @@
 print(__doc__)
 
 from alphapy.__main__ import main_pipeline
-from alphapy.estimators import ModelType
 from alphapy.frame import read_frame
 from alphapy.frame import write_frame
+from alphapy.globs import ModelType
 from alphapy.globs import PSEP, SSEP, USEP
 from alphapy.globs import WILDCARD
 from alphapy.model import get_model_config

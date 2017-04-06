@@ -30,8 +30,8 @@ from alphapy.frame import Frame
 from alphapy.frame import frame_name
 from alphapy.frame import read_frame
 from alphapy.frame import write_frame
-from alphapy.globs import MULTIPLIERS
-from alphapy.globs import SSEP
+from alphapy.globs import MULTIPLIERS, SSEP
+from alphapy.globs import Orders
 from alphapy.space import Space
 
 import logging
@@ -53,94 +53,25 @@ logger = logging.getLogger(__name__)
 # Function portfolio_name
 #
 
-def portfolio_name(name, tag):
+def portfolio_name(group_name, tag):
     """
-    Return the name of the portfolio
-    """
-    r"""Return the best feature set using recursive feature elimination
-    with cross-validation.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    Return the name of the portfolio.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    group_name : str
+        The group represented in the portfolio.
+    tag : str
+        A unique identifier.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    port_name : str
+        Portfolio name.
 
     """
-    return '.'.join([name, tag, "portfolio"])
+    port_name = '.'.join([group_name, tag, "portfolio"])
+    return port_name
 
 
 #
@@ -148,29 +79,59 @@ def portfolio_name(name, tag):
 #
 
 class Portfolio():
-    """Create a new variable as a key-value pair. All variables are stored
-    in ``Variable.variables``. Duplicate keys or values are not allowed,
-    unless the ``replace`` parameter is ``True``.
+    """Create a new portfolio with a unique name. All portfolios
+    are stored in ``Portfolio.portfolios``.
 
     Parameters
     ----------
-    name : str
-        Variable key.
-    expr : str
-        Variable value.
-    replace : bool, optional
-        Replace the current key-value pair if it already exists.
+    group_name : str
+        The group represented in the portfolio.
+    tag : str
+        A unique identifier.
+    space : alphapy.Space, optional
+        Namespace for the portfolio.
+    maxpos : int, optional
+        The maximum number of positions.
+    posby : str, optional
+        The denominator for position sizing.
+    kopos : int, optional
+        The number of positions to kick out from the portfolio.
+    koby : str, optional
+        The "kick out" criteria. For example, a ``koby`` value
+        of '-profit' means the three least profitable positions
+        will be closed.
+    restricted : bool, optional
+        If ``True``, then the portfolio is limited to a maximum
+        number of positions ``maxpos``.
+    weightby : str, optional
+        The weighting variable to balance the portfolio, e.g.,
+        by closing price, by volatility, or by any column.
+    startcap : float, optional
+        The amount of starting capital.
+    margin : float, optional
+        The amount of margin required, expressed as a fraction.
+    mincash : float, optional
+        Minimum amount of cash on hand, expressed as a fraction
+        of the total portfolio value.
+    fixedfrac : float, optional
+        The fixed fraction for any given position.
+    maxloss : float, optional
+        Stop loss for any given position.
 
     Attributes
     ----------
-    variables : dict
-        Class variable for storing all known variables
-
-    Examples
-    --------
-    
-    >>> Variable('rrunder', 'rr_3_20 <= 0.9')
-    >>> Variable('hc', 'higher_close')
+    portfolios : dict
+        Class variable for storing all known portfolios
+    value : float
+        Class variable for storing all known portfolios
+    netprofit : float
+        Net profit ($) since previous valuation.
+    netreturn : float
+        Net return (%) since previous valuation
+    totalprofit : float
+        Total profit ($) since inception.
+    totalreturn : float
+        Total return (%) since inception.
 
     """
 
@@ -181,7 +142,7 @@ class Portfolio():
     # __new__
     
     def __new__(cls,
-                name,
+                group_name,
                 tag,
                 space = Space(),
                 maxpos = 10,
@@ -194,10 +155,9 @@ class Portfolio():
                 margin = 0.5,
                 mincash = 0.2,
                 fixedfrac = 0.1,
-                maxloss = 0.1,
-                balance = 'M'):
+                maxloss = 0.1):
         # create portfolio name
-        pn = portfolio_name(name, tag)
+        pn = portfolio_name(group_name, tag)
         if not pn in Portfolio.portfolios:
             return super(Portfolio, cls).__new__(cls)
         else:
@@ -206,7 +166,7 @@ class Portfolio():
     # __init__
     
     def __init__(self,
-                 name,
+                 group_name,
                  tag,
                  space = Space(),
                  maxpos = 10,
@@ -219,10 +179,9 @@ class Portfolio():
                  margin = 0.5,
                  mincash = 0.2,
                  fixedfrac = 0.1,
-                 maxloss = 0.1,
-                 balance = 'M'):
+                 maxloss = 0.1):
         # initialization
-        self.name = name
+        self.group_name = group_name
         self.tag = tag
         self.space = space
         self.positions = {}
@@ -242,20 +201,19 @@ class Portfolio():
         self.mincash = mincash
         self.fixedfrac = fixedfrac
         self.maxloss = maxloss
-        self.balance = 'M'
         self.value = startcap
         self.netprofit = 0.0
         self.netreturn = 0.0
         self.totalprofit = 0.0
         self.totalreturn = 0.0
         # add portfolio to portfolios list
-        pn = portfolio_name(name, tag)
+        pn = portfolio_name(group_name, tag)
         Portfolio.portfolios[pn] = self
 
     # __str__
 
     def __str__(self):
-        return portfolio_name(self.name, self.tag)
+        return portfolio_name(self.group_name, self.tag)
 
 
 #
@@ -263,27 +221,79 @@ class Portfolio():
 #
 
 class Position:
-    """Exceptions are documented in the same way as classes.
-
-    The __init__ method may be documented in either the class level
-    docstring, or as a docstring on the __init__ method itself.
-
-    Either form is acceptable, but the two should not be mixed. Choose one
-    convention to document the __init__ method and be consistent with it.
+    """Create a new position in the portfolio.
 
     Parameters
     ----------
-    msg : str
-        Human readable string describing the exception.
-    code : :obj:`int`, optional
-        Numeric error code.
+    group_name : str
+        The group represented in the portfolio.
+    tag : str
+        A unique identifier.
+    space : alphapy.Space, optional
+        Namespace for the portfolio.
+    maxpos : int, optional
+        The maximum number of positions.
+    posby : str, optional
+        The denominator for position sizing.
+    kopos : int, optional
+        The number of positions to kick out from the portfolio.
+    koby : str, optional
+        The "kick out" criteria. For example, a ``koby`` value
+        of '-profit' means the three least profitable positions
+        will be closed.
+    restricted : bool, optional
+        If ``True``, then the portfolio is limited to a maximum
+        number of positions ``maxpos``.
+    weightby : str, optional
+        The weighting variable to balance the portfolio, e.g.,
+        by closing price, by volatility, or by any column.
+    startcap : float, optional
+        The amount of starting capital.
+    margin : float, optional
+        The amount of margin required, expressed as a fraction.
+    mincash : float, optional
+        Minimum amount of cash on hand, expressed as a fraction
+        of the total portfolio value.
+    fixedfrac : float, optional
+        The fixed fraction for any given position.
+    maxloss : float, optional
+        Stop loss for any given position.
 
     Attributes
     ----------
-    msg : str
-        Human readable string describing the exception.
-    code : int
-        Numeric error code.
+    group_name : str
+        The group represented in the portfolio.
+    tag : str
+        A unique identifier.
+    space : alphapy.Space, optional
+        Namespace for the portfolio.
+    maxpos : int, optional
+        The maximum number of positions.
+    posby : str, optional
+        The denominator for position sizing.
+    kopos : int, optional
+        The number of positions to kick out from the portfolio.
+    koby : str, optional
+        The "kick out" criteria. For example, a ``koby`` value
+        of '-profit' means the three least profitable positions
+        will be closed.
+    restricted : bool, optional
+        If ``True``, then the portfolio is limited to a maximum
+        number of positions ``maxpos``.
+    weightby : str, optional
+        The weighting variable to balance the portfolio, e.g.,
+        by closing price, by volatility, or by any column.
+    startcap : float, optional
+        The amount of starting capital.
+    margin : float, optional
+        The amount of margin required, expressed as a fraction.
+    mincash : float, optional
+        Minimum amount of cash on hand, expressed as a fraction
+        of the total portfolio value.
+    fixedfrac : float, optional
+        The fixed fraction for any given position.
+    maxloss : float, optional
+        Stop loss for any given position.
 
     """
     
@@ -322,27 +332,47 @@ class Position:
 #
 
 class Trade:
-    """Exceptions are documented in the same way as classes.
-
-    The __init__ method may be documented in either the class level
-    docstring, or as a docstring on the __init__ method itself.
-
-    Either form is acceptable, but the two should not be mixed. Choose one
-    convention to document the __init__ method and be consistent with it.
+    """Create a new portfolio with a unique name. All portfolios
+    are stored in ``Portfolio.portfolios``.
 
     Parameters
     ----------
-    msg : str
-        Human readable string describing the exception.
-    code : :obj:`int`, optional
-        Numeric error code.
+    group_name : str
+        The group represented in the portfolio.
+    space : alphapy.Space, optional
+        Namespace for the portfolio.
+    maxpos : int, optional
+        The maximum number of positions.
+    posby : str, optional
+        The denominator for position sizing.
+    kopos : int, optional
+        The number of positions to kick out from the portfolio.
+    koby : str, optional
+        The "kick out" criteria. For example, a ``koby`` value
+        of '-profit' means the three least profitable positions
+        will be closed.
+    restricted : bool, optional
+        If ``True``, then the portfolio is limited to a maximum
+        number of positions ``maxpos``.
+    weightby : str, optional
+        The weighting variable to balance the portfolio, e.g.,
+        by closing price, by volatility, or by any column.
+    startcap : float, optional
+        The amount of starting capital.
+    margin : float, optional
+        The amount of margin required, expressed as a fraction.
+    mincash : float, optional
+        Minimum amount of cash on hand, expressed as a fraction
+        of the total portfolio value.
+    fixedfrac : float, optional
+        The fixed fraction for any given position.
+    maxloss : float, optional
+        Stop loss for any given position.
 
     Attributes
     ----------
-    msg : str
-        Human readable string describing the exception.
-    code : int
-        Numeric error code.
+    states : list
+        Net profit ($) since previous valuation.
 
     """
     
@@ -548,18 +578,6 @@ def remove_position(p, name):
 # Function valuate_position
 #
 
-#
-# Example of Cost Basis:
-#
-# | +100 | * 10 =  1,000
-# | +200 | * 15 =  3,000
-# | -500 | * 20 = 10,000
-# --------        ------
-#    800          14,000  =>  14,000 / 800 = 17.5
-#
-#    Position is -200 (net short) @ 17.5
-#
-
 def valuate_position(position, tdate):
     r"""Valuate the position based on the trade list.
 
@@ -609,15 +627,17 @@ def valuate_position(position, tdate):
 
     Notes
     -----
-    Notes about the implementation algorithm (if needed).
 
-    This can have multiple paragraphs.
+    An Example of Cost Basis:
 
-    You may include some math:
+    Position 1:  +100 * 10 =  1,000
+    Position 2:  +200 * 15 =  3,000
+    Position 3:  -500 * 20 = 10,000
+                 ----        ------
+    Total Shares  800        14,000
 
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
+    Cost Basis: 14,000 / 800 = 17.5
+    Position is -200 (net short) @ 17.5
 
     References
     ----------
@@ -692,8 +712,6 @@ def update_position(position, trade):
         The type above can either refer to an actual Python type
         (e.g. ``int``), or describe the type of the variable in more
         detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
 
     Returns
     -------
@@ -703,18 +721,6 @@ def update_position(position, trade):
         Explanation of return value named `describe`.
     out : type
         Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
 
     See Also
     --------
@@ -768,6 +774,7 @@ def update_position(position, trade):
         position.mpos = 'long'
     if position.quantity < 0:
         position.mpos = 'short'
+    return position
 
 
 #
@@ -1373,9 +1380,9 @@ def balance(p, tdate, cashlevel):
         tradesize = math.trunc(bdelta / cp)
         ntv = abs(tradesize) * cp * multiplier
         if tradesize > 0:
-            order = Orders.lb
+            order = Orders.le
         if tradesize < 0:
-            order = Orders.sb
+            order = Orders.se
         exec_trade(p, pos.name, order, tradesize, cp, tdate)
         p.cash = currentcash + bdelta - ntv
 
@@ -1384,7 +1391,7 @@ def balance(p, tdate, cashlevel):
 # Function kick_out
 #
 
-def kick_out(p, tdate, freepos):
+def kick_out(p, tdate):
     r"""Trim the portfolio based on filter criteria.
 
     Several sentences providing an extended description. Refer to
@@ -1468,7 +1475,9 @@ def kick_out(p, tdate, freepos):
 
     """
     positions = p.positions
-    kovalue = np.zeros(len(positions))
+    maxpos = p.maxpos
+    numpos = len(positions)
+    kovalue = np.zeros(numpos)
     koby = p.koby
     if not koby:
         koby = 'profit'
@@ -1487,15 +1496,12 @@ def kick_out(p, tdate, freepos):
     koorder = np.argsort(np.argsort(kovalues))
     if descending:
         koorder = [i for i in reversed(koorder)]
-    if freepos == 0:
-        kopos = p.kopos
-        maxpos = p.maxpos
-        opos = maxpos - npos
-        if opos == 0:
-            freepos = kopos - opos
-    # close the top freepos positions
-    for i in range(freepos):
-        close_position(p, positions[koorder[i]], tdate)
+    if numpos >= maxpos:
+        freepos = numpos - maxpos + p.kopos
+        # close the top freepos positions
+        if freepos > 0:
+            for i in range(freepos):
+                close_position(p, positions[koorder[i]], tdate)
 
 
 #
@@ -1918,7 +1924,7 @@ def exec_trade(p, name, order, quantity, price, tdate):
     if not p.posby:
         tsize = quantity
     else:
-        if order == 'le' or order == 'se':
+        if order == Orders.le or order == Orders.se:
             pf = Frame.frames[frame_name(name, p.space)].df
             cv = float(pf.ix[tdate][p.posby])
             tsize = math.trunc((p.value * p.fixedfrac) / cv)
@@ -1973,19 +1979,8 @@ def gen_portfolio(model, system, group, tframe,
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
     describe : type
         Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
 
     Raises
     ------

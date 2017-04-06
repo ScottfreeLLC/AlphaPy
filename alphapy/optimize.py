@@ -26,7 +26,7 @@
 # Imports
 #
 
-from alphapy.estimators import ModelType
+from alphapy.globs import ModelType
 
 from datetime import datetime
 import logging

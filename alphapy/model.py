@@ -26,17 +26,17 @@
 # Imports
 #
 
-from alphapy.data import SamplingMethod
-from alphapy.estimators import Objective
-from alphapy.estimators import ModelType
 from alphapy.estimators import scorers
 from alphapy.estimators import xgb_score_map
-from alphapy.features import Encoders
 from alphapy.features import feature_scorers
-from alphapy.features import Scalers
 from alphapy.frame import read_frame
 from alphapy.frame import write_frame
+from alphapy.globs import Encoders
+from alphapy.globs import ModelType
+from alphapy.globs import Objective
 from alphapy.globs import PSEP, SSEP, USEP
+from alphapy.globs import SamplingMethod
+from alphapy.globs import Scalers
 
 from copy import copy
 from datetime import datetime

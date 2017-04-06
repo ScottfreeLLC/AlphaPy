@@ -56,8 +56,8 @@ print(__doc__)
 #
 
 from alphapy.estimators import get_estimators
-from alphapy.estimators import ModelType
 from alphapy.globs import BSEP, PSEP, SSEP, USEP
+from alphapy.globs import ModelType
 from alphapy.globs import Q1, Q3
 from alphapy.util import remove_list_items
 

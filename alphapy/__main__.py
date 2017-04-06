@@ -32,7 +32,6 @@ from alphapy.data import get_data
 from alphapy.data import sample_data
 from alphapy.data import shuffle_data
 from alphapy.estimators import get_estimators
-from alphapy.estimators import ModelType
 from alphapy.estimators import scorers
 from alphapy.features import create_features
 from alphapy.features import create_interactions
@@ -41,6 +40,7 @@ from alphapy.features import remove_lv_features
 from alphapy.features import save_features
 from alphapy.features import select_features
 from alphapy.globs import CSEP, PSEP, SSEP
+from alphapy.globs import ModelType
 from alphapy.globs import WILDCARD
 from alphapy.model import first_fit
 from alphapy.model import generate_metrics

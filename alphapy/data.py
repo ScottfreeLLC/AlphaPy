@@ -26,16 +26,15 @@
 # Imports
 #
 
-from alphapy.estimators import ModelType
 from alphapy.frame import Frame
 from alphapy.frame import frame_name
 from alphapy.frame import read_frame
+from alphapy.globs import ModelType
 from alphapy.globs import PSEP, SSEP
 from alphapy.globs import WILDCARD
 
 from datetime import datetime
 from datetime import timedelta
-from enum import Enum, unique
 from imblearn.combine import SMOTEENN
 from imblearn.combine import SMOTETomek
 from imblearn.ensemble import BalanceCascade
@@ -67,36 +66,6 @@ from sklearn.preprocessing import LabelEncoder
 #
 
 logger = logging.getLogger(__name__)
-
-
-#
-# Sampling Methods
-#
-
-@unique
-class SamplingMethod(Enum):
-    """AlphaPy Sampling Methods.
-
-    These are the data sampling methods used in AlphaPy, as configured
-    in the ``model.yml`` file (data:sampling:method) You can learn more
-    about resampling techniques here [IMB]_.
-
-    .. [IMB] https://github.com/scikit-learn-contrib/imbalanced-learn
-
-    """
-    ensemble_bc = 1
-    ensemble_easy = 2
-    over_random = 3
-    over_smote = 4
-    over_smoteb = 5
-    over_smotesv = 6
-    overunder_smote_enn = 7
-    overunder_smote_tomek = 8
-    under_cluster = 9
-    under_ncr = 10
-    under_nearmiss = 11
-    under_random = 12
-    under_tomek = 13
 
 
 #

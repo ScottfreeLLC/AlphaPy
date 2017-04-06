@@ -29,6 +29,7 @@
 from alphapy.frame import Frame
 from alphapy.frame import frame_name
 from alphapy.frame import write_frame
+from alphapy.globs import Orders
 from alphapy.globs import SSEP
 from alphapy.space import Space
 from alphapy.portfolio import Trade
@@ -127,37 +128,6 @@ class System(object):
 
     def __str__(self):
         return self.name
-            
-
-#
-# Class Orders
-#
-
-class Orders:
-    """System Order Types.
-
-    Attributes
-    ----------
-    le : str
-        long entry
-    se : str
-        short entry
-    lx : str
-        long exit
-    sx : str
-        short exit
-    lh : str
-        long exit at the end of the holding period
-    sh : str
-        short exit at the end of the holding period
-
-    """
-    le = 'le'
-    se = 'se'
-    lx = 'lx'
-    sx = 'sx'
-    lh = 'lh'
-    sh = 'sh'
 
 
 #

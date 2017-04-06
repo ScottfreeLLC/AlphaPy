@@ -27,9 +27,10 @@
 #
 
 from alphapy.estimator import Estimator
+from alphapy.globs import ModelType
+from alphapy.globs import Objective
 from alphapy.globs import SSEP
 
-from enum import Enum, unique
 import logging
 import numpy as np
 from scipy.stats import randint as sp_randint
@@ -62,43 +63,6 @@ import yaml
 #
 
 logger = logging.getLogger(__name__)
-
-
-#
-# Model Types
-#
-
-@unique
-class ModelType(Enum):
-    """AlphaPy Model Types.
-
-    .. note:: One-Class Classification ``oneclass`` is not yet
-       implemented.
-
-    """
-    classification = 1
-    clustering = 2
-    multiclass = 3
-    oneclass = 4
-    regression = 5
-
-
-#
-# Objective Functions
-#
-
-@unique
-class Objective(Enum):
-    """Scoring Function Objectives.
-
-    Best model selection is based on the scoring or Objective
-    function, which must be either maximized or minimized. For
-    example, ``roc_auc`` is maximized, while ``neg_log_loss``
-    is minimized.
-
-    """
-    maximize = 1
-    minimize = 2
 
 
 #
