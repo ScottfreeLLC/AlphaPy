@@ -31,6 +31,7 @@ from alphapy.frame import frame_name
 from alphapy.frame import read_frame
 from alphapy.globs import ModelType
 from alphapy.globs import PSEP, SSEP
+from alphapy.globs import SamplingMethod
 from alphapy.globs import WILDCARD
 
 from datetime import datetime

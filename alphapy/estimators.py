@@ -52,8 +52,6 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import LinearSVC
 from sklearn.svm import OneClassSVM
 from sklearn.svm import SVC
-import tensorflow as tf
-import tensorflow.contrib.learn as skflow
 import xgboost as xgb
 import yaml
 
@@ -163,7 +161,6 @@ estimator_map = {'AB'     : AdaBoostClassifierCoef,
                  'RF'     : RandomForestClassifierCoef,
                  'RFR'    : RandomForestRegressor,
                  'SVM'    : SVC,
-                 'TF_DNN' : skflow.DNNClassifier,
                  'XGB'    : xgb.XGBClassifier,
                  'XGBM'   : xgb.XGBClassifier,
                  'XGBR'   : xgb.XGBRegressor,

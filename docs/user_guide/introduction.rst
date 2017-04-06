@@ -7,8 +7,7 @@ and ``pandas`` libraries, as well as many other helpful libraries
 for feature engineering and visualization. Here are just some of the
 things you can do with **AlphaPy**:
 
-* Run machine learning models using ``scikit-learn``, ``xgboost``,
-  and Google's ``TensorFlow``.
+* Run machine learning models using ``scikit-learn`` and ``xgboost``.
 * Develop trading systems and analyze portfolios using ``systemstream``
   and Quantopian's ``pyfolio``.
 * Create models for analyzing the markets with ``marketstream``.
