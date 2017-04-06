@@ -68,6 +68,14 @@ alphapy.frame module
     :undoc-members:
     :show-inheritance:
 
+alphapy.globs module
+--------------------
+
+.. automodule:: alphapy.globs
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 alphapy.group module
 --------------------
 

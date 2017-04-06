@@ -225,75 +225,47 @@ class Position:
 
     Parameters
     ----------
-    group_name : str
-        The group represented in the portfolio.
-    tag : str
-        A unique identifier.
-    space : alphapy.Space, optional
-        Namespace for the portfolio.
-    maxpos : int, optional
-        The maximum number of positions.
-    posby : str, optional
-        The denominator for position sizing.
-    kopos : int, optional
-        The number of positions to kick out from the portfolio.
-    koby : str, optional
-        The "kick out" criteria. For example, a ``koby`` value
-        of '-profit' means the three least profitable positions
-        will be closed.
-    restricted : bool, optional
-        If ``True``, then the portfolio is limited to a maximum
-        number of positions ``maxpos``.
-    weightby : str, optional
-        The weighting variable to balance the portfolio, e.g.,
-        by closing price, by volatility, or by any column.
-    startcap : float, optional
-        The amount of starting capital.
-    margin : float, optional
-        The amount of margin required, expressed as a fraction.
-    mincash : float, optional
-        Minimum amount of cash on hand, expressed as a fraction
-        of the total portfolio value.
-    fixedfrac : float, optional
-        The fixed fraction for any given position.
-    maxloss : float, optional
-        Stop loss for any given position.
+    portfolio : alphaPy.portfolio
+        The portfolio that will contain the position.
+    name : str
+        A unique identifier such as a stock symbol.
+    opendate : datetime
+        Date the position is opened.
 
     Attributes
     ----------
-    group_name : str
-        The group represented in the portfolio.
-    tag : str
+    date : timedate
+        Current date of the position.
+    name : str
         A unique identifier.
-    space : alphapy.Space, optional
-        Namespace for the portfolio.
-    maxpos : int, optional
-        The maximum number of positions.
-    posby : str, optional
-        The denominator for position sizing.
-    kopos : int, optional
-        The number of positions to kick out from the portfolio.
-    koby : str, optional
-        The "kick out" criteria. For example, a ``koby`` value
-        of '-profit' means the three least profitable positions
-        will be closed.
-    restricted : bool, optional
-        If ``True``, then the portfolio is limited to a maximum
-        number of positions ``maxpos``.
-    weightby : str, optional
-        The weighting variable to balance the portfolio, e.g.,
-        by closing price, by volatility, or by any column.
-    startcap : float, optional
-        The amount of starting capital.
-    margin : float, optional
-        The amount of margin required, expressed as a fraction.
-    mincash : float, optional
-        Minimum amount of cash on hand, expressed as a fraction
-        of the total portfolio value.
-    fixedfrac : float, optional
-        The fixed fraction for any given position.
-    maxloss : float, optional
-        Stop loss for any given position.
+    status : str
+        State of the position: ``'opened'`` or ``'closed'``.
+    mpos : str
+        Market position ``'long'`` or ``'short'``.
+    quantity : float
+        The net size of the position.
+    price : float
+        The current price of the instrument.
+    value : float
+        The total dollar value of the position.
+    profit : float
+        The net profit of the current position.
+    netreturn : float
+        The Return On Investment (ROI), or net return.
+    opened : datetime
+        Date the position is opened.
+    held : int
+        The holding period since the position was opened.
+    costbasis : float
+        Overall cost basis.
+    trades : list of Trade
+        The executed trades for the position so far.
+    ntrades : int
+        Total number of trades.
+    pdata : pandas DataFrame
+        Price data for the given ``name``.
+    multiplier : float
+        Multiple for instrument type (e.g., 1.0 for stocks).
 
     """
     
@@ -332,47 +304,25 @@ class Position:
 #
 
 class Trade:
-    """Create a new portfolio with a unique name. All portfolios
-    are stored in ``Portfolio.portfolios``.
+    """Initiate a trade.
 
     Parameters
     ----------
-    group_name : str
-        The group represented in the portfolio.
-    space : alphapy.Space, optional
-        Namespace for the portfolio.
-    maxpos : int, optional
-        The maximum number of positions.
-    posby : str, optional
-        The denominator for position sizing.
-    kopos : int, optional
-        The number of positions to kick out from the portfolio.
-    koby : str, optional
-        The "kick out" criteria. For example, a ``koby`` value
-        of '-profit' means the three least profitable positions
-        will be closed.
-    restricted : bool, optional
-        If ``True``, then the portfolio is limited to a maximum
-        number of positions ``maxpos``.
-    weightby : str, optional
-        The weighting variable to balance the portfolio, e.g.,
-        by closing price, by volatility, or by any column.
-    startcap : float, optional
-        The amount of starting capital.
-    margin : float, optional
-        The amount of margin required, expressed as a fraction.
-    mincash : float, optional
-        Minimum amount of cash on hand, expressed as a fraction
-        of the total portfolio value.
-    fixedfrac : float, optional
-        The fixed fraction for any given position.
-    maxloss : float, optional
-        Stop loss for any given position.
+    name : str
+        The symbol to trade.
+    order : alphapy.Orders
+        Long or short trade for entry or exit.
+    quantity : int
+        The quantity for the order.
+    price : str
+        The execution price of the trade.
+    tdate : datetime
+        The date and time of the trade.
 
     Attributes
     ----------
-    states : list
-        Net profit ($) since previous valuation.
+    states : list of str
+        Trade state names for a dataframe.
 
     """
     
@@ -398,90 +348,26 @@ class Trade:
 #
 
 def add_position(p, name, pos):
-    r"""Add a position to a portfolio by name.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Add a position to a portfolio.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    p : alphapy.Portfolio
+        Portfolio that will hold the position.
+    name : int
+        Unique identifier for the position, e.g., a stock symbol.
+    pos : alphapy.Position
+        New position to add to the portfolio.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    p : alphapy.Portfolio
+        Portfolio with the new position.
 
     """
     if name not in p.positions:
         p.positions[name] = pos
+    return p
 
 
 #
@@ -491,87 +377,21 @@ def add_position(p, name, pos):
 def remove_position(p, name):
     r"""Remove a position from a portfolio by name.
 
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
-
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    p : alphapy.Portfolio
+        Portfolio with the current position.
+    name : int
+        Unique identifier for the position, e.g., a stock symbol.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    p : alphapy.Portfolio
+        Portfolio with the deleted position.
 
     """
     del p.positions[name]
+    return p
 
 
 #
@@ -579,88 +399,39 @@ def remove_position(p, name):
 #
 
 def valuate_position(position, tdate):
-    r"""Valuate the position based on the trade list.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Valuate the position for the given date.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    position : alphapy.Position
+        The position to be valued.
+    tdate : timedate
+        Date to value the position.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
+    position : alphapy.Position
+        New value of the position.
 
     Notes
     -----
 
-    An Example of Cost Basis:
+    An Example of Cost Basis
 
-    Position 1:  +100 * 10 =  1,000
-    Position 2:  +200 * 15 =  3,000
-    Position 3:  -500 * 20 = 10,000
-                 ----        ------
-    Total Shares  800        14,000
+    ======== ====== ====== ======
+    Date     Shares Price  Amount
+    ======== ====== ====== ======
+    11/09/16  +100   10.0   1,000
+    12/14/16  +200   15.0   3,000
+    04/05/17  -500   20.0  10,000
+    -------- ------ ------ ------
+    All        800         14,000
+    ======== ====== ====== ======
 
-    Cost Basis: 14,000 / 800 = 17.5
-    Position is -200 (net short) @ 17.5
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    The cost basis is calculated as the total value of all
+    trades (14,000) divided by the total number of shares
+    traded (800), so 14,000 / 800 = 17.5, and the net position
+    is -200.
 
     """
     # get current price
@@ -690,6 +461,7 @@ def valuate_position(position, tdate):
         position.profit = totalprofit
         position.costbasis = ttv / tts
         position.netreturn = totalprofit / cvabs - 1.0
+    return position
 
 
 #
@@ -697,79 +469,26 @@ def valuate_position(position, tdate):
 #
 
 def update_position(position, trade):
-    r"""Update the position status and valuate it.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Add the new trade to the position and revalue.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
+    position : alphapy.Position
+        The position to be update.
+    trade : alphapy.Trade
+        Trade for updating the position.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    position : alphapy.Position
+        New value of the position.
 
     """
     position.trades.append(trade)
     position.ntrades = position.ntrades + 1
     position.date = trade.tdate
     position.held = trade.tdate - position.opened
-    valuate_position(position, trade.tdate)
+    position = valuate_position(position, trade.tdate)
     if position.quantity > 0:
         position.mpos = 'long'
     if position.quantity < 0:
@@ -784,84 +503,19 @@ def update_position(position, trade):
 def close_position(p, position, tdate):
     r"""Close the position and remove it from the portfolio.
 
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
-
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    p : alphapy.Portfolio
+        Portfolio holding the position.
+    position : alphapy.Position
+        Position to close.
+    tdate : datetime
+        The date for pricing the closed position.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    p : alphapy.Portfolio
+        Portfolio with the removed position.
 
     """
     pq = position.quantity
@@ -872,10 +526,11 @@ def close_position(p, position, tdate):
         pdata = position.pdata
         cp = pdata.ix[tdate]['close']
         newtrade = Trade(position.name, tradesize, cp, tdate)
-        update_portfolio(p, position, newtrade, tradesize)
+        p = update_portfolio(p, position, newtrade)
         position.quantity = 0
     position.status = 'closed'
-    remove_position(p, position.name)
+    p = remove_position(p, position.name)
+    return p
 
     
 #
@@ -885,89 +540,24 @@ def close_position(p, position, tdate):
 def deposit_portfolio(p, cash, tdate):
     r"""Deposit cash into a given portfolio.
 
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
-
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    p : alphapy.Portfolio
+        Portfolio to accept the deposit.
+    cash : float
+        Cash amount to deposit.
+    tdate : datetime
+        The date of deposit.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    p : alphapy.Portfolio
+        Portfolio with the added cash.
 
     """
     p.cash = p.cash + cash
-    valuate_portfolio(p, tdate)
-    return p.value
+    p = valuate_portfolio(p, tdate)
+    return p
 
 
 #
@@ -975,86 +565,21 @@ def deposit_portfolio(p, cash, tdate):
 #
 
 def withdraw_portfolio(p, cash, tdate):
-    r"""Withdraw cash from a given portfolio
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Withdraw cash from a given portfolio.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    p : alphapy.Portfolio
+        Portfolio to accept the withdrawal.
+    cash : float
+        Cash amount to withdraw.
+    tdate : datetime
+        The date of withdrawal.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    p : alphapy.Portfolio
+        Portfolio with the withdrawn cash.
 
     """
     currentcash = p.cash
@@ -1063,100 +588,35 @@ def withdraw_portfolio(p, cash, tdate):
         logger.info("Withdrawal of %s would exceed reserve amount", cash)
     else:
         p.cash = currentcash - cash
-        valuate_portfolio(p, tdate)
-    return p.value
+        p = valuate_portfolio(p, tdate)
+    return p
 
 
 #
 # Function update_portfolio
 #
 
-def update_portfolio(p, pos, trade, allocation):
-    r"""Update the portfolio positions
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+def update_portfolio(p, pos, trade):
+    r"""Update the portfolio positions.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    p : alphapy.Portfolio
+        Portfolio holding the position.
+    pos : alphapy.Position
+        Position to update.
+    trade : alphapy.Trade
+        Trade for updating the position and portfolio.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    p : alphapy.Portfolio
+        Portfolio with the revised position.
 
     """
     # update position
     ppq = abs(pos.quantity)
-    update_position(pos, trade)
+    pos = update_position(pos, trade)
     cpq = abs(pos.quantity)
     npq = cpq - ppq
     # update portfolio
@@ -1164,6 +624,7 @@ def update_portfolio(p, pos, trade, allocation):
     multiplier = pos.multiplier
     cv = trade.price * multiplier * npq
     p.cash -= cv
+    return p
 
 
 #
@@ -1171,91 +632,21 @@ def update_portfolio(p, pos, trade, allocation):
 #
 
 def delete_portfolio(p):
-    r"""Delete the portfolio, closing all positions.
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Delete the portfolio.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    p : alphapy.Portfolio
+        Portfolio to delete.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    None : None
 
     """
     positions = p.positions
     for key in positions:
-        close_position(p, positions[key])
+        p = close_position(p, positions[key])
     del p
 
 
@@ -1266,84 +657,45 @@ def delete_portfolio(p):
 def balance(p, tdate, cashlevel):
     r"""Balance the portfolio using a weighting variable.
 
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    Rebalancing is the process of equalizing a portfolio's positions
+    using some criterion. For example, if a portfolio is *dollar-weighted*,
+    then one position can increase in proportion to the rest of the
+    portfolio, i.e., its fraction of the overall portfolio is greater
+    than the other positions. To make the portfolio "equal dollar",
+    then some positions have to be decreased and others decreased.
+
+    The rebalancing process is periodic (e.g., once per month) and
+    generates a series of trades to balance the positions. Other
+    portfolios are *volatility-weighted* because a more volatile
+    stock has a greater effect on the beta, i.e., the more volatile
+    the instrument, the smaller the position size.
+
+    Technically, any type of weight can be used for rebalancing, so
+    AlphaPy gives the user the ability to specify a ``weightby``
+    column name.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    p : alphapy.Portfolio
+        Portfolio to rebalance.
+    tdate : datetime
+        The rebalancing date.
+    cashlevel : float
+        The cash level to maintain during rebalancing.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
+    p : alphapy.Portfolio
+        The rebalanced portfolio.
 
     Notes
     -----
-    Notes about the implementation algorithm (if needed).
 
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    .. warning:: The portfolio management functions ``balance``,
+       ``kick_out``, and ``stop_loss`` are not part of the
+       main **StockStream** pipeline, and thus have not been
+       thoroughly tested. Feel free to exercise the code and
+       report any issues.
 
     """
     currentcash = p.cash
@@ -1351,7 +703,7 @@ def balance(p, tdate, cashlevel):
     weightby = p.weightby
     if not weightby:
         weightby = 'close'
-    valuate_portfolio(p, tdate)
+    p = valuate_portfolio(p, tdate)
     pvalue = p.value - cashlevel * p.value
     positions = p.positions
     bdata = np.ones(len(positions))
@@ -1385,6 +737,7 @@ def balance(p, tdate, cashlevel):
             order = Orders.se
         exec_trade(p, pos.name, order, tradesize, cp, tdate)
         p.cash = currentcash + bdelta - ntv
+    return p
 
 
 #
@@ -1394,84 +747,31 @@ def balance(p, tdate, cashlevel):
 def kick_out(p, tdate):
     r"""Trim the portfolio based on filter criteria.
 
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    To reduce a portfolio's positions, AlphaPy can rank the
+    positions on some criterion, such as open profit or net
+    return. On a periodic basis, the worst performers can be
+    culled from the portfolio.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    p : alphapy.Portfolio
+        The portfolio for reducing positions.
+    tdate : datetime
+        The date to trim the portfolio positions.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
+    p : alphapy.Portfolio
+        The reduced portfolio.
 
     Notes
     -----
-    Notes about the implementation algorithm (if needed).
 
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    .. warning:: The portfolio management functions ``kick_out``,
+       ``balance``, and ``stop_loss`` are not part of the
+       main **StockStream** pipeline, and thus have not been
+       thoroughly tested. Feel free to exercise the code and
+       report any issues.
 
     """
     positions = p.positions
@@ -1501,7 +801,8 @@ def kick_out(p, tdate):
         # close the top freepos positions
         if freepos > 0:
             for i in range(freepos):
-                close_position(p, positions[koorder[i]], tdate)
+                p = close_position(p, positions[koorder[i]], tdate)
+    return p
 
 
 #
@@ -1511,84 +812,26 @@ def kick_out(p, tdate):
 def stop_loss(p, tdate):
     r"""Trim the portfolio based on stop-loss criteria.
 
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
-
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    p : alphapy.Portfolio
+        The portfolio for reducing positions based on ``maxloss``.
+    tdate : datetime
+        The date to trim any underperforming positions.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
+    p : alphapy.Portfolio
+        The reduced portfolio.
 
     Notes
     -----
-    Notes about the implementation algorithm (if needed).
 
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    .. warning:: The portfolio management functions ``stop_loss``,
+       ``balance``, and ``kick_out`` are not part of the
+       main **StockStream** pipeline, and thus have not been
+       thoroughly tested. Feel free to exercise the code and
+       report any issues.
 
     """
     positions = p.positions
@@ -1597,7 +840,8 @@ def stop_loss(p, tdate):
         pos = positions[key]
         nr = pos.netreturn
         if nr <= -maxloss:
-            close_position(p, pos, tdate)
+            p = close_position(p, pos, tdate)
+    return p
 
 
 #
@@ -1607,84 +851,17 @@ def stop_loss(p, tdate):
 def valuate_portfolio(p, tdate):
     r"""Value the portfolio based on the current positions.
 
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
-
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    p : alphapy.Portfolio
+        Portfolio for calculating profit and return.
+    tdate : datetime
+        The date of valuation.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    p : alphapy.Portfolio
+        Portfolio with the new valuation.
 
     """
     positions = p.positions
@@ -1698,7 +875,7 @@ def valuate_portfolio(p, tdate):
     value = p.cash
     for i, key in posenum:
         pos = positions[key]
-        valuate_position(pos, tdate)
+        pos = valuate_position(pos, tdate)
         vpos[i] = pos.value
         value = value + vpos[i]
     p.value = value
@@ -1710,6 +887,7 @@ def valuate_portfolio(p, tdate):
     p.netreturn = p.value / prev_value - 1.0
     p.totalprofit = p.value - p.startcap
     p.totalreturn = p.value / p.startcap - 1.0
+    return p
 
 
 #
@@ -1719,84 +897,19 @@ def valuate_portfolio(p, tdate):
 def allocate_trade(p, pos, trade):
     r"""Determine the trade allocation for a given portfolio.
 
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
-
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    p : alphapy.Portfolio
+        Portfolio that will hold the new position.
+    pos : alphapy.Position
+        Position to update.
+    trade : alphapy.Trade
+        The proposed trade.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    allocation : float
+        The trade size that can be allocated for the portfolio.
 
     """
     cash = p.cash
@@ -1831,86 +944,32 @@ def allocate_trade(p, pos, trade):
 #
 
 def exec_trade(p, name, order, quantity, price, tdate):
-    r"""Execute a trade within a portfolio
-
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
+    r"""Execute a trade for a portfolio.
 
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    p : alphapy.Portfolio
+        Portfolio in which to trade.
+    name : str
+        The symbol to trade.
+    order : alphapy.Orders
+        Long or short trade for entry or exit.
+    quantity : int
+        The quantity for the order.
+    price : str
+        The execution price of the trade.
+    tdate : datetime
+        The date and time of the trade.
 
     Returns
     -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
+    tsize : float
+        The executed trade size.
 
     Other Parameters
     ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-
-    This can have multiple paragraphs.
-
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    Frame.frames : dict
+        Dataframe for the price data.
 
     """
     # see if the position already exists
@@ -1938,14 +997,14 @@ def exec_trade(p, name, order, quantity, price, tdate):
     if allocation != 0:
         # create a new position if necessary
         if newpos:
-            add_position(p, name, pos)
-            p.npos += 1
+            p = add_position(p, name, pos)
+            p.npos += 1        
         # update the portfolio
-        update_portfolio(p, pos, newtrade, allocation)
+        p = update_portfolio(p, pos, newtrade)
         # if net position is zero, then close the position
         pflat = pos.quantity == 0
         if pflat:
-            close_position(p, pos, tdate)
+            p = close_position(p, pos, tdate)
             p.npos -= 1
     else:
         logger.info("Trade Allocation for %s is 0", name)
@@ -1961,73 +1020,40 @@ def gen_portfolio(model, system, group, tframe,
                   startcap=100000, posby='close'):
     r"""Create a portfolio from a trades frame.
 
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
-
     Parameters
     ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
+    model : alphapy.Model
+        The model with specifications.
+    system : str
+        Name of the system.
+    group : alphapy.Group
+        The group of instruments in the portfolio.
+    tframe : pandas.DataFrame
+        The input trade list from running the system.
+    startcap : float
+        Starting capital.
+    posby : str
+        The position sizing column in the price dataframe.
 
     Returns
     -------
-    describe : type
-        Explanation of return value named `describe`.
+    p : alphapy.Portfolio
+        The generated portfolio.
 
     Raises
     ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
+    MemoryError
+        Could not allocate Portfolio.
 
     Notes
     -----
-    Notes about the implementation algorithm (if needed).
 
-    This can have multiple paragraphs.
+    This function also generates the files required for analysis
+    by the *pyfolio* package:
 
-    You may include some math:
-
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-    And even use a greek symbol like :math:`omega` inline.
-
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    * Returns File
+    * Positions File
+    * Transactions File
 
     """
 
@@ -2054,7 +1080,7 @@ def gen_portfolio(model, system, group, tframe,
                   restricted = False,
                   fixedfrac = ff)
     if not p:
-        logger.error("Error creating Portfolio")
+        raise MemoryError("Could not allocate Portfolio")
 
     # Build pyfolio data from the trades frame.
 
@@ -2098,7 +1124,7 @@ def gen_portfolio(model, system, group, tframe,
             pfrow[pos.name] = value
         pfrow['cash'] = p.cash
         # update the portfolio returns
-        valuate_portfolio(p, d)
+        p = valuate_portfolio(p, d)
         rs.append((d, [p.netreturn]))
 
     # Create systems directory path
