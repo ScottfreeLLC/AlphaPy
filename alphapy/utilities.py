@@ -68,6 +68,40 @@ def remove_list_items(elements, alist):
 
 
 #
+# Function subtract_days
+#
+
+def subtract_days(date_string, ndays):
+    r"""Subtract a number of days from a given date.
+
+    Parameters
+    ----------
+    date_string : str
+        An alphanumeric string in the format %Y-%m-%d.
+    ndays : int
+        Number of days to subtract.
+
+    Returns
+    -------
+    new_date_string : str
+        The adjusted date string in the format %Y-%m-%d.
+
+    Examples
+    --------
+
+    >>> subtract_days('2017-11-10', 31)   # '2017-10-10'
+
+    """
+    new_date_string = None
+    valid = valid_date(date_string)
+    if valid:
+        date_dt = datetime.strptime(date_string, "%Y-%m-%d")
+        new_date = date_dt - timedelta(days=ndays)
+        new_date_string = new_date.strftime("%Y-%m-%d")
+    return new_date_string
+
+
+#
 # Function valid_date
 #
 
@@ -81,8 +115,8 @@ def valid_date(date_string):
 
     Returns
     -------
-    date_time : datetime
-        The converted date string in %Y-%m-%d format.
+    valid : bool
+        ``True`` if the given date is valid.
 
     Raises
     ------
@@ -96,12 +130,14 @@ def valid_date(date_string):
     >>> valid_date('345')        # ValueError: Not a valid date
 
     """
+    valid = False
     try:
         date_time = datetime.strptime(date_string, "%Y-%m-%d")
-        return date_time
+        valid = True
     except:
         message = "Not a valid date: '{0}'.".format(date_string)
         raise argparse.ArgumentTypeError(message)
+    return valid
 
 
 #

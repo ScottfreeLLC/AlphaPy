@@ -86,7 +86,7 @@ def get_market_config():
     specs['forecast_period'] = cfg['market']['forecast_period']
     specs['fractal'] = cfg['market']['fractal']
     specs['leaders'] = cfg['market']['leaders']
-    specs['lookback_period'] = cfg['market']['lookback_period']
+    specs['data_history'] = cfg['market']['data_history']
     specs['predict_date'] = cfg['market']['predict_date']
     specs['schema'] = cfg['market']['schema']
     specs['target_group'] = cfg['market']['target_group']
@@ -160,7 +160,7 @@ def get_market_config():
     logger.info('forecast_period = %d', specs['forecast_period'])
     logger.info('fractal         = %s', specs['fractal'])
     logger.info('leaders         = %s', specs['leaders'])
-    logger.info('lookback_period = %d', specs['lookback_period'])
+    logger.info('data_history = %d', specs['data_history'])
     logger.info('predict_date    = %s', specs['predict_date'])
     logger.info('schema          = %s', specs['schema'])
     logger.info('system          = %s', specs['system'])
@@ -207,14 +207,13 @@ def market_pipeline(model, market_specs):
 
     # Get any market specifications
 
+    data_history = market_specs['data_history']
     features = market_specs['features']
     forecast_period = market_specs['forecast_period']
     functions = market_specs['functions']
     leaders = market_specs['leaders']
-    lookback_period = market_specs['lookback_period']
-    predict_date = market_specs['predict_date']
+    predict_history = market_specs['predict_history']
     target_group = market_specs['target_group']
-    train_date = market_specs['train_date']
 
     # Get the system specifications
 
@@ -233,7 +232,7 @@ def market_pipeline(model, market_specs):
 
     # Get stock data
 
-    get_feed_data(gs, lookback_period)
+    get_feed_data(gs, data_history)
 
     # Apply the features to all of the frames
 
@@ -242,8 +241,8 @@ def market_pipeline(model, market_specs):
 
     # Run the analysis, including the model pipeline
 
-    a = Analysis(model, gs, train_date, predict_date)
-    results = run_analysis(a, forecast_period, leaders)
+    a = Analysis(model, gs)
+    results = run_analysis(a, forecast_period, leaders, predict_history)
 
     # Create and run the system
 
@@ -275,6 +274,11 @@ def main(args=None):
     (5) Create the model object.
     (6) Call the main MarketFlow pipeline.
 
+    Raises
+    ------
+    ValueError
+        Training date must be before prediction date.
+
     """
 
     # Logging
@@ -302,10 +306,23 @@ def main(args=None):
     parser.add_argument('--predict', dest='predict_mode', action='store_true')
     parser.add_argument('--train', dest='predict_mode', action='store_false')
     parser.set_defaults(predict_mode=False)
-    parser.add_argument('-d', "--pdate", dest='predict_date',
+    predict_date = datetime.date.today().strftime("%Y-%m-%d")
+    parser.add_argument('-pd', "--pdate", dest='predict_date',
                         help="prediction date is in the format: YYYY-MM-DD",
                         required=False, type=valid_date)
+    train_date = pd.datetime(1900, 1, 1).strftime("%Y-%m-%d")
+    parser.add_argument('-td', "--tdate", dest='train_date',
+                        help="training date is in the format: YYYY-MM-DD",
+                        required=False, type=valid_date)
     args = parser.parse_args()
+
+    # Verify that the dates are in sequence.
+
+    if train_date >= predict_date:
+        raise ValueError("Training date must be before prediction date")
+    else:
+        logger.info("Training Date: %s", train_date)
+        logger.info("Prediction Date: %s", predict_date)
 
     # Read stock configuration file
 
@@ -316,6 +333,7 @@ def main(args=None):
     model_specs = get_model_config()
     model_specs['predict_mode'] = args.predict_mode
     model_specs['predict_date'] = args.predict_date
+    model_specs['train_date'] = args.train_date
 
     # Create a model from the arguments
 

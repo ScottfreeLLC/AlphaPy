@@ -32,6 +32,7 @@ from alphapy.__main__ import main_pipeline
 from alphapy.frame import read_frame
 from alphapy.frame import write_frame
 from alphapy.globals import ModelType
+from alphapy.globals import Partition, datasets
 from alphapy.globals import PSEP, SSEP, USEP
 from alphapy.globals import WILDCARD
 from alphapy.model import get_model_config
@@ -625,6 +626,11 @@ def main(args=None):
     (7) Merge the team frames into the final model frame.
     (8) Run the AlphaPy pipeline.
 
+    Raises
+    ------
+    ValueError
+        Training date must be before prediction date.
+
     """
 
     # Logging
@@ -654,10 +660,23 @@ def main(args=None):
     parser.add_argument('--predict', dest='predict_mode', action='store_true')
     parser.add_argument('--train', dest='predict_mode', action='store_false')
     parser.set_defaults(predict_mode=False)
-    parser.add_argument('-d', "--pdate", dest='predict_date',
+    predict_date = datetime.date.today().strftime("%Y-%m-%d")
+    parser.add_argument('-pd', "--pdate", dest='predict_date',
                         help="prediction date is in the format: YYYY-MM-DD",
                         required=False, type=valid_date)
+    train_date = pd.datetime(1900, 1, 1).strftime("%Y-%m-%d")
+    parser.add_argument('-td', "--tdate", dest='train_date',
+                        help="training date is in the format: YYYY-MM-DD",
+                        required=False, type=valid_date)
     args = parser.parse_args()
+
+    # Verify that the dates are in sequence.
+
+    if train_date >= predict_date:
+        raise ValueError("Training date must be before prediction date")
+    else:
+        logger.info("Training Date: %s", train_date)
+        logger.info("Prediction Date: %s", predict_date)
 
     # Read game configuration file
 
@@ -676,8 +695,12 @@ def main(args=None):
     # Read model configuration file
 
     specs = get_model_config(args.cfg_dir)
+
+    # Add command line arguments to model specifications
+
     specs['predict_mode'] = args.predict_mode
     specs['predict_date'] = args.predict_date
+    specs['train_date'] = args.train_date
 
     # Unpack model arguments
 
@@ -852,9 +875,9 @@ def main(args=None):
     #
 
     input_dir = SSEP.join([directory, 'input'])
-    write_frame(new_train_frame, input_dir, specs['train_file'],
+    write_frame(new_train_frame, input_dir, datasets[Partition.train],
                 specs['extension'], specs['separator'])
-    write_frame(new_test_frame, input_dir, specs['test_file'],
+    write_frame(new_test_frame, input_dir, datasets[Partition.test],
                 specs['extension'], specs['separator'])
 
     #

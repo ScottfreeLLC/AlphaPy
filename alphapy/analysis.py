@@ -30,7 +30,9 @@ from alphapy.__main__ import main_pipeline
 from alphapy.frame import load_frames
 from alphapy.frame import write_frame
 from alphapy.globals import SSEP, USEP
+from alphapy.utilities import subtract_days
 
+from datetime import timedelta
 import logging
 import pandas as pd
 from pandas.tseries.offsets import BDay
@@ -81,10 +83,6 @@ class Analysis(object):
         Model object for the analysis.
     group : alphapy.Group
         The group of members in the analysis.
-    train_date : pandas.datetime, optional
-        The starting date for training the model.
-    predict_date : pandas.datetime, optional
-        The starting date for model predictions.
 
     Attributes
     ----------
@@ -104,12 +102,7 @@ class Analysis(object):
     
     def __new__(cls,
                 model,
-                group,
-                train_date = pd.datetime(1900, 1, 1),
-                predict_date = pd.datetime.today() - BDay(2)):
-        # verify that dates are in sequence
-        if train_date >= predict_date:
-            raise ValueError("Training date must be before prediction date")
+                group):
         # set analysis name
         name = model.specs['directory'].split(SSEP)[-1]
         target = model.specs['target']
@@ -123,9 +116,7 @@ class Analysis(object):
 
     def __init__(self,
                  model,
-                 group,
-                 train_date = pd.datetime(1900, 1, 1),
-                 predict_date = pd.datetime.today() - BDay(2)):
+                 group):
         # set analysis name
         name = model.specs['directory'].split(SSEP)[-1]
         target = model.specs['target']
@@ -134,9 +125,6 @@ class Analysis(object):
         self.name = an
         self.model = model
         self.group = group
-        self.train_date = train_date.strftime('%Y-%m-%d')
-        self.predict_date = predict_date.strftime('%Y-%m-%d')
-        self.target = target
         # add analysis to analyses list
         Analysis.analyses[an] = self
         
@@ -150,7 +138,8 @@ class Analysis(object):
 # Function run_analysis
 #
 
-def run_analysis(analysis, forecast_period, leaders, splits=True):
+def run_analysis(analysis, forecast_period, leaders,
+                 predict_history, splits=True):
     r"""Run an analysis for a given model and group.
 
     First, the data are loaded for each member of the analysis group.
@@ -178,21 +167,24 @@ def run_analysis(analysis, forecast_period, leaders, splits=True):
 
     """
 
+    # Unpack analysis
+
     name = analysis.name
     model = analysis.model
     group = analysis.group
-    target = analysis.target
-    train_date = analysis.train_date
-    predict_date = analysis.predict_date
 
     # Unpack model data
 
     directory = model.specs['directory']
     extension = model.specs['extension']
+    predict_date = model.specs['predict_date']
     separator = model.specs['separator']
-    test_file = model.specs['test_file']
-    test_labels = model.specs['test_labels']
-    train_file = model.specs['train_file']
+    target = model.specs['target']
+    test_file = model.test_file
+    test_labels = model.test_labels
+    train_date = model.specs['train_date']
+    train_file = model.train_file
+    split_date = subtract_days(predict_date, predict_history)
 
     # Load the data frames
 
@@ -210,13 +202,13 @@ def run_analysis(analysis, forecast_period, leaders, splits=True):
             if leaders:
                 df[leaders] = df[leaders].shift(-1)
             # split data into train and test
-            new_train = df.loc[(df.index >= train_date) & (df.index < predict_date)]
+            new_train = df.loc[(df.index >= train_date) & (df.index < split_date)]
             if len(new_train) > 0:
                 # train frame
                 new_train = new_train.dropna()
                 train_frame = train_frame.append(new_train)
                 # test frame
-                new_test = df.loc[df.index >= predict_date]
+                new_test = df.loc[df.index >= split_date]
                 if len(new_test) > 0:
                     if test_labels:
                         new_test = new_test.dropna()

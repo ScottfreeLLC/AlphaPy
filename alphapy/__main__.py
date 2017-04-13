@@ -39,6 +39,7 @@ from alphapy.features import save_features
 from alphapy.features import select_features
 from alphapy.globals import CSEP, PSEP, SSEP
 from alphapy.globals import ModelType
+from alphapy.globals import Partition, datasets
 from alphapy.globals import WILDCARD
 from alphapy.model import first_fit
 from alphapy.model import generate_metrics
@@ -105,12 +106,13 @@ def data_pipeline(model):
     drop = model.specs['drop']
     model_type = model.specs['model_type']
     target = model.specs['target']
-    test_labels = model.specs['test_labels']
 
     # Get train and test data
 
-    X_train, y_train = get_data(model, 'train')
-    X_test, y_test = get_data(model, 'test')
+    X_train, y_train = get_data(model, Partition.train)
+    X_test, y_test = get_data(model, Partition.test)
+    if y_test:
+        model.test_labels = True
 
     # Drop features
 
@@ -129,7 +131,7 @@ def data_pipeline(model):
         logger.info("Unique Training Counts for %s : %s", target, uc)
     logger.info("Number of Testing Rows     : %d", X_test.shape[0])
     logger.info("Number of Testing Columns  : %d", X_test.shape[1])
-    if model_type == ModelType.classification and test_labels:
+    if model_type == ModelType.classification and model.test_labels:
         uv, uc = np.unique(y_test, return_counts=True)
         logger.info("Unique Testing Values for %s : %s", target, uv)
         logger.info("Unique Testing Counts for %s : %s", target, uc)
@@ -204,7 +206,7 @@ def model_pipeline(model):
     rfe = model.specs['rfe']
     sampling = model.specs['sampling']
     scorer = model.specs['scorer']
-    test_labels = model.specs['test_labels']
+    test_labels = model.test_labels
 
     # Shuffle the data [if specified]
 
@@ -269,8 +271,8 @@ def model_pipeline(model):
 
     # Generate metrics
 
-    model = generate_metrics(model, 'train')
-    model = generate_metrics(model, 'test')
+    model = generate_metrics(model, Partition.train)
+    model = generate_metrics(model, Partition.test)
 
     # Store the best estimator
 
@@ -278,24 +280,27 @@ def model_pipeline(model):
 
     # Generate plots
 
-    generate_plots(model, 'train')
+    generate_plots(model, Partition.train)
     if test_labels:
-        generate_plots(model, 'test')
+        generate_plots(model, Partition.test)
 
     # Save best features and predictions
 
-    save_model(model, 'BEST', 'test')
+    if test_labels:
+        save_model(model, 'BEST', Partition.test)
+    else:
+        save_model(model, 'BEST', Partition.train)
 
     # Return the model
     return model
 
 
 #
-# Function score_with_model
+# Function predict_with
 #
 
-def score_with_model(model):
-    r"""AlphaPy Model Scoring
+def predict_with(model):
+    r"""AlphaPy Model Prediction
 
     Parameters
     ----------
@@ -313,7 +318,7 @@ def score_with_model(model):
 
     """
 
-    logger.info("SCORING")
+    logger.info("Predict Mode")
 
     # Unpack the model data
 
@@ -328,7 +333,7 @@ def score_with_model(model):
 
     predictor = load_model_object(directory)
 
-    # Score the test data
+    # Make predictions
     
     preds = predictor.predict(X_test)
     logger.info("Predictions: %s", preds)
@@ -347,7 +352,7 @@ def main_pipeline(model):
     Parameters
     ----------
     model : alphapy.Model
-        The model specifications for training or scoring.
+        The model specifications for training, testing, and prediction.
 
     Returns
     -------
@@ -362,17 +367,16 @@ def main_pipeline(model):
 
     # Call the data pipeline
 
-    model = data_pipeline(model)
+    model = data_pipeline(model, predict_mode)
 
     # Scoring Only or Calibration
 
     if predict_mode:
-        score_with_model(model)
+        predict_with(model)
     else:
         model = model_pipeline(model)
 
     # Return the completed model
-
     return model
 
 

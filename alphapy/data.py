@@ -30,6 +30,7 @@ from alphapy.frame import Frame
 from alphapy.frame import frame_name
 from alphapy.frame import read_frame
 from alphapy.globals import ModelType
+from alphapy.globals import Partition, datasets
 from alphapy.globals import PSEP, SSEP
 from alphapy.globals import SamplingMethod
 from alphapy.globals import WILDCARD
@@ -74,14 +75,14 @@ logger = logging.getLogger(__name__)
 #
 
 def get_data(model, partition):
-    r"""Read in data from the given directory in a given format.
+    r"""Get data for the given partition.
 
     Parameters
     ----------
     model : alphapy.Model
         The model object describing the data.
-    partition : str
-        ``train`` or ``test``.
+    partition : alphapy.Partition
+        Reference to the dataset.
 
     Returns
     -------
@@ -89,12 +90,6 @@ def get_data(model, partition):
         The feature set.
     y : pandas.Series
         The array of target values, if available.
-
-    Raises
-    ------
-    Exception
-        Partition not found.
-        Target not found.
 
     """
 
@@ -108,27 +103,18 @@ def get_data(model, partition):
     model_type = model.specs['model_type']
     separator = model.specs['separator']
     target = model.specs['target']
-    test_file = model.specs['test_file']
-    test_labels = model.specs['test_labels']
-    train_file = model.specs['train_file']
-
-    # Determine which partition to read
-
-    if partition == 'train':
-        filename = train_file
-        test_labels = True
-    elif partition == 'test':
-        filename = test_file
-    else:
-        raise Exception("Partition %s not found", partition)
+    test_file = model.test_file
+    train_file = model.train_file
 
     # Read in the file
 
+    filename = datasets[partition]
     input_dir = SSEP.join([directory, 'input'])
     df = read_frame(input_dir, filename, extension, separator)
 
     # Assign target and drop it if necessary
 
+    y = None
     if target in df.columns:
         logger.info("Found target %s in data frame", target)
         y = df[target]
@@ -138,9 +124,8 @@ def get_data(model, partition):
         # drop the target as it has already been extracted into y
         logger.info("Dropping target %s from data frame", target)
         df = df.drop([target], axis=1)
-    elif test_labels:
-        logger.info("Target ", target, " not found")
-        raise Exception("Target not found")
+    else:
+        logger.info("Target %s not found in partition %s", target, partition)
 
     # Extract features
 
@@ -150,11 +135,7 @@ def get_data(model, partition):
         X = df[features]
 
     # Labels are returned usually only for training data
-
-    if test_labels:
-        return X, y
-    else:
-        return X, None
+    return X, y
 
 
 #

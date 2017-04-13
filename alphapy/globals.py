@@ -68,6 +68,15 @@ MULTIPLIERS = {'stock' : 1.0}
 
 
 #
+# Datasets
+#
+
+datasets = {Partition.train   : 'train',
+            Partition.test    : 'test',
+            Partition.predict : 'predict'}
+
+
+#
 # Encoder Types
 #
 
@@ -158,6 +167,20 @@ class Orders:
     sx = 'sx'
     lh = 'lh'
     sh = 'sh'
+
+
+#
+# Partition Types
+#
+
+@unique
+class Partition(Enum):
+    """AlphaPy Partitions.
+
+    """
+    predict = 1
+    test = 2
+    train = 3
 
 
 #

@@ -34,6 +34,7 @@ from alphapy.frame import write_frame
 from alphapy.globals import Encoders
 from alphapy.globals import ModelType
 from alphapy.globals import Objective
+from alphapy.globals import Partition, datasets
 from alphapy.globals import PSEP, SSEP, USEP
 from alphapy.globals import SamplingMethod
 from alphapy.globals import Scalers
@@ -135,12 +136,19 @@ class Model:
             
     def __init__(self,
                  specs):
+        # specifications
         self.specs = specs
-        # initialize model
+        # data in memory
         self.X_train = None
         self.X_test = None
         self.y_train = None
         self.y_test = None
+        # test labels
+        self.test_labels = False
+        # datasets
+        self.train_file = datasets[Partition.train]
+        self.test_file = datasets[Partition.test]
+        # algorithms
         try:
             self.algolist = self.specs['algorithms']
         except:
@@ -220,9 +228,6 @@ def get_model_config():
     specs['split'] = cfg['data']['split']
     specs['target'] = cfg['data']['target']
     specs['target_value'] = cfg['data']['target_value']
-    specs['test_file'] = cfg['data']['test']
-    specs['test_labels'] = cfg['data']['test_labels']
-    specs['train_file'] = cfg['data']['train']
     # sampling
     specs['sampling'] = cfg['data']['sampling']['option']
     # determine whether or not sampling method is valid
@@ -433,9 +438,6 @@ def get_model_config():
     logger.info('submit_probas     = %r', specs['submit_probas'])
     logger.info('target [y]        = %s', specs['target'])
     logger.info('target_value      = %d', specs['target_value'])
-    logger.info('test_file         = %s', specs['test_file'])
-    logger.info('test_labels       = %r', specs['test_labels'])
-    logger.info('train_file        = %s', specs['train_file'])
     logger.info('treatments        = %s', specs['treatments'])
     logger.info('tsne              = %r', specs['tsne'])
     logger.info('tsne_components   = %d', specs['tsne_components'])
@@ -696,7 +698,7 @@ def make_predictions(model, algo, calibrate):
     cal_type = model.specs['cal_type']
     cv_folds = model.specs['cv_folds']
     model_type = model.specs['model_type']
-    test_labels = model.specs['test_labels']
+    test_labels = model.test_labels
 
     # Initialize class weights.
 
@@ -737,11 +739,11 @@ def make_predictions(model, algo, calibrate):
     # Make predictions on original training and test data.
 
     logger.info("Making Predictions")
-    model.preds[(algo, 'train')] = est.predict(X_train)
-    model.preds[(algo, 'test')] = est.predict(X_test)
+    model.preds[(algo, Partition.train)] = est.predict(X_train)
+    model.preds[(algo, Partition.test)] = est.predict(X_test)
     if model_type == ModelType.classification:
-        model.probas[(algo, 'train')] = est.predict_proba(X_train)[:, 1]
-        model.probas[(algo, 'test')] = est.predict_proba(X_test)[:, 1]
+        model.probas[(algo, Partition.train)] = est.predict_proba(X_train)[:, 1]
+        model.probas[(algo, Partition.test)] = est.predict_proba(X_test)[:, 1]
     logger.info("Predictions Complete")
 
     # Return the model
@@ -798,7 +800,7 @@ def predict_best(model):
 
     # Initialize best parameters.
 
-    partition = 'train' if y_test is None else 'test'
+    partition = Partition.train if y_test is None else Partition.test
     maximize = True if scorers[scorer][1] == Objective.maximize else False
     if maximize:
         best_score = -sys.float_info.max
@@ -837,11 +839,11 @@ def predict_best(model):
 
     logger.info("Best Model is %s with a %s score of %.4f", best_algo, scorer, best_score)
     model.estimators[best_tag] = model.estimators[best_algo]
-    model.preds[(best_tag, 'train')] = model.preds[(best_algo, 'train')]
-    model.preds[(best_tag, 'test')] = model.preds[(best_algo, 'test')]
+    model.preds[(best_tag, Partition.train)] = model.preds[(best_algo, Partition.train)]
+    model.preds[(best_tag, Partition.test)] = model.preds[(best_algo, Partition.test)]
     if model_type == ModelType.classification:
-        model.probas[(best_tag, 'train')] = model.probas[(best_algo, 'train')]
-        model.probas[(best_tag, 'test')] = model.probas[(best_algo, 'test')]
+        model.probas[(best_tag, Partition.train)] = model.probas[(best_algo, Partition.train)]
+        model.probas[(best_tag, Partition.test)] = model.probas[(best_algo, Partition.test)]
 
     # Return the model with best estimator and predictions.
 
@@ -914,11 +916,11 @@ def predict_blend(model):
             model.importances[algorithm] = estimator.feature_importances_
         # store predictions in the blended training set
         if model_type == ModelType.classification:
-            X_blend_train[:, i] = model.probas[(algorithm, 'train')]
-            X_blend_test[:, i] = model.probas[(algorithm, 'test')]
+            X_blend_train[:, i] = model.probas[(algorithm, Partition.train)]
+            X_blend_test[:, i] = model.probas[(algorithm, Partition.test)]
         else:
-            X_blend_train[:, i] = model.preds[(algorithm, 'train')]
-            X_blend_test[:, i] = model.preds[(algorithm, 'test')]
+            X_blend_train[:, i] = model.preds[(algorithm, Partition.train)]
+            X_blend_test[:, i] = model.preds[(algorithm, Partition.test)]
 
     # Use the blended estimator to make predictions
 
@@ -926,18 +928,18 @@ def predict_blend(model):
         clf = LogisticRegression()
         clf.fit(X_blend_train, y_train)
         model.estimators[blend_tag] = clf
-        model.preds[(blend_tag, 'train')] = clf.predict(X_blend_train)
-        model.preds[(blend_tag, 'test')] = clf.predict(X_blend_test)
-        model.probas[(blend_tag, 'train')] = clf.predict_proba(X_blend_train)[:, 1]
-        model.probas[(blend_tag, 'test')] = clf.predict_proba(X_blend_test)[:, 1]
+        model.preds[(blend_tag, Partition.train)] = clf.predict(X_blend_train)
+        model.preds[(blend_tag, Partition.test)] = clf.predict(X_blend_test)
+        model.probas[(blend_tag, Partition.train)] = clf.predict_proba(X_blend_train)[:, 1]
+        model.probas[(blend_tag, Partition.test)] = clf.predict_proba(X_blend_test)[:, 1]
     else:
         alphas = [0.0001, 0.005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5,
                   1.0, 5.0, 10.0, 50.0, 100.0, 500.0, 1000.0]    
         rcvr = RidgeCV(alphas=alphas, normalize=True, cv=cv_folds)
         rcvr.fit(X_blend_train, y_train)
         model.estimators[blend_tag] = rcvr
-        model.preds[(blend_tag, 'train')] = rcvr.predict(X_blend_train)
-        model.preds[(blend_tag, 'test')] = rcvr.predict(X_blend_test)
+        model.preds[(blend_tag, Partition.train)] = rcvr.predict(X_blend_train)
+        model.preds[(blend_tag, Partition.test)] = rcvr.predict(X_blend_test)
 
     # Return the model with blended estimator and predictions.
 
@@ -959,8 +961,8 @@ def generate_metrics(model, partition):
     ----------
     model : alphapy.Model
         The model object with stored predictions.
-    partition : str
-        ``'train'`` or ``'test'``
+    partition : alphapy.Partition
+        Reference to the dataset.
 
     Returns
     -------
@@ -992,7 +994,7 @@ def generate_metrics(model, partition):
 
     # Extract model data.
 
-    if partition == 'train':
+    if partition == Partition.train:
         expected = model.y_train
     else:
         expected = model.y_test
@@ -1131,8 +1133,8 @@ def save_model(model, tag, partition):
         The model object to save.
     tag : str
         A unique identifier for the output files, e.g., a date stamp.
-    partition : str
-        ``'train'`` or ``'test'``
+    partition : alphapy.Partition
+        Reference to the dataset.
 
     Returns
     -------

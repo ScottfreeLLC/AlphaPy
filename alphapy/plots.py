@@ -58,6 +58,7 @@ print(__doc__)
 from alphapy.estimators import get_estimators
 from alphapy.globals import BSEP, PSEP, SSEP, USEP
 from alphapy.globals import ModelType
+from alphapy.globals import Partition, datasets
 from alphapy.globals import Q1, Q3
 from alphapy.utilities import remove_list_items
 
@@ -103,8 +104,8 @@ def get_partition_data(model, partition):
     ----------
     model : alphapy.Model
         The model object with partition data.
-    partition : str
-        ``'train'`` or ``'test'``
+    partition : alphapy.Partition
+        Reference to the dataset.
 
     Returns
     -------
@@ -116,14 +117,14 @@ def get_partition_data(model, partition):
     Raises
     ------
     TypeError
-        Partition must be ``'train'`` or ``'test'``.
+        Partition must be train or test.
 
     """
 
-    if partition == 'train':
+    if partition == Partition.train:
         X = model.X_train
         y = model.y_train
-    elif partition == 'test':
+    elif partition == Partition.test:
         X = model.X_test
         y = model.y_test
     else:
@@ -143,8 +144,8 @@ def generate_plots(model, partition):
     ----------
     model : alphapy.Model
         The model object with plotting specifications.
-    partition : str
-        ``'train'`` or ``'test'``
+    partition : alphapy.Partition
+        Reference to the dataset.
 
     Returns
     -------
@@ -171,7 +172,7 @@ def generate_plots(model, partition):
         plot_confusion_matrix(model, partition)
     if roc_curve:
         plot_roc_curve(model, partition)
-    if partition == 'train':
+    if partition == Partition.train:
         if learning_curve:
             plot_learning_curve(model, partition)
         if importances:
@@ -273,8 +274,8 @@ def plot_calibration(model, partition):
     ----------
     model : alphapy.Model
         The model object with plotting specifications.
-    partition : str
-        ``'train'`` or ``'test'``
+    partition : alphapy.Partition
+        Reference to the dataset.
 
     Returns
     -------
@@ -349,8 +350,8 @@ def plot_importance(model, partition):
     ----------
     model : alphapy.Model
         The model object with plotting specifications.
-    partition : str
-        ``'train'`` or ``'test'``
+    partition : alphapy.Partition
+        Reference to the dataset.
 
     Returns
     -------
@@ -409,8 +410,8 @@ def plot_learning_curve(model, partition):
     ----------
     model : alphapy.Model
         The model object with plotting specifications.
-    partition : str
-        ``'train'`` or ``'test'``
+    partition : alphapy.Partition
+        Reference to the dataset.
 
     Returns
     -------
@@ -501,8 +502,8 @@ def plot_roc_curve(model, partition):
     ----------
     model : alphapy.Model
         The model object with plotting specifications.
-    partition : str
-        ``'train'`` or ``'test'``
+    partition : alphapy.Partition
+        Reference to the dataset.
 
     Returns
     -------
@@ -572,8 +573,8 @@ def plot_confusion_matrix(model, partition):
     ----------
     model : alphapy.Model
         The model object with plotting specifications.
-    partition : str
-        ``'train'`` or ``'test'``
+    partition : alphapy.Partition
+        Reference to the dataset.
 
     Returns
     -------
@@ -651,8 +652,8 @@ def plot_validation_curve(model, partition, pname, prange):
     ----------
     model : alphapy.Model
         The model object with plotting specifications.
-    partition : str
-        ``'train'`` or ``'test'``
+    partition : alphapy.Partition
+        Reference to the dataset.
     pname : str
         Name of the hyperparameter to test.
     prange : numpy array
@@ -739,8 +740,8 @@ def plot_boundary(model, partition, f1=0, f2=1):
     ----------
     model : alphapy.Model
         The model object with plotting specifications.
-    partition : str
-        ``'train'`` or ``'test'``
+    partition : alphapy.Partition
+        Reference to the dataset.
     f1 : int
         Number of the first feature to compare.
     f2 : int
