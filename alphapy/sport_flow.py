@@ -1,7 +1,7 @@
 ################################################################################
 #
 # Package   : AlphaPy
-# Module    : sportstream
+# Module    : sport_flow
 # Created   : July 11, 2013
 #
 # Copyright 2017 ScottFree Analytics LLC
@@ -19,8 +19,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Example: sportstream -d './config'
-#
 ################################################################################
 
 
@@ -33,9 +31,9 @@ print(__doc__)
 from alphapy.__main__ import main_pipeline
 from alphapy.frame import read_frame
 from alphapy.frame import write_frame
-from alphapy.globs import ModelType
-from alphapy.globs import PSEP, SSEP, USEP
-from alphapy.globs import WILDCARD
+from alphapy.globals import ModelType
+from alphapy.globals import PSEP, SSEP, USEP
+from alphapy.globals import WILDCARD
 from alphapy.model import get_model_config
 from alphapy.model import Model
 from alphapy.space import Space
@@ -131,28 +129,26 @@ game_dict = {'point_margin_game' : int,
 
 
 #
-# Function get_game_config
+# Function get_sport_config
 #
 
-def get_game_config(cfg_dir):
-    r"""Read the configuration file for SportStream.
+def get_sport_config():
+    r"""Read the configuration file for SportFlow.
 
     Parameters
     ----------
-    cfg_dir : str
-        The directory where the configuration file ``game.yml``
-        is stored.
+    None : None
 
     Returns
     -------
     specs : dict
-        The parameters for controlling StockStream.
+        The parameters for controlling SportFlow.
 
     """
 
     # Read the configuration file
 
-    full_path = SSEP.join([cfg_dir, 'game.yml'])
+    full_path = SSEP.join(['.', 'config', 'sport.yml'])
     with open(full_path, 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
 
@@ -160,19 +156,19 @@ def get_game_config(cfg_dir):
 
     specs = {}
 
-    # Section: game
+    # Section: sport
 
-    specs['points_max'] = cfg['game']['points_max']
-    specs['points_min'] = cfg['game']['points_min']
-    specs['predict_date'] = cfg['game']['predict_date']
-    specs['random_scoring'] = cfg['game']['random_scoring']
-    specs['rolling_window'] = cfg['game']['rolling_window']   
-    specs['seasons'] = cfg['game']['seasons']
-    specs['train_date'] = cfg['game']['train_date']
+    specs['points_max'] = cfg['sport']['points_max']
+    specs['points_min'] = cfg['sport']['points_min']
+    specs['predict_date'] = cfg['sport']['predict_date']
+    specs['random_scoring'] = cfg['sport']['random_scoring']
+    specs['rolling_window'] = cfg['sport']['rolling_window']   
+    specs['seasons'] = cfg['sport']['seasons']
+    specs['train_date'] = cfg['sport']['train_date']
 
-    # Log the game parameters
+    # Log the sports parameters
 
-    logger.info('GAME PARAMETERS:')
+    logger.info('SPORT PARAMETERS:')
     logger.info('points_max       = %d', specs['points_max'])
     logger.info('points_min       = %d', specs['points_min'])
     logger.info('predict_date     = %s', specs['predict_date'])
@@ -615,7 +611,7 @@ def generate_delta_data(frame, fdict, prefix1, prefix2):
 #
 
 def main(args=None):
-    r"""The main program for SportStream.
+    r"""The main program for SportFlow.
 
     Notes
     -----
@@ -633,7 +629,7 @@ def main(args=None):
     # Logging
 
     logging.basicConfig(format="[%(asctime)s] %(levelname)s\t%(message)s",
-                        filename="sportstream.log", filemode='a', level=logging.DEBUG,
+                        filename="SportFlow.log", filemode='a', level=logging.DEBUG,
                         datefmt='%m/%d/%y %H:%M:%S')
     formatter = logging.Formatter("[%(asctime)s] %(levelname)s\t%(message)s",
                                   datefmt='%m/%d/%y %H:%M:%S')
@@ -647,33 +643,31 @@ def main(args=None):
     # Start the pipeline
 
     logger.info('*'*80)
-    logger.info("START SportStream PIPELINE")
+    logger.info("SportFlow Start")
     logger.info('*'*80)
 
     # Argument Parsing
 
-    parser = argparse.ArgumentParser(description="SportStream Parser")
-    parser.add_argument("-d", dest="cfg_dir", default=".",
-                        help="directory location of configuration files")
+    parser = argparse.ArgumentParser(description="SportFlow Parser")
     parser.add_mutually_exclusive_group(required=False)
-    parser.add_argument('--score', dest='scoring', action='store_true')
-    parser.add_argument('--train', dest='scoring', action='store_false')
-    parser.set_defaults(scoring=False)
+    parser.add_argument('--predict', dest='predict_mode', action='store_true')
+    parser.add_argument('--train', dest='predict_mode', action='store_false')
+    parser.set_defaults(predict_mode=False)
     args = parser.parse_args()
 
     # Read game configuration file
 
-    game_specs = get_game_config(args.cfg_dir)
+    sport_specs = get_sport_config()
 
     # Section: game
 
-    points_max = game_specs['points_max']
-    points_min = game_specs['points_min']
-    predict_date = game_specs['predict_date']
-    random_scoring = game_specs['random_scoring']
-    seasons = game_specs['seasons']
-    train_date = game_specs['train_date']
-    window = game_specs['rolling_window']   
+    points_max = sport_specs['points_max']
+    points_min = sport_specs['points_min']
+    predict_date = sport_specs['predict_date']
+    random_scoring = sport_specs['random_scoring']
+    seasons = sport_specs['seasons']
+    train_date = sport_specs['train_date']
+    window = sport_specs['rolling_window']   
 
     # Read model configuration file
 
@@ -870,7 +864,7 @@ def main(args=None):
     # Complete the pipeline
 
     logger.info('*'*80)
-    logger.info("END SportStream PIPELINE")
+    logger.info("SportFlow Completed")
     logger.info('*'*80)
 
 

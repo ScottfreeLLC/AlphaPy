@@ -29,7 +29,7 @@
 from alphapy.__main__ import main_pipeline
 from alphapy.frame import load_frames
 from alphapy.frame import write_frame
-from alphapy.globs import SSEP, USEP
+from alphapy.globals import SSEP, USEP
 
 import logging
 import pandas as pd

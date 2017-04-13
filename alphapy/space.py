@@ -26,7 +26,7 @@
 # Imports
 #
 
-from alphapy.globs import USEP
+from alphapy.globals import USEP
 
 
 #

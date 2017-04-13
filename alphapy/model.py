@@ -31,12 +31,12 @@ from alphapy.estimators import xgb_score_map
 from alphapy.features import feature_scorers
 from alphapy.frame import read_frame
 from alphapy.frame import write_frame
-from alphapy.globs import Encoders
-from alphapy.globs import ModelType
-from alphapy.globs import Objective
-from alphapy.globs import PSEP, SSEP, USEP
-from alphapy.globs import SamplingMethod
-from alphapy.globs import Scalers
+from alphapy.globals import Encoders
+from alphapy.globals import ModelType
+from alphapy.globals import Objective
+from alphapy.globals import PSEP, SSEP, USEP
+from alphapy.globals import SamplingMethod
+from alphapy.globals import Scalers
 
 from copy import copy
 from datetime import datetime
@@ -171,14 +171,12 @@ class Model:
 # Function get_model_config
 #
 
-def get_model_config(cfg_dir):
+def get_model_config():
     r"""Read in the configuration file for AlphaPy.
 
     Parameters
     ----------
-    cfg_dir : str
-        The directory where the configuration file ``model.yml``
-        is stored.
+    None : None
 
     Returns
     -------
@@ -196,7 +194,7 @@ def get_model_config(cfg_dir):
 
     # Read the configuration file
 
-    full_path = SSEP.join([cfg_dir, 'model.yml'])
+    full_path = SSEP.join([PSEP, 'config', 'model.yml'])
     with open(full_path, 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
 

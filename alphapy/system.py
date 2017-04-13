@@ -29,11 +29,11 @@
 from alphapy.frame import Frame
 from alphapy.frame import frame_name
 from alphapy.frame import write_frame
-from alphapy.globs import Orders
-from alphapy.globs import SSEP
+from alphapy.globals import Orders
+from alphapy.globals import SSEP
+from alphapy.market_variables import vexec
 from alphapy.space import Space
 from alphapy.portfolio import Trade
-from alphapy.var import vexec
 
 import logging
 from pandas import DataFrame

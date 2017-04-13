@@ -1,7 +1,7 @@
 ################################################################################
 #
 # Package   : AlphaPy
-# Module    : util
+# Module    : utilities
 # Created   : July 11, 2013
 #
 # Copyright 2017 ScottFree Analytics LLC
@@ -26,7 +26,7 @@
 # Imports
 #
 
-from alphapy.globs import PSEP, USEP
+from alphapy.globals import PSEP, USEP
 
 import inspect
 from itertools import groupby

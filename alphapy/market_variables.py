@@ -1,7 +1,7 @@
 ################################################################################
 #
 # Package   : AlphaPy
-# Module    : var
+# Module    : market_variables
 # Created   : July 11, 2013
 #
 # Copyright 2017 ScottFree Analytics LLC
@@ -48,8 +48,8 @@
 from alphapy.alias import get_alias
 from alphapy.frame import Frame
 from alphapy.frame import frame_name
-from alphapy.globs import BSEP, LOFF, ROFF, USEP
-from alphapy.util import valid_name
+from alphapy.globals import BSEP, LOFF, ROFF, USEP
+from alphapy.utilities import valid_name
 
 from collections import OrderedDict
 from importlib import import_module
@@ -1495,7 +1495,7 @@ def rsi(f, c, p = 14):
 
     References
     ----------
-    *Developed J. Welles Wilder, the Relative Strength Index (RSI) is a momentum
+    *Developed by J. Welles Wilder, the Relative Strength Index (RSI) is a momentum
     oscillator that measures the speed and change of price movements* [SC_RSI]_.
 
     .. [SC_RSI] http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi

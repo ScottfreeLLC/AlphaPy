@@ -30,8 +30,8 @@ from alphapy.frame import Frame
 from alphapy.frame import frame_name
 from alphapy.frame import read_frame
 from alphapy.frame import write_frame
-from alphapy.globs import MULTIPLIERS, SSEP
-from alphapy.globs import Orders
+from alphapy.globals import MULTIPLIERS, SSEP
+from alphapy.globals import Orders
 from alphapy.space import Space
 
 import logging

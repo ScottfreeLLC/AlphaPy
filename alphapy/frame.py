@@ -26,7 +26,7 @@
 # Imports
 #
 
-from alphapy.globs import PSEP, SSEP, USEP
+from alphapy.globals import PSEP, SSEP, USEP
 
 import logging
 import pandas as pd

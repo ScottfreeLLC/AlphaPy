@@ -1,7 +1,7 @@
 ################################################################################
 #
 # Package   : AlphaPy
-# Module    : globs
+# Module    : globals
 # Created   : July 11, 2013
 #
 # Copyright 2017 ScottFree Analytics LLC

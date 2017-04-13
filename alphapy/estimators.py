@@ -27,9 +27,9 @@
 #
 
 from alphapy.estimator import Estimator
-from alphapy.globs import ModelType
-from alphapy.globs import Objective
-from alphapy.globs import SSEP
+from alphapy.globals import ModelType
+from alphapy.globals import Objective
+from alphapy.globals import SSEP
 
 import logging
 import numpy as np

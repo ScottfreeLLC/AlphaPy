@@ -79,7 +79,6 @@ Classification Algorithms:
 
 * AdaBoost
 * Extra Trees
-* Google TensorFlow
 * Gradient Boosting
 * K-Nearest Neighbors
 * Logistic Regression

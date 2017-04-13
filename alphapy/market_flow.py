@@ -1,7 +1,7 @@
 ################################################################################
 #
 # Package   : AlphaPy
-# Module    : stockstream
+# Module    : market_flow
 # Created   : July 11, 2013
 #
 # Copyright 2017 ScottFree Analytics LLC
@@ -19,8 +19,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Example: stockstream -d './config'
-#
 ################################################################################
 
 
@@ -32,13 +30,13 @@ from alphapy.alias import Alias
 from alphapy.analysis import Analysis
 from alphapy.analysis import run_analysis
 from alphapy.data import get_feed_data
-from alphapy.globs import SSEP
+from alphapy.globals import PSEP, SSEP
 from alphapy.group import Group
+from alphapy.market_variables import Variable
+from alphapy.market_variables import vmapply
 from alphapy.model import get_model_config
 from alphapy.model import Model
 from alphapy.space import Space
-from alphapy.var import Variable
-from alphapy.var import vmapply
 
 import argparse
 import logging
@@ -56,27 +54,25 @@ logger = logging.getLogger(__name__)
 # Function get_market_config
 #
 
-def get_market_config(cfg_dir):
-    r"""Read the configuration file for StockStream.
+def get_market_config():
+    r"""Read the configuration file for MarketFlow.
 
     Parameters
     ----------
-    cfg_dir : str
-        The directory where the configuration file ``market.yml``
-        is stored.
+    None : None
 
     Returns
     -------
     specs : dict
-        The parameters for controlling StockStream.
+        The parameters for controlling MarketFlow.
 
     """
 
-    logger.info("StockStream Configuration")
+    logger.info("MarketFlow Configuration")
 
     # Read the configuration file
 
-    full_path = SSEP.join([cfg_dir, 'market.yml'])
+    full_path = SSEP.join([PSEP, 'config', 'market.yml'])
     with open(full_path, 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
 
@@ -179,14 +175,14 @@ def get_market_config(cfg_dir):
 #
 
 def market_pipeline(model, market_specs):
-    r"""AlphaPy StockStream Pipeline
+    r"""AlphaPy MarketFlow Pipeline
 
     Parameters
     ----------
     model : alphapy.Model
         The model object for AlphaPy.
     market_specs : dict
-        The specifications for controlling the StockStream pipeline.
+        The specifications for controlling the MarketFlow pipeline.
 
     Returns
     -------
@@ -203,7 +199,7 @@ def market_pipeline(model, market_specs):
 
     """
 
-    logger.info("Running StockStream Pipeline")
+    logger.info("Running MarketFlow Pipeline")
 
     # Get any model specifications
     target = model.specs['target']
@@ -218,6 +214,16 @@ def market_pipeline(model, market_specs):
     predict_date = market_specs['predict_date']
     target_group = market_specs['target_group']
     train_date = market_specs['train_date']
+
+    # Get the system specifications
+
+    system_name = market_specs['system']['name']
+    longentry = market_specs['system']['longentry']
+    shortentry = market_specs['system']['shortentry']
+    longexit = market_specs['system']['longexit']
+    shortexit = market_specs['system']['shortexit']
+    holdperiod = market_specs['system']['holdperiod']
+    scale = market_specs['system']['scale']
 
     # Set the target group
 
@@ -238,6 +244,15 @@ def market_pipeline(model, market_specs):
     a = Analysis(model, gs, train_date, predict_date)
     results = run_analysis(a, forecast_period, leaders)
 
+    # Create and run the system
+
+    cs = System(system_name, longentry, shortentry,
+                longexit, shortexit, holdperiod, scale)
+    tfs = run_system(model, cs, gs)
+ 
+    # Generate a portfolio
+    gen_portfolio(model, system_name, gs, tfs)
+
     # Return the completed model
 
     return model
@@ -248,7 +263,7 @@ def market_pipeline(model, market_specs):
 #
 
 def main(args=None):
-    r"""AlphaPy Main Program
+    r"""MarketFlow Main Program
 
     Notes
     -----
@@ -257,14 +272,14 @@ def main(args=None):
     (3) Get the market configuration.
     (4) Get the model configuration.
     (5) Create the model object.
-    (6) Call the main StockStream pipeline.
+    (6) Call the main MarketFlow pipeline.
 
     """
 
     # Logging
 
     logging.basicConfig(format="[%(asctime)s] %(levelname)s\t%(message)s",
-                        filename="stockstream.log", filemode='a', level=logging.DEBUG,
+                        filename="market_flow.log", filemode='a', level=logging.DEBUG,
                         datefmt='%m/%d/%y %H:%M:%S')
     formatter = logging.Formatter("[%(asctime)s] %(levelname)s\t%(message)s",
                                   datefmt='%m/%d/%y %H:%M:%S')
@@ -276,28 +291,26 @@ def main(args=None):
     # Start the pipeline
 
     logger.info('*'*80)
-    logger.info("START StockStream PIPELINE")
+    logger.info("MarketFlow Start")
     logger.info('*'*80)
 
     # Argument Parsing
 
-    parser = argparse.ArgumentParser(description="StockStream Parser")
-    parser.add_argument("-d", dest="cfg_dir", default=".",
-                        help="directory location of configuration file")
+    parser = argparse.ArgumentParser(description="MarketFlow Parser")
     parser.add_mutually_exclusive_group(required=False)
-    parser.add_argument('--score', dest='scoring', action='store_true')
-    parser.add_argument('--train', dest='scoring', action='store_false')
-    parser.set_defaults(scoring=False)
+    parser.add_argument('--predict', dest='predict_mode', action='store_true')
+    parser.add_argument('--train', dest='predict_mode', action='store_false')
+    parser.set_defaults(predict_mode=False)
     args = parser.parse_args()
 
     # Read stock configuration file
 
-    market_specs = get_market_config(args.cfg_dir)
+    market_specs = get_market_config()
 
     # Read model configuration file
 
-    model_specs = get_model_config(args.cfg_dir)
-    model_specs['scoring'] = args.scoring
+    model_specs = get_model_config()
+    model_specs['predict_mode'] = args.predict_mode
 
     # Create a model from the arguments
 
@@ -311,7 +324,7 @@ def main(args=None):
     # Complete the pipeline
 
     logger.info('*'*80)
-    logger.info("END StockStream PIPELINE")
+    logger.info("MarketFlow End")
     logger.info('*'*80)
 
 

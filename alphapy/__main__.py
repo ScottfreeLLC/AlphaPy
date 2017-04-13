@@ -19,8 +19,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Example: alphapy -d './config'
-#
 ################################################################################
 
 
@@ -39,9 +37,9 @@ from alphapy.features import drop_features
 from alphapy.features import remove_lv_features
 from alphapy.features import save_features
 from alphapy.features import select_features
-from alphapy.globs import CSEP, PSEP, SSEP
-from alphapy.globs import ModelType
-from alphapy.globs import WILDCARD
+from alphapy.globals import CSEP, PSEP, SSEP
+from alphapy.globals import ModelType
+from alphapy.globals import WILDCARD
 from alphapy.model import first_fit
 from alphapy.model import generate_metrics
 from alphapy.model import get_model_config
@@ -96,11 +94,11 @@ def data_pipeline(model):
     Notes
     -----
     The data are loaded, the features are processed, and the model
-    object is updated for either the training or scoring stage.
+    object is updated for either the training or prediction stage.
 
     """
 
-    logger.info("DATA PIPELINE")
+    logger.info("Data Pipeline")
 
     # Unpack the model specifications
 
@@ -195,7 +193,7 @@ def model_pipeline(model):
 
     """
 
-    logger.info("MODEL PIPELINE")
+    logger.info("Model Pipeline")
 
     # Unpack the model specifications
 
@@ -360,7 +358,7 @@ def main_pipeline(model):
 
     # Extract any model specifications
 
-    scoring = model.specs['scoring']
+    predict_mode = model.specs['predict_mode']
 
     # Call the data pipeline
 
@@ -368,7 +366,7 @@ def main_pipeline(model):
 
     # Scoring Only or Calibration
 
-    if scoring:
+    if predict_mode:
         score_with_model(model)
     else:
         model = model_pipeline(model)
@@ -410,24 +408,22 @@ def main(args=None):
     # Start the pipeline
 
     logger.info('*'*80)
-    logger.info("START PIPELINE")
+    logger.info("AlphaPy Start")
     logger.info('*'*80)
 
     # Argument Parsing
 
     parser = argparse.ArgumentParser(description="AlphaPy Parser")
-    parser.add_argument("-d", dest="cfg_dir", default=".",
-                        help="directory location of configuration file")
     parser.add_mutually_exclusive_group(required=False)
-    parser.add_argument('--score', dest='scoring', action='store_true')
-    parser.add_argument('--train', dest='scoring', action='store_false')
-    parser.set_defaults(scoring=False)
+    parser.add_argument('--predict', dest='predict_mode', action='store_true')
+    parser.add_argument('--train', dest='predict_mode', action='store_false')
+    parser.set_defaults(predict_mode=False)
     args = parser.parse_args()
 
     # Read configuration file
 
-    specs = get_model_config(args.cfg_dir)
-    specs['scoring'] = args.scoring
+    specs = get_model_config()
+    specs['predict_mode'] = args.predict_mode
 
     # Create a model from the arguments
 
@@ -442,7 +438,7 @@ def main(args=None):
     # Complete the pipeline
 
     logger.info('*'*80)
-    logger.info("END PIPELINE")
+    logger.info("AlphaPy End")
     logger.info('*'*80)
 
 

@@ -26,11 +26,11 @@
 # Imports
 #
 
-from alphapy.globs import BSEP, NULLTEXT, USEP
-from alphapy.globs import Encoders
-from alphapy.globs import ModelType
-from alphapy.globs import Scalers
-from alphapy.var import Variable
+from alphapy.globals import BSEP, NULLTEXT, USEP
+from alphapy.globals import Encoders
+from alphapy.globals import ModelType
+from alphapy.globals import Scalers
+from alphapy.market_variables import Variable
 
 import category_encoders as ce
 from gplearn.genetic import SymbolicTransformer

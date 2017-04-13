@@ -26,7 +26,7 @@
 # Imports
 #
 
-from alphapy.globs import ModelType
+from alphapy.globals import ModelType
 
 from datetime import datetime
 import logging

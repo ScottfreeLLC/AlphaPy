@@ -68,10 +68,10 @@ alphapy.frame module
     :undoc-members:
     :show-inheritance:
 
-alphapy.globs module
---------------------
+alphapy.globals module
+----------------------
 
-.. automodule:: alphapy.globs
+.. automodule:: alphapy.globals
     :members:
     :undoc-members:
     :show-inheritance:
@@ -80,6 +80,22 @@ alphapy.group module
 --------------------
 
 .. automodule:: alphapy.group
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+alphapy.market_flow module
+--------------------------
+
+.. automodule:: alphapy.market_flow
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+alphapy.market_variables module
+-------------------------------
+
+.. automodule:: alphapy.market_variables
     :members:
     :undoc-members:
     :show-inheritance:
@@ -124,18 +140,10 @@ alphapy.space module
     :undoc-members:
     :show-inheritance:
 
-alphapy.sportstream module
---------------------------
+alphapy.sport_flow module
+-------------------------
 
-.. automodule:: alphapy.sportstream
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-alphapy.stockstream module
---------------------------
-
-.. automodule:: alphapy.stockstream
+.. automodule:: alphapy.sport_flow
     :members:
     :undoc-members:
     :show-inheritance:
@@ -148,26 +156,10 @@ alphapy.system module
     :undoc-members:
     :show-inheritance:
 
-alphapy.systemstream module
----------------------------
+alphapy.utilities module
+------------------------
 
-.. automodule:: alphapy.systemstream
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-alphapy.util module
--------------------
-
-.. automodule:: alphapy.util
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-alphapy.var module
-------------------
-
-.. automodule:: alphapy.var
+.. automodule:: alphapy.utilities
     :members:
     :undoc-members:
     :show-inheritance:
