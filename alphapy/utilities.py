@@ -28,41 +28,13 @@
 
 from alphapy.globals import PSEP, USEP
 
+import argparse
+from datetime import datetime
 import inspect
 from itertools import groupby
 from os import listdir
 from os.path import isfile, join
 import re
-
-
-#
-# Function valid_name
-#
-
-def valid_name(name):
-    r"""Determine whether or not the given string is a valid
-    alphanumeric string.
-
-    Parameters
-    ----------
-    name : str
-        An alphanumeric identifier.
-
-    Returns
-    -------
-    result : bool
-        ``True`` if the name is valid, else ``False``.
-
-    Examples
-    --------
-
-    >>> valid_name('alpha')   # True
-    >>> valid_name('!alpha')  # False
-
-    """
-    identifier = re.compile(r"^[^\d\W]\w*\Z", re.UNICODE)
-    result = re.match(identifier, name)
-    return result is not None
 
 
 #
@@ -93,3 +65,70 @@ def remove_list_items(elements, alist):
     """
     sublist = [x for x in alist if x not in elements]
     return sublist
+
+
+#
+# Function valid_date
+#
+
+def valid_date(date_string):
+    r"""Determine whether or not the given string is a valid date.
+
+    Parameters
+    ----------
+    date_string : str
+        An alphanumeric string in the format %Y-%m-%d.
+
+    Returns
+    -------
+    date_time : datetime
+        The converted date string in %Y-%m-%d format.
+
+    Raises
+    ------
+    ValueError
+        Not a valid date.
+
+    Examples
+    --------
+
+    >>> valid_date('2016-7-1')   # datetime.datetime(2016, 7, 1, 0, 0)
+    >>> valid_date('345')        # ValueError: Not a valid date
+
+    """
+    try:
+        date_time = datetime.strptime(date_string, "%Y-%m-%d")
+        return date_time
+    except:
+        message = "Not a valid date: '{0}'.".format(date_string)
+        raise argparse.ArgumentTypeError(message)
+
+
+#
+# Function valid_name
+#
+
+def valid_name(name):
+    r"""Determine whether or not the given string is a valid
+    alphanumeric string.
+
+    Parameters
+    ----------
+    name : str
+        An alphanumeric identifier.
+
+    Returns
+    -------
+    result : bool
+        ``True`` if the name is valid, else ``False``.
+
+    Examples
+    --------
+
+    >>> valid_name('alpha')   # True
+    >>> valid_name('!alpha')  # False
+
+    """
+    identifier = re.compile(r"^[^\d\W]\w*\Z", re.UNICODE)
+    result = re.match(identifier, name)
+    return result is not None

@@ -1,5 +1,5 @@
-SportStream
-===========
+SportFlow
+=========
 
 .. image:: sports_pipeline.png
    :alt: Sports Pipeline

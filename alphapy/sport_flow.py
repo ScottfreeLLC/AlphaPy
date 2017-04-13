@@ -37,6 +37,7 @@ from alphapy.globals import WILDCARD
 from alphapy.model import get_model_config
 from alphapy.model import Model
 from alphapy.space import Space
+from alphapy.utilities import valid_date
 
 import argparse
 import datetime
@@ -653,6 +654,9 @@ def main(args=None):
     parser.add_argument('--predict', dest='predict_mode', action='store_true')
     parser.add_argument('--train', dest='predict_mode', action='store_false')
     parser.set_defaults(predict_mode=False)
+    parser.add_argument('-d', "--pdate", dest='predict_date',
+                        help="prediction date is in the format: YYYY-MM-DD",
+                        required=False, type=valid_date)
     args = parser.parse_args()
 
     # Read game configuration file
@@ -672,7 +676,8 @@ def main(args=None):
     # Read model configuration file
 
     specs = get_model_config(args.cfg_dir)
-    specs['scoring'] = args.scoring
+    specs['predict_mode'] = args.predict_mode
+    specs['predict_date'] = args.predict_date
 
     # Unpack model arguments
 

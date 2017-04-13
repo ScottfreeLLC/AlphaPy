@@ -37,6 +37,7 @@ from alphapy.market_variables import vmapply
 from alphapy.model import get_model_config
 from alphapy.model import Model
 from alphapy.space import Space
+from alphapy.utilities import valid_date
 
 import argparse
 import logging
@@ -301,6 +302,9 @@ def main(args=None):
     parser.add_argument('--predict', dest='predict_mode', action='store_true')
     parser.add_argument('--train', dest='predict_mode', action='store_false')
     parser.set_defaults(predict_mode=False)
+    parser.add_argument('-d', "--pdate", dest='predict_date',
+                        help="prediction date is in the format: YYYY-MM-DD",
+                        required=False, type=valid_date)
     args = parser.parse_args()
 
     # Read stock configuration file
@@ -311,6 +315,7 @@ def main(args=None):
 
     model_specs = get_model_config()
     model_specs['predict_mode'] = args.predict_mode
+    model_specs['predict_date'] = args.predict_date
 
     # Create a model from the arguments
 

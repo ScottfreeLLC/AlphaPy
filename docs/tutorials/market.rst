@@ -4,7 +4,7 @@ Market Prediction Tutorial
 From the ``examples`` directory, run the following commands::
 
     cd "Trading Model"
-    stockstream -d './config'
+    mflow
     jupyter notebook
 
 Once you come to the conclusion that there is no master algorithm, then

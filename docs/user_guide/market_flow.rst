@@ -1,11 +1,11 @@
-StockStream
+MarketFlow
 ===========
 
-**StockStream** transforms financial market data into machine learning
+**MarketFlow** transforms financial market data into machine learning
 models for making market predictions. The platform gets stock price
 data from Yahoo Finance (end-of-day) and Google Finance (intraday),
 transforming the data into canonical form for training and testing.
-StockStream is powerful because you can easily apply new features
+MarketFlow is powerful because you can easily apply new features
 to groups of stocks simultaneously using our *Feature Definition
 Language* (FDL). All of the dataframes are aggregated and split
 into training and testing files for input into *AlphaPy*.
@@ -18,7 +18,7 @@ into training and testing files for input into *AlphaPy*.
 Data Sources
 ------------
 
-StockStream gets daily stock prices from Yahoo Finance and intraday
+MarketFlow gets daily stock prices from Yahoo Finance and intraday
 stock prices from Google Finance. Both data sources have the standard
 primitives: ``Open``, ``High``, ``Low``, ``Close``, and ``Volume``.
 For daily data, there is a ``Date`` timestamp and for intraday data,
@@ -46,7 +46,7 @@ Configuration
 
 The market configuration file (``market.yml``) is written in YAML
 and is divided into logical sections reflecting different parts
-of **StockStream**. This file is stored in the ``config`` directory
+of **MarketFlow**. This file is stored in the ``config`` directory
 of your project, along with the ``model.yml`` and ``algos.yml`` files.
 The ``market`` section has the following parameters:
 
@@ -165,3 +165,40 @@ AlphaPy Configuration
 .. literalinclude:: market_model.yml
    :language: text
    :caption: **model.yml**
+
+SystemStream
+------------
+
+**SystemStream** transforms financial market data into machine learning
+models for making market predictions. The platform gets stock price
+data from Yahoo Finance (end-of-day) and Google Finance (intraday),
+transforming the data into canonical form for training and testing.
+StockStream is powerful because you can easily apply new features
+to groups of stocks simultaneously using our *Feature Definition
+Language* (FDL). All of the dataframes are aggregated and split
+into training and testing files for input into *AlphaPy*.
+
+.. image:: system_pipeline.png
+   :alt: Market Pipeline
+   :width: 100%
+   :align: center
+
+Configuration
+-------------
+
+Here is an example of a model configuration file. It is written in YAML
+and is divided into logical sections reflecting different parts of the
+pipeline.
+
+.. literalinclude:: systemstream.yml
+   :language: yaml
+   :caption: **market.yml**
+
+Data Sources
+------------
+
+.. csv-table:: Amazon Daily Stock Prices (Source: Yahoo)
+   :file: amzn_daily.csv
+
+.. csv-table:: Amazon Intraday Stock Prices (Source: Google)
+   :file: amzn_intraday.csv

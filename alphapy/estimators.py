@@ -26,7 +26,6 @@
 # Imports
 #
 
-from alphapy.estimator import Estimator
 from alphapy.globals import ModelType
 from alphapy.globals import Objective
 from alphapy.globals import SSEP
@@ -94,6 +93,58 @@ xgb_score_map = {'neg_log_loss'           : 'logloss',
                  'neg_mean_squared_error' : 'rmse',
                  'precision'              : 'map',
                  'roc_auc'                : 'auc'}
+
+
+#
+# Class Estimator
+#
+
+class Estimator:
+    """Store information about each estimator.
+
+    Parameters
+    ----------
+    algorithm : str
+        Abbreviation representing the given algorithm.
+    model_type : enum ModelType
+        The machine learning task for this algorithm.
+    estimator : function
+        A scikit-learn, TensorFlow, or XGBoost function.
+    grid : dict
+        The dictionary of hyperparameters for grid search.
+    scoring : bool, optional
+        Use a scoring function to evaluate the best model.
+
+    """
+
+    # __new__
+    
+    def __new__(cls,
+                algorithm,
+                model_type,
+                estimator,
+                grid,
+                scoring=False):
+        return super(Estimator, cls).__new__(cls)
+    
+    # __init__
+    
+    def __init__(self,
+                 algorithm,
+                 model_type,
+                 estimator,
+                 grid,
+                 scoring=False):
+        self.algorithm = algorithm.upper()
+        self.model_type = model_type
+        self.estimator = estimator
+        self.grid = grid
+        self.scoring = scoring
+        
+    # __str__
+
+    def __str__(self):
+        return self.name
 
 
 #

@@ -1,5 +1,5 @@
-AlphaPy Pipeline
-================
+AlphaPy
+=======
 
 .. image:: model_pipeline.png
    :alt: AlphaPy Model Pipeline

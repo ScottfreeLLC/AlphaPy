@@ -7,20 +7,21 @@ project location, where you have already followed the
 :doc:`../user_guide/project` specifications::
 
     cd path/to/project
-    alphapy -d './config'
+
+Run this command to train a model::
+
+    alphapy
 
 Usage::
 
-    alphapy -d config_dir [--score | --train]
+    alphapy [--predict | --train]
 
 The AlphaPy CLI has the following options:
 
--d          Directory location of the model.yml configuration file
---score     Make predictions from a saved model
+--predict   Make predictions from a saved model
 --train     Train a new model and make predictions [Default]
 
 The domain pipelines have the same syntax::
 
-    sportstream -d config_dir [--score | --train]
-    stockstream -d config_dir [--score | --train]
-    systemstream -d config_dir [--score | --train]
+    mflow [--predict | --train]
+    sflow [--predict | --train]

@@ -36,14 +36,6 @@ alphapy.data module
     :undoc-members:
     :show-inheritance:
 
-alphapy.estimator module
-------------------------
-
-.. automodule:: alphapy.estimator
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 alphapy.estimators module
 -------------------------
 
