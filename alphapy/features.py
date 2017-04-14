@@ -45,6 +45,7 @@ from scipy import sparse
 import scipy.stats as sps
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.decomposition import PCA
+from sklearn.externals import joblib
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_selection import chi2
@@ -661,21 +662,70 @@ def float_factor(x, rounding):
 
 
 #
+# Function create_crosstabs
+#
+
+def create_crosstabs(model):
+    r"""Create cross-tabulations for categorical variables.
+
+    Parameters
+    ----------
+    model : alphapy.Model
+        The model object containing the data.
+
+    Returns
+    -------
+    None : None
+
+    """
+
+    logger.info("Creating Cross-Tabulations")
+
+    # Extract model data
+    X = model.X_train
+    y = model.y_train
+
+    # Extract model parameters
+
+    directory = model.specs['directory']
+    dummy_limit = model.specs['dummy_limit']
+    target_value = model.specs['target_value']
+
+    # Iterate through columns, dispatching and transforming each feature.
+
+    crosstabs = {}
+    for fc in X:
+        nunique = len(X[fc].unique())
+        if nunique <= dummy_limit:
+            logger.info("Creating crosstabs for feature %s", fc)
+            ct = pd.crosstab(X[fname], y).apply(lambda r : r / r.sum(), axis=1)
+            crosstabs[fc] = ct
+
+    # Save crosstabs to the model directory
+
+    logger.info("Saving Cross-Tabulations")
+    full_path = SSEP.join([directory, 'model', 'crosstabs.pkl'])
+    joblib.dump(cts, full_path)
+
+
+#
 # Function get_factors
 #
 
-def get_factors(fnum, fname, df, nvalues, dtype, encoder, rounding,
-                sentinel, target_value, X, y, classify=False):
+def get_factors(model, df, fnum, fname, nvalues, dtype,
+                encoder, rounding, sentinel):
     r"""Convert the original feature to a factor.
 
     Parameters
     ----------
+    model : alphapy.Model
+        Model object with the feature specifications.
+    df : pandas.DataFrame
+        Dataframe containing the column ``fname``.
     fnum : int
         Feature number, strictly for logging purposes
     fname : str
         Name of the text column in the dataframe ``df``.
-    df : pandas.DataFrame
-        Dataframe containing the column ``fname``.
     nvalues : int
         The number of unique values.
     dtype : str
@@ -686,25 +736,30 @@ def get_factors(fnum, fname, df, nvalues, dtype, encoder, rounding,
         Number of places to round.
     sentinel : float
         The number to be imputed for NaN values.
-    target_value : any
-        Actual value of the target variable.
-    X : pandas.DataFrame
-        Training features.
-    y : pandas.Series
-        Array of target values.
-    classify : bool, optional
-        If ``True``, calculate target percentages.
 
     Returns
     -------
     all_features : numpy array
         The features that have been transformed to factors.
 
+    Raises
+    ------
+    FileNotFoundError
+        Could not locate the crosstabs file.
+
     """
 
     logger.info("Feature %d: %s is a factor of type %s with %d unique values",
                 fnum, fname, dtype, nvalues)
     logger.info("Encoding: %s", encoder)
+
+    # Extract model parameters
+
+    directory = model.specs['directory']
+    model_type = model.specs['model_type']
+    target_value = model.specs['target_value']
+
+    # get feature
     feature = df[fname]
     # convert float to factor
     if dtype == 'float64':
@@ -742,10 +797,11 @@ def get_factors(fnum, fname, df, nvalues, dtype, encoder, rounding,
         elif enc_exists:
             all_features = enc.fit_transform(ef, None)
         # Calculate target percentages for classifiers
-        if classify:
-            # get the crosstab between feature labels and target
-            logger.info("Calculating target percentages")
-            ct = pd.crosstab(X[fname], y).apply(lambda r : r / r.sum(), axis=1)
+        if model_type == ModelType.classification:
+            # Load the crosstab for this feature
+            full_path = SSEP.join([directory, 'model', 'crosstabs.pkl'])
+            cts_loaded = joblib.load(full_path)
+            ct = cts_loaded[fname]
             # map target percentages to the new feature
             ct_map = ct.to_dict()[target_value]
             ct_feature = df[[fname]].applymap(ct_map.get)
@@ -1093,19 +1149,15 @@ def create_tsne_features(features, model):
 # Function create_features
 #
 
-def create_features(X, model, split_point, y_train):
+def create_features(model, X):
     r"""Create features for the train and test set.
 
     Parameters
     ----------
-    X : pandas.DataFrame
-        Combined train and test data.
     model : alphapy.Model
         Model object with the feature specifications.
-    split_point : int
-        The last row number of the train data.
-    y_train : pandas.Series
-        Training labels.
+    X : pandas.DataFrame
+        Combined train and test data.
 
     Returns
     -------
@@ -1166,8 +1218,6 @@ def create_features(X, model, split_point, y_train):
     # Iterate through columns, dispatching and transforming each feature.
 
     logger.info("Creating Base Features")
-
-    X_train, X_test = np.array_split(X, [split_point])
     all_features = np.zeros((X.shape[0], 1))
 
     for i, fc in enumerate(X):
@@ -1180,9 +1230,8 @@ def create_features(X, model, split_point, y_train):
             all_features = np.column_stack((all_features, features))
         # standard processing of numerical, categorical, and text features
         if nunique <= dummy_limit:
-            features = get_factors(fnum, fc, X, nunique, dtype, encoder, rounding,
-                                   sentinel, target_value, X_train, y_train,
-                                   classify)            
+            features = get_factors(model, X, fnum, fc, nunique, dtype,
+                                   encoder, rounding, sentinel)            
         elif dtype == 'float64' or dtype == 'int64' or dtype == 'bool':
             features = get_numerical_features(fnum, fc, X, nunique, dtype,
                                               logtransform, pvalue_level)
@@ -1210,7 +1259,6 @@ def create_features(X, model, split_point, y_train):
         logger.info("Skipping Scaling")
 
     # Perform dimensionality reduction only on base feature set
-
     base_features = all_features
 
     # Calculate the total, mean, standard deviation, and variance
@@ -1256,7 +1304,6 @@ def create_features(X, model, split_point, y_train):
         logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Return all transformed training and test features
-    
     return all_features
 
 
@@ -1370,15 +1417,15 @@ def save_features(model, X_train, X_test, y_train=None, y_test=None):
 # Function create_interactions
 #
 
-def create_interactions(X, model):
+def create_interactions(model, X):
     r"""Create feature interactions based on the model specifications.
 
     Parameters
     ----------
-    X : numpy array
-        Feature Matrix.
     model : alphapy.Model
         Model object with train and test data.
+    X : numpy array
+        Feature Matrix.
 
     Returns
     -------

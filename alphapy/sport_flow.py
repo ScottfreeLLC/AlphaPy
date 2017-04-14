@@ -889,7 +889,7 @@ def main(args=None):
     # Complete the pipeline
 
     logger.info('*'*80)
-    logger.info("SportFlow Completed")
+    logger.info("SportFlow End")
     logger.info('*'*80)
 
 

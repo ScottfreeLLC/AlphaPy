@@ -26,15 +26,46 @@
 # Imports
 #
 
-from alphapy.globals import PSEP, USEP
+from alphapy.globals import PSEP, SSEP, USEP
 
 import argparse
 from datetime import datetime, timedelta
 import inspect
 from itertools import groupby
+import numpy as np
 from os import listdir
 from os.path import isfile, join
 import re
+
+
+#
+# Function np_store_data
+#
+
+def np_store_data(data, dir_name, file_name, extension, separator):
+    r"""Store NumPy data in a file.
+
+    Parameters
+    ----------
+    data : numpy array
+        The model component to store
+    dir_name : str
+        Full directory specification.
+    file_name : str
+        Name of the file to read, excluding the ``extension``.
+    extension : str
+        File name extension, e.g., ``csv``.
+    separator : str
+        The delimiter between fields in the file.
+
+    Returns
+    -------
+    None : None
+
+    """
+    output_file = PSEP.join([file_name, extension])
+    output = SSEP.join([dir_name, output_file])
+    np.savetxt(output, data, delimiter=separator)
 
 
 #

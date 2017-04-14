@@ -38,6 +38,7 @@ from alphapy.globals import Partition, datasets
 from alphapy.globals import PSEP, SSEP, USEP
 from alphapy.globals import SamplingMethod
 from alphapy.globals import Scalers
+from alphapy.utilities import np_store_data
 
 from copy import copy
 from datetime import datetime
@@ -1088,36 +1089,6 @@ def generate_metrics(model, partition):
         logger.info("No labels for generating %s metrics", partition)
 
     return model
-
-
-#
-# Function np_store_data
-#
-
-def np_store_data(data, dir_name, file_name, extension, separator):
-    r"""Store NumPy data in a file.
-
-    Parameters
-    ----------
-    data : numpy array
-        The model component to store
-    dir_name : str
-        Full directory specification.
-    file_name : str
-        Name of the file to read, excluding the ``extension``.
-    extension : str
-        File name extension, e.g., ``csv``.
-    separator : str
-        The delimiter between fields in the file.
-
-    Returns
-    -------
-    None : None
-
-    """
-    output_file = PSEP.join([file_name, extension])
-    output = SSEP.join([dir_name, output_file])
-    np.savetxt(output, data, delimiter=separator)
 
 
 #

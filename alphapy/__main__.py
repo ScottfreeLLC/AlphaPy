@@ -31,6 +31,7 @@ from alphapy.data import sample_data
 from alphapy.data import shuffle_data
 from alphapy.estimators import get_estimators
 from alphapy.estimators import scorers
+from alphapy.features import create_crosstabs
 from alphapy.features import create_features
 from alphapy.features import create_interactions
 from alphapy.features import drop_features
@@ -70,44 +71,45 @@ logger = logging.getLogger(__name__)
 
 
 #
-# Function data_pipeline
+# Function training_pipeline
 #
 
-def data_pipeline(model, predict_mode):
-    r"""AlphaPy Data Pipeline
+def training_pipeline(model):
+    r"""AlphaPy Training Pipeline
 
     Parameters
     ----------
     model : alphapy.Model
-        The initial model specifications for locating the data.
-    predict_mode : bool
-        Flag indicating whether or not this is just prediction.
+        The model object for controlling the pipeline.
 
     Returns
     -------
     model : alphapy.Model
-        All of the new features will be contained in the model object.
+        The final results are stored in the model object.
 
     Raises
     ------
-    IndexError
+    KeyError
         If the number of columns of the train and test data do not match,
         then this exception is raised.
 
-    Notes
-    -----
-    The data are loaded, the features are processed, and the model
-    object is updated for either the training or prediction stage.
-
     """
 
-    logger.info("Data Pipeline")
+    logger.info("Training Pipeline")
 
     # Unpack the model specifications
 
+    calibration = model.specs['calibration']
     drop = model.specs['drop']
+    feature_selection = model.specs['feature_selection']
+    grid_search = model.specs['grid_search']
     model_type = model.specs['model_type']
+    predict_mode = model.specs['predict_mode']
+    rfe = model.specs['rfe']
+    sampling = model.specs['sampling']
+    scorer = model.specs['scorer']
     target = model.specs['target']
+    test_labels = model.test_labels
 
     # Get train and test data
 
@@ -121,6 +123,7 @@ def data_pipeline(model, predict_mode):
     logger.info("Dropping Features: %s", drop)
     X_train = drop_features(X_train, drop)
     X_test = drop_features(X_test, drop)
+    model = save_features(model, X_train, X_test)
 
     # Log feature statistics
 
@@ -147,69 +150,28 @@ def data_pipeline(model, predict_mode):
         raise IndexError("The number of training and test columns [%s, %s] must match.",
                          X_train.shape[1], X_test.shape[1])
 
+    # Create crosstabs for any categorical features
+
+    if model_type == ModelType.classification:
+        create_crosstabs(model)
+
     # Create initial features
 
-    new_features = create_features(X, model, split_point, y_train)
+    new_features = create_features(model, X)
     X_train, X_test = np.array_split(new_features, [split_point])
     model = save_features(model, X_train, X_test, y_train, y_test)
 
     # Generate interactions
 
-    all_features = create_interactions(new_features, model)
+    all_features = create_interactions(model, new_features)
     X_train, X_test = np.array_split(all_features, [split_point])
     model = save_features(model, X_train, X_test)
 
     # Remove low-variance features
 
     sig_features = remove_lv_features(all_features)
-
-    # Save the model's feature set
-
     X_train, X_test = np.array_split(sig_features, [split_point])
     model = save_features(model, X_train, X_test)
-
-    # Return the model
-    return model
-
-
-#
-# Function model_pipeline
-#
-
-def model_pipeline(model):
-    r"""AlphaPy Model Pipeline
-
-    Parameters
-    ----------
-    model : alphapy.Model
-        The model object for controlling the pipeline.
-
-    Returns
-    -------
-    model : alphapy.Model
-        The final results are stored in the model object.
-
-    Raises
-    ------
-    KeyError
-        If the number of columns of the train and test data do not match,
-        then this exception is raised.
-
-    """
-
-    logger.info("Model Pipeline")
-
-    # Unpack the model specifications
-
-    calibration = model.specs['calibration']
-    feature_selection = model.specs['feature_selection']
-    grid_search = model.specs['grid_search']
-    model_type = model.specs['model_type']
-    predict_mode = model.specs['predict_mode']
-    rfe = model.specs['rfe']
-    sampling = model.specs['sampling']
-    scorer = model.specs['scorer']
-    test_labels = model.test_labels
 
     # Shuffle the data [if specified]
     model = shuffle_data(model)
@@ -293,16 +255,16 @@ def model_pipeline(model):
 
 
 #
-# Function predict_with
+# Function prediction_pipeline
 #
 
-def predict_with(model):
-    r"""AlphaPy Model Prediction
+def prediction_pipeline(model):
+    r"""AlphaPy Prediction Pipeline
 
     Parameters
     ----------
     model : alphapy.Model
-        The initial model specifications for locating the data.
+        The model object for controlling the pipeline.
 
     Returns
     -------
@@ -368,29 +330,24 @@ def main_pipeline(model):
     Parameters
     ----------
     model : alphapy.Model
-        The model specifications for training, testing, and prediction.
+        The model specifications for the pipeline.
 
     Returns
     -------
     model : alphapy.Model
-        The trained model.
+        The final model.
 
     """
 
     # Extract any model specifications
-
     predict_mode = model.specs['predict_mode']
-
-    # Call the data pipeline
-
-    model = data_pipeline(model, predict_mode)
 
     # Prediction Only or Calibration
 
     if predict_mode:
-        predict_with(model)
+        model = prediction_pipeline(model)
     else:
-        model = model_pipeline(model)
+        model = training_pipeline(model)
 
     # Return the completed model
     return model
