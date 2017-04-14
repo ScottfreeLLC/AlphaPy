@@ -73,13 +73,15 @@ logger = logging.getLogger(__name__)
 # Function data_pipeline
 #
 
-def data_pipeline(model):
+def data_pipeline(model, predict_mode):
     r"""AlphaPy Data Pipeline
 
     Parameters
     ----------
     model : alphapy.Model
         The initial model specifications for locating the data.
+    predict_mode : bool
+        Flag indicating whether or not this is just prediction.
 
     Returns
     -------
@@ -111,7 +113,7 @@ def data_pipeline(model):
 
     X_train, y_train = get_data(model, Partition.train)
     X_test, y_test = get_data(model, Partition.test)
-    if y_test:
+    if y_test.any():
         model.test_labels = True
 
     # Drop features
@@ -203,13 +205,13 @@ def model_pipeline(model):
     feature_selection = model.specs['feature_selection']
     grid_search = model.specs['grid_search']
     model_type = model.specs['model_type']
+    predict_mode = model.specs['predict_mode']
     rfe = model.specs['rfe']
     sampling = model.specs['sampling']
     scorer = model.specs['scorer']
     test_labels = model.test_labels
 
     # Shuffle the data [if specified]
-
     model = shuffle_data(model)
 
     # Oversampling or Undersampling [if specified]
@@ -275,7 +277,6 @@ def model_pipeline(model):
     model = generate_metrics(model, Partition.test)
 
     # Store the best estimator
-
     model = predict_best(model)
 
     # Generate plots
@@ -285,11 +286,7 @@ def model_pipeline(model):
         generate_plots(model, Partition.test)
 
     # Save best features and predictions
-
-    if test_labels:
-        save_model(model, 'BEST', Partition.test)
-    else:
-        save_model(model, 'BEST', Partition.train)
+    save_model(model, 'BEST', Partition.test)
 
     # Return the model
     return model
@@ -320,26 +317,45 @@ def predict_with(model):
 
     logger.info("Predict Mode")
 
-    # Unpack the model data
-
-    X_test = model.X_test
-
     # Unpack the model specifications
 
     directory = model.specs['directory']
+    extension = model.specs['extension']
     model_type = model.specs['model_type']
+    separator = model.specs['separator']
+
+    # Get the data
+    X_predict, _ = get_data(model, Partition.predict)
 
     # Load model object
-
     predictor = load_model_object(directory)
 
     # Make predictions
     
-    preds = predictor.predict(X_test)
-    logger.info("Predictions: %s", preds)
+    logger.info("Making Predictions")
+    preds = predictor.predict(X_predict)
     if model_type == ModelType.classification:
-        probas = predictor.predict_proba(X_test)[:, 1]
-        logger.info("Probabilities: %s", probas)
+        probas = predictor.predict_proba(X_predict)[:, 1]
+
+    # Get date stamp to record file creation
+
+    d = datetime.now()
+    f = "%Y%m%d"
+    timestamp = d.strftime(f)
+
+    # Save predictions
+
+    logger.info("Saving Predictions")
+    output_dir = SSEP.join([directory, 'output'])
+    output_file = USEP.join(['predictions', timestamp])
+    np_store_data(preds, output_dir, output_file, extension, separator)
+
+    # Save probabilities for classification
+
+    if model_type == ModelType.classification:
+        logger.info("Saving Probabilities")
+        output_file = USEP.join(['probabilities', timestamp])
+        np_store_data(probas, output_dir, output_file, extension, separator)
 
 
 #
@@ -369,7 +385,7 @@ def main_pipeline(model):
 
     model = data_pipeline(model, predict_mode)
 
-    # Scoring Only or Calibration
+    # Prediction Only or Calibration
 
     if predict_mode:
         predict_with(model)

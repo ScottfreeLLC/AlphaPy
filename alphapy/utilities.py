@@ -29,7 +29,7 @@
 from alphapy.globals import PSEP, USEP
 
 import argparse
-from datetime import datetime
+from datetime import datetime, timedelta
 import inspect
 from itertools import groupby
 from os import listdir
@@ -115,8 +115,8 @@ def valid_date(date_string):
 
     Returns
     -------
-    valid : bool
-        ``True`` if the given date is valid.
+    date_string : str
+        The valid date string.
 
     Raises
     ------
@@ -130,14 +130,12 @@ def valid_date(date_string):
     >>> valid_date('345')        # ValueError: Not a valid date
 
     """
-    valid = False
     try:
         date_time = datetime.strptime(date_string, "%Y-%m-%d")
-        valid = True
+        return date_string
     except:
         message = "Not a valid date: '{0}'.".format(date_string)
         raise argparse.ArgumentTypeError(message)
-    return valid
 
 
 #

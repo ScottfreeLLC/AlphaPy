@@ -154,7 +154,7 @@ def generate_plots(model, partition):
     """
 
     logger.info('='*80)
-    logger.info("Generating Plots for Partition: %s", partition)
+    logger.info("Generating Plots for Partition: %s", datasets[partition])
 
     # Extract model parameters
 
@@ -336,7 +336,8 @@ def plot_calibration(model, partition):
     ax2.legend(loc="upper center", ncol=2)
 
     plot_dir = get_plot_directory(model)
-    write_plot('matplotlib', plt, 'calibration', partition, plot_dir)
+    pstring = datasets[partition]
+    write_plot('matplotlib', plt, 'calibration', pstring, plot_dir)
 
 
 #
@@ -366,6 +367,7 @@ def plot_importance(model, partition):
 
     logger.info("Generating Feature Importance Plots")
     plot_dir = get_plot_directory(model)
+    pstring = datasets[partition]
 
     # Get X, Y for correct partition
 
@@ -385,7 +387,7 @@ def plot_importance(model, partition):
             for f in range(n_top):
                 logger.info("%d. Feature %d (%f)" % (f + 1, indices[f], importances[indices[f]]))
             # plot the feature importances
-            title = BSEP.join([algo, "Feature Importances [", partition, "]"])
+            title = BSEP.join([algo, "Feature Importances [", pstring, "]"])
             plt.style.use('classic')
             plt.figure()
             plt.title(title)
@@ -393,7 +395,7 @@ def plot_importance(model, partition):
             plt.xticks(range(n_top), indices[:n_top])
             plt.xlim([-1, n_top])
             # save the plot
-            tag = USEP.join([partition, algo])
+            tag = USEP.join([pstring, algo])
             write_plot('matplotlib', plt, 'feature_importance', tag, plot_dir)
         except:
             logger.info("%s does not have feature importances", algo)
@@ -426,6 +428,7 @@ def plot_learning_curve(model, partition):
 
     logger.info("Generating Learning Curves")
     plot_dir = get_plot_directory(model)
+    pstring = datasets[partition]
 
     # Extract model parameters.
 
@@ -456,7 +459,7 @@ def plot_learning_curve(model, partition):
         # get estimator
         est = estimators[algo].estimator
         # plot learning curve
-        title = BSEP.join([algo, "Learning Curve [", partition, "]"])
+        title = BSEP.join([algo, "Learning Curve [", pstring, "]"])
         # set up plot
         plt.style.use('classic')
         plt.figure()
@@ -487,7 +490,7 @@ def plot_learning_curve(model, partition):
                  label="Cross-Validation Score")
         plt.legend(loc="lower right")
         # save the plot
-        tag = USEP.join([partition, algo])
+        tag = USEP.join([pstring, algo])
         write_plot('matplotlib', plt, 'learning_curve', tag, plot_dir)
 
 
@@ -517,6 +520,7 @@ def plot_roc_curve(model, partition):
     """
 
     logger.info("Generating ROC Curves")
+    pstring = datasets[partition]
 
     # For classification only
 
@@ -554,12 +558,12 @@ def plot_roc_curve(model, partition):
     plt.ylim([-0.05, 1.05])
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
-    title = BSEP.join([algo, "ROC Curve [", partition, "]"])
+    title = BSEP.join([algo, "ROC Curve [", pstring, "]"])
     plt.title(title)
     plt.legend(loc="lower right")
     # save chart
     plot_dir = get_plot_directory(model)
-    write_plot('matplotlib', plt, 'roc_curve', partition, plot_dir)
+    write_plot('matplotlib', plt, 'roc_curve', pstring, plot_dir)
 
 
 #
@@ -589,6 +593,7 @@ def plot_confusion_matrix(model, partition):
 
     logger.info("Generating Confusion Matrices")
     plot_dir = get_plot_directory(model)
+    pstring = datasets[partition]
 
     # For classification only
 
@@ -615,7 +620,7 @@ def plot_confusion_matrix(model, partition):
         # plot the confusion matrix
         cmap = plt.cm.Blues
         plt.imshow(cm, interpolation='nearest', cmap=cmap)
-        title = BSEP.join([algo, "Confusion Matrix [", partition, "]"])
+        title = BSEP.join([algo, "Confusion Matrix [", pstring, "]"])
         plt.title(title)
         plt.colorbar()
         # set up x and y axes
@@ -637,7 +642,7 @@ def plot_confusion_matrix(model, partition):
         plt.ylabel('True Label')
         plt.xlabel('Predicted Label')
         # save the chart
-        tag = USEP.join([partition, algo])
+        tag = USEP.join([pstring, algo])
         write_plot('matplotlib', plt, 'confusion', tag, plot_dir)
 
 
@@ -672,6 +677,7 @@ def plot_validation_curve(model, partition, pname, prange):
 
     logger.info("Generating Validation Curves")
     plot_dir = get_plot_directory(model)
+    pstring = datasets[partition]
 
     # Extract model parameters.
 
@@ -707,7 +713,7 @@ def plot_validation_curve(model, partition, pname, prange):
         plt.style.use('classic')
         plt.figure()
         # plot learning curves
-        title = BSEP.join([algo, "Validation Curve [", partition, "]"])
+        title = BSEP.join([algo, "Validation Curve [", pstring, "]"])
         plt.title(title)
         # x-axis
         x_min, x_max = min(prange) - spacing, max(prange) + spacing
@@ -725,7 +731,7 @@ def plot_validation_curve(model, partition, pname, prange):
         plt.fill_between(prange, test_scores_mean - test_scores_std,
                          test_scores_mean + test_scores_std, alpha=alpha, color="g")
         plt.legend(loc="best")        # save the plot
-        tag = USEP.join([partition, algo])
+        tag = USEP.join([pstring, algo])
         write_plot('matplotlib', plt, 'validation_curve', tag, plot_dir)
 
 
@@ -763,6 +769,7 @@ def plot_boundary(model, partition, f1=0, f2=1):
     """
 
     logger.info("Generating Boundary Plots")
+    pstring = datasets[partition]
 
     # For classification only
 
@@ -821,7 +828,7 @@ def plot_boundary(model, partition, f1=0, f2=1):
 
     # Save the plot
     plot_dir = get_plot_directory(model)
-    write_plot('matplotlib', figure, 'boundary', partition, plot_dir)
+    write_plot('matplotlib', figure, 'boundary', pstring, plot_dir)
 
 
 #

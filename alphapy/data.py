@@ -114,7 +114,7 @@ def get_data(model, partition):
 
     # Assign target and drop it if necessary
 
-    y = None
+    y = np.empty([0, 0])
     if target in df.columns:
         logger.info("Found target %s in data frame", target)
         y = df[target]

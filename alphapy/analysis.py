@@ -195,9 +195,11 @@ def run_analysis(analysis, forecast_period, leaders,
         test_frame = pd.DataFrame()
         # Subset each frame and add to the model frame
         for df in data_frames:
+            last_date = df.index[-1]
             # shift the target for the forecast period
             if forecast_period > 0:
                 df[target] = df[target].shift(-forecast_period)
+                df.index = df.index.shift(forecast_period, freq='D')
             # shift any leading features if necessary
             if leaders:
                 df[leaders] = df[leaders].shift(-1)
@@ -208,7 +210,7 @@ def run_analysis(analysis, forecast_period, leaders,
                 new_train = new_train.dropna()
                 train_frame = train_frame.append(new_train)
                 # test frame
-                new_test = df.loc[df.index >= split_date]
+                new_test = df.loc[(df.index >= split_date) & (df.index <= last_date)]
                 if len(new_test) > 0:
                     if test_labels:
                         new_test = new_test.dropna()

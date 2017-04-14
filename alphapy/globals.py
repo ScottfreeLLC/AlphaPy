@@ -68,15 +68,6 @@ MULTIPLIERS = {'stock' : 1.0}
 
 
 #
-# Datasets
-#
-
-datasets = {Partition.train   : 'train',
-            Partition.test    : 'test',
-            Partition.predict : 'predict'}
-
-
-#
 # Encoder Types
 #
 
@@ -230,3 +221,12 @@ class Scalers(Enum):
     """
     minmax = 1
     standard = 2
+
+
+#
+# Datasets
+#
+
+datasets = {Partition.train   : 'train',
+            Partition.test    : 'test',
+            Partition.predict : 'predict'}

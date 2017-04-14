@@ -162,22 +162,18 @@ def get_sport_config():
 
     specs['points_max'] = cfg['sport']['points_max']
     specs['points_min'] = cfg['sport']['points_min']
-    specs['predict_date'] = cfg['sport']['predict_date']
     specs['random_scoring'] = cfg['sport']['random_scoring']
     specs['rolling_window'] = cfg['sport']['rolling_window']   
     specs['seasons'] = cfg['sport']['seasons']
-    specs['train_date'] = cfg['sport']['train_date']
 
     # Log the sports parameters
 
     logger.info('SPORT PARAMETERS:')
     logger.info('points_max       = %d', specs['points_max'])
     logger.info('points_min       = %d', specs['points_min'])
-    logger.info('predict_date     = %s', specs['predict_date'])
     logger.info('random_scoring   = %r', specs['random_scoring'])
     logger.info('rolling_window   = %d', specs['rolling_window'])
     logger.info('seasons          = %s', specs['seasons'])
-    logger.info('train_date       = %s', specs['train_date'])
 
     # Game Specifications
     return specs
@@ -656,19 +652,29 @@ def main(args=None):
     # Argument Parsing
 
     parser = argparse.ArgumentParser(description="SportFlow Parser")
+    parser.add_argument('-pdate', dest='predict_date',
+                        help="prediction date is in the format: YYYY-MM-DD",
+                        required=False, type=valid_date)
+    parser.add_argument('-tdate', dest='train_date',
+                        help="training date is in the format: YYYY-MM-DD",
+                        required=False, type=valid_date)
     parser.add_mutually_exclusive_group(required=False)
     parser.add_argument('--predict', dest='predict_mode', action='store_true')
     parser.add_argument('--train', dest='predict_mode', action='store_false')
     parser.set_defaults(predict_mode=False)
-    predict_date = datetime.date.today().strftime("%Y-%m-%d")
-    parser.add_argument('-pd', "--pdate", dest='predict_date',
-                        help="prediction date is in the format: YYYY-MM-DD",
-                        required=False, type=valid_date)
-    train_date = pd.datetime(1900, 1, 1).strftime("%Y-%m-%d")
-    parser.add_argument('-td', "--tdate", dest='train_date',
-                        help="training date is in the format: YYYY-MM-DD",
-                        required=False, type=valid_date)
     args = parser.parse_args()
+
+    # Set train and predict dates
+
+    if args.train_date:
+        train_date = args.train_date
+    else:
+        train_date = pd.datetime(1900, 1, 1).strftime("%Y-%m-%d")
+
+    if args.predict_date:
+        predict_date = args.predict_date
+    else:
+        predict_date = datetime.date.today().strftime("%Y-%m-%d")
 
     # Verify that the dates are in sequence.
 
@@ -686,15 +692,13 @@ def main(args=None):
 
     points_max = sport_specs['points_max']
     points_min = sport_specs['points_min']
-    predict_date = sport_specs['predict_date']
     random_scoring = sport_specs['random_scoring']
     seasons = sport_specs['seasons']
-    train_date = sport_specs['train_date']
     window = sport_specs['rolling_window']   
 
     # Read model configuration file
 
-    specs = get_model_config(args.cfg_dir)
+    specs = get_model_config()
 
     # Add command line arguments to model specifications
 
@@ -741,13 +745,6 @@ def main(args=None):
     null_indices = [i for i, val in enumerate(null_rows.tolist()) if val == True]
     for i in null_indices:
         logger.info("Null Record: %d on Date: %s", i, df.date[i])
-
-    #
-    # Set the training date and prediction date
-    #
-
-    train_date = train_date.strftime('%Y-%m-%d')
-    predict_date = predict_date.strftime('%Y-%m-%d')
 
     #
     # Run the game pipeline on a seasonal loop

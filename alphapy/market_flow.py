@@ -36,11 +36,16 @@ from alphapy.market_variables import Variable
 from alphapy.market_variables import vmapply
 from alphapy.model import get_model_config
 from alphapy.model import Model
+from alphapy.portfolio import gen_portfolio
 from alphapy.space import Space
+from alphapy.system import run_system
+from alphapy.system import System
 from alphapy.utilities import valid_date
 
 import argparse
+import datetime
 import logging
+import pandas as pd
 import yaml
 
 
@@ -87,10 +92,9 @@ def get_market_config():
     specs['fractal'] = cfg['market']['fractal']
     specs['leaders'] = cfg['market']['leaders']
     specs['data_history'] = cfg['market']['data_history']
-    specs['predict_date'] = cfg['market']['predict_date']
+    specs['predict_history'] = cfg['market']['predict_history']
     specs['schema'] = cfg['market']['schema']
     specs['target_group'] = cfg['market']['target_group']
-    specs['train_date'] = cfg['market']['train_date']
 
     # Create the subject/schema/fractal namespace
 
@@ -160,12 +164,11 @@ def get_market_config():
     logger.info('forecast_period = %d', specs['forecast_period'])
     logger.info('fractal         = %s', specs['fractal'])
     logger.info('leaders         = %s', specs['leaders'])
-    logger.info('data_history = %d', specs['data_history'])
-    logger.info('predict_date    = %s', specs['predict_date'])
+    logger.info('data_history    = %d', specs['data_history'])
+    logger.info('predict_history = %s', specs['predict_history'])
     logger.info('schema          = %s', specs['schema'])
     logger.info('system          = %s', specs['system'])
     logger.info('target_group    = %s', specs['target_group'])
-    logger.info('train_date      = %s', specs['train_date'])
 
     # Market Specifications
     return specs
@@ -217,13 +220,15 @@ def market_pipeline(model, market_specs):
 
     # Get the system specifications
 
-    system_name = market_specs['system']['name']
-    longentry = market_specs['system']['longentry']
-    shortentry = market_specs['system']['shortentry']
-    longexit = market_specs['system']['longexit']
-    shortexit = market_specs['system']['shortexit']
-    holdperiod = market_specs['system']['holdperiod']
-    scale = market_specs['system']['scale']
+    system_specs = market_specs['system']
+    if system_specs:
+        system_name = system_specs['name']
+        longentry = system_specs['longentry']
+        shortentry = system_specs['shortentry']
+        longexit = system_specs['longexit']
+        shortexit = system_specs['shortexit']
+        holdperiod = system_specs['holdperiod']
+        scale = system_specs['scale']
 
     # Set the target group
 
@@ -239,22 +244,21 @@ def market_pipeline(model, market_specs):
     vmapply(gs, features, functions)
     vmapply(gs, [target], functions)
 
-    # Run the analysis, including the model pipeline
+    # Run a system or an analysis
 
-    a = Analysis(model, gs)
-    results = run_analysis(a, forecast_period, leaders, predict_history)
-
-    # Create and run the system
-
-    cs = System(system_name, longentry, shortentry,
-                longexit, shortexit, holdperiod, scale)
-    tfs = run_system(model, cs, gs)
- 
-    # Generate a portfolio
-    gen_portfolio(model, system_name, gs, tfs)
+    if system_specs:
+        # create and run the system
+        cs = System(system_name, longentry, shortentry,
+                    longexit, shortexit, holdperiod, scale)
+        tfs = run_system(model, cs, gs)
+        # generate a portfolio
+        gen_portfolio(model, system_name, gs, tfs)
+    else:
+        # run the analysis, including the model pipeline
+        a = Analysis(model, gs)
+        results = run_analysis(a, forecast_period, leaders, predict_history)
 
     # Return the completed model
-
     return model
 
 
@@ -302,19 +306,29 @@ def main(args=None):
     # Argument Parsing
 
     parser = argparse.ArgumentParser(description="MarketFlow Parser")
+    parser.add_argument('-pdate', dest='predict_date',
+                        help="prediction date is in the format: YYYY-MM-DD",
+                        required=False, type=valid_date)
+    parser.add_argument('-tdate', dest='train_date',
+                        help="training date is in the format: YYYY-MM-DD",
+                        required=False, type=valid_date)
     parser.add_mutually_exclusive_group(required=False)
     parser.add_argument('--predict', dest='predict_mode', action='store_true')
     parser.add_argument('--train', dest='predict_mode', action='store_false')
     parser.set_defaults(predict_mode=False)
-    predict_date = datetime.date.today().strftime("%Y-%m-%d")
-    parser.add_argument('-pd', "--pdate", dest='predict_date',
-                        help="prediction date is in the format: YYYY-MM-DD",
-                        required=False, type=valid_date)
-    train_date = pd.datetime(1900, 1, 1).strftime("%Y-%m-%d")
-    parser.add_argument('-td', "--tdate", dest='train_date',
-                        help="training date is in the format: YYYY-MM-DD",
-                        required=False, type=valid_date)
     args = parser.parse_args()
+
+    # Set train and predict dates
+
+    if args.train_date:
+        train_date = args.train_date
+    else:
+        train_date = pd.datetime(1900, 1, 1).strftime("%Y-%m-%d")
+
+    if args.predict_date:
+        predict_date = args.predict_date
+    else:
+        predict_date = datetime.date.today().strftime("%Y-%m-%d")
 
     # Verify that the dates are in sequence.
 
@@ -332,8 +346,8 @@ def main(args=None):
 
     model_specs = get_model_config()
     model_specs['predict_mode'] = args.predict_mode
-    model_specs['predict_date'] = args.predict_date
-    model_specs['train_date'] = args.train_date
+    model_specs['predict_date'] = predict_date
+    model_specs['train_date'] = train_date
 
     # Create a model from the arguments
 

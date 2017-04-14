@@ -986,7 +986,7 @@ def generate_metrics(model, partition):
     """
 
     logger.info('='*80)
-    logger.info("Metrics for Partition: %s", partition)
+    logger.info("Metrics for: %s", partition)
 
     # Extract model paramters.
 
@@ -1162,7 +1162,7 @@ def save_model(model, tag, partition):
     separator = model.specs['separator']
     submission_file = model.specs['submission_file']
     submit_probas = model.specs['submit_probas']
-    test_file = model.specs['test_file']
+    test_file = model.test_file
 
     # Extract model data.
 
