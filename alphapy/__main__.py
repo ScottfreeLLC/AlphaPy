@@ -197,6 +197,11 @@ def training_pipeline(model):
         # Get sample weights (classification only)
         model = get_class_weights(model)
 
+    # Perform feature selection, independent of algorithm
+
+    if feature_selection:
+        model = select_features(model)
+
     # Get the available classifiers and regressors 
 
     logger.info("Getting All Estimators")
@@ -220,9 +225,6 @@ def training_pipeline(model):
             est = estimator.estimator
         except KeyError:
             logger.info("Algorithm %s not found", algo)
-        # feature selection
-        if feature_selection:
-            model = select_features(model)
         # initial fit
         model = first_fit(model, algo, est)
         # recursive feature elimination
