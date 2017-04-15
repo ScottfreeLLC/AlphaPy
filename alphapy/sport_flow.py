@@ -855,27 +855,23 @@ def main(args=None):
         frames = [ff, mf]
         ff = pd.concat(frames)
 
-    #
-    # Split data into training and test data
-    #
-
-    new_train_frame = ff.loc[(ff.date >= train_date) & (ff.date < predict_date)]
-    if len(new_train_frame) <= 1:
-        raise ValueError("Training frame has length 1 or less")
-
-    new_test_frame = ff.loc[ff.date >= predict_date]
-    if len(new_test_frame) <= 1:
-        raise ValueError("Test frame has length 1 or less")
-
-    #
-    # Rewrite with all the features to the train and test files
-    #
-
     input_dir = SSEP.join([directory, 'input'])
-    write_frame(new_train_frame, input_dir, datasets[Partition.train],
-                specs['extension'], specs['separator'])
-    write_frame(new_test_frame, input_dir, datasets[Partition.test],
-                specs['extension'], specs['separator'])
+    if args.predict_mode:
+        write_frame(ff, input_dir, datasets[Partition.predict],
+                    specs['extension'], specs['separator'])
+    else:
+        # split data into training and test data
+        new_train_frame = ff.loc[(ff.date >= train_date) & (ff.date < predict_date)]
+        if len(new_train_frame) <= 1:
+            raise ValueError("Training frame has length 1 or less")
+        new_test_frame = ff.loc[ff.date >= predict_date]
+        if len(new_test_frame) <= 1:
+            raise ValueError("Test frame has length 1 or less")
+        # rewrite with all the features to the train and test files
+        write_frame(new_train_frame, input_dir, datasets[Partition.train],
+                    specs['extension'], specs['separator'])
+        write_frame(new_test_frame, input_dir, datasets[Partition.test],
+                    specs['extension'], specs['separator'])
 
     #
     # Create the model from specs, and run the pipeline

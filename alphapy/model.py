@@ -699,7 +699,6 @@ def make_predictions(model, algo, calibrate):
     cal_type = model.specs['cal_type']
     cv_folds = model.specs['cv_folds']
     model_type = model.specs['model_type']
-    test_labels = model.test_labels
 
     # Initialize class weights.
 
@@ -722,8 +721,6 @@ def make_predictions(model, algo, calibrate):
         X_train = model.X_train
         X_test = model.X_test
     y_train = model.y_train
-    if test_labels:
-        y_test = model.y_test
 
     # Calibration
 
@@ -785,6 +782,8 @@ def predict_best(model):
     logger.info('='*80)
     logger.info("Selecting Best Model")
 
+    # Define model tags
+
     best_tag = 'BEST'
     blend_tag = 'BLEND'
 
@@ -792,16 +791,15 @@ def predict_best(model):
 
     model_type = model.specs['model_type']
     scorer = model.specs['scorer']
+    test_labels = model.test_labels
 
-    # Extract model data.
+    # Determine the correct partition to select the best model
 
-    X_train = model.X_train
-    X_test = model.X_test
-    y_test = model.y_test
+    partition = Partition.test if test_labels else Partition.train
+    logger.info("Scoring for: %s", partition)
 
     # Initialize best parameters.
 
-    partition = Partition.train if y_test is None else Partition.test
     maximize = True if scorers[scorer][1] == Objective.maximize else False
     if maximize:
         best_score = -sys.float_info.max
@@ -1002,10 +1000,8 @@ def generate_metrics(model, partition):
 
     # Generate Metrics
 
-    if expected is not None:
-
+    if expected.any():
         # Add blended model to the list of algorithms.
-
         if len(model.algolist) > 1:
             algolist = copy(model.algolist)
             algolist.append('BLEND')

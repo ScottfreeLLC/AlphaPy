@@ -31,6 +31,7 @@ from alphapy.data import sample_data
 from alphapy.data import shuffle_data
 from alphapy.estimators import get_estimators
 from alphapy.estimators import scorers
+from alphapy.features import apply_treatments
 from alphapy.features import create_crosstabs
 from alphapy.features import create_features
 from alphapy.features import create_interactions
@@ -109,14 +110,18 @@ def training_pipeline(model):
     sampling = model.specs['sampling']
     scorer = model.specs['scorer']
     target = model.specs['target']
-    test_labels = model.test_labels
 
     # Get train and test data
 
     X_train, y_train = get_data(model, Partition.train)
     X_test, y_test = get_data(model, Partition.test)
+
+    # Determine if there are any test labels
+
     if y_test.any():
+        logger.info("Test Labels Found")
         model.test_labels = True
+    model = save_features(model, X_train, X_test, y_train, y_test)
 
     # Drop features
 
@@ -147,8 +152,14 @@ def training_pipeline(model):
         split_point = X_train.shape[0]
         X = pd.concat([X_train, X_test])
     else:
-        raise IndexError("The number of training and test columns [%s, %s] must match.",
+        raise IndexError("The number of training and test columns [%d, %d] must match.",
                          X_train.shape[1], X_test.shape[1])
+
+    # Apply treatments to the feature matrix
+
+    all_features = apply_treatments(model, X)
+    X_train, X_test = np.array_split(all_features, [split_point])
+    model = save_features(model, X_train, X_test)
 
     # Create crosstabs for any categorical features
 
@@ -157,20 +168,20 @@ def training_pipeline(model):
 
     # Create initial features
 
-    new_features = create_features(model, X)
-    X_train, X_test = np.array_split(new_features, [split_point])
-    model = save_features(model, X_train, X_test, y_train, y_test)
+    all_features = create_features(model, all_features)
+    X_train, X_test = np.array_split(all_features, [split_point])
+    model = save_features(model, X_train, X_test)
 
     # Generate interactions
 
-    all_features = create_interactions(model, new_features)
+    all_features = create_interactions(model, all_features)
     X_train, X_test = np.array_split(all_features, [split_point])
     model = save_features(model, X_train, X_test)
 
     # Remove low-variance features
 
-    sig_features = remove_lv_features(all_features)
-    X_train, X_test = np.array_split(sig_features, [split_point])
+    all_features = remove_lv_features(all_features)
+    X_train, X_test = np.array_split(all_features, [split_point])
     model = save_features(model, X_train, X_test)
 
     # Shuffle the data [if specified]
@@ -244,7 +255,7 @@ def training_pipeline(model):
     # Generate plots
 
     generate_plots(model, Partition.train)
-    if test_labels:
+    if model.test_labels:
         generate_plots(model, Partition.test)
 
     # Save best features and predictions
@@ -282,22 +293,47 @@ def prediction_pipeline(model):
     # Unpack the model specifications
 
     directory = model.specs['directory']
+    drop = model.specs['drop']
     extension = model.specs['extension']
     model_type = model.specs['model_type']
     separator = model.specs['separator']
 
-    # Get the data
+    # Get all data. We need original train and test for interactions.
+
     X_predict, _ = get_data(model, Partition.predict)
 
-    # Load model object
-    predictor = load_model_object(directory)
+    # Drop features
+
+    logger.info("Dropping Features: %s", drop)
+    X_predict = drop_features(X_predict, drop)
+
+    # Log feature statistics
+
+    logger.info("Feature Statistics")
+    logger.info("Number of Prediction Rows    : %d", X_predict.shape[0])
+    logger.info("Number of Prediction Columns : %d", X_predict.shape[1])
+
+    # Apply treatments to the feature matrix
+    all_features = apply_treatments(model, X_predict)
+
+    # Create initial features
+    all_features = create_features(model, all_features)
+
+    # Generate interactions
+    all_features = create_interactions(model, all_features)
+
+    # Remove low-variance features
+    all_features = remove_lv_features(all_features)
+
+    # Load predictor
+    predictor = load_predictor(directory)
 
     # Make predictions
     
     logger.info("Making Predictions")
-    preds = predictor.predict(X_predict)
+    preds = predictor.predict(all_features)
     if model_type == ModelType.classification:
-        probas = predictor.predict_proba(X_predict)[:, 1]
+        probas = predictor.predict_proba(all_features)[:, 1]
 
     # Get date stamp to record file creation
 

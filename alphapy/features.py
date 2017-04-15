@@ -26,7 +26,7 @@
 # Imports
 #
 
-from alphapy.globals import BSEP, NULLTEXT, USEP
+from alphapy.globals import BSEP, NULLTEXT, PSEP, SSEP, USEP
 from alphapy.globals import Encoders
 from alphapy.globals import ModelType
 from alphapy.globals import Scalers
@@ -269,6 +269,8 @@ def runs_test(f, c, wfuncs, window):
         if w in all_funcs:
             new_feature = fc.rolling(window=window).apply(all_funcs[w])
             new_feature.fillna(0, inplace=True)
+            new_column_name = PSEP.join([c, w])
+            new_feature = new_feature.rename(new_column_name)
             frames = [new_features, new_feature]
             new_features = pd.concat(frames, axis=1)
         else:
@@ -401,19 +403,15 @@ def cvectorize(f, c, n):
 # Function apply_treatment
 #
 
-def apply_treatment(fnum, fname, df, nvalues, fparams):
+def apply_treatment(fname, df, fparams):
     r"""Apply a treatment function to a column of the dataframe.
 
     Parameters
     ----------
-    fnum : int
-        Feature number, strictly for logging purposes
     fname : str
         Name of the column to be treated in the dataframe ``df``.
     df : pandas.DataFrame
         Dataframe containing the column ``fname``.
-    nvalues : int
-        The number of unique values.
     fparams : list
         The module, function, and parameter list of the treatment
         function
@@ -424,8 +422,6 @@ def apply_treatment(fnum, fname, df, nvalues, fparams):
         The set of features after applying a treatment function.
 
     """
-    logger.info("Feature %d: %s is a special treatment with %d unique values",
-                fnum, fname, nvalues)
     # Extract the treatment parameter list
     module = fparams[0]
     func_name = fparams[1]
@@ -440,6 +436,64 @@ def apply_treatment(fnum, fname, df, nvalues, fparams):
     logger.info("Applying function %s from module %s to feature %s",
                 func_name, module, fname)
     return func(*plist)
+
+
+#
+# Function apply_treatments
+#
+
+def apply_treatments(model, X):
+    r"""Apply special functions to the original features.
+
+    Parameters
+    ----------
+    model : alphapy.Model
+        Model specifications indicating any treatments.
+    X : pandas.DataFrame
+        Combined train and test data, or just prediction data.
+
+    Returns
+    -------
+    all_features : pandas.DataFrame
+        All features, including treatments.
+
+    Raises
+    ------
+    IndexError
+        The number of treatment rows must match the number of
+        rows in ``X``.
+
+    """
+
+    # Extract model parameters
+    treatments = model.specs['treatments']
+
+    # Log input parameters
+
+    logger.info("Original Features : %s", X.columns)
+    logger.info("Feature Count     : %d", X.shape[1])
+
+    # Iterate through columns, dispatching and transforming each feature.
+
+    logger.info("Applying Treatments")
+    all_features = X
+
+    for fname in X:
+        if treatments and fname in treatments:
+            features = apply_treatment(fname, X, treatments[fname])
+            if features is not None:
+                if features.shape[0] == X.shape[0]:
+                    all_features = pd.concat([all_features, features], axis=1)
+                else:
+                    raise IndexError("The number of treatment rows [%d] must match X [%d]",
+                                     features.shape[0], X.shape[0])
+            else:
+                logger.info("Could not apply treatment for feature %s", fname)
+
+    logger.info("New Feature Count : %d", all_features.shape[1])
+
+    # Return all transformed training and test features
+    return all_features
 
 
 #
@@ -694,18 +748,18 @@ def create_crosstabs(model):
     # Iterate through columns, dispatching and transforming each feature.
 
     crosstabs = {}
-    for fc in X:
-        nunique = len(X[fc].unique())
+    for fname in X:
+        nunique = len(X[fname].unique())
         if nunique <= dummy_limit:
-            logger.info("Creating crosstabs for feature %s", fc)
+            logger.info("Creating crosstabs for feature %s", fname)
             ct = pd.crosstab(X[fname], y).apply(lambda r : r / r.sum(), axis=1)
-            crosstabs[fc] = ct
+            crosstabs[fname] = ct
 
     # Save crosstabs to the model directory
 
     logger.info("Saving Cross-Tabulations")
-    full_path = SSEP.join([directory, 'model', 'crosstabs.pkl'])
-    joblib.dump(cts, full_path)
+    full_path = SSEP.join([directory, 'model', 'feature_crosstabs.pkl'])
+    joblib.dump(crosstabs, full_path)
 
 
 #
@@ -798,17 +852,21 @@ def get_factors(model, df, fnum, fname, nvalues, dtype,
             all_features = enc.fit_transform(ef, None)
         # Calculate target percentages for classifiers
         if model_type == ModelType.classification:
-            # Load the crosstab for this feature
-            full_path = SSEP.join([directory, 'model', 'crosstabs.pkl'])
-            cts_loaded = joblib.load(full_path)
-            ct = cts_loaded[fname]
-            # map target percentages to the new feature
-            ct_map = ct.to_dict()[target_value]
-            ct_feature = df[[fname]].applymap(ct_map.get)
-            # impute sentinel for any values that could not be mapped
-            ct_feature.fillna(value=sentinel, inplace=True)
-            # concatenate all generated features
-            all_features = np.column_stack((all_features, ct_feature))
+            try:
+                # Load the crosstab for this feature
+                full_path = SSEP.join([directory, 'model', 'feature_crosstabs.pkl'])
+                cts_loaded = joblib.load(full_path)
+                ct = cts_loaded[fname]
+                # map target percentages to the new feature
+                ct_map = ct.to_dict()[target_value]
+                ct_feature = df[[fname]].applymap(ct_map.get)
+                # impute sentinel for any values that could not be mapped
+                ct_feature.fillna(value=sentinel, inplace=True)
+                # concatenate all generated features
+                all_features = np.column_stack((all_features, ct_feature))
+            except:
+                # just skip crosstabs if unavailable
+                pass
     else:
         raise RuntimeError("Encoding for feature %s failed", fname)
     return all_features
@@ -1190,7 +1248,6 @@ def create_features(model, X):
     scipy_flag = model.specs['scipy']
     sentinel = model.specs['sentinel']
     target_value = model.specs['target_value']
-    treatments = model.specs['treatments']
     tsne = model.specs['tsne']
     vectorize = model.specs['vectorize']
 
@@ -1224,10 +1281,6 @@ def create_features(model, X):
         fnum = i + 1
         dtype = X[fc].dtypes
         nunique = len(X[fc].unique())
-        # treatments
-        if treatments and fc in treatments:
-            features = apply_treatment(fnum, fc, X, nunique, treatments[fc])
-            all_features = np.column_stack((all_features, features))
         # standard processing of numerical, categorical, and text features
         if nunique <= dummy_limit:
             features = get_factors(model, X, fnum, fc, nunique, dtype,
