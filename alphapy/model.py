@@ -260,9 +260,6 @@ def get_model_config():
         specs['encoder'] = Encoders(encoders[encoder])
     else:
         raise ValueError("model.yml features:encoding:type %s unrecognized", encoder)
-    # genetic
-    specs['genetic'] = cfg['features']['genetic']['option']
-    specs['gfeatures'] = cfg['features']['genetic']['features']
     # interactions
     specs['interactions'] = cfg['features']['interactions']['option']
     specs['isample_pct'] = cfg['features']['interactions']['sampling_pct']
@@ -392,8 +389,6 @@ def get_model_config():
     logger.info('fs_percentage     = %d', specs['fs_percentage'])
     logger.info('fs_score_func     = %s', specs['fs_score_func'])
     logger.info('fs_uni_grid       = %s', specs['fs_uni_grid'])
-    logger.info('genetic           = %r', specs['genetic'])
-    logger.info('gfeatures         = %d', specs['gfeatures'])
     logger.info('grid_search       = %r', specs['grid_search'])
     logger.info('gs_iters          = %d', specs['gs_iters'])
     logger.info('gs_random         = %r', specs['gs_random'])
@@ -790,6 +785,7 @@ def predict_best(model):
     # Extract model parameters.
 
     model_type = model.specs['model_type']
+    rfe = model.specs['rfe']
     scorer = model.specs['scorer']
     test_labels = model.test_labels
 
@@ -834,7 +830,7 @@ def predict_best(model):
                 best_score = top_score
                 best_algo = algorithm
 
-    # Store predictions of best estimator
+    # Record predictions of best estimator
 
     logger.info("Best Model is %s with a %s score of %.4f", best_algo, scorer, best_score)
     model.estimators[best_tag] = model.estimators[best_algo]
@@ -843,6 +839,11 @@ def predict_best(model):
     if model_type == ModelType.classification:
         model.probas[(best_tag, Partition.train)] = model.probas[(best_algo, Partition.train)]
         model.probas[(best_tag, Partition.test)] = model.probas[(best_algo, Partition.test)]
+
+    # Record support vector for any recursive feature elimination
+
+    if rfe and model.support[best_tag]:
+        pass
 
     # Return the model with best estimator and predictions.
 

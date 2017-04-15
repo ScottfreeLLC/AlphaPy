@@ -27,7 +27,6 @@ your system. Run the following command::
 
         conda create -n alphapy python=3.5
         source activate alphapy
-        conda install -c conda-forge tensorflow
         conda install -c conda-forge pyyaml
         conda install -c conda-forge bokeh
         conda install -c conda-forge matplotlib
@@ -35,5 +34,4 @@ your system. Run the following command::
         pip install pandas_datareader
         pip install imblearn
         pip install category_encoders
-        pip install gplearn
         pip install pyfolio

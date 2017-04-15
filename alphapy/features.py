@@ -33,7 +33,6 @@ from alphapy.globals import Scalers
 from alphapy.market_variables import Variable
 
 import category_encoders as ce
-from gplearn.genetic import SymbolicTransformer
 from importlib import import_module
 from itertools import groupby
 import logging
@@ -758,7 +757,7 @@ def create_crosstabs(model):
     # Save crosstabs to the model directory
 
     logger.info("Saving Cross-Tabulations")
-    full_path = SSEP.join([directory, 'model', 'feature_crosstabs.pkl'])
+    full_path = SSEP.join([directory, 'model', 'features_crosstab.pkl'])
     joblib.dump(crosstabs, full_path)
 
 
@@ -854,7 +853,7 @@ def get_factors(model, df, fnum, fname, nvalues, dtype,
         if model_type == ModelType.classification:
             try:
                 # Load the crosstab for this feature
-                full_path = SSEP.join([directory, 'model', 'feature_crosstabs.pkl'])
+                full_path = SSEP.join([directory, 'model', 'features_crosstab.pkl'])
                 cts_loaded = joblib.load(full_path)
                 ct = cts_loaded[fname]
                 # map target percentages to the new feature
@@ -864,6 +863,7 @@ def get_factors(model, df, fnum, fname, nvalues, dtype,
                 ct_feature.fillna(value=sentinel, inplace=True)
                 # concatenate all generated features
                 all_features = np.column_stack((all_features, ct_feature))
+                logger.info("Applied target percentages for %s", fname)
             except:
                 # just skip crosstabs if unavailable
                 pass
@@ -1496,13 +1496,13 @@ def create_interactions(model, X):
 
     # Extract model parameters
 
-    genetic = model.specs['genetic']
     gfeatures = model.specs['gfeatures']
     interactions = model.specs['interactions']
     isample_pct = model.specs['isample_pct']
     model_type = model.specs['model_type']
     n_jobs = model.specs['n_jobs']
     poly_degree = model.specs['poly_degree']
+    predict_mode = model.specs['predict_mode']
     seed = model.specs['seed']
     verbosity = model.specs['verbosity']
 
@@ -1522,17 +1522,21 @@ def create_interactions(model, X):
     # Get polynomial features
 
     if interactions:
-        logger.info("Generating Polynomial Features")
-        logger.info("Interaction Percentage : %d", isample_pct)
-        logger.info("Polynomial Degree      : %d", poly_degree)
-        if model_type == ModelType.regression:
-            selector = SelectPercentile(f_regression, percentile=isample_pct)
-        elif model_type == ModelType.classification:
-            selector = SelectPercentile(f_classif, percentile=isample_pct)
+        if not predict_mode:
+            logger.info("Generating Polynomial Features")
+            logger.info("Interaction Percentage : %d", isample_pct)
+            logger.info("Polynomial Degree      : %d", poly_degree)
+            if model_type == ModelType.regression:
+                selector = SelectPercentile(f_regression, percentile=isample_pct)
+            elif model_type == ModelType.classification:
+                selector = SelectPercentile(f_classif, percentile=isample_pct)
+            else:
+                raise TypeError("Unknown model type when creating interactions")
+            selector.fit(X_train, y_train)
+            support = selector.get_support()
         else:
-            raise TypeError("Unknown model type when creating interactions")
-        selector.fit(X_train, y_train)
-        support = selector.get_support()
+            logger.info("Getting Polynomial Support")
+            pass
         pfeatures = get_polynomials(X[:, support], poly_degree)
         logger.info("Polynomial Feature Count : %d", pfeatures.shape[1])
         pfeatures = StandardScaler().fit_transform(pfeatures)
@@ -1541,27 +1545,7 @@ def create_interactions(model, X):
     else:
         logger.info("Skipping Interactions")
 
-    # Generate genetic features
-
-    if genetic:
-        logger.info("Generating Genetic Features")
-        logger.info("Genetic Features : %r", gfeatures)
-        gp = SymbolicTransformer(generations=20, population_size=2000,
-                                 hall_of_fame=100, n_components=gfeatures,
-                                 parsimony_coefficient=0.0005,
-                                 max_samples=0.9, verbose=verbosity,
-                                 random_state=seed, n_jobs=n_jobs)
-        gp.fit(X_train, y_train)
-        gp_features = gp.transform(X)
-        logger.info("Genetic Feature Count : %d", gp_features.shape[1])
-        gp_features = StandardScaler().fit_transform(gp_features)
-        all_features = np.hstack((all_features, gp_features))
-        logger.info("New Total Feature Count : %d", all_features.shape[1])
-    else:
-        logger.info("Skipping Genetic Features")
-
     # Return all features
-
     return all_features
 
 
