@@ -784,6 +784,7 @@ def predict_best(model):
 
     # Extract model parameters.
 
+    directory = model.specs['directory']
     model_type = model.specs['model_type']
     rfe = model.specs['rfe']
     scorer = model.specs['scorer']
@@ -842,8 +843,15 @@ def predict_best(model):
 
     # Record support vector for any recursive feature elimination
 
-    if rfe and model.support[best_tag]:
-        pass
+    if rfe:
+        try:
+            if model.support[best_algo]:
+                logger.info("Saving RFE Support")
+                full_path = SSEP.join([directory, 'model', 'features_support_rfe.pkl'])
+                joblib.dump(model.support[best_algo], full_path)
+        except:
+            # no RFE support for best algorithm
+            pass
 
     # Return the model with best estimator and predictions.
 

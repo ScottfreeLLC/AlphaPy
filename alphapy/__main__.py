@@ -297,7 +297,9 @@ def prediction_pipeline(model):
     directory = model.specs['directory']
     drop = model.specs['drop']
     extension = model.specs['extension']
+    feature_selection = model.specs['feature_selection']
     model_type = model.specs['model_type']
+    rfe = model.specs['rfe']
     separator = model.specs['separator']
 
     # Get all data. We need original train and test for interactions.
@@ -326,6 +328,22 @@ def prediction_pipeline(model):
 
     # Remove low-variance features
     all_features = remove_lv_features(all_features)
+
+    # Load the univariate support vector, if any
+
+    if feature_selection:
+        logger.info("Getting Univariate Support")
+        full_path = SSEP.join([directory, 'model', 'features_support_uni.pkl'])
+        support = joblib.load(full_path)
+        all_features = all_features[:, support]
+
+    # Load the RFE support vector, if any
+
+    if rfe:
+        logger.info("Getting RFE Support")
+        full_path = SSEP.join([directory, 'model', 'features_support_rfe.pkl'])
+        support = joblib.load(full_path)
+        all_features = all_features[:, support]
 
     # Load predictor
     predictor = load_predictor(directory)

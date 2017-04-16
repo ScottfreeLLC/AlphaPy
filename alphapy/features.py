@@ -1394,6 +1394,7 @@ def select_features(model):
 
     # Extract model parameters.
 
+    directory = model.specs['directory']
     fs_percentage = model.specs['fs_percentage']
     fs_score_func = model.specs['fs_score_func']
 
@@ -1406,6 +1407,12 @@ def select_features(model):
 
     fsfit = fs.fit(X_train, y_train)
     support = fsfit.get_support()
+
+    # Record the support vector
+
+    logger.info("Saving Univariate Support")
+    full_path = SSEP.join([directory, 'model', 'features_support_uni.pkl'])
+    joblib.dump(support, full_path)
 
     # Record the support vector
 
@@ -1423,7 +1430,6 @@ def select_features(model):
     model.X_test = X_test_new
 
     # Return the modified model
-
     return model
 
 
@@ -1496,7 +1502,7 @@ def create_interactions(model, X):
 
     # Extract model parameters
 
-    gfeatures = model.specs['gfeatures']
+    directory = model.specs['directory']
     interactions = model.specs['interactions']
     isample_pct = model.specs['isample_pct']
     model_type = model.specs['model_type']
@@ -1512,12 +1518,13 @@ def create_interactions(model, X):
     y_train = model.y_train
 
     # Log parameters
-
     logger.info("Initial Feature Count  : %d", X.shape[1])
 
     # Initialize all features
-
     all_features = X
+
+    # Set path name for storing polynomial feature support
+    full_path = SSEP.join([directory, 'model', 'features_support_poly.pkl'])
 
     # Get polynomial features
 
@@ -1534,9 +1541,11 @@ def create_interactions(model, X):
                 raise TypeError("Unknown model type when creating interactions")
             selector.fit(X_train, y_train)
             support = selector.get_support()
+            logger.info("Saving Polynomial Support")
+            joblib.dump(support, full_path)
         else:
             logger.info("Getting Polynomial Support")
-            pass
+            support = joblib.load(full_path)
         pfeatures = get_polynomials(X[:, support], poly_degree)
         logger.info("Polynomial Feature Count : %d", pfeatures.shape[1])
         pfeatures = StandardScaler().fit_transform(pfeatures)
