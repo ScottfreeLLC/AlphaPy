@@ -339,7 +339,6 @@ def main(args=None):
         logger.info("Prediction Date: %s", predict_date)
 
     # Read stock configuration file
-
     market_specs = get_market_config()
 
     # Read model configuration file
@@ -355,7 +354,6 @@ def main(args=None):
     model = Model(model_specs)
 
     # Start the pipeline
-
     model = market_pipeline(model, market_specs)
 
     # Complete the pipeline

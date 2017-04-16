@@ -1565,11 +1565,13 @@ def drop_features(X, drop):
 # Function remove_lv_features
 #
 
-def remove_lv_features(X):
+def remove_lv_features(model, X):
     r"""Remove low-variance features.
 
     Parameters
     ----------
+    model : alphapy.Model
+        Model specifications for removing features.
     X : numpy array
         The feature matrix.
 
@@ -1587,12 +1589,27 @@ def remove_lv_features(X):
     """
 
     logger.info("Removing Low-Variance Features")
-    logger.info("Original Feature Count  : %d", X.shape[1])
 
-    # Remove duplicated columns
+    # Extract model parameters
 
-    selector = VarianceThreshold()
-    X_reduced = selector.fit_transform(X)
-    logger.info("Reduced Feature Count   : %d", X_reduced.shape[1])
+    lv_remove = model.specs['lv_remove']
+    lv_threshold = model.specs['lv_threshold']
+    predict_mode = model.specs['predict_mode']
+
+    # Remove low-variance features
+
+    if lv_remove:
+        logger.info("Original Feature Count  : %d", X.shape[1])
+        if not predict_mode:
+            selector = VarianceThreshold(threshold=lv_threshold)
+            support = selector.get_support()
+            model.feature_map['lv_support'] = support
+        else:
+            support = model.feature_map['lv_support']
+        X_reduced = X[:, support]
+        logger.info("Reduced Feature Count   : %d", X_reduced.shape[1])
+    else:
+        X_reduced = X
+        logger.info("Skipping Low-Variance Features")
 
     return X_reduced

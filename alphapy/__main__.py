@@ -39,7 +39,7 @@ from alphapy.features import drop_features
 from alphapy.features import remove_lv_features
 from alphapy.features import save_features
 from alphapy.features import select_features
-from alphapy.globals import CSEP, PSEP, SSEP
+from alphapy.globals import CSEP, PSEP, SSEP, USEP
 from alphapy.globals import ModelType
 from alphapy.globals import Partition, datasets
 from alphapy.globals import WILDCARD
@@ -54,12 +54,15 @@ from alphapy.model import Model
 from alphapy.model import predict_best
 from alphapy.model import predict_blend
 from alphapy.model import save_model
+from alphapy.model import save_predictions
 from alphapy.optimize import hyper_grid_search
 from alphapy.optimize import rfe_search
 from alphapy.optimize import rfecv_search
 from alphapy.plots import generate_plots
+from alphapy.utilities import np_store_data
 
 import argparse
+from datetime import datetime
 import logging
 import numpy as np
 import pandas as pd
@@ -181,7 +184,7 @@ def training_pipeline(model):
 
     # Remove low-variance features
 
-    all_features = remove_lv_features(all_features)
+    all_features = remove_lv_features(model, all_features)
     X_train, X_test = np.array_split(all_features, [split_point])
     model = save_features(model, X_train, X_test)
 
@@ -305,10 +308,11 @@ def prediction_pipeline(model):
 
     # Get all data. We need original train and test for interactions.
 
-    X_predict, _ = get_data(model, Partition.predict)
+    partition = Partition.predict
+    X_predict, _ = get_data(model, partition)
 
     # Load feature_map
-    model = load_feature_map(directory)
+    model = load_feature_map(model, directory)
 
     # Drop features
 
@@ -331,7 +335,7 @@ def prediction_pipeline(model):
     all_features = create_interactions(model, all_features)
 
     # Remove low-variance features
-    all_features = remove_lv_features(all_features)
+    all_features = remove_lv_features(model, all_features)
 
     # Load the univariate support vector, if any
 
@@ -353,9 +357,10 @@ def prediction_pipeline(model):
     # Make predictions
     
     logger.info("Making Predictions")
-    preds = predictor.predict(all_features)
+    tag = 'BEST'
+    model.preds[(tag, partition)] = predictor.predict(all_features)
     if model_type == ModelType.classification:
-        probas = predictor.predict_proba(all_features)[:, 1]
+        model.probas[(tag, partition)]  = predictor.predict_proba(all_features)[:, 1]
 
     # Get date stamp to record file creation
 
@@ -364,18 +369,7 @@ def prediction_pipeline(model):
     timestamp = d.strftime(f)
 
     # Save predictions
-
-    logger.info("Saving Predictions")
-    output_dir = SSEP.join([directory, 'output'])
-    output_file = USEP.join(['predictions', timestamp])
-    np_store_data(preds, output_dir, output_file, extension, separator)
-
-    # Save probabilities for classification
-
-    if model_type == ModelType.classification:
-        logger.info("Saving Probabilities")
-        output_file = USEP.join(['probabilities', timestamp])
-        np_store_data(probas, output_dir, output_file, extension, separator)
+    save_predictions(model, tag, partition)
 
 
 #

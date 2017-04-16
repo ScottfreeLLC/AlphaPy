@@ -175,35 +175,56 @@ def run_analysis(analysis, forecast_period, leaders,
 
     # Unpack model data
 
+    predict_file = model.predict_file
+    test_file = model.test_file
+    test_labels = model.test_labels
+    train_file = model.train_file
+
+    # Unpack model specifications
+
     directory = model.specs['directory']
     extension = model.specs['extension']
     predict_date = model.specs['predict_date']
     predict_mode = model.specs['predict_mode']
     separator = model.specs['separator']
     target = model.specs['target']
-    test_file = model.test_file
-    test_labels = model.test_labels
     train_date = model.specs['train_date']
-    train_file = model.train_file
+
+    # Calculate split date
     split_date = subtract_days(predict_date, predict_history)
 
     # Load the data frames
-
     data_frames = load_frames(group, directory, extension, separator, splits)
-    if data_frames:
-        # create training and test frames
+
+    # Create dataframes
+
+    if predict_mode:
+        # create predict frame
+        predict_frame = pd.DataFrame()
+    else:
+        # create train and test frames
         train_frame = pd.DataFrame()
         test_frame = pd.DataFrame()
-        # Subset each frame and add to the model frame
-        for df in data_frames:
-            last_date = df.index[-1]
-            # shift the target for the forecast period
-            if forecast_period > 0:
-                df[target] = df[target].shift(-forecast_period)
-                df.index = df.index.shift(forecast_period, freq='D')
-            # shift any leading features if necessary
-            if leaders:
-                df[leaders] = df[leaders].shift(-1)
+
+    # Subset each individual frame and add to the master frame
+
+    for df in data_frames:
+        last_date = df.index[-1]
+        # shift the target for the forecast period
+        if forecast_period > 0:
+            df[target] = df[target].shift(-forecast_period)
+            df.index = df.index.shift(forecast_period, freq='D')
+        # shift any leading features if necessary
+        if leaders:
+            df[leaders] = df[leaders].shift(-1)
+        # get frame subsets
+        if predict_mode:
+            new_predict = df.loc[(df.index >= split_date) & (df.index <= last_date)]
+            if len(new_predict) > 0:
+                predict_frame = predict_frame.append(new_predict)
+            else:
+                logger.info("A prediction frame has zero rows. Check prediction date.")
+        else:
             # split data into train and test
             new_train = df.loc[(df.index >= train_date) & (df.index < split_date)]
             if len(new_train) > 0:
@@ -217,20 +238,26 @@ def run_analysis(analysis, forecast_period, leaders,
                         new_test = new_test.dropna()
                     test_frame = test_frame.append(new_test)
                 else:
-                    logger.info("A test frame has zero rows. Check prediction date.")
+                    logger.info("A testing frame has zero rows. Check prediction date.")
             else:
                 logger.warning("A training frame has zero rows. Check data source.")
-        # write out the training and test files
-        if len(train_frame) > 0 and len(test_frame) > 0:
-            directory = SSEP.join([directory, 'input'])
-            write_frame(train_frame, directory, train_file, extension, separator,
-                        index=True, index_label='date')
-            write_frame(test_frame, directory, test_file, extension, separator,
-                        index=True, index_label='date')
-        # run the AlphaPy pipeline
-        analysis.model = main_pipeline(model)
+
+    # Write out the frames for input into the AlphaPy pipeline
+
+    directory = SSEP.join([directory, 'input'])
+    if predict_mode:
+        # write out the predict frame
+        write_frame(predict_frame, directory, predict_file, extension, separator,
+                    index=True, index_label='date')
     else:
-        # no frames found
-        logger.info("No frames were found for analysis %s", name)
-    # return the analysis
+        # write out the train and test frames
+        write_frame(train_frame, directory, train_file, extension, separator,
+                    index=True, index_label='date')
+        write_frame(test_frame, directory, test_file, extension, separator,
+                    index=True, index_label='date')
+
+    # Run the AlphaPy pipeline
+    analysis.model = main_pipeline(model)
+
+    # Return the analysis
     return analysis

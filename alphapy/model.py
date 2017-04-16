@@ -149,6 +149,7 @@ class Model:
         # datasets
         self.train_file = datasets[Partition.train]
         self.test_file = datasets[Partition.test]
+        self.predict_file = datasets[Partition.predict]
         # algorithms
         try:
             self.algolist = self.specs['algorithms']
@@ -273,6 +274,9 @@ def get_model_config():
     specs['iso_neighbors'] = cfg['features']['isomap']['neighbors']
     # log transformation
     specs['logtransform'] = cfg['features']['logtransform']['option']
+    # low-variance features
+    specs['lv_remove'] = cfg['features']['variance']['option']
+    specs['lv_threshold'] = cfg['features']['variance']['threshold']
     # NumPy
     specs['numpy'] = cfg['features']['numpy']['option']
     # pca
@@ -405,6 +409,8 @@ def get_model_config():
     logger.info('isample_pct       = %d', specs['isample_pct'])
     logger.info('learning_curve    = %r', specs['learning_curve'])
     logger.info('logtransform      = %r', specs['logtransform'])
+    logger.info('lv_remove         = %r', specs['lv_remove'])
+    logger.info('lv_threshold      = %f', specs['lv_threshold'])
     logger.info('model_type        = %r', specs['model_type'])
     logger.info('n_estimators      = %d', specs['n_estimators'])
     logger.info('n_jobs            = %d', specs['n_jobs'])
@@ -528,12 +534,14 @@ def save_predictor(model, timestamp):
 # Function load_feature_map
 #
 
-def load_feature_map(directory):
+def load_feature_map(model, directory):
     r"""Load the feature map from storage. By default, the
     most recent feature map is loaded into memory.
 
     Parameters
     ----------
+    model : alphapy.Model
+        The model object to contain the feature map.
     directory : str
         Full directory specification of the feature map's location.
 
@@ -918,8 +926,7 @@ def predict_best(model):
 
     if rfe:
         try:
-            if model.support[best_algo]:
-                model.feature_map['rfe_support'] = model.support[best_algo]
+            model.feature_map['rfe_support'] = model.support[best_algo]
         except:
             # no RFE support for best algorithm
             pass
@@ -1168,6 +1175,82 @@ def generate_metrics(model, partition):
 
 
 #
+# Function save_predictions
+#
+
+def save_predictions(model, tag, partition):
+    r"""Save the predictions to disk.
+
+    Parameters
+    ----------
+    model : alphapy.Model
+        The model object to save.
+    tag : str
+        A unique identifier for the output files, e.g., a date stamp.
+    partition : alphapy.Partition
+        Reference to the dataset.
+
+    Returns
+    -------
+    preds : numpy array
+        The prediction vector.
+    probas : numpy array
+        The probability vector.
+
+    """
+
+    # Extract model parameters.
+
+    directory = model.specs['directory']
+    extension = model.specs['extension']
+    model_type = model.specs['model_type']
+    separator = model.specs['separator']
+
+    # Get date stamp to record file creation
+
+    d = datetime.now()
+    f = "%Y%m%d"
+    timestamp = d.strftime(f)
+
+    # Specify input and output directories
+
+    input_dir = SSEP.join([directory, 'input'])
+    output_dir = SSEP.join([directory, 'output'])
+
+    # Save predictions for all projects
+
+    logger.info("Saving Predictions")
+    output_file = USEP.join(['predictions', timestamp])
+    preds = model.preds[(tag, partition)]
+    np_store_data(preds, output_dir, output_file, extension, separator)
+
+    # Save probabilities for classification projects
+
+    probas = None
+    if model_type == ModelType.classification:
+        logger.info("Saving Probabilities")
+        output_file = USEP.join(['probabilities', timestamp])
+        probas = model.probas[(tag, partition)]
+        np_store_data(probas, output_dir, output_file, extension, separator)
+
+    # Save ranked predictions
+
+    logger.info("Saving Ranked Predictions")
+    tf = read_frame(input_dir, datasets[partition], extension, separator)
+    tf['prediction'] = pd.Series(preds, index=tf.index)
+    if model_type == ModelType.classification:
+        tf['probability'] = pd.Series(probas, index=tf.index)
+        tf.sort_values('probability', ascending=False, inplace=True)
+    else:
+        tf.sort_values('prediction', ascending=False, inplace=True)
+    output_file = USEP.join(['rankings', timestamp])
+    write_frame(tf, output_dir, output_file, extension, separator)
+
+    # Return predictions and any probabilities
+    return preds, probas
+
+
+#
 # Function save_model
 #
 
@@ -1208,15 +1291,8 @@ def save_model(model, tag, partition):
     directory = model.specs['directory']
     extension = model.specs['extension']
     model_type = model.specs['model_type']
-    separator = model.specs['separator']
     submission_file = model.specs['submission_file']
     submit_probas = model.specs['submit_probas']
-    test_file = model.test_file
-
-    # Extract model data.
-
-    X_train = model.X_train
-    X_test = model.X_test
 
     # Get date stamp to record file creation
 
@@ -1235,33 +1311,8 @@ def save_model(model, tag, partition):
     input_dir = SSEP.join([directory, 'input'])
     output_dir = SSEP.join([directory, 'output'])
 
-    # Save predictions for all projects
-
-    logger.info("Saving Predictions")
-    output_file = USEP.join(['predictions', timestamp])
-    preds = model.preds[(tag, partition)]
-    np_store_data(preds, output_dir, output_file, extension, separator)
-
-    # Save probabilities for classification projects
-
-    if model_type == ModelType.classification:
-        logger.info("Saving Probabilities")
-        output_file = USEP.join(['probabilities', timestamp])
-        probas = model.probas[(tag, partition)]
-        np_store_data(probas, output_dir, output_file, extension, separator)
-
-    # Save ranked predictions
-
-    logger.info("Saving Ranked Predictions")
-    tf = read_frame(input_dir, test_file, extension, separator)
-    tf['prediction'] = pd.Series(preds, index=tf.index)
-    if model_type == ModelType.classification:
-        tf['probability'] = pd.Series(probas, index=tf.index)
-        tf.sort_values('probability', ascending=False, inplace=True)
-    else:
-        tf.sort_values('prediction', ascending=False, inplace=True)
-    output_file = USEP.join(['rankings', timestamp])
-    write_frame(tf, output_dir, output_file, extension, separator)
+    # Save predictions
+    preds, probas = save_predictions(model, tag, partition)
 
     # Generate submission file
 
