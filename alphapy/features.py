@@ -1599,6 +1599,7 @@ def remove_lv_features(model, X):
     # Remove low-variance features
 
     if lv_remove:
+        logger.info("Low-Variance Threshold  : %.2f", lv_threshold)
         logger.info("Original Feature Count  : %d", X.shape[1])
         if not predict_mode:
             selector = VarianceThreshold(threshold=lv_threshold)
