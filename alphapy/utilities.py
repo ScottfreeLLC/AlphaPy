@@ -32,10 +32,18 @@ import argparse
 from datetime import datetime, timedelta
 import inspect
 from itertools import groupby
+import logging
 import numpy as np
 from os import listdir
 from os.path import isfile, join
 import re
+
+
+#
+# Initialize logger
+#
+
+logger = logging.getLogger(__name__)
 
 
 #
@@ -65,6 +73,7 @@ def np_store_data(data, dir_name, file_name, extension, separator):
     """
     output_file = PSEP.join([file_name, extension])
     output = SSEP.join([dir_name, output_file])
+    logger.info("Storing output to %s", output)
     np.savetxt(output, data, delimiter=separator)
 
 

@@ -206,6 +206,8 @@ def market_pipeline(model, market_specs):
     logger.info("Running MarketFlow Pipeline")
 
     # Get any model specifications
+
+    predict_mode = model.specs['predict_mode']
     target = model.specs['target']
 
     # Get any market specifications
@@ -237,7 +239,8 @@ def market_pipeline(model, market_specs):
 
     # Get stock data
 
-    get_feed_data(gs, data_history)
+    lookback = predict_history if predict_mode else data_history
+    get_feed_data(gs, lookback)
 
     # Apply the features to all of the frames
 

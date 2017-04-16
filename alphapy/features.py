@@ -498,7 +498,7 @@ def apply_treatments(model, X):
 # Function impute_values
 #
 
-def impute_values(features, dt):
+def impute_values(features, dt, sentinel):
     r"""Impute values for a given data type. The *median* strategy
     is applied for floating point values, and the *most frequent*
     strategy is applied for integer or Boolean values.
@@ -509,10 +509,12 @@ def impute_values(features, dt):
         Dataframe containing the features for imputation.
     dt : str
         The values ``'float64'``, ``'int64'``, or ``'bool'``.
+    sentinel : float
+        The number to be imputed for NaN values.
 
     Returns
     -------
-    new_features : numpy array
+    imputed_features : numpy array
         The features after imputation.
 
     Raises
@@ -538,14 +540,21 @@ def impute_values(features, dt):
     else:
         raise TypeError('Data Type %s is invalid for imputation', dt)
     imputed = imp.fit_transform(features)
-    return imputed
+    if imputed.shape[1] == 0:
+        nans = np.isnan(features)
+        features[nans] = sentinel
+        imputed_features = features
+    else:
+        imputed_features = imputed
+    return imputed_features
 
 
 #
 # Function get_numerical_features
 #
 
-def get_numerical_features(fnum, fname, df, nvalues, dt, logt, plevel):
+def get_numerical_features(fnum, fname, df, nvalues, dt,
+                           sentinel, logt, plevel):
     r"""Transform numerical features with imputation and possibly
     log-transformation.
 
@@ -561,6 +570,8 @@ def get_numerical_features(fnum, fname, df, nvalues, dt, logt, plevel):
         The number of unique values.
     dt : str
         The values ``'float64'``, ``'int64'``, or ``'bool'``.
+    sentinel : float
+        The number to be imputed for NaN values.
     logt : bool
         If ``True``, then log-transform numerical values.
     plevel : float
@@ -580,7 +591,7 @@ def get_numerical_features(fnum, fname, df, nvalues, dt, logt, plevel):
         logger.info("Feature %d: %s is a numerical feature of type %s with %d unique values",
                     fnum, fname, dt, nvalues)
     # imputer for float, integer, or boolean data types
-    new_values = impute_values(feature, dt)
+    new_values = impute_values(feature, dt, sentinel)
     # log-transform any values that do not fit a normal distribution
     if logt and np.all(new_values > 0):
         stat, pvalue = sps.normaltest(new_values)
@@ -863,7 +874,7 @@ def get_factors(model, df, fnum, fname, nvalues, dtype,
 # Function create_numpy_features
 #
 
-def create_numpy_features(base_features):
+def create_numpy_features(base_features, sentinel):
     r"""Calculate the sum, mean, standard deviation, and variance
     of each row.
 
@@ -871,6 +882,8 @@ def create_numpy_features(base_features):
     ----------
     base_features : numpy array
         The feature dataframe.
+    sentinel : float
+        The number to be imputed for NaN values.
 
     Returns
     -------
@@ -895,7 +908,7 @@ def create_numpy_features(base_features):
     # Impute, scale, and stack all new features.
 
     np_features = np.column_stack((row_sum, row_mean, row_std, row_var))
-    np_features = impute_values(np_features, 'float64')
+    np_features = impute_values(np_features, 'float64', sentinel)
     np_features = StandardScaler().fit_transform(np_features)
 
     # Return new NumPy features
@@ -908,7 +921,7 @@ def create_numpy_features(base_features):
 # Function create_scipy_features
 #
 
-def create_scipy_features(base_features):
+def create_scipy_features(base_features, sentinel):
     r"""Calculate the skew, kurtosis, and other statistical features
     for each row.
 
@@ -916,6 +929,8 @@ def create_scipy_features(base_features):
     ----------
     base_features : numpy array
         The feature dataframe.
+    sentinel : float
+        The number to be imputed for NaN values.
 
     Returns
     -------
@@ -950,7 +965,7 @@ def create_scipy_features(base_features):
     sp_features = np.column_stack((row_gmean, row_kurtosis, row_ktest,
                                    row_normal, row_skew, row_stest,
                                    row_var, row_stn, row_sem))
-    sp_features = impute_values(sp_features, 'float64')
+    sp_features = impute_values(sp_features, 'float64', sentinel)
     sp_features = StandardScaler().fit_transform(sp_features)
 
     # Return new SciPy features
@@ -1274,13 +1289,16 @@ def create_features(model, X):
                                    encoder, rounding, sentinel)            
         elif dtype == 'float64' or dtype == 'int64' or dtype == 'bool':
             features = get_numerical_features(fnum, fc, X, nunique, dtype,
-                                              logtransform, pvalue_level)
+                                              sentinel, logtransform, pvalue_level)
         elif dtype == 'object':
             features = get_text_features(fnum, fc, X, nunique, vectorize, ngrams_max)
         else:
             raise TypeError("Base Feature Error with unrecognized type %s", dtype)
-        if features is not None:
+        if features.shape[0] == all_features.shape[0]:
             all_features = np.column_stack((all_features, features))
+        else:
+            logger.info("Feature %s has the wrong number of rows: %d",
+                        fc, features.shape[0])
     all_features = np.delete(all_features, 0, axis=1)
 
     logger.info("New Feature Count : %d", all_features.shape[1])
@@ -1304,14 +1322,14 @@ def create_features(model, X):
     # Calculate the total, mean, standard deviation, and variance
 
     if numpy_flag:
-        np_features = create_numpy_features(base_features)
+        np_features = create_numpy_features(base_features, sentinel)
         all_features = np.column_stack((all_features, np_features))
         logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Generate scipy features
 
     if scipy_flag:
-        sp_features = create_scipy_features(base_features)
+        sp_features = create_scipy_features(base_features, sentinel)
         all_features = np.column_stack((all_features, sp_features))
         logger.info("New Feature Count : %d", all_features.shape[1])
 

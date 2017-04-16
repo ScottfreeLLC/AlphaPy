@@ -527,6 +527,8 @@ def save_predictor(model, timestamp):
     full_path = SSEP.join([directory, 'model', filename])
 
     # Save model object
+
+    logger.info("Writing model to %s", full_path)
     joblib.dump(predictor, full_path)
 
 
@@ -604,6 +606,8 @@ def save_feature_map(model, timestamp):
     full_path = SSEP.join([directory, 'model', filename])
 
     # Save model object
+
+    logger.info("Writing feature map to %s", full_path)
     joblib.dump(model.feature_map, full_path)
 
 
