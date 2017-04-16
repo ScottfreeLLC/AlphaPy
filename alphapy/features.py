@@ -741,15 +741,14 @@ def create_crosstabs(model):
     # Extract model parameters
 
     directory = model.specs['directory']
-    dummy_limit = model.specs['dummy_limit']
+    factors = model.specs['factors']
     target_value = model.specs['target_value']
 
     # Iterate through columns, dispatching and transforming each feature.
 
     crosstabs = {}
     for fname in X:
-        nunique = len(X[fname].unique())
-        if nunique <= dummy_limit:
+        if fname in factors:
             logger.info("Creating crosstabs for feature %s", fname)
             ct = pd.crosstab(X[fname], y).apply(lambda r : r / r.sum(), axis=1)
             crosstabs[fname] = ct
@@ -1233,8 +1232,8 @@ def create_features(model, X):
 
     clustering = model.specs['clustering']
     counts_flag = model.specs['counts']
-    dummy_limit = model.specs['dummy_limit']
     encoder = model.specs['encoder']
+    factors = model.specs['factors']
     isomap = model.specs['isomap']
     logtransform = model.specs['logtransform']
     model_type = model.specs['model_type']
@@ -1282,7 +1281,7 @@ def create_features(model, X):
         dtype = X[fc].dtypes
         nunique = len(X[fc].unique())
         # standard processing of numerical, categorical, and text features
-        if nunique <= dummy_limit:
+        if fc in factors:
             features = get_factors(model, X, fnum, fc, nunique, dtype,
                                    encoder, rounding, sentinel)            
         elif dtype == 'float64' or dtype == 'int64' or dtype == 'bool':

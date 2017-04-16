@@ -26,7 +26,6 @@ classifiers = ['Development Status :: 4 - Beta',
 install_reqs = [
     'bokeh>=0.12',
     'category_encoders>=1.2.0',
-    'gplearn>=0.1.0',
     'imblearn>=0.0',
     'ipython>=3.2.3',
     'matplotlib>=2.0.0',
@@ -38,7 +37,6 @@ install_reqs = [
     'scikit-learn>=0.17.1',
     'scipy>=0.18.1',
     'seaborn>=0.7.1',
-    'tensorflow>=1.0.0',
     'xgboost>=0.6',
 ]
 

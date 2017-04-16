@@ -847,17 +847,22 @@ def main(args=None):
                 mf = insert_model_data(mf, mpos, mdict, tf, index, team1_prefix if at_home else team2_prefix)
 
         # Compute delta data 'home' - 'away'
-
         mf = generate_delta_data(mf, mdict, team1_prefix, team2_prefix)
 
         # Append this to final frame
-
         frames = [ff, mf]
         ff = pd.concat(frames)
 
+    # Write out dataframes
+
     input_dir = SSEP.join([directory, 'input'])
     if args.predict_mode:
-        write_frame(ff, input_dir, datasets[Partition.predict],
+        new_predict_frame = ff.loc[ff.date >= predict_date]
+        if len(new_predict_frame) <= 1:
+            raise ValueError("Prediction frame has length 1 or less")
+        # rewrite with all the features to the train and test files
+        logger.info("Saving prediction frame")
+        write_frame(new_predict_frame, input_dir, datasets[Partition.predict],
                     specs['extension'], specs['separator'])
     else:
         # split data into training and test data
@@ -866,10 +871,12 @@ def main(args=None):
             raise ValueError("Training frame has length 1 or less")
         new_test_frame = ff.loc[ff.date >= predict_date]
         if len(new_test_frame) <= 1:
-            raise ValueError("Test frame has length 1 or less")
+            raise ValueError("Testing frame has length 1 or less")
         # rewrite with all the features to the train and test files
+        logger.info("Saving training frame")
         write_frame(new_train_frame, input_dir, datasets[Partition.train],
                     specs['extension'], specs['separator'])
+        logger.info("Saving testing frame")
         write_frame(new_test_frame, input_dir, datasets[Partition.test],
                     specs['extension'], specs['separator'])
 

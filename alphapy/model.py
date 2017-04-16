@@ -221,7 +221,6 @@ def get_model_config():
     # Section: data
 
     specs['drop'] = cfg['data']['drop']
-    specs['dummy_limit'] = cfg['data']['dummy_limit']
     specs['features'] = cfg['data']['features']
     specs['sentinel'] = cfg['data']['sentinel']
     specs['separator'] = cfg['data']['separator']
@@ -260,6 +259,8 @@ def get_model_config():
         specs['encoder'] = Encoders(encoders[encoder])
     else:
         raise ValueError("model.yml features:encoding:type %s unrecognized", encoder)
+    # factors
+    specs['factors'] = cfg['features']['factors']
     # interactions
     specs['interactions'] = cfg['features']['interactions']['option']
     specs['isample_pct'] = cfg['features']['interactions']['sampling_pct']
@@ -381,9 +382,9 @@ def get_model_config():
     logger.info('directory         = %s', specs['directory'])
     logger.info('extension         = %s', specs['extension'])
     logger.info('drop              = %s', specs['drop'])
-    logger.info('dummy_limit       = %d', specs['dummy_limit'])
     logger.info('encoder           = %r', specs['encoder'])
     logger.info('esr               = %d', specs['esr'])
+    logger.info('factors           = %s', specs['factors'])
     logger.info('features [X]      = %s', specs['features'])
     logger.info('feature_selection = %r', specs['feature_selection'])
     logger.info('fs_percentage     = %d', specs['fs_percentage'])

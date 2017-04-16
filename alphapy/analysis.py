@@ -178,6 +178,7 @@ def run_analysis(analysis, forecast_period, leaders,
     directory = model.specs['directory']
     extension = model.specs['extension']
     predict_date = model.specs['predict_date']
+    predict_mode = model.specs['predict_mode']
     separator = model.specs['separator']
     target = model.specs['target']
     test_file = model.test_file
