@@ -47,6 +47,7 @@ from alphapy.model import first_fit
 from alphapy.model import generate_metrics
 from alphapy.model import get_model_config
 from alphapy.model import get_class_weights
+from alphapy.model import load_feature_map
 from alphapy.model import load_predictor
 from alphapy.model import make_predictions
 from alphapy.model import Model
@@ -306,6 +307,9 @@ def prediction_pipeline(model):
 
     X_predict, _ = get_data(model, Partition.predict)
 
+    # Load feature_map
+    model = load_feature_map(directory)
+
     # Drop features
 
     logger.info("Dropping Features: %s", drop)
@@ -333,16 +337,14 @@ def prediction_pipeline(model):
 
     if feature_selection:
         logger.info("Getting Univariate Support")
-        full_path = SSEP.join([directory, 'model', 'features_support_uni.pkl'])
-        support = joblib.load(full_path)
+        support = model.feature_map['uni_support']
         all_features = all_features[:, support]
 
     # Load the RFE support vector, if any
 
     if rfe:
         logger.info("Getting RFE Support")
-        full_path = SSEP.join([directory, 'model', 'features_support_rfe.pkl'])
-        support = joblib.load(full_path)
+        support = model.feature_map['rfe_support']
         all_features = all_features[:, support]
 
     # Load predictor

@@ -44,7 +44,6 @@ from scipy import sparse
 import scipy.stats as sps
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.decomposition import PCA
-from sklearn.externals import joblib
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_selection import chi2
@@ -728,7 +727,8 @@ def create_crosstabs(model):
 
     Returns
     -------
-    None : None
+    model : alphapy.Model
+        The model object with the updated feature map.
 
     """
 
@@ -740,7 +740,6 @@ def create_crosstabs(model):
 
     # Extract model parameters
 
-    directory = model.specs['directory']
     factors = model.specs['factors']
     target_value = model.specs['target_value']
 
@@ -753,11 +752,10 @@ def create_crosstabs(model):
             ct = pd.crosstab(X[fname], y).apply(lambda r : r / r.sum(), axis=1)
             crosstabs[fname] = ct
 
-    # Save crosstabs to the model directory
+    # Save crosstabs to the feature map
 
-    logger.info("Saving Cross-Tabulations")
-    full_path = SSEP.join([directory, 'model', 'features_crosstab.pkl'])
-    joblib.dump(crosstabs, full_path)
+    model.feature_map['crosstabs'] = crosstabs
+    return model
 
 
 #
@@ -794,20 +792,15 @@ def get_factors(model, df, fnum, fname, nvalues, dtype,
     all_features : numpy array
         The features that have been transformed to factors.
 
-    Raises
-    ------
-    FileNotFoundError
-        Could not locate the crosstabs file.
-
     """
 
     logger.info("Feature %d: %s is a factor of type %s with %d unique values",
                 fnum, fname, dtype, nvalues)
     logger.info("Encoding: %s", encoder)
 
-    # Extract model parameters
+    # Extract model data
 
-    directory = model.specs['directory']
+    feature_map = model.feature_map
     model_type = model.specs['model_type']
     target_value = model.specs['target_value']
 
@@ -848,24 +841,19 @@ def get_factors(model, df, fnum, fname, nvalues, dtype,
             all_features = pd_features
         elif enc_exists:
             all_features = enc.fit_transform(ef, None)
-        # Calculate target percentages for classifiers
-        if model_type == ModelType.classification:
-            try:
-                # Load the crosstab for this feature
-                full_path = SSEP.join([directory, 'model', 'features_crosstab.pkl'])
-                cts_loaded = joblib.load(full_path)
-                ct = cts_loaded[fname]
-                # map target percentages to the new feature
-                ct_map = ct.to_dict()[target_value]
-                ct_feature = df[[fname]].applymap(ct_map.get)
-                # impute sentinel for any values that could not be mapped
-                ct_feature.fillna(value=sentinel, inplace=True)
-                # concatenate all generated features
-                all_features = np.column_stack((all_features, ct_feature))
-                logger.info("Applied target percentages for %s", fname)
-            except:
-                # just skip crosstabs if unavailable
-                pass
+        # Calculate target percentages for factors
+        if (model_type == ModelType.classification and
+           fname in feature_map['crosstabs']):
+            # Get the crosstab for this feature
+            ct = feature_map['crosstabs'][fname]
+            # map target percentages to the new feature
+            ct_map = ct.to_dict()[target_value]
+            ct_feature = df[[fname]].applymap(ct_map.get)
+            # impute sentinel for any values that could not be mapped
+            ct_feature.fillna(value=sentinel, inplace=True)
+            # concatenate all generated features
+            all_features = np.column_stack((all_features, ct_feature))
+            logger.info("Applied target percentages for %s", fname)
     else:
         raise RuntimeError("Encoding for feature %s failed", fname)
     return all_features
@@ -1393,7 +1381,6 @@ def select_features(model):
 
     # Extract model parameters.
 
-    directory = model.specs['directory']
     fs_percentage = model.specs['fs_percentage']
     fs_score_func = model.specs['fs_score_func']
 
@@ -1410,8 +1397,7 @@ def select_features(model):
     # Record the support vector
 
     logger.info("Saving Univariate Support")
-    full_path = SSEP.join([directory, 'model', 'features_support_uni.pkl'])
-    joblib.dump(support, full_path)
+    model.feature_map['uni_support'] = support
 
     # Record the support vector
 
@@ -1501,7 +1487,6 @@ def create_interactions(model, X):
 
     # Extract model parameters
 
-    directory = model.specs['directory']
     interactions = model.specs['interactions']
     isample_pct = model.specs['isample_pct']
     model_type = model.specs['model_type']
@@ -1522,9 +1507,6 @@ def create_interactions(model, X):
     # Initialize all features
     all_features = X
 
-    # Set path name for storing polynomial feature support
-    full_path = SSEP.join([directory, 'model', 'features_support_poly.pkl'])
-
     # Get polynomial features
 
     if interactions:
@@ -1540,11 +1522,9 @@ def create_interactions(model, X):
                 raise TypeError("Unknown model type when creating interactions")
             selector.fit(X_train, y_train)
             support = selector.get_support()
-            logger.info("Saving Polynomial Support")
-            joblib.dump(support, full_path)
+            model.feature_map['poly_support'] = support
         else:
-            logger.info("Getting Polynomial Support")
-            support = joblib.load(full_path)
+            support = model.feature_map['poly_support']
         pfeatures = get_polynomials(X[:, support], poly_degree)
         logger.info("Polynomial Feature Count : %d", pfeatures.shape[1])
         pfeatures = StandardScaler().fit_transform(pfeatures)

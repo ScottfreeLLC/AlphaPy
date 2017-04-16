@@ -154,6 +154,8 @@ class Model:
             self.algolist = self.specs['algorithms']
         except:
             raise KeyError("Model specs must include the key: algorithms")
+        # feature map
+        self.feature_map = {}
         # Key: (algorithm)
         self.estimators = {}
         self.importances = {}
@@ -453,7 +455,7 @@ def get_model_config():
 
 def load_predictor(directory):
     r"""Load the model predictor from storage. By default, the
-    latest model is loaded into memory.
+    most recent model is loaded into memory.
 
     Parameters
     ----------
@@ -470,15 +472,14 @@ def load_predictor(directory):
     logger.info("Loading Model Predictor")
 
     # Create search path
-
-    search_path = SSEP.join([directory, 'model', 'model*.pkl'])
+    search_path = SSEP.join([directory, 'model', 'model_*.pkl'])
 
     # Locate the Pickle model file
 
     try:
         filename = max(glob.iglob(search_path), key=os.path.getctime)
     except:
-        logging.error("Could not find model %s", search_path)
+        logging.error("Could not find model in %s", search_path)
 
     # Load the model predictor
 
@@ -509,11 +510,9 @@ def save_predictor(model, timestamp):
     logger.info("Saving Model Predictor")
 
     # Extract model parameters.
-
     directory = model.specs['directory']
 
     # Get the best predictor
-
     predictor = model.estimators['BEST']
 
     # Create full path name.
@@ -522,8 +521,82 @@ def save_predictor(model, timestamp):
     full_path = SSEP.join([directory, 'model', filename])
 
     # Save model object
-
     joblib.dump(predictor, full_path)
+
+
+#
+# Function load_feature_map
+#
+
+def load_feature_map(directory):
+    r"""Load the feature map from storage. By default, the
+    most recent feature map is loaded into memory.
+
+    Parameters
+    ----------
+    directory : str
+        Full directory specification of the feature map's location.
+
+    Returns
+    -------
+    model : alphapy.Model
+        The model object containing the feature map.
+
+    """
+
+    logger.info("Loading Feature Map")
+
+    # Create search path
+    search_path = SSEP.join([directory, 'model', 'feature_map_*.pkl'])
+
+    # Locate the Pickle model file
+
+    try:
+        filename = max(glob.iglob(search_path), key=os.path.getctime)
+    except:
+        logging.error("Could not find feature map in %s", search_path)
+
+    # Load the feature_map
+
+    feature_map = joblib.load(filename)
+    model.feature_map = feature_map
+
+    # Return the model with the feature map
+    return model
+
+
+#
+# Function save_feature_map
+#
+
+def save_feature_map(model, timestamp):
+    r"""Save the feature map to disk.
+
+    Parameters
+    ----------
+    model : alphapy.Model
+        The model object containing the feature map.
+    timestamp : str
+        Date in yyyy-mm-dd format.
+
+    Returns
+    -------
+    None : None
+
+    """
+
+    logger.info("Saving Feature Map")
+
+    # Extract model parameters.
+    directory = model.specs['directory']
+
+    # Create full path name.
+
+    filename = 'feature_map_' + timestamp + '.pkl'
+    full_path = SSEP.join([directory, 'model', filename])
+
+    # Save model object
+    joblib.dump(model.feature_map, full_path)
 
 
 #
@@ -785,7 +858,6 @@ def predict_best(model):
 
     # Extract model parameters.
 
-    directory = model.specs['directory']
     model_type = model.specs['model_type']
     rfe = model.specs['rfe']
     scorer = model.specs['scorer']
@@ -847,9 +919,7 @@ def predict_best(model):
     if rfe:
         try:
             if model.support[best_algo]:
-                logger.info("Saving RFE Support")
-                full_path = SSEP.join([directory, 'model', 'features_support_rfe.pkl'])
-                joblib.dump(model.support[best_algo], full_path)
+                model.feature_map['rfe_support'] = model.support[best_algo]
         except:
             # no RFE support for best algorithm
             pass
@@ -1131,6 +1201,8 @@ def save_model(model, tag, partition):
 
     """
 
+    logger.info('='*80)
+
     # Extract model parameters.
 
     directory = model.specs['directory']
@@ -1152,10 +1224,11 @@ def save_model(model, tag, partition):
     f = "%Y%m%d"
     timestamp = d.strftime(f)
 
-    # Dump the model object itself
-
-    logger.info('='*80)
+    # Save the model predictor
     save_predictor(model, timestamp)
+
+    # Save the feature map
+    save_feature_map(model, timestamp)
 
     # Specify input and output directories
 
