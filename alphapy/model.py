@@ -1219,11 +1219,28 @@ def save_predictions(model, tag, partition):
     input_dir = SSEP.join([directory, 'input'])
     output_dir = SSEP.join([directory, 'output'])
 
+    # Read the prediction frame
+    pf = read_frame(input_dir, datasets[partition], extension, separator)
+
+    # Cull records before the prediction date
+
+    try:
+        predict_date = model.specs['predict_date']
+        found_pdate = True
+    except:
+        found_pdate = False
+
+    if found_pdate:
+        pd_indices = pf[pf.date >= predict_date].index.tolist()
+        pf = pf.ix[pd_indices]
+
     # Save predictions for all projects
 
     logger.info("Saving Predictions")
     output_file = USEP.join(['predictions', timestamp])
     preds = model.preds[(tag, partition)]
+    if found_pdate:
+        preds = np.take(preds, pd_indices)
     np_store_data(preds, output_dir, output_file, extension, separator)
 
     # Save probabilities for classification projects
@@ -1233,12 +1250,13 @@ def save_predictions(model, tag, partition):
         logger.info("Saving Probabilities")
         output_file = USEP.join(['probabilities', timestamp])
         probas = model.probas[(tag, partition)]
+        if found_pdate:
+            probas = np.take(probas, pd_indices)
         np_store_data(probas, output_dir, output_file, extension, separator)
 
     # Save ranked predictions
 
     logger.info("Saving Ranked Predictions")
-    pf = read_frame(input_dir, datasets[partition], extension, separator)
     pf['prediction'] = pd.Series(preds, index=pf.index)
     if model_type == ModelType.classification:
         pf['probability'] = pd.Series(probas, index=pf.index)
