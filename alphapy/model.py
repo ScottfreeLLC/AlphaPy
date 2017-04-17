@@ -477,18 +477,19 @@ def load_predictor(directory):
 
     # Create search path
     search_path = SSEP.join([directory, 'model', 'model_*.pkl'])
-    logger.info("Loading Model Predictor from %s", search_path)
 
-    # Locate the Pickle model file
+    # Locate the model Pickle file
 
     try:
+        # find the latest file
         filename = max(glob.iglob(search_path), key=os.path.getctime)
+        logger.info("Loading model predictor from %s", filename)
+        # load the model predictor
+        predictor = joblib.load(filename)
     except:
-        logging.error("Could not find model in %s", search_path)
+        logging.error("Could not find model predictor in %s", search_path)
 
-    # Load the model predictor
-
-    predictor = joblib.load(filename)
+    # Return the model predictor
     return predictor
 
 
@@ -554,21 +555,19 @@ def load_feature_map(model, directory):
     """
 
     # Create search path
-
     search_path = SSEP.join([directory, 'model', 'feature_map_*.pkl'])
-    logger.info("Loading Feature Map from %s", search_path)
 
-    # Locate the Pickle model file
+    # Locate the feature map and load it
 
     try:
+        # find the latest file
         filename = max(glob.iglob(search_path), key=os.path.getctime)
+        logger.info("Loading feature map from %s", filename)
+        # load the feature map
+        feature_map = joblib.load(filename)
+        model.feature_map = feature_map
     except:
         logging.error("Could not find feature map in %s", search_path)
-
-    # Load the feature_map
-
-    feature_map = joblib.load(filename)
-    model.feature_map = feature_map
 
     # Return the model with the feature map
     return model
