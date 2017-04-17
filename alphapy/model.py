@@ -475,10 +475,9 @@ def load_predictor(directory):
 
     """
 
-    logger.info("Loading Model Predictor")
-
     # Create search path
     search_path = SSEP.join([directory, 'model', 'model_*.pkl'])
+    logger.info("Loading Model Predictor from %s", search_path)
 
     # Locate the Pickle model file
 
@@ -554,10 +553,10 @@ def load_feature_map(model, directory):
 
     """
 
-    logger.info("Loading Feature Map")
-
     # Create search path
+
     search_path = SSEP.join([directory, 'model', 'feature_map_*.pkl'])
+    logger.info("Loading Feature Map from %s", search_path)
 
     # Locate the Pickle model file
 
