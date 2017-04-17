@@ -528,7 +528,7 @@ def save_predictor(model, timestamp):
 
     # Save model object
 
-    logger.info("Writing model to %s", full_path)
+    logger.info("Writing model predictor to %s", full_path)
     joblib.dump(predictor, full_path)
 
 
@@ -1240,15 +1240,15 @@ def save_predictions(model, tag, partition):
     # Save ranked predictions
 
     logger.info("Saving Ranked Predictions")
-    tf = read_frame(input_dir, datasets[partition], extension, separator)
-    tf['prediction'] = pd.Series(preds, index=tf.index)
+    pf = read_frame(input_dir, datasets[partition], extension, separator)
+    pf['prediction'] = pd.Series(preds, index=pf.index)
     if model_type == ModelType.classification:
-        tf['probability'] = pd.Series(probas, index=tf.index)
-        tf.sort_values('probability', ascending=False, inplace=True)
+        pf['probability'] = pd.Series(probas, index=pf.index)
+        pf.sort_values('probability', ascending=False, inplace=True)
     else:
-        tf.sort_values('prediction', ascending=False, inplace=True)
+        pf.sort_values('prediction', ascending=False, inplace=True)
     output_file = USEP.join(['rankings', timestamp])
-    write_frame(tf, output_dir, output_file, extension, separator)
+    write_frame(pf, output_dir, output_file, extension, separator)
 
     # Return predictions and any probabilities
     return preds, probas
