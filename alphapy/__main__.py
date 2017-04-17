@@ -343,6 +343,7 @@ def prediction_pipeline(model):
         logger.info("Getting Univariate Support")
         support = model.feature_map['uni_support']
         all_features = all_features[:, support]
+        logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Load the RFE support vector, if any
 
@@ -350,6 +351,7 @@ def prediction_pipeline(model):
         logger.info("Getting RFE Support")
         support = model.feature_map['rfe_support']
         all_features = all_features[:, support]
+        logger.info("New Feature Count : %d", all_features.shape[1])
 
     # Load predictor
     predictor = load_predictor(directory)
