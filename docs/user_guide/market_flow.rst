@@ -1,5 +1,5 @@
 MarketFlow
-===========
+==========
 
 **MarketFlow** transforms financial market data into machine learning
 models for making market predictions. The platform gets stock price
@@ -50,155 +50,126 @@ of **MarketFlow**. This file is stored in the ``config`` directory
 of your project, along with the ``model.yml`` and ``algos.yml`` files.
 The ``market`` section has the following parameters:
 
+``data_history``:  
+    Number of periods of historical data to retrieve.
+
 ``forecast_period``:
-    This directory contains all of the YAML files. At a minimum, it must
-    contain ``model.yml`` and ``algos.yml``.
+    Number of periods to forecast for the target variable.
 
 ``fractal``: 
-    If required, any data for the domain pipeline is stored here. Data
-    from this directory will be transformed into ``train.csv`` and
-    ``test.csv`` in the ``input`` directory.
+    The time quantum for the data feed, represented by an integer
+    followed by a character code. For example "1d" is one day, and
+    "5m" is five minutes.
 
 ``leaders``: 
-    The training file ``train.csv`` and the testing file ``test.csv``
-    are stored here. Note that these file names can be named anything
-    as configured in the ``model.yml`` file.
+    A list of features that are coincident with the target variable.
+    For example, with daily stock market data, the ``Open`` is
+    considered to be a leader because it is recorded at the market
+    open. In contrast, the daily ``High`` or ``Low`` cannot be
+    known until the the market close.
 
-``lookback_period``:  
-    The final model is dumped here as a pickle file in the format
-    ``model_[yyyymmdd].pkl``.
-
-``predict_date``: 
-    This directory contains predictions, probabilities, rankings,
-    and any submission files:
-
-    * ``predictions_[yyyymmdd].csv``
-    * ``probabilities_[yyyymmdd].csv``
-    * ``rankings_[yyyymmdd].csv``
-    * ``submission_[yyyymmdd].csv``
+``predict_history``: 
+    This is the minimum number of periods required to derive all
+    of the features in prediction mode on a given date. For example,
+    if you use a rolling mean of 50 days, then the ``predict_history``
+    must be set to at least 50 so it can be calculated on the
 
 ``schema``: 
-    All generated plots are stored here. The file name has the
-    following elements:
-
-    * plot name
-    * 'train' or 'test'
-    * algorithm abbreviation
-    * format suffix
-
-    For example, a calibration plot for the testing data for all
-    algorithms will be named ``calibration_test.png``. The file
-    name for a confusion matrix for XGBoost training data will be
-    ``confusion_train_XGB.png``.
-
-``train_date``:  
-    The final model is dumped here as a pickle file in the format
-    ``model_[yyyymmdd].pkl``.
+    This string uniquely identifies the subject matter of the data.
+    For example, a schema could be ``prices`` for identifying market
+    data.
 
 ``target_group``:  
-    The final model is dumped here as a pickle file in the format
-    ``model_[yyyymmdd].pkl``.
+    The name of the group selected from the ``groups`` section,
+    e.g., a set of stock symbols.
 
 .. literalinclude:: market.yml
    :language: yaml
    :caption: **market.yml**
 
-Analyses
---------
+Group Analysis
+--------------
 
-x
+The cornerstone of MarketFlow is the *Analysis*. You can create
+models and forecasts for different groups of stocks. The purpose
+of the analysis object is to gather data for all of the group
+members and then consolidate the data into train and test files.
+Further, some features and the target variable have to be adjusted
+(lagged) to avoid data leakage.
 
-Groups
-------
-
-.. literalinclude:: market.yml
-   :language: yaml
-   :caption: **market.yml**
-   :lines: 11-52
-
-Features
---------
-
-.. literalinclude:: market.yml
-   :language: yaml
-   :caption: **market.yml**
-   :lines: 54-70
-
-Aliases
--------
+A group is simply a collection of symbols for analysis. In this
+example, we create different groups for technology stocks, ETFs,
+and a smaller group for testing. To create a model for a given
+group, simply set the ``target_group`` in the ``market`` section
+of the market.yml file and run ``mflow``.
 
 .. literalinclude:: market.yml
    :language: yaml
    :caption: **market.yml**
-   :lines: 72-105
+   :lines: 10-51
 
-Variables
----------
-
-Variable Definition Language (VDL) that would make it easy for data
-scientists to define formulas and functions. Features are applied to groups,
-so feature sets are uniformly applied across multiple frames.
-The features are represented by variables, and
-these variables map to functions with parameters.
-
-# Numeric substitution is allowed for any number in the expression.
-# Offsets are allowed in event expressions but cannot be substituted.
-#
-# Examples
-# --------
-#
-# Variable('rrunder', 'rr_3_20 <= 0.9')
-#
-# 'rrunder_2_10_0.7'
-# 'rrunder_2_10_0.9'
-# 'xmaup_20_50_20_200'
-# 'xmaup_10_50_20_50'
-
-.. literalinclude:: market.yml
-   :language: yaml
-   :caption: **market.yml**
-   :lines: 107-137
-
-AlphaPy Configuration
+Variables and Aliases
 ---------------------
 
-.. literalinclude:: market_model.yml
-   :language: text
-   :caption: **model.yml**
+Because market analysis has a wide array of technical indicators,
+you can define features using the *Variable Definition Language* (VDL).
 
-SystemStream
-------------
 
-**SystemStream** transforms financial market data into machine learning
-models for making market predictions. The platform gets stock price
-data from Yahoo Finance (end-of-day) and Google Finance (intraday),
-transforming the data into canonical form for training and testing.
-StockStream is powerful because you can easily apply new features
-to groups of stocks simultaneously using our *Feature Definition
-Language* (FDL). All of the dataframes are aggregated and split
-into training and testing files for input into *AlphaPy*.
+
+
+
+
+
+For example, suppose I want a feature that indicates whether
+or not a stock is above its 50-day moving average.
+
+
+.. code-block:: yaml
+   :caption: **market.yml**
+
+    treatments:
+        doji : ['alphapy.features', 'runs_test', ['all'], 18]
+        hc   : ['alphapy.features', 'runs_test', ['all'], 18]
+
+Alias Examples:
+
+.. literalinclude:: market.yml
+   :language: yaml
+   :caption: **market.yml**
+   :lines: 71-104
+
+Variable Examples:
+
+.. literalinclude:: market.yml
+   :language: yaml
+   :caption: **market.yml**
+   :lines: 106-134
+
+Once the aliases and variables are defined, you have a foundation
+for defining the features: 
+
+.. literalinclude:: market.yml
+   :language: yaml
+   :caption: **market.yml**
+   :lines: 53-69
+
+Trading Systems
+---------------
+
+x
 
 .. image:: system_pipeline.png
    :alt: Market Pipeline
    :width: 100%
    :align: center
 
-Configuration
--------------
+Model Configuration
+-------------------
 
-Here is an example of a model configuration file. It is written in YAML
-and is divided into logical sections reflecting different parts of the
-pipeline.
+MarketFlow runs on top of AlphaPy, so the ``model.yml`` file has
+the same format. In the following example, note the use of treatments
+to calculate runs for a set of features.
 
-.. literalinclude:: systemstream.yml
-   :language: yaml
-   :caption: **market.yml**
-
-Data Sources
-------------
-
-.. csv-table:: Amazon Daily Stock Prices (Source: Yahoo)
-   :file: amzn_daily.csv
-
-.. csv-table:: Amazon Intraday Stock Prices (Source: Google)
-   :file: amzn_intraday.csv
+.. literalinclude:: market_model.yml
+   :language: text
+   :caption: **model.yml**

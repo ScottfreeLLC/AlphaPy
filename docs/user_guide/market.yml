@@ -1,11 +1,10 @@
 market:
+    data_history    : 2000
     forecast_period : 1
     fractal         : 1d
-    leaders         : []
-    lookback_period : 2000
-    predict_date    : 2016-11-01
+    leaders         : ['gap', 'gapbadown', 'gapbaup', 'gapdown', 'gapup']
+    predict_history : 100
     schema          : prices
-    train_date      : 1900-01-01
     target_group    : test
 
 groups:
@@ -39,7 +38,7 @@ groups:
             'utx', 'uvxy', 'v', 'veev', 'viav', 'vlo', 'vmc', 'vrsn', 'vrtx', 'vrx',
             'vwo', 'vxx', 'vz', 'wday', 'wdc', 'wfc', 'wfm', 'wmt', 'wynn', 'x',
             'xbi', 'xhb', 'xiv', 'xle', 'xlf', 'xlk', 'xlnx', 'xom', 'xlp', 'xlu',
-            'xlv', 'xme', 'xom', 'yelp', 'z']
+            'xlv', 'xme', 'xom', 'wix', 'yelp', 'z']
     etf  : ['dia', 'dust', 'edc', 'edz', 'eem', 'ewh', 'ewt', 'fas', 'faz',
             'gld', 'hyg', 'iwm', 'ivv', 'iwf', 'jnk', 'mdy', 'nugt', 'qqq',
             'sds', 'smh', 'spy', 'tbt', 'tlt', 'tna', 'tvix', 'tza', 'upro',
@@ -133,5 +132,3 @@ variables:
     vmunder    : 'vmratio < 1'
     volatility : 'atr_10 / close'
     wr         : 'hlrange == rmax_4'
-    xmadown    : 'cma_20 < cma_50 & cma_20[1] > cma_50[1]'
-    xmaup      : 'cma_20 > cma_50 & cma_20[1] < cma_50[1]'

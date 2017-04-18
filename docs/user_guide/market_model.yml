@@ -9,7 +9,6 @@ data:
                          'low[1]', 'high[1]', 'net', 'close[1]', 'rmin_3', 'rmin_4', 'rmin_5',
                          'rmin_7', 'rmin_8', 'rmin_10', 'rmin_18', 'pval', 'mval', 'vma',
                          'rmax_2', 'rmax_3', 'rmax_4', 'rmax_5', 'rmax_6', 'rmax_7', 'rmax_10']
-    dummy_limit       : 100
     features          : '*'
     sampling          :
         option        : True
@@ -21,12 +20,9 @@ data:
     split             : 0.4
     target            : rrover
     target_value      : True
-    test              : 'test'
-    test_labels       : True
-    train             : 'train'
 
 model:
-    algorithms        : ['XGB']
+    algorithms        : ['RF']
     balance_classes   : True
     calibration       :
         option        : False
@@ -34,8 +30,8 @@ model:
     cv_folds          : 3
     estimators        : 501
     feature_selection :
-        option        : False
-        percentage    : 10
+        option        : True
+        percentage    : 50
         uni_grid      : [5, 10, 15, 20, 25]
         score_func    : f_classif
     grid_search       :
@@ -46,7 +42,7 @@ model:
         sampling_pct  : 0.25
     pvalue_level      : 0.01
     rfe               :
-        option        : False
+        option        : True
         step          : 10
     scoring_function  : 'roc_auc'
     type              : classification
@@ -62,9 +58,7 @@ features:
     encoding          :
         rounding      : 3
         type          : factorize
-    genetic           :
-        option        : False
-        features      : 20
+    factors           : []
     interactions      :
         option        : True
         poly_degree   : 2
@@ -96,6 +90,9 @@ features:
         components    : 2
         learning_rate : 1000.0
         perplexity    : 30.0
+    variance          :
+        option        : True
+        threshold     : 0.1
 
 treatments:
     doji              : ['alphapy.features', 'runs_test', ['all'], 18]
@@ -114,13 +111,13 @@ treatments:
 pipeline:
     number_jobs       : -1
     seed              : 10231
-    verbosity         : 1
+    verbosity         : 0
 
 plots:
     calibration       : True
     confusion_matrix  : True
     importances       : True
-    learning_curve    : False
+    learning_curve    : True
     roc_curve         : True
 
 xgboost:

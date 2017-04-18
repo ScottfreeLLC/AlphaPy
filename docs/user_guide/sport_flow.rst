@@ -20,8 +20,8 @@ after gathering team and player data.
 Data Sources
 ------------
 
-.. csv-table:: Amazon Daily Stock Prices (Source: Yahoo)
-   :file: amzn_daily.csv
+.. csv-table:: NCAA Basketball Data
+   :file: ncaa.csv
 
 Configuration
 -------------
@@ -30,6 +30,6 @@ Here is an example of a model configuration file. It is written in YAML
 and is divided into logical sections reflecting different parts of the
 pipeline.
 
-.. literalinclude:: game.yml
+.. literalinclude:: sport.yml
    :language: yaml
-   :caption: **game.yml**
+   :caption: **sport.yml**
