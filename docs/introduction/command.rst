@@ -14,14 +14,19 @@ Run this command to train a model::
 
 Usage::
 
-    alphapy [--predict | --train]
+    alphapy [--train | --predict]
 
 The AlphaPy CLI has the following options:
 
---predict   Make predictions from a saved model
 --train     Train a new model and make predictions [Default]
+--predict   Make predictions from a saved model
 
-The domain pipelines have the same syntax::
+The domain pipelines have additional options for time series::
 
-    mflow [--predict | --train]
-    sflow [--predict | --train]
+    mflow [--train | --predict] [--tdate yyyy-mm-dd] [--pdate yyyy-mm-dd]
+    sflow [--train | --predict] [--tdate yyyy-mm-dd] [--pdate yyyy-mm-dd]
+
+--train     Train a new model and make predictions (Default)
+--predict   Make predictions from a saved model
+--tdate     The training date in format YYYY-MM-DD (Default: Earliest Date in the Data)
+--pdate     The prediction date in format YYYY-MM-DD (Default: Today's Date)

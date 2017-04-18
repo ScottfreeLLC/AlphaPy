@@ -73,7 +73,7 @@ the pipeline. Within each section, you can control different aspects
 for experimenting with model results. Please refer to the following
 sections for more detail.
 
-.. literalinclude:: model.yml
+.. literalinclude:: titanic.yml
    :language: yaml
    :caption: **model.yml**
 
@@ -94,7 +94,7 @@ The ``project`` section has the following keys:
     Set the value to ``True`` if submitting probabilities, or set to
     ``False`` if the predictions are the actual labels or real values.
 
-.. literalinclude:: model.yml
+.. literalinclude:: titanic.yml
    :language: yaml
    :caption: **model.yml**
    :lines: 1-5
@@ -111,9 +111,6 @@ The ``data`` section has the following keys:
 
 ``drop``:
     A list of features to be dropped from the data frame
-``dummy_limit``:
-    Features with unique value counts less than or equal to this
-    limit are converted to factors and encoded
 ``features``:
     A list of features for training. ``'*'`` means all features
     will be used in training.
@@ -133,17 +130,11 @@ The ``data`` section has the following keys:
     The name of the feature that designates the label to predict
 ``target_value``:
     The value of the target label to predict
-``test``:
-    Name of the testing file
-``test_labels``:
-    Set to ``True`` if labels are included in the testing file.
-``train``:
-    Name of the training file
 
-.. literalinclude:: model.yml
+.. literalinclude:: titanic.yml
    :language: yaml
    :caption: **model.yml**
-   :lines: 7-23
+   :lines: 7-19
 
 Model Section
 ~~~~~~~~~~~~~
@@ -193,10 +184,10 @@ The ``model`` section has the following keys:
 
 .. _ScoringFunction: http://scikit-learn.org/stable/modules/model_evaluation.html#common-cases-predefined-values
 
-.. literalinclude:: model.yml
+.. literalinclude:: titanic.yml
    :language: yaml
    :caption: **model.yml**
-   :lines: 25-49
+   :lines: 21-45
 
 Features Section
 ~~~~~~~~~~~~~~~~
@@ -213,8 +204,8 @@ The ``features`` section has the following keys:
     Encode factors from features, selecting an encoding type and any
     rounding if necessary. Refer to :py:data:`alphapy.features.Encoders`
     for the encoding type.
-``genetic``:
-    Create genetic features using gplearn_.
+``factors``:
+    The list of features that are factors.
 ``interactions``:
     Calculate polynomical interactions of a given degree, and select
     the percentage of interactions included in the feature set.
@@ -240,17 +231,19 @@ The ``features`` section has the following keys:
 ``tsne``:
     Perform t-distributed Stochastic Neighbor Embedding (TSNE), which
     can be very memory-intensive. Refer to TSNE_.
-
-.. _gplearn: http://gplearn.readthedocs.io/en/stable/
+``variance``:
+    Remove low-variance features using a specified threshold. Refer to VAR_.
 
 .. _isomap: http://scikit-learn.org/stable/modules/generated/sklearn.manifold.Isomap.html#examples-using-sklearn-manifold-isomap
 
 .. _TSNE: http://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html
 
-.. literalinclude:: model.yml
+.. _VAR: http://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.VarianceThreshold.html
+
+.. literalinclude:: titanic.yml
    :language: yaml
    :caption: **model.yml**
-   :lines: 51-95
+   :lines: 47-92
 
 Treatments Section
 ~~~~~~~~~~~~~~~~~~
@@ -258,16 +251,18 @@ Treatments Section
 Treatments are special functions for feature extraction. In the
 ``treatments`` section below, we are applying treatments to two
 features *doji* and *hc*. Within the Python list, we are calling
-the ``runs_test`` function; the function is always the first element
-of the list. The remaining elements of the list are the actual
-parameters to the function.
+the ``runs_test`` function of the module *alphapy.features*. The
+module name is always the first element of the list, and the
+the function name is always the second element of the list. The
+remaining elements of the list are the actual parameters to the
+function.
 
 .. code-block:: yaml
    :caption: **model.yml**
 
     treatments:
-        doji : ['runs_test', ['all'], 18]
-        hc   : ['runs_test', ['all'], 18]
+        doji : ['alphapy.features', 'runs_test', ['all'], 18]
+        hc   : ['alphapy.features', 'runs_test', ['all'], 18]
 
 Here is the code for the ``runs_test`` function, which calculates
 runs for Boolean features. For a treatment function, the first and
@@ -318,10 +313,10 @@ The ``pipeline`` section has the following keys:
 ``verbosity``:
     The logging level from 0 (no logging) to 10 (highest)
 
-.. literalinclude:: model.yml
+.. literalinclude:: titanic.yml
    :language: yaml
    :caption: **model.yml**
-   :lines: 97-100
+   :lines: 94-97
 
 Plots Section
 ~~~~~~~~~~~~~
@@ -329,10 +324,10 @@ Plots Section
 To turn on the automatic generation of any plot in the ``plots``
 section, simply set the corresponding value to ``True``.
 
-.. literalinclude:: model.yml
+.. literalinclude:: titanic.yml
    :language: yaml
    :caption: **model.yml**
-   :lines: 102-107
+   :lines: 99-104
 
 XGBoost Section
 ~~~~~~~~~~~~~~~
@@ -342,10 +337,10 @@ The ``xgboost`` section has the following keys:
 ``stopping_rounds``:
     early stopping rounds for XGBoost
 
-.. literalinclude:: model.yml
+.. literalinclude:: titanic.yml
    :language: yaml
    :caption: **model.yml**
-   :lines: 109-110
+   :lines: 106-107
 
 .. _algo-config:
 
@@ -392,11 +387,13 @@ This is an example of your file structure after running the pipeline::
         ├── train.csv
         ├── test.csv
     └── model
+        ├── feature_map_20170325.pkl
         ├── model_20170325.pkl
     └── output
         ├── predictions_20170325.csv
         ├── probabilities_20170325.csv
         ├── rankings_20170325.csv
+        ├── submission_20170325.csv
     └── plots
         ├── calibration_train.png
         ├── confusion_train_RF.png

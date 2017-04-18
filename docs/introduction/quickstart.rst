@@ -9,7 +9,7 @@ Install the ``alphapy`` package::
 
 From your command line application, clone the repository::
 
-    git clone https://github.com/Alpha314/AlphaPy
+    git clone https://github.com/ScottFreeLLC/AlphaPy
 
 Change your directory to the examples location::
   

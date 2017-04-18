@@ -5,17 +5,17 @@ Introduction
 data scientists. It is written in Python with the ``scikit-learn``
 and ``pandas`` libraries, as well as many other helpful libraries
 for feature engineering and visualization. Here are just some of the
-things you can do with **AlphaPy**:
+things you can do with AlphaPy:
 
 * Run machine learning models using ``scikit-learn`` and ``xgboost``.
-* Develop trading systems and analyze portfolios using ``systemstream``
+* Create models for analyzing the markets with *MarketFlow*.
+* Predict sporting events with *SportFlow*.
+* Develop trading systems and analyze portfolios using *MarketFlow*
   and Quantopian's ``pyfolio``.
-* Create models for analyzing the markets with ``marketstream``.
-* Predict sporting events with ``sportstream``.
 
 The ``alphapy`` package is the base platform. The *domain* pipelines
-``sportstream``, ``stockstream``, and ``systemstream`` run on top
-of ``alphapy``. As shown in the diagram below, we separate the domain
+MarketFlow (``mflow``) and SportFlow (``sflow``) run on top of
+``alphapy``. As shown in the diagram below, we separate the domain
 pipeline from the model pipeline. The main job of a domain pipeline
 is to transform the raw application data into canonical form, i.e.,
 a training set and a testing set. The model pipeline is flexible
@@ -106,8 +106,6 @@ Python platform, most of the following packages are not, so please
 refer to the Web or Github site for further information.
 
 * categorical-encoding: https://github.com/scikit-learn-contrib/categorical-encoding
-* gplearn: https://github.com/trevorstephens/gplearn
 * imbalanced-learn: https://github.com/scikit-learn-contrib/imbalanced-learn
 * pyfolio: https://github.com/quantopian/pyfolio
-* TensorFlow: https://www.tensorflow.org/
 * XGBoost: https://github.com/dmlc/xgboost

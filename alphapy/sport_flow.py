@@ -652,10 +652,10 @@ def main(args=None):
     # Argument Parsing
 
     parser = argparse.ArgumentParser(description="SportFlow Parser")
-    parser.add_argument('-pdate', dest='predict_date',
+    parser.add_argument('--pdate', dest='predict_date',
                         help="prediction date is in the format: YYYY-MM-DD",
                         required=False, type=valid_date)
-    parser.add_argument('-tdate', dest='train_date',
+    parser.add_argument('--tdate', dest='train_date',
                         help="training date is in the format: YYYY-MM-DD",
                         required=False, type=valid_date)
     parser.add_mutually_exclusive_group(required=False)

@@ -25,7 +25,7 @@ the degree of output that you see when running the pipeline.
 .. literalinclude:: alphapy.log
    :language: text
    :caption: **alphapy.log**
-   :lines: 1-87
+   :lines: 1-84
 
 Data Ingestion
 --------------
@@ -38,7 +38,7 @@ variable proportions are logged.
 .. literalinclude:: alphapy.log
    :language: text
    :caption: **alphapy.log**
-   :lines: 89-103
+   :lines: 85-103
 
 Feature Processing
 ------------------
@@ -73,7 +73,7 @@ both imputation and log-transformation options.
 .. literalinclude:: alphapy.log
    :language: text
    :caption: **alphapy.log**
-   :lines: 104-173
+   :lines: 104-172
 
 As AlphaPy runs, you can see the number of new features that are
 generated along the way, depending on which features you selected
@@ -86,7 +86,31 @@ terms is exponential.
 .. literalinclude:: alphapy.log
    :language: text
    :caption: **alphapy.log**
-   :lines: 174-210
+   :lines: 173-185
+
+Feature Selection
+-----------------
+
+There are two types of feature selection:
+
+* Univariate Selection
+* Recursive Feature Elimination (RFE)
+
+Univariate selection finds the informative features based on
+a percentile of the highest scores, using a scoring function
+such as ANOVA F-Scores or Chi-squared statistics. There are
+scoring functions for both classification and regression.
+
+RFE is more time-consuming, but has cross-validation with a
+configurable scoring function and step size. We also recommend
+using a seed for reproducible results, as the resulting
+support vector (a ranking of the features) can vary dramatically
+across runs.
+
+.. literalinclude:: alphapy.log
+   :language: text
+   :caption: **alphapy.log**
+   :lines: 195-198
 
 Model Estimation
 ----------------
@@ -113,31 +137,7 @@ grid search, and final fit.
 .. literalinclude:: alphapy.log
    :language: text
    :caption: **alphapy.log**
-   :lines: 211-271
-
-Feature Selection
------------------
-
-There are two types of feature selection:
-
-* Univariate Selection
-* Recursive Feature Elimination (RFE)
-
-Univariate selection finds the informative features based on
-a percentile of the highest scores, using a scoring function
-such as ANOVA F-Scores or Chi-squared statistics. There are
-scoring functions for both classification and regression.
-
-RFE is more time-consuming, but has cross-validation with a
-configurable scoring function and step size. We also recommend
-using a seed for reproducible results, as the resulting
-support vector (a ranking of the features) can vary dramatically
-across runs.
-
-.. literalinclude:: alphapy.log
-   :language: text
-   :caption: **alphapy.log**
-   :lines: 227-233
+   :lines: 186-233
 
 Grid Search
 -----------
@@ -157,7 +157,7 @@ score, and the best estimator is saved for making predictions.
 .. literalinclude:: alphapy.log
    :language: text
    :caption: **alphapy.log**
-   :lines: 234-245
+   :lines: 199-210
 
 Model Evaluation
 ----------------
@@ -173,10 +173,25 @@ calculated for the test data.
 .. literalinclude:: alphapy.log
    :language: text
    :caption: **alphapy.log**
-   :lines: 272-311
+   :lines: 237-276
 
 Model Selection
 ---------------
+
+Blended Model
+~~~~~~~~~~~~~
+
+.. image:: model_blend.png
+   :alt: Blended Model Creation
+   :width: 100%
+   :align: center
+
+.. _ridge: http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html
+
+.. literalinclude:: alphapy.log
+   :language: text
+   :caption: **alphapy.log**
+   :lines: 234-236
 
 Best Model
 ~~~~~~~~~~
@@ -203,20 +218,10 @@ independent models are used as training features. For
 classification, AlphaPy uses logistic regression, and for
 regression, we use ridge_ regression.
 
-Blended Model
-~~~~~~~~~~~~~
-
-.. image:: model_blend.png
-   :alt: Blended Model Creation
-   :width: 100%
-   :align: center
-
-.. _ridge: http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html
-
 .. literalinclude:: alphapy.log
    :language: text
    :caption: **alphapy.log**
-   :lines: 312-318
+   :lines: 276-285
 
 Plot Generation
 ---------------
@@ -234,7 +239,7 @@ All plots are saved to the ``plots`` directory of your project.
 .. literalinclude:: alphapy.log
    :language: text
    :caption: **alphapy.log**
-   :lines: 319-378
+   :lines: 285-339
 
 Calibration Plot
 ~~~~~~~~~~~~~~~~
@@ -280,8 +285,9 @@ Final Results
 -------------
 
 * The model object is stored in Pickle (.pkl) format in the ``models``
-  directory of the project. You can then load the model and run it
-  in scoring mode.
+  directory of the project. The model is loaded later in prediction mode.
+* The feature map is stored in Pickle (.pkl) format in the ``models``
+  directory. The feature map is restored for prediction mode.
 * Predictions are stored in the project's ``output`` directory.
 * Sorted rankings of predictions are stored in ``output``.
 * Any submission files are stored in ``output``.
@@ -289,4 +295,4 @@ Final Results
 .. literalinclude:: alphapy.log
    :language: text
    :caption: **alphapy.log**
-   :lines: 379-389
+   :lines: 340-351

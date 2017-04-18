@@ -6,7 +6,6 @@ project:
 
 data:
     drop              : ['PassengerId']
-    dummy_limit       : 100
     features          : '*'
     sampling          :
         option        : False
@@ -18,9 +17,6 @@ data:
     split             : 0.4
     target            : Survived
     target_value      : 1
-    test              : 'test'
-    test_labels       : False
-    train             : 'train'
 
 model:
     algorithms        : ['RF', 'XGB']
@@ -28,7 +24,7 @@ model:
     calibration       :
         option        : False
         type          : sigmoid
-    cv_folds          : 5
+    cv_folds          : 3
     estimators        : 51
     feature_selection :
         option        : False
@@ -36,15 +32,15 @@ model:
         uni_grid      : [5, 10, 15, 20, 25]
         score_func    : f_classif
     grid_search       :
-        option        : False
+        option        : True
         iterations    : 50
         random        : True
-        subsample     : True
+        subsample     : False
         sampling_pct  : 0.2
     pvalue_level      : 0.01
     rfe               :
-        option        : False
-        step          : 100
+        option        : True
+        step          : 3
     scoring_function  : roc_auc
     type              : classification
 
@@ -59,9 +55,7 @@ features:
     encoding          :
         rounding      : 2
         type          : factorize
-    genetic           :
-        option        : False
-        features      : 10
+    factors           : []
     interactions      :
         option        : True
         poly_degree   : 5
@@ -93,6 +87,9 @@ features:
         components    : 2
         learning_rate : 1000.0
         perplexity    : 30.0
+    variance          :
+        option        : True
+        threshold     : 0.1
 
 pipeline:
     number_jobs       : -1
