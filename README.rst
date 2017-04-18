@@ -8,26 +8,23 @@ Machine Learning Pipeline for Python
     :alt: AlphaPy Model Pipeline
     :align: center
 
-StockStream
------------
+MarketFlow
+----------
 
 .. image:: https://github.com/Alpha314/AlphaPy/blob/master/images/market_pipeline.png
     :width: 100%
-    :alt: StockStream Pipeline
+    :alt: MarketFlow Model
     :align: center
-
-SportStream
------------
-
-.. image:: https://github.com/Alpha314/AlphaPy/blob/master/images/sports_pipeline.png
-    :width: 100%
-    :alt: SportStream Pipeline
-    :align: center
-
-SystemStream
-------------
 
 .. image:: https://github.com/Alpha314/AlphaPy/blob/master/images/system_pipeline.png
     :width: 100%
-    :alt: SystemStream Pipeline
+    :alt: MarketFlow System
+    :align: center
+
+SportFlow
+---------
+
+.. image:: https://github.com/Alpha314/AlphaPy/blob/master/images/sports_pipeline.png
+    :width: 100%
+    :alt: SportFlow
     :align: center

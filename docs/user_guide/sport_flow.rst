@@ -33,3 +33,14 @@ pipeline.
 .. literalinclude:: sport.yml
    :language: yaml
    :caption: **sport.yml**
+
+
+Model Configuration
+-------------------
+
+SportFlow runs on top of AlphaPy, so the ``model.yml`` file has
+the same format.
+
+.. literalinclude:: sport_model.yml
+   :language: text
+   :caption: **model.yml**

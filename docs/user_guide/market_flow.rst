@@ -6,8 +6,8 @@ models for making market predictions. The platform gets stock price
 data from Yahoo Finance (end-of-day) and Google Finance (intraday),
 transforming the data into canonical form for training and testing.
 MarketFlow is powerful because you can easily apply new features
-to groups of stocks simultaneously using our *Feature Definition
-Language* (FDL). All of the dataframes are aggregated and split
+to groups of stocks simultaneously using our *Variable Definition
+Language* (VDL). All of the dataframes are aggregated and split
 into training and testing files for input into *AlphaPy*.
 
 .. image:: market_pipeline.png
@@ -111,7 +111,7 @@ of the market.yml file and run ``mflow``.
 Variables and Aliases
 ---------------------
 
-Because market analysis has a wide array of technical indicators,
+Because market analysis encompasses a wide array of technical indicators,
 you can define features using the *Variable Definition Language* (VDL).
 
 
