@@ -269,8 +269,8 @@ Usage::
 Running the Model
 -----------------
 
-In the project location, just run ``mflow`` with the ``predict`` flag.
-MarketFlow will automatically create the ``predict.csv`` file using the
-``pdate`` option.
+In the project location, run ``mflow`` with the ``predict`` flag.
+MarketFlow will automatically create the ``predict.csv`` file using
+the ``pdate`` option::
 
     mflow --predict [--pdate yyyy-mm-dd]

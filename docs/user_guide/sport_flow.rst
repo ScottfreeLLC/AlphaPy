@@ -107,8 +107,8 @@ Usage::
 Running the Model
 -----------------
 
-In the project location, just run ``sflow`` with the ``predict`` flag.
-SportFlow will automatically create the ``predict.csv`` file using the
-``pdate`` option.
+In the project location, run ``sflow`` with the ``predict`` flag.
+SportFlow will automatically create the ``predict.csv`` file using
+the ``pdate`` option::
 
     sflow --predict [--pdate yyyy-mm-dd]
