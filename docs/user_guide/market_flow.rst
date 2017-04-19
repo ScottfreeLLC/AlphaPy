@@ -41,8 +41,8 @@ that are shortened.
    we recommend that you save the data on an ongoing basis for a
    a larger backtesting window.
 
-Configuration
--------------
+Domain Configuration
+--------------------
 
 The market configuration file (``market.yml``) is written in YAML
 and is divided into logical sections reflecting different parts
@@ -243,3 +243,34 @@ to calculate runs for a set of features.
 .. literalinclude:: market_model.yml
    :language: text
    :caption: **model.yml**
+
+Creating the Model
+------------------
+
+First, change the directory to your project location,
+where you have already followed the :doc:`../user_guide/project`
+specifications::
+
+    cd path/to/project
+
+Run this command to train a model::
+
+    mflow
+
+Usage::
+
+    mflow [--train | --predict] [--tdate yyyy-mm-dd] [--pdate yyyy-mm-dd]
+
+--train     Train a new model and make predictions (Default)
+--predict   Make predictions from a saved model
+--tdate     The training date in format YYYY-MM-DD (Default: Earliest Date in the Data)
+--pdate     The prediction date in format YYYY-MM-DD (Default: Today's Date)
+
+Running the Model
+-----------------
+
+In the project location, just run ``mflow`` with the ``predict`` flag.
+MarketFlow will automatically create the ``predict.csv`` file using the
+``pdate`` option.
+
+    mflow --predict [--pdate yyyy-mm-dd]
