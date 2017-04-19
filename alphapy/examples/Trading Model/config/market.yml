@@ -1,0 +1,134 @@
+market:
+    data_history    : 2000
+    forecast_period : 1
+    fractal         : 1d
+    leaders         : ['gap', 'gapbadown', 'gapbaup', 'gapdown', 'gapup']
+    predict_history : 100
+    schema          : prices
+    target_group    : test
+
+groups:
+    all  : ['aaoi', 'aapl', 'acia', 'adbe', 'adi', 'adp', 'agn', 'aig', 'akam',
+            'algn', 'alk', 'alxn', 'amat', 'amba', 'amd', 'amgn', 'amt', 'amzn',
+            'antm', 'arch', 'asml', 'athn', 'atvi', 'auph', 'avgo', 'axp', 'ayx',
+            'azo', 'ba', 'baba', 'bac', 'bby', 'bidu', 'biib', 'brcd', 'bvsn',
+            'bwld', 'c', 'cacc', 'cara', 'casy', 'cat', 'cde', 'celg', 'cern',
+            'chkp', 'chtr', 'clvs', 'cme', 'cmg', 'cof', 'cohr', 'comm', 'cost',
+            'cpk', 'crm', 'crus', 'csco', 'ctsh', 'ctxs', 'csx', 'cvs', 'cybr',
+            'data', 'ddd', 'deck', 'dgaz', 'dia', 'dis', 'dish', 'dnkn', 'dpz',
+            'drys', 'dust', 'ea', 'ebay', 'edc', 'edz', 'eem', 'elli', 'eog',
+            'esrx', 'etrm', 'ewh', 'ewt', 'expe', 'fang', 'fas', 'faz', 'fb',
+            'fcx', 'fdx', 'ffiv', 'fit', 'five', 'fnsr', 'fslr', 'ftnt', 'gddy',
+            'gdx', 'gdxj', 'ge', 'gild', 'gld', 'glw', 'gm', 'googl', 'gpro',
+            'grub', 'gs', 'gwph', 'hal', 'has', 'hd', 'hdp', 'hlf', 'hog', 'hum',
+            'ibb', 'ibm', 'ice', 'idxx', 'ilmn', 'ilmn', 'incy', 'intc', 'intu',
+            'ip', 'isrg', 'iwm', 'ivv', 'iwf', 'iwm', 'jack', 'jcp', 'jdst', 'jnj',
+            'jnpr', 'jnug', 'jpm', 'kite', 'klac', 'ko', 'kss', 'labd', 'labu',
+            'len', 'lite', 'lmt', 'lnkd', 'lrcx', 'lulu', 'lvs', 'mbly', 'mcd',
+            'mchp', 'mdy', 'meoh', 'mnst', 'mo', 'momo', 'mon', 'mrk', 'ms', 'msft',
+            'mtb', 'mu', 'nflx', 'nfx', 'nke', 'ntap', 'ntes', 'ntnx', 'nugt',
+            'nvda', 'nxpi', 'nxst', 'oii', 'oled', 'orcl', 'orly', 'p', 'panw',
+            'pcln', 'pg', 'pm', 'pnra', 'prgo', 'pxd', 'pypl', 'qcom', 'qqq',
+            'qrvo', 'rht', 'sam', 'sbux', 'sds', 'sgen', 'shld', 'shop', 'sig',
+            'sina', 'siri', 'skx', 'slb', 'slv', 'smh', 'snap', 'sncr', 'soda',
+            'splk', 'spy', 'stld', 'stmp', 'stx', 'svxy', 'swks', 'symc', 't',
+            'tbt', 'teva', 'tgt', 'tho', 'tlt', 'tmo', 'tna', 'tqqq', 'trip',
+            'tsla', 'ttwo', 'tvix', 'twlo', 'twtr', 'tza', 'uaa', 'ugaz', 'uhs',
+            'ulta', 'ulti', 'unh', 'unp', 'upro', 'uri', 'ups', 'uri', 'uthr',
+            'utx', 'uvxy', 'v', 'veev', 'viav', 'vlo', 'vmc', 'vrsn', 'vrtx', 'vrx',
+            'vwo', 'vxx', 'vz', 'wday', 'wdc', 'wfc', 'wfm', 'wmt', 'wynn', 'x',
+            'xbi', 'xhb', 'xiv', 'xle', 'xlf', 'xlk', 'xlnx', 'xom', 'xlp', 'xlu',
+            'xlv', 'xme', 'xom', 'wix', 'yelp', 'z']
+    etf  : ['dia', 'dust', 'edc', 'edz', 'eem', 'ewh', 'ewt', 'fas', 'faz',
+            'gld', 'hyg', 'iwm', 'ivv', 'iwf', 'jnk', 'mdy', 'nugt', 'qqq',
+            'sds', 'smh', 'spy', 'tbt', 'tlt', 'tna', 'tvix', 'tza', 'upro',
+            'uvxy', 'vwo', 'vxx', 'xhb', 'xiv', 'xle', 'xlf', 'xlk', 'xlp',
+            'xlu', 'xlv', 'xme']
+    tech : ['aapl', 'adbe', 'amat', 'amgn', 'amzn', 'avgo', 'baba', 'bidu',
+            'brcd', 'csco', 'ddd', 'emc', 'expe', 'fb', 'fit', 'fslr', 'goog',
+            'intc', 'isrg', 'lnkd', 'msft', 'nflx', 'nvda', 'pcln', 'qcom',
+            'qqq', 'tsla', 'twtr']
+    test : ['aapl', 'amzn', 'goog', 'fb', 'nvda', 'tsla']
+
+features: ['abovema_3', 'abovema_5', 'abovema_10', 'abovema_20', 'abovema_50',
+           'adx', 'atr', 'bigdown', 'bigup', 'diminus', 'diplus', 'doji',
+           'gap', 'gapbadown', 'gapbaup', 'gapdown', 'gapup',
+           'hc', 'hh', 'ho', 'hl', 'lc', 'lh', 'll', 'lo', 'hookdown', 'hookup',
+           'inside', 'outside', 'madelta_3', 'madelta_5', 'madelta_7', 'madelta_10',
+           'madelta_12', 'madelta_15', 'madelta_18', 'madelta_20', 'madelta',
+           'net', 'netdown', 'netup', 'nr_3', 'nr_4', 'nr_5', 'nr_7', 'nr_8',
+           'nr_10', 'nr_18', 'roi', 'roi_2', 'roi_3', 'roi_4', 'roi_5', 'roi_10',
+           'roi_20', 'rr_1_4', 'rr_1_7', 'rr_1_10', 'rr_2_5', 'rr_2_7', 'rr_2_10',
+           'rr_3_8', 'rr_3_14', 'rr_4_10', 'rr_4_20', 'rr_5_10', 'rr_5_20',
+           'rr_5_30', 'rr_6_14', 'rr_6_25', 'rr_7_14', 'rr_7_35', 'rr_8_22',
+           'rrhigh', 'rrlow', 'rrover', 'rrunder', 'rsi_3', 'rsi_4', 'rsi_5',
+           'rsi_6', 'rsi_8', 'rsi_10', 'rsi_14', 'sep_3_3', 'sep_5_5', 'sep_8_8',
+           'sep_10_10', 'sep_14_14', 'sep_21_21', 'sep_30_30', 'sep_40_40',
+           'sephigh', 'seplow', 'trend', 'vma', 'vmover', 'vmratio', 'vmunder',
+           'volatility_3', 'volatility_5', 'volatility', 'volatility_20',
+           'wr_2', 'wr_3', 'wr', 'wr_5', 'wr_6', 'wr_7', 'wr_10']
+
+aliases:
+    atr        : 'ma_truerange'
+    aver       : 'ma_hlrange'
+    cma        : 'ma_close'
+    cmax       : 'highest_close'
+    cmin       : 'lowest_close'
+    hc         : 'higher_close'
+    hh         : 'higher_high'
+    hl         : 'higher_low'
+    ho         : 'higher_open'
+    hmax       : 'highest_high'
+    hmin       : 'lowest_high'
+    lc         : 'lower_close'
+    lh         : 'lower_high'
+    ll         : 'lower_low'
+    lo         : 'lower_open'
+    lmax       : 'highest_low'
+    lmin       : 'lowest_low'
+    net        : 'net_close'
+    netdown    : 'down_net'
+    netup      : 'up_net'
+    omax       : 'highest_open'
+    omin       : 'lowest_open'
+    rmax       : 'highest_hlrange'
+    rmin       : 'lowest_hlrange'
+    rr         : 'maratio_hlrange'
+    rixc       : 'rindex_close_high_low'
+    rixo       : 'rindex_open_high_low'
+    roi        : 'netreturn_close'
+    rsi        : 'rsi_close'
+    sepma      : 'ma_sep'
+    vma        : 'ma_volume'
+    vmratio    : 'maratio_volume'
+    upmove     : 'net_high'
+
+variables:
+    abovema    : 'close > cma_50'
+    belowma    : 'close < cma_50'
+    bigup      : 'rrover & sephigh & netup'
+    bigdown    : 'rrover & sephigh & netdown'
+    doji       : 'sepdoji & rrunder'
+    hookdown   : 'open > high[1] & close < close[1]'
+    hookup     : 'open < low[1] & close > close[1]'
+    inside     : 'low > low[1] & high < high[1]'
+    madelta    : '(close - cma_50) / atr_10'
+    nr         : 'hlrange == rmin_4'
+    outside    : 'low < low[1] & high > high[1]'
+    roihigh    : 'roi_5 >= 5'
+    roilow     : 'roi_5 < -5'
+    roiminus   : 'roi_5 < 0'
+    roiplus    : 'roi_5 > 0'
+    rrhigh     : 'rr_1_10 >= 1.2'
+    rrlow      : 'rr_1_10 <= 0.8'
+    rrover     : 'rr_1_10 >= 1.0'
+    rrunder    : 'rr_1_10 < 1.0'
+    sep        : 'rixc_1 - rixo_1'
+    sepdoji    : 'abs(sep) <= 15'
+    sephigh    : 'abs(sep_1_1) >= 70'
+    seplow     : 'abs(sep_1_1) <= 30'
+    trend      : 'rrover & sephigh'
+    vmover     : 'vmratio >= 1'
+    vmunder    : 'vmratio < 1'
+    volatility : 'atr_10 / close'
+    wr         : 'hlrange == rmax_4'

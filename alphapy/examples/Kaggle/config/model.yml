@@ -1,72 +1,65 @@
 project:
-    base_directory    : /Users/markconway/Projects
+    directory         : /Users/markconway/Projects/Titanic
     file_extension    : csv
-    project_name      : Santander
-    sample_submission : True
-    submission_file   : 'sample_submission'
+    submission_file   : 'gender_submission'
+    submit_probas     : False
 
 data:
-    drop              : ['ID']
-    dummy_limit       : 200
+    drop              : ['PassengerId']
     features          : '*'
     sampling          :
         option        : False
         method        : under_random
-        ratio         : 0.0
+        ratio         : 0.5
     sentinel          : -1
     separator         : ','
     shuffle           : False
     split             : 0.4
-    target            : TARGET
+    target            : Survived
     target_value      : 1
-    test              : 'test'
-    test_labels       : False
-    train             : 'train'
 
 model:
-    algorithms        : ['XGB']
-    balance_classes   : False
+    algorithms        : ['RF', 'XGB']
+    balance_classes   : True
     calibration       :
         option        : False
-        type          : isotonic
-    cv_folds          : 5
-    estimators        : 2001
+        type          : sigmoid
+    cv_folds          : 3
+    estimators        : 51
     feature_selection :
         option        : False
-        percentage    : 5
+        percentage    : 50
         uni_grid      : [5, 10, 15, 20, 25]
         score_func    : f_classif
     grid_search       :
-        option        : False
-        iterations    : 100
+        option        : True
+        iterations    : 50
         random        : True
-        subsample     : True
+        subsample     : False
         sampling_pct  : 0.2
     pvalue_level      : 0.01
     rfe               :
-        option        : False
-        step          : 100
+        option        : True
+        step          : 3
     scoring_function  : roc_auc
     type              : classification
 
 features:
     clustering        :
-        option        : False
+        option        : True
         increment     : 3
         maximum       : 30
         minimum       : 3
     counts            :
-        option        : False
+        option        : True
     encoding          :
-        rounding      : 3
+        rounding      : 2
         type          : factorize
-    genetic           :
-        option        : False
-        features      : 20
+    factors           : []
     interactions      :
         option        : True
-        poly_degree   : 2
-        sampling_pct  : 2
+        poly_degree   : 5
+        sampling_pct  : 10
     isomap            :
         option        : False
         components    : 2
@@ -74,28 +67,34 @@ features:
     logtransform      :
         option        : False
     numpy             :
-        option        : False
+        option        : True
     pca               :
         option        : False
-        increment     : 3
-        maximum       : 15
-        minimum       : 3
+        increment     : 1
+        maximum       : 10
+        minimum       : 2
         whiten        : False
+    scaling           :
+        option        : True
+        type          : standard
     scipy             :
         option        : False
     text              :
-        ngrams        : 1
+        ngrams        : 3
         vectorize     : False
     tsne              :
         option        : False
         components    : 2
         learning_rate : 1000.0
         perplexity    : 30.0
+    variance          :
+        option        : True
+        threshold     : 0.1
 
 pipeline:
     number_jobs       : -1
     seed              : 42
-    verbosity         : 1
+    verbosity         : 0
 
 plots:
     calibration       : True
@@ -105,4 +104,4 @@ plots:
     roc_curve         : True
 
 xgboost:
-    stopping_rounds   : 50
+    stopping_rounds   : 20

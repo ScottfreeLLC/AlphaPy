@@ -1,49 +1,49 @@
 project:
-    directory         : /Users/markconway/Projects/AlphaPy-Sports/NCAAB
+    directory         : /Users/markconway/Projects/AlphaPy-Markets/Models/rrover
     file_extension    : csv
-    submission_file   : 
+    submission_file   :
     submit_probas     : False
 
 data:
-    drop              : ['Unnamed: 0', 'index', 'season', 'date', 'home.team', 'away.team',
-                         'home.score', 'away.score', 'total_points', 'point_margin_game',
-                         'won_on_points', 'lost_on_points', 'cover_margin_game',
-                         'lost_on_spread', 'overunder_margin', 'over', 'under']
+    drop              : ['date', 'tag', 'open', 'high', 'low', 'close', 'volume', 'adjclose',
+                         'low[1]', 'high[1]', 'net', 'close[1]', 'rmin_3', 'rmin_4', 'rmin_5',
+                         'rmin_7', 'rmin_8', 'rmin_10', 'rmin_18', 'pval', 'mval', 'vma',
+                         'rmax_2', 'rmax_3', 'rmax_4', 'rmax_5', 'rmax_6', 'rmax_7', 'rmax_10']
     features          : '*'
     sampling          :
-        option        : False
+        option        : True
         method        : under_random
-        ratio         : 0.0
+        ratio         : 0.5
     sentinel          : -1
     separator         : ','
-    shuffle           : False
+    shuffle           : True
     split             : 0.4
-    target            : won_on_spread
+    target            : rrover
     target_value      : True
 
 model:
-    algorithms        : ['RF', 'XGB']
-    balance_classes   : False
+    algorithms        : ['RF']
+    balance_classes   : True
     calibration       :
         option        : False
         type          : isotonic
     cv_folds          : 3
-    estimators        : 201
+    estimators        : 501
     feature_selection :
-        option        : False
+        option        : True
         percentage    : 50
         uni_grid      : [5, 10, 15, 20, 25]
         score_func    : f_classif
     grid_search       :
-        option        : True
-        iterations    : 50
+        option        : False
+        iterations    : 100
         random        : True
-        subsample     : False
+        subsample     : True
         sampling_pct  : 0.25
     pvalue_level      : 0.01
     rfe               :
         option        : True
-        step          : 5
+        step          : 10
     scoring_function  : 'roc_auc'
     type              : classification
 
@@ -58,10 +58,7 @@ features:
     encoding          :
         rounding      : 3
         type          : factorize
-    factors           : ['line', 'delta.wins', 'delta.losses', 'delta.ties',
-                         'delta.point_win_streak', 'delta.point_loss_streak',
-                         'delta.cover_win_streak', 'delta.cover_loss_streak',
-                         'delta.over_streak', 'delta.under_streak']
+    factors           : []
     interactions      :
         option        : True
         poly_degree   : 2
@@ -97,9 +94,23 @@ features:
         option        : True
         threshold     : 0.1
 
+treatments:
+    doji              : ['alphapy.features', 'runs_test', ['all'], 18]
+    hc                : ['alphapy.features', 'runs_test', ['all'], 18]
+    hh                : ['alphapy.features', 'runs_test', ['all'], 18]
+    hl                : ['alphapy.features', 'runs_test', ['all'], 18]
+    ho                : ['alphapy.features', 'runs_test', ['all'], 18]
+    rrhigh            : ['alphapy.features', 'runs_test', ['all'], 18]
+    rrlow             : ['alphapy.features', 'runs_test', ['all'], 18]
+    rrover            : ['alphapy.features', 'runs_test', ['all'], 18]
+    rrunder           : ['alphapy.features', 'runs_test', ['all'], 18]
+    sephigh           : ['alphapy.features', 'runs_test', ['all'], 18]
+    seplow            : ['alphapy.features', 'runs_test', ['all'], 18]
+    trend             : ['alphapy.features', 'runs_test', ['all'], 18]
+
 pipeline:
     number_jobs       : -1
-    seed              : 13201
+    seed              : 10231
     verbosity         : 0
 
 plots:
@@ -110,4 +121,4 @@ plots:
     roc_curve         : True
 
 xgboost:
-    stopping_rounds   : 30
+    stopping_rounds   : 20
