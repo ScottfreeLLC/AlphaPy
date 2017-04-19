@@ -3,11 +3,11 @@ Support
 
 The official channel for support is to open an issue on Github.
 
-http://github.com/Alpha314/AlphaPy/issues
+http://github.com/ScottFreeLLC/AlphaPy/issues
 
 Follow us on Twitter:
 
-https://twitter.com/alphapy314?lang=en
+https://twitter.com/scottfreellc?lang=en
 
 Donations
 ---------
@@ -27,4 +27,5 @@ If you like the software, please click on the *Donate* button below:
 
 |
 |
+
 .. note:: Thank you, we appreciate your generosity. Enjoy the software!

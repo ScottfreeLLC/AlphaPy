@@ -1,0 +1,26 @@
+market:
+    data_history    : 1000
+    forecast_period : 1
+    fractal         : 1d
+    leaders         : []
+    predict_history : 50
+    schema          : prices
+    target_group    : faang
+
+system:
+    name       : 'closer'
+    holdperiod : 0
+    longentry  : hc
+    longexit   :
+    shortentry : lc
+    shortexit  :
+    scale      : False
+
+groups:
+    faang      : ['fb', 'aapl', 'amzn', 'nflx', 'googl']
+
+features       : ['hc', 'lc']
+
+aliases:
+    hc         : 'higher_close'
+    lc         : 'lower_close'

@@ -10,7 +10,7 @@ MAINTAINER = 'ScottFree LLC [Mark Conway, Robert D. Scott II]'
 MAINTAINER_EMAIL = 'alphapy@scottfreellc.com'
 URL = "https://github.com/Alpha314/AlphaPy"
 LICENSE = "Apache License, Version 2.0"
-VERSION = "0.1.21"
+VERSION = "0.314"
 
 classifiers = ['Development Status :: 4 - Beta',
                'Programming Language :: Python',
