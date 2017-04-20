@@ -1,7 +1,12 @@
 NCAA Basketball Tutorial
 ========================
 
-*Running Time: Approximately 15 minutes*
+*SportFlow Running Time: Approximately 15 minutes*
+
+.. image:: ncaab_roc_curve.png
+   :alt: NCAAB ROC Curve
+   :width: 80%
+   :align: center
 
 Before running AlphaPy, let's briefly review the ``model.yml``
 file. We will submit the actual predictions instead of the

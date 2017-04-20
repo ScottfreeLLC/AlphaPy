@@ -1,7 +1,12 @@
 Trading System Tutorial
 =======================
 
-*Running Time: Approximately 1 minute*
+*MarketFlow Running Time: Approximately 1 minute*
+
+.. image:: returns.png
+   :alt: Cumulative Returns
+   :width: 75%
+   :align: center
 
 A trading system is a set of automated rules for buying and selling
 stocks, options, futures, and other instruments. Trading is considered
@@ -15,6 +20,13 @@ alternatively you can fade support and resistance in a mean-reverting strategy.
 [Note that Mr. Crabel runs a successful hedge fund and wrote a rare, groundbreaking
 book on short-term trading: Day Trading with Short Term Price Patterns and
 Opening Range Breakout]
+
+Once you come to the conclusion that there is no master algorithm, then
+you can move to the next level. Collectively, technical analysis is really
+just an infinite set of features to use in training models. Further, we
+have discovered that all of the systems you need have already been invented.
+The real magic is then using machine learning to decide which system to
+deploy at any given moment.
 
 Clearly, you will lose money by blindly executing any short-term system on
 any given timeframe. About twenty years ago, when artificial intelligence

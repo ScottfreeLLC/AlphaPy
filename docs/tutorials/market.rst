@@ -1,9 +1,14 @@
 Market Prediction Tutorial
 ==========================
 
-*Running Time: Approximately 6 minutes*
+*MarketFlow Running Time: Approximately 6 minutes*
 
-Before running AlphaPy, let's briefly review the ``model.yml``
+.. image:: amzn.png
+   :alt: Amazon Candlestick Chart
+   :width: 80%
+   :align: center
+
+Before running MarketFlow, let's briefly review the ``model.yml``
 file. We will submit the actual predictions instead of the
 probabilities, so ``submit_probas`` is set to ``False``. All
 features will be included except for the ``PassengerId``. The
@@ -24,14 +29,7 @@ From the ``examples`` directory, run the following commands::
 
     cd "Trading Model"
     mflow
-    jupyter notebook
 
-Once you come to the conclusion that there is no master algorithm, then
-you can move to the next level. Collectively, technical analysis is really
-just an infinite set of features to use in training models. Further, we
-have discovered that all of the systems you need have already been invented.
-The real magic is then using machine learning to decide which system to
-deploy at any given moment.
 
 So, when we build our machine learning models, we have a wide range of dependent or target variables from which to choose, not just net return. There is more power in building a classifier rather than a more traditional regression model, so we want to define binary conditions such as whether or not today is going to be a trend day, rather than a numerical prediction of today’s return.
 
