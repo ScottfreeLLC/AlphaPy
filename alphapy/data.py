@@ -117,6 +117,12 @@ def get_data(model, partition):
     y = np.empty([0, 0])
     if target in df.columns:
         logger.info("Found target %s in data frame", target)
+        # drop rows with NaN targets
+        original_size = df.shape[0]
+        df.dropna(axis=0, subset=[target], inplace=True)
+        diff = original_size - df.shape[0]
+        logger.info("Removed %d records with NaN target values", diff)
+        # assign the target column to y
         y = df[target]
         # encode label only for classification
         if model_type == ModelType.classification:
@@ -125,7 +131,7 @@ def get_data(model, partition):
         logger.info("Dropping target %s from data frame", target)
         df = df.drop([target], axis=1)
     else:
-        logger.info("Target %s not found in partition %s", target, partition)
+        logger.info("Target %s not found in %s", target, partition)
 
     # Extract features
 
