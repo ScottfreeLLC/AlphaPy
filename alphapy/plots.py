@@ -260,7 +260,10 @@ def write_plot(vizlib, plot, plot_type, tag, directory=None):
     # Save or display the plot
 
     if directory:
-        file_only = ''.join([plot_type, USEP, tag, '.png'])
+        if vizlib == 'bokeh':
+            file_only = ''.join([plot_type, USEP, tag, '.html'])
+        else:
+            file_only = ''.join([plot_type, USEP, tag, '.png'])
         file_all = SSEP.join([directory, file_only])
         logger.info("Writing plot to %s", file_all)
         if vizlib == 'matplotlib':
@@ -269,7 +272,8 @@ def write_plot(vizlib, plot, plot_type, tag, directory=None):
         elif vizlib == 'seaborn':
             plot.savefig(file_all)
         else:
-            plot.save(file_all)
+            output_file(file_all, title=tag)
+            show(plot)
     else:
         if vizlib == 'bokeh':
             show(plot)
