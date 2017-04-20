@@ -239,7 +239,7 @@ def get_model_config():
     if sampling_method in samplers:
         specs['sampling_method'] = SamplingMethod(samplers[sampling_method])
     else:
-        raise ValueError("model.yml data:sampling:method %s unrecognized",
+        raise ValueError("model.yml data:sampling:method %s unrecognized" %
                          sampling_method)
     # end of sampling method
     specs['sampling_ratio'] = cfg['data']['sampling']['ratio']
@@ -261,7 +261,7 @@ def get_model_config():
     if encoder in encoders:
         specs['encoder'] = Encoders(encoders[encoder])
     else:
-        raise ValueError("model.yml features:encoding:type %s unrecognized", encoder)
+        raise ValueError("model.yml features:encoding:type %s unrecognized" % encoder)
     # factors
     specs['factors'] = cfg['features']['factors']
     # interactions
@@ -293,7 +293,7 @@ def get_model_config():
     if scaler_type in scaler_types:
         specs['scaler_type'] = Scalers(scaler_types[scaler_type])
     else:
-        raise ValueError("model.yml features:scaling:type %s unrecognized", scaler_type)
+        raise ValueError("model.yml features:scaling:type %s unrecognized" % scaler_type)
     # SciPy
     specs['scipy'] = cfg['features']['scipy']['option']
     # text
@@ -316,7 +316,7 @@ def get_model_config():
     if model_type in model_types:
         specs['model_type'] = ModelType(model_types[model_type])
     else:
-        raise ValueError("model.yml model:type %s unrecognized", model_type)
+        raise ValueError("model.yml model:type %s unrecognized" % model_type)
     # end of model type
     specs['n_estimators'] = cfg['model']['estimators']
     specs['pvalue_level'] = cfg['model']['pvalue_level']
@@ -332,7 +332,7 @@ def get_model_config():
     if score_func in feature_scorers:
         specs['fs_score_func'] = feature_scorers[score_func]
     else:
-        raise ValueError('model.yml model:feature_selection:score_func %s unrecognized',
+        raise ValueError("model.yml model:feature_selection:score_func %s unrecognized" %
                          score_func)
     # grid search
     specs['grid_search'] = cfg['model']['grid_search']['option']

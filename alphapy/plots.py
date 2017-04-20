@@ -256,9 +256,9 @@ def write_plot(vizlib, plot, plot_type, tag, directory=None):
         elif vizlib == 'bokeh':
             plot.save(file_all)
         elif vizlib == 'plotly':
-            raise ValueError("Unsupported data visualization library: %s", vizlib)
+            raise ValueError("Unsupported data visualization library: %s" % vizlib)
         else:
-            raise ValueError("Unrecognized data visualization library: %s", vizlib)
+            raise ValueError("Unrecognized data visualization library: %s" % vizlib)
     else:
         plot.plot()
 

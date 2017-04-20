@@ -91,6 +91,11 @@ def get_data(model, partition):
     y : pandas.Series
         The array of target values, if available.
 
+    Raises
+    ------
+    ValueError
+        Found test labels with NaN values.
+
     """
 
     logger.info("Loading Data")
@@ -121,7 +126,9 @@ def get_data(model, partition):
         original_size = df.shape[0]
         df.dropna(axis=0, subset=[target], inplace=True)
         diff = original_size - df.shape[0]
-        logger.info("Removed %d records with NaN target values", diff)
+        if diff > 0:
+            raise ValueError("Found %d records in %s with NaN target values"
+                             % (diff, partition))
         # assign the target column to y
         y = df[target]
         # encode label only for classification
@@ -264,7 +271,7 @@ def sample_data(model):
     elif sampling_method == SamplingMethod.ensemble_bc:
         sampler = BalanceCascade()
     else:
-        raise ValueError("Unknown Sampling Method %s", sampling_method)
+        raise ValueError("Unknown Sampling Method %s" % sampling_method)
 
     # Get the newly sampled features.
 

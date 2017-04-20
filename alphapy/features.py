@@ -483,8 +483,8 @@ def apply_treatments(model, X):
                 if features.shape[0] == X.shape[0]:
                     all_features = pd.concat([all_features, features], axis=1)
                 else:
-                    raise IndexError("The number of treatment rows [%d] must match X [%d]",
-                                     features.shape[0], X.shape[0])
+                    raise IndexError("The number of treatment rows [%d] must match X [%d]" %
+                                     (features.shape[0], X.shape[0]))
             else:
                 logger.info("Could not apply treatment for feature %s", fname)
 
@@ -538,7 +538,7 @@ def impute_values(features, dt, sentinel):
     elif dt == 'int64' or dt == 'bool':
         imp = Imputer(missing_values='NaN', strategy='most_frequent', axis=0)
     else:
-        raise TypeError('Data Type %s is invalid for imputation', dt)
+        raise TypeError("Data Type %s is invalid for imputation" % dt)
     imputed = imp.fit_transform(features)
     if imputed.shape[1] == 0:
         nans = np.isnan(features)
@@ -842,7 +842,7 @@ def get_factors(model, df, fnum, fname, nvalues, dtype,
     elif encoder == Encoders.backdiff:
         enc = ce.BackwardDifferenceEncoder(cols=[fname])
     else:
-        raise ValueError("Unknown Encoder %s", encoder)
+        raise ValueError("Unknown Encoder %s" % encoder)
     # If encoding worked, calculate target percentages for classifiers.
     pd_exists = not pd_features.empty
     enc_exists = enc is not None
@@ -866,7 +866,7 @@ def get_factors(model, df, fnum, fname, nvalues, dtype,
             all_features = np.column_stack((all_features, ct_feature))
             logger.info("Applied target percentages for %s", fname)
     else:
-        raise RuntimeError("Encoding for feature %s failed", fname)
+        raise RuntimeError("Encoding for feature %s failed" % fname)
     return all_features
 
 
@@ -1293,7 +1293,7 @@ def create_features(model, X):
         elif dtype == 'object':
             features = get_text_features(fnum, fc, X, nunique, vectorize, ngrams_max)
         else:
-            raise TypeError("Base Feature Error with unrecognized type %s", dtype)
+            raise TypeError("Base Feature Error with unrecognized type %s" % dtype)
         if features.shape[0] == all_features.shape[0]:
             all_features = np.column_stack((all_features, features))
         else:

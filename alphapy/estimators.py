@@ -264,7 +264,7 @@ def get_algos_config(cfg_dir):
             if model_type in model_types:
                 specs[algo]['model_type'] = ModelType(model_types[model_type])
             else:
-                raise ValueError("algos.yml model:type %s unrecognized", model_type)
+                raise ValueError("algos.yml model:type %s unrecognized" % model_type)
 
     # Algorithm Specifications
     return specs

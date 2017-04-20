@@ -156,8 +156,8 @@ def training_pipeline(model):
         split_point = X_train.shape[0]
         X = pd.concat([X_train, X_test])
     else:
-        raise IndexError("The number of training and test columns [%d, %d] must match.",
-                         X_train.shape[1], X_test.shape[1])
+        raise IndexError("The number of training and test columns [%d, %d] must match." %
+                         (X_train.shape[1], X_test.shape[1]))
 
     # Apply treatments to the feature matrix
 
@@ -214,7 +214,7 @@ def training_pipeline(model):
     # Get the available scorers
 
     if scorer not in scorers:
-        raise KeyError("Scorer function %s not found", scorer)
+        raise KeyError("Scorer function %s not found" % scorer)
 
     # Model Selection
 

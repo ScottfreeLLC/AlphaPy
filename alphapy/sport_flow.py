@@ -834,7 +834,7 @@ def main(args=None):
                 elif team == model_row[away_team]:
                     key_team = model_row[away_team]
                 else:
-                    raise KeyError("Team not found in Team Frame")            
+                    raise KeyError("Team %s not found in Team Frame" % team)            
                 try:
                     if at_home:
                         mpos = np.where((mf[home_team] == key_team) & (mf['date'] == key_date))[0][0]

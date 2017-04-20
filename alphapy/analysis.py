@@ -89,11 +89,6 @@ class Analysis(object):
     Analysis.analyses : dict
         Class variable for storing all known analyses
 
-    Raises
-    ------
-    ValueError
-        ``predict_date`` must be later than ``train_date``.
-
     """
 
     analyses = {}
