@@ -1,6 +1,25 @@
 Market Prediction Tutorial
 ==========================
 
+*Running Time: Approximately 6 minutes*
+
+Before running AlphaPy, let's briefly review the ``model.yml``
+file. We will submit the actual predictions instead of the
+probabilities, so ``submit_probas`` is set to ``False``. All
+features will be included except for the ``PassengerId``. The
+target variable is ``Survived``, the label we are trying to
+accurately predict.
+
+We'll compare random forests and XGBoost, run recursive
+feature elimination and a grid search, and select the best
+model. Note that a blended model of all the algorithms is
+a candidate for best model. The details of each algorithm
+are located in the ``algos.yml`` file.
+
+.. literalinclude:: titanic.yml
+   :language: yaml
+   :caption: **model.yml**
+
 From the ``examples`` directory, run the following commands::
 
     cd "Trading Model"
@@ -13,21 +32,6 @@ just an infinite set of features to use in training models. Further, we
 have discovered that all of the systems you need have already been invented.
 The real magic is then using machine learning to decide which system to
 deploy at any given moment.
-
-Systems generally operate in two contexts: trend and counter-trend. You can
-run a system such as Toby Crabel’s Open Range Breakout (ORB) for Widest-Range
-(WR) days where you think the market or instrument is going to trend, or
-alternatively you can fade support and resistance in a mean-reverting strategy.
-[Note that Mr. Crabel runs a successful hedge fund and wrote a rare, groundbreaking
-book on short-term trading: Day Trading with Short Term Price Patterns and
-Opening Range Breakout]
-
-Clearly, you will lose money by blindly executing any short-term system on
-any given timeframe. About twenty years ago, when artificial intelligence
-was first hot, some funds tried their hand but failed. The problem was that
-using neural networks to predict positive return was misguided. Instead, you
-need a bidirectional strategy that goes short as easily as it goes long,
-but in the proper context.
 
 So, when we build our machine learning models, we have a wide range of dependent or target variables from which to choose, not just net return. There is more power in building a classifier rather than a more traditional regression model, so we want to define binary conditions such as whether or not today is going to be a trend day, rather than a numerical prediction of today’s return.
 
@@ -45,6 +49,10 @@ Before deploying any model in real-time, we want to assess the degradation in th
 
 You can see that the mean of the AUC (Area Under Curve) decreased from 0.87 in the training set to 0.71 in the testing set, as expected. Now let’s compare the confidence levels when we calibrate each classifier. We want to make sure that all of our calibration curves slope upward from left to right.
 
+
+From the ``examples`` directory, run the following commands::
+
+    jupyter notebook
 
 
 The perfectly calibrated classifier would yield a straight line, but we still see that even in the test case, the curves slope upward. So, which algorithm is best? The lower-right graph shows the distribution of the mean predicted value [deciles of 0.1] for RF and XGB. Clearly, the distribution of XGB counts (green line) is more uniform, so that gives us more confidence. In contrast, the RF decile counts are quite small at either tail. I prefer to use XGBoost in most cases, as its reputation is stellar, and it has won many Kaggle competitions.

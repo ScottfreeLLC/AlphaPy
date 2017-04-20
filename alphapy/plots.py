@@ -244,6 +244,21 @@ def write_plot(vizlib, plot, plot_type, tag, directory=None):
     * Bokeh : http://bokeh.pydata.org/en/latest/
 
     """
+
+    # Validate visualization library
+
+    if (vizlib == 'matplotlib' or
+       vizlib == 'seaborn' or
+       vizlib == 'bokeh'):
+        # supported library
+        pass
+    elif vizlib == 'plotly':
+        raise ValueError("Unsupported data visualization library: %s" % vizlib)
+    else:
+        raise ValueError("Unrecognized data visualization library: %s" % vizlib)
+
+    # Save or display the plot
+
     if directory:
         file_only = ''.join([plot_type, USEP, tag, '.png'])
         file_all = SSEP.join([directory, file_only])
@@ -253,14 +268,13 @@ def write_plot(vizlib, plot, plot_type, tag, directory=None):
             plot.savefig(file_all)
         elif vizlib == 'seaborn':
             plot.savefig(file_all)
-        elif vizlib == 'bokeh':
-            plot.save(file_all)
-        elif vizlib == 'plotly':
-            raise ValueError("Unsupported data visualization library: %s" % vizlib)
         else:
-            raise ValueError("Unrecognized data visualization library: %s" % vizlib)
+            plot.save(file_all)
     else:
-        plot.plot()
+        if vizlib == 'bokeh':
+            show(plot)
+        else:
+            plot.plot()
 
 
 #
