@@ -8,6 +8,28 @@ Market Prediction Tutorial
    :width: 80%
    :align: center
 
+Machine learning subsumes *technical analysis* because collectively,
+technical analysis is an infinite set of computations and patterns
+for supposedly predicting markets. We can use machine learning as
+a feature blender for technical analysis with its moving averages,
+indicators, and representations of visual chart formations.
+
+We are not directly predicting net return in our models, although
+that is the ultimate goal. By characterizing the market with models,
+we can improve the Return On Investment (ROI). We have a wide range
+of dependent or target variables from which to choose, not just net
+return. There is more power in building a classifier rather than a
+more traditional regression model, so we want to define binary
+conditions such as whether or not today is going to be a trend day,
+rather than a numerical prediction of today’s return.
+
+In this tutorial, we will train a model that predicts whether or
+not the next day will have a larger-than-average range. This is
+important for deciding which system to deploy on the prediction
+day. If our model gives us predictive power, then we can filter
+out those days where trading a given system is a losing strategy.
+
+
 Before running MarketFlow, let's briefly review the ``model.yml``
 file. We will submit the actual predictions instead of the
 probabilities, so ``submit_probas`` is set to ``False``. All
@@ -30,10 +52,6 @@ From the ``examples`` directory, run the following commands::
     cd "Trading Model"
     mflow
 
-
-So, when we build our machine learning models, we have a wide range of dependent or target variables from which to choose, not just net return. There is more power in building a classifier rather than a more traditional regression model, so we want to define binary conditions such as whether or not today is going to be a trend day, rather than a numerical prediction of today’s return.
-
-Back to our example, let’s look at a Crabel pattern WR4 on a daily basis (Widest Range with 4 indicating the rolling four-day period). We want to train a model that predicts whether or not any given day will have the widest range in the past four days. If our trained model gives us any kind of predictive power, then we can screen out the Narrowest Range (NR) days and avoid trading the ORB system by cutting out the losing trades. We want to locate WR4 patterns with fairly high accuracy.
 
 Training the data using Random Forests and XGBoost, we obtained the following results on our test sets:
 

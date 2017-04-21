@@ -18,8 +18,8 @@ Change your directory to the examples location::
 Go to any of the examples below:
 
 * :doc:`../tutorials/kaggle`
-* :doc:`../tutorials/ncaab`
 * :doc:`../tutorials/market`
+* :doc:`../tutorials/ncaab`
 * :doc:`../tutorials/system`
 
 .. note:: Note that you can work entirely within a Jupyter

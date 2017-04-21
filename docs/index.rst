@@ -24,8 +24,8 @@ AlphaPy Documentation
    :maxdepth: 2
    :caption: User Guide
 
-   user_guide/project
    user_guide/pipelines
+   user_guide/project
    user_guide/market_flow
    user_guide/sport_flow
 

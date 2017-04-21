@@ -13,8 +13,7 @@ in which you apply machine learning to predict which passengers
 were most likely to survive the sinking of the famous ship.
 In this tutorial, we will run AlphaPy to train a model,
 generate predictions, and create a submission file so you can
-see where you land on the Kaggle leaderboard. We hope that you
-float to the surface.
+see where you land on the Kaggle leaderboard.
 
 .. _Titanic: https://www.kaggle.com/c/titanic
 
