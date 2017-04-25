@@ -163,7 +163,9 @@ look at the rankings file.
 
 **Step 5**: Run the commands in the notebook.
 
-Conclusion: We have identified some features that predict
-large-range days. This is important for determining whether or
-not to deploy an automated system on any given day. Results are
-consistent across training and test data.
+*Conclusion*: We can predict large-range days with some confidence,
+but only at a higher probability threshold. This is important for
+choosing the correct system on any given day. We can achieve
+better results with more data, so we recommend expanding the
+stock universe, e.g., a group with at least 100 members going
+five years back.
