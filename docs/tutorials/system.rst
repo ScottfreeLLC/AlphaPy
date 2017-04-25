@@ -12,6 +12,11 @@ A trading system is a set of automated rules for buying and selling
 stocks, options, futures, and other instruments. Trading is considered
 to be both an art and a science; the scientific 
 
+Many technicians spend their lives chasing the Holy Grail: a system that will make them rich simply by detecting common patterns and executing trades just by following a special recipe. Technicians in history such as Edwards, Elliott, Fibonacci, Gann, and Gartley showed us visually appealing charts but no evidence that these techniques actually worked.
+Once you come to the conclusion that there is no master algorithm, then you can move to the next level.
+
+ Further, we have discovered that all of the systems you need have already been invented. The real magic is then using machine learning to decide which system to deploy at any given moment.
+
 Trading systems generally operate in two contexts: trend and
 counter-trend. You can
 run a system such as Toby Crabel’s Open Range Breakout (ORB) for Widest-Range
@@ -22,8 +27,7 @@ book on short-term trading: Day Trading with Short Term Price Patterns and
 Opening Range Breakout]
 
 Once you come to the conclusion that there is no master algorithm, then
-you can move to the next level. Collectively, technical analysis is really
-just an infinite set of features to use in training models. Further, we
+you can move to the next level.  Further, we
 have discovered that all of the systems you need have already been invented.
 The real magic is then using machine learning to decide which system to
 deploy at any given moment.
@@ -35,8 +39,12 @@ using neural networks to predict positive return was misguided. Instead, you
 need a bidirectional strategy that goes short as easily as it goes long,
 but in the proper context.
 
-Before running AlphaPy, let's briefly review the ``model.yml``
-file. We will submit the actual predictions instead of the
+**Step 1**: From the ``examples`` directory, change your directory::
+
+    cd "Trading System"
+
+Before running MarketFlow, let's briefly review the ``model.yml``
+file in the ``config`` directory. We will submit the actual predictions instead of the
 probabilities, so ``submit_probas`` is set to ``False``. All
 features will be included except for the ``PassengerId``. The
 target variable is ``Survived``, the label we are trying to
@@ -48,16 +56,38 @@ model. Note that a blended model of all the algorithms is
 a candidate for best model. The details of each algorithm
 are located in the ``algos.yml`` file.
 
-.. literalinclude:: titanic.yml
+.. literalinclude:: closer.yml
    :language: yaml
    :caption: **model.yml**
 
-From the ``examples`` directory, run the following commands::
+**Step 2**: Now, we are ready to run MarketFlow::
 
-    cd "Trading System"
     mflow
+
+Now, run the following command::
+
     jupyter notebook
 
-From the ``examples`` directory, run the following commands::
+Suppose we want to use the 50-day moving average (MA) in our model, as we believe that it has predictive power for a stock’s direction.
+FDL Example
+The moving average function ma has two parameters: a
+•
+feature (column) name and a time period.
+To apply the 50-day MA, we can simply join the function ma_close_50.
+•
+name with its parameters, separated by “_”, or
+If we want to use an alias, then we can define cma to be 30
+•
+the equivalent of ma_close and get cma_50.
 
-    jupyter notebook
+Develop a model to predict days with ranges that
+•
+are greater than average.
+We will use both random forests and gradient
+•
+boosting.
+Get daily data from Yahoo over the past few years
+•
+to train our model.
+•
+Define technical analysis features with FDL.

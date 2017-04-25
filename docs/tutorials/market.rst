@@ -9,14 +9,14 @@ Market Prediction Tutorial
    :align: center
 
 Machine learning subsumes *technical analysis* because collectively,
-technical analysis is an infinite set of computations and patterns
-for supposedly predicting markets. We can use machine learning as
-a feature blender for technical analysis with its moving averages,
-indicators, and representations of visual chart formations.
+technical analysis is just a set of features for market prediction.
+We can use machine learning as a feature blender for moving averages,
+indicators such as RSI and ADX, and even representations of chart
+formations such as double tops and head-and-shoulder patterns.
 
 We are not directly predicting net return in our models, although
 that is the ultimate goal. By characterizing the market with models,
-we can improve the Return On Investment (ROI). We have a wide range
+we can increase the Return On Investment (ROI). We have a wide range
 of dependent or target variables from which to choose, not just net
 return. There is more power in building a classifier rather than a
 more traditional regression model, so we want to define binary
@@ -29,79 +29,141 @@ important for deciding which system to deploy on the prediction
 day. If our model gives us predictive power, then we can filter
 out those days where trading a given system is a losing strategy.
 
+**Step 1**: From the ``examples`` directory, change your
+directory::
 
-Before running MarketFlow, let's briefly review the ``model.yml``
-file. We will submit the actual predictions instead of the
-probabilities, so ``submit_probas`` is set to ``False``. All
-features will be included except for the ``PassengerId``. The
-target variable is ``Survived``, the label we are trying to
-accurately predict.
+    cd "Trading Model"
 
-We'll compare random forests and XGBoost, run recursive
-feature elimination and a grid search, and select the best
-model. Note that a blended model of all the algorithms is
-a candidate for best model. The details of each algorithm
-are located in the ``algos.yml`` file.
+Before running MarketFlow, let's briefly review the configuration
+files in the ``config`` directory:
 
-.. literalinclude:: titanic.yml
+``market.yml``:
+    The MarketFlow configuration file
+
+``model.yml``:
+    The AlphaPy configuration file
+
+In ``market.yml``, we limit our model to six stocks in the target
+group ``test``, going back 2000 trading days. You can define any
+group of stock symbols in the ``groups`` section, and then set
+the ``target_group`` attribute in the ``market`` section to the
+name of that group.
+
+This is a 1-day forecast, but we also use those features that can
+be calculated at the market open, such as gap information in the
+``leaders`` section. In the ``features`` section, we define many
+variables for moving averages, historical range, RSI, volatility,
+and volume.
+
+.. literalinclude:: rrover_market.yml
+   :language: yaml
+   :caption: **market.yml**
+
+In each of the tutorials, we experiment with different options in
+``model.yml`` to run AlphaPy. Here, we first apply univariate feature
+selection and then run a random forest classifier with Recursive
+Feature Elimination, including Cross-Validation (RFECV). When you
+choose RFECV, the process takes much longer, so if you want to see
+more logging, then increase the ``verbosity`` level in the ``pipeline``
+section.
+
+Since stock prices are time series data, we apply the ``runs_test``
+function to twelve features in the ``treatments`` section. Treatments
+are powerful because you can write any function to extrapolate new
+features from existing ones. AlphaPy provides some of these functions
+in the ``alphapy.features`` module, but it can also import external
+functions as well.
+
+Our target variable is ``rrover``, the ratio of the 1-day range to
+the 10-day average high/low range. If that ratio is greater than
+or equal to 1.0, then the value of ``rrover`` is True. This is
+what we are trying to predict.
+
+.. literalinclude:: rrover_model.yml
    :language: yaml
    :caption: **model.yml**
 
-From the ``examples`` directory, run the following commands::
+**Step 2**: Now, let's run MarketFlow::
 
-    cd "Trading Model"
-    mflow
+    mflow --pdate 2017-01-01
 
+As ``mflow`` runs, you will see the progress of the workflow,
+and the logging output is saved in ``market_flow.log``. When the
+workflow completes, your project structure will look like this::
 
-Training the data using Random Forests and XGBoost, we obtained the following results on our test sets:
+    Trading Model
+    ├── market_flow.log
+    ├── config
+        ├── algos.yml
+        ├── market.yml
+        ├── model.yml
+    └── data
+    └── input
+        ├── test.csv
+        ├── train.csv
+    └── model
+        ├── feature_map_20170420.pkl
+        ├── model_20170420.pkl
+    └── output
+        ├── predictions_20170420.csv
+        ├── probabilities_20170420.csv
+        ├── rankings_20170420.csv
+    └── plots
+        ├── calibration_test.png
+        ├── calibration_train.png
+        ├── confusion_test_RF.png
+        ├── confusion_train_RF.png
+        ├── feature_importance_train_RF.png
+        ├── learning_curve_train_RF.png
+        ├── roc_curve_test.png
+        ├── roc_curve_train.png
 
-For either algorithm, we can predict WR4 days with almost 70% accuracy. Consequently, we can then define our own trading regimes to select which system is most appropriate at the beginning of every trading day. We can also experiment with these models at different fractals, such as weekly or even intraday on an HFT (High Frequency Trading) level.
+Let's look at the results in the ``plots`` directory. Since our
+scoring function was ``roc_auc``, we examine the ROC Curve first.
+The AUC is approximately 0.61, which is not very high but in the
+context of the stock market, we may still be able to derive
+some predictive power. Further, we are running the model on a
+relatively small sample of stocks, as denoted by the jittery
+line of the ROC Curve.
 
-Let’s now examine the feature importances to see if both algorithms are picking up commonly significant features:
+.. image:: rrover_roc_curve.png
+   :alt: ROC Curve
+   :width: 100%
+   :align: center
 
-Of the top 10 features, we have 5 shared important features, although not in the same order or magnitude: 17, 42, 109, 110, and 130. Still, these bar charts of the relative importance of each feature bolster our confidence in the model.
+We can benefit from more samples, as the learning curve shows
+that the training and cross-validation lines have yet to converge.
 
-Before deploying any model in real-time, we want to assess the degradation in the model between the training and testing set. For classifiers, I prefer both the ROC (Receiver Operating Characteristic) and the calibration curves. First, here are the ROC curves:
+.. image:: rrover_learning_curve.png
+   :alt: ROC Curve
+   :width: 100%
+   :align: center
 
-You can see that the mean of the AUC (Area Under Curve) decreased from 0.87 in the training set to 0.71 in the testing set, as expected. Now let’s compare the confidence levels when we calibrate each classifier. We want to make sure that all of our calibration curves slope upward from left to right.
+The good news is that even with a relatively small number of
+testing points, the Reliability Curve slopes upward from left
+to right, with the dotted line denoting a perfect classifier.
 
+.. image:: rrover_calibration.png
+   :alt: ROC Curve
+   :width: 100%
+   :align: center
 
-From the ``examples`` directory, run the following commands::
+To get better accuracy, we can raise our threshold to find the
+best candidates, since they are ranked by probability, but this
+also means limiting our pool of stocks. Let's take a closer
+look at the rankings file.
+
+**Step 3**: From the command line, enter::
 
     jupyter notebook
 
+**Step 4**: Click on the notebook named::
 
-The perfectly calibrated classifier would yield a straight line, but we still see that even in the test case, the curves slope upward. So, which algorithm is best? The lower-right graph shows the distribution of the mean predicted value [deciles of 0.1] for RF and XGB. Clearly, the distribution of XGB counts (green line) is more uniform, so that gives us more confidence. In contrast, the RF decile counts are quite small at either tail. I prefer to use XGBoost in most cases, as its reputation is stellar, and it has won many Kaggle competitions.
+    A Trading Model.ipynb
 
-For practitioners of technical analysis, all is not lost. The point of machine learning is to build useful models from data, and technical analysis is just that: data. But you no longer have to experiment with just a few variants of RSI or MACD on your charts. You can just dump thousands of these technical indicators into the feature blender and see what comes out.
-Suppose we want to use the 50-day moving average (MA) in our model, as we believe that it has predictive power for a stock’s direction.
-FDL Example
-The moving average function ma has two parameters: a
-•
-feature (column) name and a time period.
-To apply the 50-day MA, we can simply join the function ma_close_50.
-•
-name with its parameters, separated by “_”, or
-If we want to use an alias, then we can define cma to be 30
-•
-the equivalent of ma_close and get cma_50.
+**Step 5**: Run the commands in the notebook.
 
-Develop a model to predict days with ranges that
-•
-are greater than average.
-We will use both random forests and gradient
-•
-boosting.
-Get daily data from Yahoo over the past few years
-•
-to train our model.
-•
-Define technical analysis features with FDL.
-
-We have identified some features that predict large- range days. This is important for determining whether or not to deploy an automated system on any given day.
-Results are consistent across training and test data.
-•
-Results
-The learning curves show that results may improve
-•
-with more data.
+We have identified some features that predict large-range days.
+This is important for determining whether or not to deploy an
+automated system on any given day. Results are consistent across
+training and test data.

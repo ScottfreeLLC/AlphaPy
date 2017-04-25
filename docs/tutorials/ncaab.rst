@@ -8,8 +8,15 @@ NCAA Basketball Tutorial
    :width: 80%
    :align: center
 
-Before running AlphaPy, let's briefly review the ``model.yml``
-file. We will submit the actual predictions instead of the
+x
+
+**Step 1**: From the ``examples`` directory, change your
+directory::
+
+    cd NCAAB
+
+Before running SportFlow, let's briefly review the ``model.yml``
+file in the ``config`` directory. We will submit the actual predictions instead of the
 probabilities, so ``submit_probas`` is set to ``False``. All
 features will be included except for the ``PassengerId``. The
 target variable is ``Survived``, the label we are trying to
@@ -21,13 +28,12 @@ model. Note that a blended model of all the algorithms is
 a candidate for best model. The details of each algorithm
 are located in the ``algos.yml`` file.
 
-.. literalinclude:: titanic.yml
+.. literalinclude:: ncaab.yml
    :language: yaml
    :caption: **model.yml**
 
-From the ``examples`` directory, run the following commands::
+**Step 2**: Now, we are ready to run SportFlow::
 
-    cd NCAAB
     sflow
 
 From the ``examples`` directory, run the following commands::

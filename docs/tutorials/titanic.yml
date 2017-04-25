@@ -1,5 +1,5 @@
 project:
-    directory         : /Users/markconway/Projects/Titanic
+    directory         : .
     file_extension    : csv
     submission_file   : 'gender_submission'
     submit_probas     : False

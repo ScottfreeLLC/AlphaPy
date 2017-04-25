@@ -23,12 +23,16 @@ see where you land on the Kaggle leaderboard.
 
 .. _Numerai: https://numer.ai/leaderboard
 
+**Step 1**: From the ``examples`` directory, change your directory::
+
+    cd Kaggle
+
 Before running AlphaPy, let's briefly review the ``model.yml``
-file. We will submit the actual predictions instead of the
-probabilities, so ``submit_probas`` is set to ``False``. All
-features will be included except for the ``PassengerId``. The
-target variable is ``Survived``, the label we are trying to
-accurately predict.
+file in the ``config`` directory. We will submit the actual
+predictions (1 vs. 0) instead of the probabilities, so
+``submit_probas`` is set to ``False``. All features will be
+included except for the ``PassengerId``. The target variable
+is ``Survived``, the label we are trying to accurately predict.
 
 We'll compare random forests and XGBoost, run recursive
 feature elimination and a grid search, and select the best
@@ -40,24 +44,24 @@ are located in the ``algos.yml`` file.
    :language: yaml
    :caption: **model.yml**
 
-Now, we are ready to run AlphaPy. From the ``examples``
-directory, run the following commands::
+**Step 2**: Now, we are ready to run AlphaPy. Enter the
+following command::
 
-    cd Kaggle
     alphapy
 
 As ``alphapy`` runs, you will see the progress of the workflow,
 and the logging output is saved in ``alphapy.log``. When the
 workflow completes, your project structure will look like this::
 
-    project
+    Kaggle
+    ├── alphapy.log
     ├── config
-        ├── model.yml
         ├── algos.yml
+        ├── model.yml
     └── data
     └── input
-        ├── train.csv
         ├── test.csv
+        ├── train.csv
     └── model
         ├── feature_map_20170420.pkl
         ├── model_20170420.pkl
@@ -76,9 +80,9 @@ workflow completes, your project structure will look like this::
         ├── learning_curve_train_XGB.png
         ├── roc_curve_train.png
 
-To see how your model ranks on the Kaggle leaderboard, upload
-the submission file from the ``output`` directory to the Web
-site https://www.kaggle.com/c/titanic/submit.
+**Step 3**: To see how your model ranks on the Kaggle leaderboard,
+upload the submission file from the ``output`` directory to the
+Web site https://www.kaggle.com/c/titanic/submit.
 
 .. image:: kaggle.png
    :alt: Kaggle Submission

@@ -1,23 +1,41 @@
 Installation
 ============
 
-You should already have Python and pip installed on
-your system. Run the following command::
+You should already have pip, Python, and XGBoost (see instructions
+below) installed on your system. Run the following command to
+install AlphaPy::
 
-    pip install alphapy
+    pip install -U alphapy
 
-.. important:: For MacOS users, the ``xgboost`` package may not
-   install automatically through ``pip``. If you have errors,
-   then install ``xgboost`` before installing ``alphapy``. You
-   will first have to build the package using the following
-   instructions. 
+XGBoost
+-------
 
-    .. line-block::
+For most users, XGBoost will not install automatically with
+``pip``. Please follow the instructions below for your platform
+to install XGBoost before installing AlphaPy.
 
-        git clone --recursive https://github.com/dmlc/xgboost.git
-        cd xgboost/
-        ./build.sh
-        pip install -e python-package
+Unix
+~~~~
+
+Macintosh
+~~~~~~~~~
+
+In a Terminal window:
+
+.. code-block:: shell
+
+    git clone --recursive https://github.com/dmlc/xgboost.git
+    cd xgboost/
+    ./build.sh
+    pip install -e python-package
+
+Windows
+~~~~~~~
+
+x
+
+Anaconda Python
+---------------
 
 .. note:: If you already have the Anaconda Python distribution,
    then you can create a virtual environment with *conda* using
@@ -32,6 +50,6 @@ your system. Run the following command::
         conda install -c conda-forge matplotlib
         conda install -c conda-forge seaborn
         pip install pandas_datareader
-        pip install imblearn
+        pip install imbalanced-learn
         pip install category_encoders
         pip install pyfolio

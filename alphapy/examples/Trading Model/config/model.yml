@@ -1,5 +1,5 @@
 project:
-    directory         : /Users/markconway/Projects/AlphaPy-Markets/Models/rrover
+    directory         : .
     file_extension    : csv
     submission_file   :
     submit_probas     : False

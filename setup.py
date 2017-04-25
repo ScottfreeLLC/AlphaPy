@@ -10,7 +10,7 @@ MAINTAINER = 'ScottFree LLC [Mark Conway, Robert D. Scott II]'
 MAINTAINER_EMAIL = 'alphapy@scottfreellc.com'
 URL = "https://github.com/Alpha314/AlphaPy"
 LICENSE = "Apache License, Version 2.0"
-VERSION = "0.314"
+VERSION = "0.216"
 
 classifiers = ['Development Status :: 4 - Beta',
                'Programming Language :: Python',
@@ -26,7 +26,7 @@ classifiers = ['Development Status :: 4 - Beta',
 install_reqs = [
     'bokeh>=0.12',
     'category_encoders>=1.2.0',
-    'imblearn>=0.0',
+    'imbalanced-learn>=0.2.1',
     'ipython>=3.2.3',
     'matplotlib>=2.0.0',
     'numpy>=1.9.1',
@@ -37,7 +37,7 @@ install_reqs = [
     'scikit-learn>=0.17.1',
     'scipy>=0.18.1',
     'seaborn>=0.7.1',
-    'xgboost>=0.6',
+    'xgboost>=0.6a2',
 ]
 
 if __name__ == "__main__":

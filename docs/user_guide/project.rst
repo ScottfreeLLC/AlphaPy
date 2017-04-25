@@ -379,13 +379,14 @@ Final Output
 This is an example of your file structure after running the pipeline::
 
     project
+    ├── alphapy.log
     ├── config
-        ├── model.yml
         ├── algos.yml
+        ├── model.yml
     └── data
     └── input
-        ├── train.csv
         ├── test.csv
+        ├── train.csv
     └── model
         ├── feature_map_20170325.pkl
         ├── model_20170325.pkl
