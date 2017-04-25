@@ -163,7 +163,7 @@ look at the rankings file.
 
 **Step 5**: Run the commands in the notebook.
 
-We have identified some features that predict large-range days.
-This is important for determining whether or not to deploy an
-automated system on any given day. Results are consistent across
-training and test data.
+Conclusion: We have identified some features that predict
+large-range days. This is important for determining whether or
+not to deploy an automated system on any given day. Results are
+consistent across training and test data.
