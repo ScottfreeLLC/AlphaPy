@@ -112,13 +112,11 @@ with a different datestamp::
         ├── roc_curve_test.png
         ├── roc_curve_train.png
 
-Let's look at the results in the ``plots`` directory. Since our
-scoring function was ``roc_auc``, we examine the ROC Curve first.
-The AUC is approximately 0.61, which is not very high but in the
-context of the stock market, we may still be able to derive
-some predictive power. Further, we are running the model on a
-relatively small sample of stocks, as denoted by the jittery
-line of the ROC Curve.
+Depending upon the model parameters and the prediction date,
+the AUC of the ROC Curve will vary between 0.54 and 0.58.
+This model is barely passable, but we are getting a slight
+edge even with our basic data. We will need more game samples
+to have any confidence in our predictions.
 
 .. image:: ncaab_roc_curve.png
    :alt: ROC Curve
