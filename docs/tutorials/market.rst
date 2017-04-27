@@ -89,7 +89,8 @@ what we are trying to predict.
 
 As ``mflow`` runs, you will see the progress of the workflow,
 and the logging output is saved in ``market_flow.log``. When the
-workflow completes, your project structure will look like this::
+workflow completes, your project structure will look like this,
+with a different datestamp::
 
     Trading Model
     ├── market_flow.log

@@ -77,32 +77,38 @@ are trying to predict.
 
 As ``sflow`` runs, you will see the progress of the workflow,
 and the logging output is saved in ``sport_flow.log``. When the
-workflow completes, your project structure will look like this::
+workflow completes, your project structure will look like this,
+with a different datestamp::
 
     NCAAB
     ├── sport_flow.log
     ├── config
         ├── algos.yml
-        ├── market.yml
+        ├── sport.yml
         ├── model.yml
     └── data
+        ├── ncaab_game_scores_1g.csv
     └── input
         ├── test.csv
         ├── train.csv
     └── model
-        ├── feature_map_20170420.pkl
-        ├── model_20170420.pkl
+        ├── feature_map_20170427.pkl
+        ├── model_20170427.pkl
     └── output
-        ├── predictions_20170420.csv
-        ├── probabilities_20170420.csv
-        ├── rankings_20170420.csv
+        ├── predictions_20170427.csv
+        ├── probabilities_20170427.csv
+        ├── rankings_20170427.csv
     └── plots
         ├── calibration_test.png
         ├── calibration_train.png
         ├── confusion_test_RF.png
+        ├── confusion_test_XGB.png
         ├── confusion_train_RF.png
+        ├── confusion_train_XGB.png
         ├── feature_importance_train_RF.png
+        ├── feature_importance_train_XGB.png
         ├── learning_curve_train_RF.png
+        ├── learning_curve_train_XGB.png
         ├── roc_curve_test.png
         ├── roc_curve_train.png
 
@@ -114,44 +120,26 @@ some predictive power. Further, we are running the model on a
 relatively small sample of stocks, as denoted by the jittery
 line of the ROC Curve.
 
-.. image:: rrover_roc_curve.png
+.. image:: ncaab_roc_curve.png
    :alt: ROC Curve
    :width: 100%
    :align: center
 
-We can benefit from more samples, as the learning curve shows
-that the training and cross-validation lines have yet to converge.
+After a model is created, we can run ``sflow`` in ``predict``
+mode. Just specify the prediction date ``pdate``, and SportFlow
+will make predictions for all cases in the ``predict.csv`` file
+on or after the specified date. Note that the ``predict.csv``
+file is generated on the fly in predict mode and stored in the
+``input`` directory.
 
-.. image:: rrover_learning_curve.png
-   :alt: ROC Curve
-   :width: 100%
-   :align: center
+**Step 3**: Now, let's run SportFlow in predict mode, where all
+results will be stored in the ``output`` directory::
 
-The good news is that even with a relatively small number of
-testing points, the Reliability Curve slopes upward from left
-to right, with the dotted line denoting a perfect classifier.
+    sflow --predict --pdate 2016-03-15
 
-.. image:: rrover_calibration.png
-   :alt: ROC Curve
-   :width: 100%
-   :align: center
-
-To get better accuracy, we can raise our threshold to find the
-best candidates, since they are ranked by probability, but this
-also means limiting our pool of stocks. Let's take a closer
-look at the rankings file.
-
-**Step 3**: Now, let's run SportFlow in predict mode::
-
-    sflow --predict --pdate 2016-04-01
-
-**Step 4**: Check the predictions.
-
-x
-
-``Conclusion`` We can predict large-range days with some confidence,
-but only at a higher probability threshold. This is important for
-choosing the correct system on any given day. We can achieve
-better results with more data, so we recommend expanding the
-stock universe, e.g., a group with at least 100 members going
-five years back.
+``Conclusion`` Even with just one season of NCAA Men's Basketball
+data, our model predicts between 52-54% accuracy. To attain
+better accuracy, we need more historical data vis a vis the
+number of games and other types of information such as individual
+player statistics. If you want to become a professional bettor,
+then you need at least 56% winners to break the bank.

@@ -634,7 +634,7 @@ def main(args=None):
     # Logging
 
     logging.basicConfig(format="[%(asctime)s] %(levelname)s\t%(message)s",
-                        filename="SportFlow.log", filemode='a', level=logging.DEBUG,
+                        filename="sport_flow.log", filemode='a', level=logging.DEBUG,
                         datefmt='%m/%d/%y %H:%M:%S')
     formatter = logging.Formatter("[%(asctime)s] %(levelname)s\t%(message)s",
                                   datefmt='%m/%d/%y %H:%M:%S')
@@ -692,6 +692,7 @@ def main(args=None):
 
     # Section: game
 
+    league = sport_specs['league']
     points_max = sport_specs['points_max']
     points_min = sport_specs['points_min']
     random_scoring = sport_specs['random_scoring']
@@ -711,7 +712,6 @@ def main(args=None):
     # Unpack model arguments
 
     directory = specs['directory']
-    organization = directory.split(SSEP)[-1]
     target = specs['target']
 
     # Create the game scores space
@@ -735,7 +735,7 @@ def main(args=None):
     logger.info("Reading Game Data")
 
     data_dir = SSEP.join([directory, 'data'])
-    file_base = USEP.join([organization, space.subject, space.schema, space.fractal])
+    file_base = USEP.join([league, space.subject, space.schema, space.fractal])
     df = read_frame(data_dir, file_base, specs['extension'], specs['separator'])
     logger.info("Total Game Records: %d", df.shape[0])
 
@@ -798,7 +798,7 @@ def main(args=None):
         team_frames = {}
         teams = gf.groupby([home_team])
         for team, data in teams:
-            team_frame = USEP.join([organization, team.lower(), series, str(season)])
+            team_frame = USEP.join([league, team.lower(), series, str(season)])
             logger.info("Generating team frame: %s", team_frame)
             tf = get_team_frame(gf, team, home_team, away_team)
             tf = tf.reset_index(level=0)
@@ -822,7 +822,7 @@ def main(args=None):
         #     Assign team frame fields to respective model frame fields: set gf.at(pos, field)
 
         for team, data in teams:
-            team_frame = USEP.join([organization, team.lower(), series, str(season)])
+            team_frame = USEP.join([league, team.lower(), series, str(season)])
             logger.info("Merging team frame %s into model frame", team_frame)
             tf = team_frames[team_frame]
             for index in range(0, tf.shape[0]-1):

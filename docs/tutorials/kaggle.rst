@@ -51,7 +51,8 @@ following command::
 
 As ``alphapy`` runs, you will see the progress of the workflow,
 and the logging output is saved in ``alphapy.log``. When the
-workflow completes, your project structure will look like this::
+workflow completes, your project structure will look like this,
+with a different datestamp::
 
     Kaggle
     ├── alphapy.log

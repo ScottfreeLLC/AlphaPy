@@ -926,7 +926,7 @@ def predict_best(model):
 
     # Record support vector for any recursive feature elimination
 
-    if rfe:
+    if rfe and 'XGB' not in best_algo:
         try:
             model.feature_map['rfe_support'] = model.support[best_algo]
         except:

@@ -1,4 +1,5 @@
 sport:
+    league          : NCAAB
     points_max      : 100
     points_min      : 50
     random_scoring  : False
