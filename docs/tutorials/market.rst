@@ -163,7 +163,7 @@ look at the rankings file.
 
 **Step 5**: Run the commands in the notebook.
 
-*Conclusion*: We can predict large-range days with some confidence,
+``Conclusion`` We can predict large-range days with some confidence,
 but only at a higher probability threshold. This is important for
 choosing the correct system on any given day. We can achieve
 better results with more data, so we recommend expanding the

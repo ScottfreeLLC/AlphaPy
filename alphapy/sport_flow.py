@@ -160,6 +160,7 @@ def get_sport_config():
 
     # Section: sport
 
+    specs['league'] = cfg['sport']['league']
     specs['points_max'] = cfg['sport']['points_max']
     specs['points_min'] = cfg['sport']['points_min']
     specs['random_scoring'] = cfg['sport']['random_scoring']
@@ -169,6 +170,7 @@ def get_sport_config():
     # Log the sports parameters
 
     logger.info('SPORT PARAMETERS:')
+    logger.info('league           = %s', specs['league'])
     logger.info('points_max       = %d', specs['points_max'])
     logger.info('points_min       = %d', specs['points_min'])
     logger.info('random_scoring   = %r', specs['random_scoring'])
