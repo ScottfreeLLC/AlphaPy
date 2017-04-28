@@ -78,7 +78,9 @@ with an additional directory ``systems``::
         ├── faang_closer_trades_1d.csv
         ├── faang_closer_transactions_1d.csv
 
-Excluding the trades file
+MarketFlow records position, return, and transaction data in the
+``systems`` directory, so now we can analyze our results with
+*Pyfolio*. 
 
 **Step 3**: From the command line, enter::
 
@@ -87,6 +89,8 @@ Excluding the trades file
 **Step 4**: Click on the notebook named::
 
     A Trading System.ipynb
+
+You should obtain the following results in your notebook.
 
 .. image:: pyfolio.png
    :alt: Pyfolio Tear Sheet
