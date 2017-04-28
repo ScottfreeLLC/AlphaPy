@@ -1,9 +1,9 @@
 Installation
 ============
 
-You should already have pip, Python, and XGBoost (see instructions
-below) installed on your system. Run the following command to
-install AlphaPy::
+You should already have pip, Python, and XGBoost (see below)
+installed on your system. Run the following command to install
+AlphaPy::
 
     pip install -U alphapy
 
@@ -11,28 +11,8 @@ XGBoost
 -------
 
 For most users, XGBoost will *not* install automatically with
-``pip``. Please follow the instructions below for your platform
-to install XGBoost before installing AlphaPy.
-
-Unix
-~~~~
-
-Macintosh
-~~~~~~~~~
-
-In a Terminal window:
-
-.. code-block:: shell
-
-    git clone --recursive https://github.com/dmlc/xgboost.git
-    cd xgboost/
-    ./build.sh
-    pip install -e python-package
-
-Windows
-~~~~~~~
-
-x
+``pip``. For instructions to install XGBoost on your specific
+platform, go to http://xgboost.readthedocs.io/en/latest/build.html.
 
 Anaconda Python
 ---------------
