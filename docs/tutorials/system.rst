@@ -10,84 +10,85 @@ Trading System Tutorial
 
 A trading system is a set of automated rules for buying and selling
 stocks, options, futures, and other instruments. Trading is considered
-to be both an art and a science; the scientific 
-
-Many technicians spend their lives chasing the Holy Grail: a system that will make them rich simply by detecting common patterns and executing trades just by following a special recipe. Technicians in history such as Edwards, Elliott, Fibonacci, Gann, and Gartley showed us visually appealing charts but no evidence that these techniques actually worked.
-Once you come to the conclusion that there is no master algorithm, then you can move to the next level.
-
- Further, we have discovered that all of the systems you need have already been invented. The real magic is then using machine learning to decide which system to deploy at any given moment.
+to be both an art and a science; the scientific branch is known as
+*technical analysis*. Many technicians spend their lives chasing the
+Holy Grail: a system that will make them rich simply by detecting
+common patterns. Technicians in history such as Edwards, Elliott,
+Fibonacci, Gann, and Gartley show us visually appealing charts,
+but there is no scientific evidence proving that these techniques
+actually work.
 
 Trading systems generally operate in two contexts: trend and
-counter-trend. You can
-run a system such as Toby Crabel’s Open Range Breakout (ORB) for Widest-Range
-(WR) days where you think the market or instrument is going to trend, or
-alternatively you can fade support and resistance in a mean-reverting strategy.
-[Note that Mr. Crabel runs a successful hedge fund and wrote a rare, groundbreaking
-book on short-term trading: Day Trading with Short Term Price Patterns and
-Opening Range Breakout]
+counter-trend. A system that follows the trend tries to stay in
+one direction as long as possible. A system that bucks the trend
+reverses direction at certain support and resistance levels, also
+known as fading the trend. With MarketFlow, you can implement
+either type of system using our long/short strategy.
 
-Once you come to the conclusion that there is no master algorithm, then
-you can move to the next level.  Further, we
-have discovered that all of the systems you need have already been invented.
-The real magic is then using machine learning to decide which system to
-deploy at any given moment.
-
-Clearly, you will lose money by blindly executing any short-term system on
-any given timeframe. About twenty years ago, when artificial intelligence
-was first hot, some funds tried their hand but failed. The problem was that
-using neural networks to predict positive return was misguided. Instead, you
-need a bidirectional strategy that goes short as easily as it goes long,
-but in the proper context.
+In this tutorial, we are going to test a simple long/short system.
+If today's closing price is greater than yesterday's close, then
+we go long. If today's close is lower than yesterday's, then we 
+go short, so we always have a position in the market.
 
 **Step 1**: From the ``examples`` directory, change your directory::
 
     cd "Trading System"
 
-Before running MarketFlow, let's briefly review the ``model.yml``
-file in the ``config`` directory. We will submit the actual predictions instead of the
-probabilities, so ``submit_probas`` is set to ``False``. All
-features will be included except for the ``PassengerId``. The
-target variable is ``Survived``, the label we are trying to
-accurately predict.
+Before running MarketFlow, let's review the ``market.yml`` file
+in the ``config`` directory. Since we are just running a system,
+we really don't need the ``model.yml`` file, but if you have a
+project where the system is derived from a model, then you will
+want to maintain both files.
 
-We'll compare random forests and XGBoost, run recursive
-feature elimination and a grid search, and select the best
-model. Note that a blended model of all the algorithms is
-a candidate for best model. The details of each algorithm
-are located in the ``algos.yml`` file.
+In ``market.yml``, we will test our system on five stocks in the
+target group ``faang``, going back 1000 trading days. We need
+to define only two features: ``hc`` for higher close, and ``lc``
+for lower close. We name the system ``closer``, which requires
+just a ``longentry`` and a ``shortentry``. There are no exit
+conditions and no holding period, so we will always have a position
+in each stock.
 
-.. literalinclude:: closer.yml
+.. literalinclude:: closer_market.yml
    :language: yaml
-   :caption: **model.yml**
+   :caption: **market.yml**
 
-**Step 2**: Now, we are ready to run MarketFlow::
+**Step 2**: Now, let's run MarketFlow::
 
     mflow
 
-Now, run the following command::
+As ``mflow`` runs, you will see the progress of the workflow,
+and the logging output is saved in ``market_flow.log``. When the
+workflow completes, your project structure will look like this,
+with an additional directory ``systems``::
+
+    Trading System
+    ├── market_flow.log
+    ├── config
+        ├── algos.yml
+        ├── market.yml
+        ├── model.yml
+    └── data
+    └── input
+    └── model
+    └── output
+    └── plots
+    └── systems
+        ├── faang_closer_positions_1d.csv
+        ├── faang_closer_returns_1d.csv
+        ├── faang_closer_trades_1d.csv
+        ├── faang_closer_transactions_1d.csv
+
+Excluding the trades file
+
+**Step 3**: From the command line, enter::
 
     jupyter notebook
 
-Suppose we want to use the 50-day moving average (MA) in our model, as we believe that it has predictive power for a stock’s direction.
-FDL Example
-The moving average function ma has two parameters: a
-•
-feature (column) name and a time period.
-To apply the 50-day MA, we can simply join the function ma_close_50.
-•
-name with its parameters, separated by “_”, or
-If we want to use an alias, then we can define cma to be 30
-•
-the equivalent of ma_close and get cma_50.
+**Step 4**: Click on the notebook named::
 
-Develop a model to predict days with ranges that
-•
-are greater than average.
-We will use both random forests and gradient
-•
-boosting.
-Get daily data from Yahoo over the past few years
-•
-to train our model.
-•
-Define technical analysis features with FDL.
+    A Trading System.ipynb
+
+.. image:: pyfolio.png
+   :alt: Pyfolio Tear Sheet
+   :width: 100%
+   :align: center

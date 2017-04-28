@@ -10,7 +10,7 @@ install AlphaPy::
 XGBoost
 -------
 
-For most users, XGBoost will not install automatically with
+For most users, XGBoost will *not* install automatically with
 ``pip``. Please follow the instructions below for your platform
 to install XGBoost before installing AlphaPy.
 
