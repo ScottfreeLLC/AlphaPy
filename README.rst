@@ -18,11 +18,6 @@ things you can do with AlphaPy:
     :alt: AlphaPy Model Pipeline
     :align: center
 
-Documentation
--------------
-
-http://alphapy.readthedocs.io/en/latest/
-
 Installation
 ------------
 
@@ -38,6 +33,11 @@ XGBoost
 For most users, XGBoost will *not* install automatically with
 ``pip``. For instructions to install XGBoost on your specific
 platform, go to http://xgboost.readthedocs.io/en/latest/build.html.
+
+Documentation
+-------------
+
+http://alphapy.readthedocs.io/en/latest/
 
 MarketFlow
 ----------
@@ -74,15 +74,6 @@ https://twitter.com/scottfreellc?lang=en
 Donations
 ---------
 
-If you like the software, please click on the *Donate* button below:
+If you like the software, please donate:
 
-.. raw:: html
-
-    <embed>
-    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-    <input type="hidden" name="cmd" value="_s-xclick">
-    <input type="hidden" name="hosted_button_id" value="PUTBB68ZXPR26">
-    <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-    <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
-    </form>
-    </embed>
+http://alphapy.readthedocs.io/en/latest/introduction/support.html#donations
