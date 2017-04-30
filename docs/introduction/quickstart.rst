@@ -3,7 +3,7 @@ Quick Start
 
 Install the ``alphapy`` package::
 
-    pip install alphapy
+    pip install -U alphapy
 
 .. note:: Please refer to :doc:`install` for further details.
 
