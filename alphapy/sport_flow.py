@@ -717,7 +717,7 @@ def main(args=None):
 
     # Create the input directory if necessary
 
-    output_dir = SSEP.join(directory, 'input'])
+    output_dir = SSEP.join([directory, 'input'])
     if not os.path.exists(output_dir):
         logger.info("Creating directory %s", output_dir)
         os.makedirs(output_dir)
