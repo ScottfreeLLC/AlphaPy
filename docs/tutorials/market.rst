@@ -162,7 +162,9 @@ look at the rankings file.
 
     A Trading Model.ipynb
 
-**Step 5**: Run the commands in the notebook.
+**Step 5**: Run the commands in the notebook, making sure that
+when you read in the rankings file, change the date to match
+the result from the ``ls`` command.
 
 ``Conclusion`` We can predict large-range days with some confidence,
 but only at a higher probability threshold. This is important for
