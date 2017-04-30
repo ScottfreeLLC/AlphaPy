@@ -715,6 +715,13 @@ def main(args=None):
     directory = specs['directory']
     target = specs['target']
 
+    # Create the input directory if necessary
+
+    output_dir = SSEP.join(directory, 'input'])
+    if not os.path.exists(output_dir):
+        logger.info("Creating directory %s", output_dir)
+        os.makedirs(output_dir)
+
     # Create the game scores space
     space = Space('game', 'scores', '1g')
 
