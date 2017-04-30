@@ -65,6 +65,7 @@ import argparse
 from datetime import datetime
 import logging
 import numpy as np
+import os
 import pandas as pd
 
 
@@ -461,6 +462,15 @@ def main(args=None):
 
     specs = get_model_config()
     specs['predict_mode'] = args.predict_mode
+
+    # Create directories if necessary
+
+    output_dirs = ['config', 'data', 'input', 'model', 'output', 'plots']
+    for od in output_dirs:
+        output_dir = SSEP.join([specs['directory'], od])
+        if not os.path.exists(output_dir):
+            logger.info("Creating directory %s", output_dir)
+            os.makedirs(output_dir)
 
     # Create a model from the arguments
 

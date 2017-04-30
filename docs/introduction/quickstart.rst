@@ -13,7 +13,7 @@ From your command line application, clone the repository::
 
 Change your directory to the examples location::
   
-    cd alphapy/examples
+    cd AlphaPy/alphapy/examples
 
 Go to any of the examples below:
 

@@ -45,6 +45,7 @@ from alphapy.utilities import valid_date
 import argparse
 import datetime
 import logging
+import os
 import pandas as pd
 import yaml
 
@@ -350,6 +351,13 @@ def main(args=None):
     model_specs['predict_mode'] = args.predict_mode
     model_specs['predict_date'] = predict_date
     model_specs['train_date'] = train_date
+
+    # Create the systems directory if necessary
+
+    output_dir = SSEP.join([model_specs['directory'], 'systems'])
+    if not os.path.exists(output_dir):
+        logger.info("Creating directory %s", output_dir)
+        os.makedirs(output_dir)
 
     # Create a model from the arguments
 

@@ -46,6 +46,7 @@ from itertools import groupby
 import logging
 import math
 import numpy as np
+import os
 import pandas as pd
 import yaml
 
@@ -715,7 +716,6 @@ def main(args=None):
     target = specs['target']
 
     # Create the game scores space
-
     space = Space('game', 'scores', '1g')
 
     #
@@ -882,13 +882,12 @@ def main(args=None):
         write_frame(new_test_frame, input_dir, datasets[Partition.test],
                     specs['extension'], specs['separator'])
 
-    #
-    # Create the model from specs, and run the pipeline
-    #
+    # Create the model from specs
 
     logger.info("Running Model")
-
     model = Model(specs)
+
+    # Run the pipeline
     model = main_pipeline(model)
 
     # Complete the pipeline

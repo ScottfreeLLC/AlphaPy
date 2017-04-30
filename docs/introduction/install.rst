@@ -10,8 +10,8 @@ AlphaPy::
 XGBoost
 -------
 
-For most users, XGBoost will *not* install automatically with
-``pip``. For instructions to install XGBoost on your specific
+For Macintosh and Window users, XGBoost will *not* install automatically
+with ``pip``. For instructions to install XGBoost on your specific
 platform, go to http://xgboost.readthedocs.io/en/latest/build.html.
 
 Anaconda Python

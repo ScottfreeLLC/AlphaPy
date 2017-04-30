@@ -1337,7 +1337,6 @@ def save_model(model, tag, partition):
     # Generate submission file
 
     if submission_file:
-        logger.info("Saving Submission")
         sample_spec = PSEP.join([submission_file, extension])
         sample_input = SSEP.join([input_dir, sample_spec])
         ss = pd.read_csv(sample_input)
@@ -1348,4 +1347,5 @@ def save_model(model, tag, partition):
         submission_base = USEP.join(['submission', timestamp])
         submission_spec = PSEP.join([submission_base, extension])
         submission_output = SSEP.join([output_dir, submission_spec])
+        logger.info("Saving Submission to %s", submission_output)
         ss.to_csv(submission_output, index=False)
