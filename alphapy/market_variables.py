@@ -1322,7 +1322,7 @@ def netreturn(f, c, o = 1):
     References
     ----------
     *ROI measures the amount of return on an investment relative to the
-    investment’s cost. To calculate ROI, the benefit (or return) of an
+    original cost. To calculate ROI, the benefit (or return) of an
     investment is divided by the cost of the investment, and the result
     is expressed as a percentage or a ratio* [IP_ROI]_.
 
