@@ -1,4 +1,8 @@
-name: py35
+name: alphapy
+
+channels:
+ - conda-forge
+
 dependencies:
 - bokeh>=0.12
 - ipython>=3.2.3
@@ -9,9 +13,9 @@ dependencies:
 - scikit-learn>=0.17.1
 - scipy>=0.18.1
 - seaborn>=0.7.1
+- xgboost>=0.6a2
 - pip:
   - category_encoders>=1.2.0
   - imbalanced-learn>=0.2.1
   - pandas-datareader>=0.3
   - pyfolio>=0.7
-  - xgboost>=0.6a2
