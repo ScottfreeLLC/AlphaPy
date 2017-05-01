@@ -779,8 +779,8 @@ def plot_boundary(model, partition, f1=0, f2=1):
     ----------
     Code excerpts from authors:
 
-    * Gaël Varoquaux
-    * Andreas Müller
+    * Gael Varoquaux
+    * Andreas Muller
 
     http://scikit-learn.org/stable/auto_examples/classification/plot_classifier_comparison.html
 
