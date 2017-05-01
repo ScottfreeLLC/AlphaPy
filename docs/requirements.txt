@@ -5,3 +5,4 @@ imbalanced-learn
 pyfolio
 scikit-learn
 seaborn
+xgboost
