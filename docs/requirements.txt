@@ -1,4 +1,7 @@
+bokeh
 category_encoders
+pandas_datareader
 imbalanced-learn
+pyfolio
 scikit-learn
-xgboost
+seaborn
