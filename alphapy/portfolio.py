@@ -326,7 +326,8 @@ class Trade:
 
     """
     
-    states = ['name', 'order', 'quantity', 'price']
+    states_daily = ['date', 'symbol', 'order', 'quantity', 'price']
+    states_intraday = ['date', 'time', 'symbol', 'order', 'quantity', 'price']
 
     # __init__
 

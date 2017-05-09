@@ -492,9 +492,12 @@ def vapply(group, vname, vfuncs=None):
         fname = frame_name(g, group.space)
         if fname in Frame.frames:
             f = Frame.frames[fname].df
-            for v in allv:
-                logger.debug("Applying variable %s to %s", v, g)
-                f = vexec(f, v, vfuncs)
+            if not f.empty:
+                for v in allv:
+                    logger.debug("Applying variable %s to %s", v, g)
+                    f = vexec(f, v, vfuncs)
+            else:
+                logger.info("Frame for %s is empty", g)
         else:
             logger.info("Frame not found: %s", fname)
                 

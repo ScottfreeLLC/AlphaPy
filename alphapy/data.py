@@ -429,7 +429,8 @@ def get_feed_data(group, lookback_period):
 
     Returns
     -------
-    None : None
+    daily_data : bool
+        ``True`` if daily data
 
     """
 
@@ -458,3 +459,5 @@ def get_feed_data(group, lookback_period):
                 logger.error("Could not allocate Frame for: %s", item)
         else:
             logger.info("Could not get data for: %s", item)
+    # Indicate whether or not data is daily
+    return daily_data

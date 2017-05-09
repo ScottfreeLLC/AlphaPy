@@ -100,7 +100,7 @@ def get_market_config():
     # Create the subject/schema/fractal namespace
 
     sspecs = ['stock', specs['schema'], specs['fractal']]    
-    space = Space(*sspecs)
+    specs['space'] = Space(*sspecs)
 
     # Section: features
 
@@ -168,6 +168,7 @@ def get_market_config():
     logger.info('data_history    = %d', specs['data_history'])
     logger.info('predict_history = %s', specs['predict_history'])
     logger.info('schema          = %s', specs['schema'])
+    logger.info('space           = %s', specs['space'])
     logger.info('system          = %s', specs['system'])
     logger.info('target_group    = %s', specs['target_group'])
 
@@ -219,6 +220,7 @@ def market_pipeline(model, market_specs):
     functions = market_specs['functions']
     leaders = market_specs['leaders']
     predict_history = market_specs['predict_history']
+    space = market_specs['space']
     target_group = market_specs['target_group']
 
     # Get the system specifications
@@ -235,13 +237,13 @@ def market_pipeline(model, market_specs):
 
     # Set the target group
 
-    gs = Group.groups[target_group]
+    gs = Group.groups[target_group, space]
     logger.info("All Members: %s", gs.members)
 
     # Get stock data
 
     lookback = predict_history if predict_mode else data_history
-    get_feed_data(gs, lookback)
+    daily = get_feed_data(gs, lookback)
 
     # Apply the features to all of the frames
 
@@ -254,7 +256,7 @@ def market_pipeline(model, market_specs):
         # create and run the system
         cs = System(system_name, longentry, shortentry,
                     longexit, shortexit, holdperiod, scale)
-        tfs = run_system(model, cs, gs)
+        tfs = run_system(model, cs, gs, daily)
         # generate a portfolio
         gen_portfolio(model, system_name, gs, tfs)
     else:

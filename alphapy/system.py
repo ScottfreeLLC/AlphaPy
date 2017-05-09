@@ -361,6 +361,7 @@ def open_range_breakout(name, space, quantity):
 def run_system(model,
                system,
                group,
+               daily,
                quantity = 1):
     r"""Run a system for a given group, creating a trades frame.
 
@@ -373,6 +374,8 @@ def run_system(model,
         identified by function name, e.g., 'open_range_breakout'.
     group : alphapy.Group
         The group of symbols to test.
+    daily : bool
+        ``True`` if this system runs on a daily fractal
     quantity : float
         The amount to trade for each symbol, e.g., number of shares
 
@@ -402,6 +405,13 @@ def run_system(model,
     gmembers = group.members
     gspace = group.space
 
+    # Set output columns
+
+    if daily:
+        states = Trade.states_daily
+    else:
+        states = Trade.states_intraday
+
     # Run the system for each member of the group
 
     gtlist = []
@@ -417,7 +427,7 @@ def run_system(model,
             tlist = long_short(system, symbol, gspace, quantity)
         if tlist:
             # create the local trades frame
-            df = DataFrame.from_items(tlist, orient='index', columns=Trade.states)
+            df = DataFrame.from_items(tlist, orient='index', columns=states)
             # add trades to global trade list
             for item in tlist:
                 gtlist.append(item)
