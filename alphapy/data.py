@@ -356,6 +356,10 @@ def get_google_data(symbol, lookback_period, fractal):
     # create data frame
     cols = ['datetime', 'date', 'open', 'high', 'low', 'close', 'volume']
     df = pd.DataFrame.from_records(records, columns=cols)
+    # convert to proper data types
+    cols_float = ['open', 'high', 'low', 'close']
+    df[cols_float] = df[cols_float].astype(float)
+    df['volume'] = df['volume'].astype(int)
     # number the intraday bars
     date_group = df.groupby('date')
     df['bar_number'] = date_group.cumcount()

@@ -405,13 +405,6 @@ def run_system(model,
     gmembers = group.members
     gspace = group.space
 
-    # Set output columns
-
-    if daily:
-        states = Trade.states_daily
-    else:
-        states = Trade.states_intraday
-
     # Run the system for each member of the group
 
     gtlist = []
@@ -427,7 +420,7 @@ def run_system(model,
             tlist = long_short(system, symbol, gspace, quantity)
         if tlist:
             # create the local trades frame
-            df = DataFrame.from_items(tlist, orient='index', columns=states)
+            df = DataFrame.from_items(tlist, orient='index', columns=Trade.states)
             # add trades to global trade list
             for item in tlist:
                 gtlist.append(item)
@@ -440,10 +433,14 @@ def run_system(model,
     if gtlist:
         tspace = Space(system_name, "trades", group.space.fractal)
         gtlist = sorted(gtlist, key=lambda x: x[0])
-        tf = DataFrame.from_items(gtlist, orient='index', columns=Trade.states)
+        states = Trade.states
+        if not daily:
+            states.insert(0, 'time') 
+        tf = DataFrame.from_items(gtlist, orient='index', columns=states)
         tfname = frame_name(gname, tspace)
         system_dir = SSEP.join([directory, 'systems'])
-        write_frame(tf, system_dir, tfname, extension, separator, index=True)
+        write_frame(tf, system_dir, tfname, extension, separator,
+                    index=True, index_label='date')
         del tspace
     else:
         logger.info("No trades were found")

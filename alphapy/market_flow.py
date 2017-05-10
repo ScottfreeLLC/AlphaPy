@@ -100,7 +100,7 @@ def get_market_config():
     # Create the subject/schema/fractal namespace
 
     sspecs = ['stock', specs['schema'], specs['fractal']]    
-    specs['space'] = Space(*sspecs)
+    space = Space(*sspecs)
 
     # Section: features
 
@@ -116,8 +116,7 @@ def get_market_config():
     try:
         logger.info("Defining Groups")
         for g, m in cfg['groups'].items():
-            command = 'Group(\'' + g + '\', space)'
-            exec(command)
+            Group(g, space)
             Group.groups[g].add(m)
     except:
         logger.info("No Groups Found")
@@ -168,7 +167,6 @@ def get_market_config():
     logger.info('data_history    = %d', specs['data_history'])
     logger.info('predict_history = %s', specs['predict_history'])
     logger.info('schema          = %s', specs['schema'])
-    logger.info('space           = %s', specs['space'])
     logger.info('system          = %s', specs['system'])
     logger.info('target_group    = %s', specs['target_group'])
 
@@ -220,7 +218,6 @@ def market_pipeline(model, market_specs):
     functions = market_specs['functions']
     leaders = market_specs['leaders']
     predict_history = market_specs['predict_history']
-    space = market_specs['space']
     target_group = market_specs['target_group']
 
     # Get the system specifications
@@ -228,40 +225,49 @@ def market_pipeline(model, market_specs):
     system_specs = market_specs['system']
     if system_specs:
         system_name = system_specs['name']
-        longentry = system_specs['longentry']
-        shortentry = system_specs['shortentry']
-        longexit = system_specs['longexit']
-        shortexit = system_specs['shortexit']
-        holdperiod = system_specs['holdperiod']
-        scale = system_specs['scale']
+        try:
+            longshort = True
+            longentry = system_specs['longentry']
+            shortentry = system_specs['shortentry']
+            longexit = system_specs['longexit']
+            shortexit = system_specs['shortexit']
+            holdperiod = system_specs['holdperiod']
+            scale = system_specs['scale']
+            logger.info("Running Long/Short System %s", system_name)
+        except:
+            longshort = False
+            logger.info("Running System %s", system_name)
 
     # Set the target group
 
-    gs = Group.groups[target_group, space]
-    logger.info("All Members: %s", gs.members)
+    group = Group.groups[target_group]
+    logger.info("All Members: %s", group.members)
 
     # Get stock data
 
     lookback = predict_history if predict_mode else data_history
-    daily = get_feed_data(gs, lookback)
+    daily = get_feed_data(group, lookback)
 
     # Apply the features to all of the frames
 
-    vmapply(gs, features, functions)
-    vmapply(gs, [target], functions)
+    vmapply(group, features, functions)
+    vmapply(group, [target], functions)
 
     # Run a system or an analysis
 
     if system_specs:
         # create and run the system
-        cs = System(system_name, longentry, shortentry,
-                    longexit, shortexit, holdperiod, scale)
-        tfs = run_system(model, cs, gs, daily)
+        if longshort:
+            system_ls = System(system_name, longentry, shortentry,
+                               longexit, shortexit, holdperiod, scale)
+            tfs = run_system(model, system_ls, group, daily)
+        else:
+            tfs = run_system(model, system_name, group, daily)
         # generate a portfolio
-        gen_portfolio(model, system_name, gs, tfs)
+        gen_portfolio(model, system_name, group, tfs)
     else:
         # run the analysis, including the model pipeline
-        a = Analysis(model, gs)
+        a = Analysis(model, group)
         results = run_analysis(a, forecast_period, leaders, predict_history)
 
     # Return the completed model
