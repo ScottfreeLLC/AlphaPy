@@ -441,14 +441,14 @@ def get_feed_data(group, lookback_period):
     gspace = group.space
     fractal = gspace.fractal
     # Determine the feed source
-    if 'm' in fractal:
-        # intraday data (date and time)
-        logger.info("Getting Intraday Data (Google 50-day limit)")
-        daily_data = False
-    else:
+    if 'd' in fractal:
         # daily data (date only)
         logger.info("Getting Daily Data")
         daily_data = True
+    else:
+        # intraday data (date and time)
+        logger.info("Getting Intraday Data (Google 50-day limit)")
+        daily_data = False
     # Get the data from the relevant feed
     for item in group.members:
         logger.info("Getting %s data for last %d days", item, lookback_period)

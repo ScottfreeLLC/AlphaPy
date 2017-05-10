@@ -260,9 +260,9 @@ def market_pipeline(model, market_specs):
         if longshort:
             system_ls = System(system_name, longentry, shortentry,
                                longexit, shortexit, holdperiod, scale)
-            tfs = run_system(model, system_ls, group, daily)
+            tfs = run_system(model, system_ls, group)
         else:
-            tfs = run_system(model, system_name, group, daily)
+            tfs = run_system(model, system_name, group)
         # generate a portfolio
         gen_portfolio(model, system_name, group, tfs)
     else:
