@@ -91,11 +91,6 @@ def get_data(model, partition):
     y : pandas.Series
         The array of target values, if available.
 
-    Raises
-    ------
-    ValueError
-        Found test labels with NaN values.
-
     """
 
     logger.info("Loading Data")
@@ -124,18 +119,19 @@ def get_data(model, partition):
         logger.info("Found target %s in data frame", target)
         # drop rows with NaN targets
         original_size = df.shape[0]
-        df.dropna(axis=0, subset=[target], inplace=True)
+        df.dropna(subset=[target], inplace=True)
         diff = original_size - df.shape[0]
         if diff > 0:
-            raise ValueError("Found %d records in %s with NaN target values"
-                             % (diff, partition))
-        # assign the target column to y
-        y = df[target]
-        # encode label only for classification
-        if model_type == ModelType.classification:
-             y = LabelEncoder().fit_transform(y)
-        # drop the target as it has already been extracted into y
-        logger.info("Dropping target %s from data frame", target)
+            logger.info("Found %d records with NaN target values", diff)
+            logger.info("Labels (y) for %s will not be used", partition)
+        else:
+            # assign the target column to y
+            y = df[target]
+            # encode label only for classification
+            if model_type == ModelType.classification:
+                 y = LabelEncoder().fit_transform(y)
+            logger.info("Labels (y) found for %s", partition)
+        # drop the target from the original frame
         df = df.drop([target], axis=1)
     else:
         logger.info("Target %s not found in %s", target, partition)

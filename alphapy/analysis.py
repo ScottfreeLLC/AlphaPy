@@ -172,7 +172,6 @@ def run_analysis(analysis, forecast_period, leaders,
 
     predict_file = model.predict_file
     test_file = model.test_file
-    test_labels = model.test_labels
     train_file = model.train_file
 
     # Unpack model specifications
@@ -208,7 +207,6 @@ def run_analysis(analysis, forecast_period, leaders,
         # shift the target for the forecast period
         if forecast_period > 0:
             df[target] = df[target].shift(-forecast_period)
-            df.index = df.index.shift(forecast_period, freq='D')
         # shift any leading features if necessary
         if leaders:
             df[leaders] = df[leaders].shift(-1)
@@ -223,14 +221,11 @@ def run_analysis(analysis, forecast_period, leaders,
             # split data into train and test
             new_train = df.loc[(df.index >= train_date) & (df.index < split_date)]
             if len(new_train) > 0:
-                # train frame
                 new_train = new_train.dropna()
                 train_frame = train_frame.append(new_train)
-                # test frame
                 new_test = df.loc[(df.index >= split_date) & (df.index <= last_date)]
                 if len(new_test) > 0:
-                    if test_labels:
-                        new_test = new_test.dropna()
+                    new_test = new_test.dropna(subset=[target])
                     test_frame = test_frame.append(new_test)
                 else:
                     logger.info("A testing frame has zero rows. Check prediction date.")
