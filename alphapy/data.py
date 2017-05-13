@@ -117,12 +117,10 @@ def get_data(model, partition):
     y = np.empty([0, 0])
     if target in df.columns:
         logger.info("Found target %s in data frame", target)
-        # drop rows with NaN targets
-        original_size = df.shape[0]
-        df.dropna(subset=[target], inplace=True)
-        diff = original_size - df.shape[0]
-        if diff > 0:
-            logger.info("Found %d records with NaN target values", diff)
+        # check if target column has NaN values
+        nan_count = df[target].isnull().sum()
+        if nan_count > 0:
+            logger.info("Found %d records with NaN target values", nan_count)
             logger.info("Labels (y) for %s will not be used", partition)
         else:
             # assign the target column to y
