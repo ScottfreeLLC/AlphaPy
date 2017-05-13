@@ -263,7 +263,7 @@ def long_short(system, name, space, quantity):
 # Function open_range_breakout
 #
 
-def open_range_breakout(name, space, quantity):
+def open_range_breakout(name, space, quantity, t1=3, t2=12):
     r"""Run an Opening Range Breakout (ORB) system.
 
     An ORB system is an intraday strategy that waits for price to
@@ -295,9 +295,6 @@ def open_range_breakout(name, space, quantity):
         All of the data frames containing price data.
 
     """
-    # system parameters
-    trigger_first = 7
-    trigger_last = 56
     # price frame
     pf = Frame.frames[frame_name(name, space)].df
     # initialize the trade list
@@ -318,14 +315,14 @@ def open_range_breakout(name, space, quantity):
             inshort = False
             hh = h
             ll = l
-        elif bar_number < trigger_first:
+        elif bar_number < t1:
             # set opening range
             if h > hh:
                 hh = h
             if l < ll:
                 ll = l
         else:
-            if not traded and bar_number < trigger_last:
+            if not traded and bar_number < t2:
                 # trigger trade
                 if h > hh:
                     # long breakout triggers
@@ -361,6 +358,7 @@ def open_range_breakout(name, space, quantity):
 def run_system(model,
                system,
                group,
+               system_params=None,
                quantity = 1):
     r"""Run a system for a given group, creating a trades frame.
 
@@ -373,7 +371,9 @@ def run_system(model,
         identified by function name, e.g., 'open_range_breakout'.
     group : alphapy.Group
         The group of symbols to test.
-    quantity : float
+    system_params : list, optional
+        The parameters for the given system.
+    quantity : float, optional
         The amount to trade for each symbol, e.g., number of shares
 
     Returns
@@ -409,7 +409,8 @@ def run_system(model,
         # generate the trades for this member
         if system.__class__ == str:
             try:
-                tlist = globals()[system_name](symbol, gspace, quantity)
+                tlist = globals()[system_name](symbol, gspace, quantity,
+                                               *system_params)
             except:
                 logger.info("Could not execute system for %s", symbol)
         else:

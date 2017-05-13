@@ -236,6 +236,7 @@ def market_pipeline(model, market_specs):
             logger.info("Running Long/Short System %s", system_name)
         except:
             longshort = False
+            system_params = system_specs['params']
             logger.info("Running System %s", system_name)
 
     # Set the target group
@@ -262,7 +263,7 @@ def market_pipeline(model, market_specs):
                                longexit, shortexit, holdperiod, scale)
             tfs = run_system(model, system_ls, group)
         else:
-            tfs = run_system(model, system_name, group)
+            tfs = run_system(model, system_name, group, system_params)
         # generate a portfolio
         gen_portfolio(model, system_name, group, tfs)
     else:
