@@ -260,7 +260,7 @@ def runs_test(f, c, wfuncs, window):
                  'zscore' : zscore}
     # use all functions
     if 'all' in wfuncs:
-        wfuncs = list(all_funcs.keys())
+        wfuncs = all_funcs.keys()
     # apply each of the runs functions
     new_features = pd.DataFrame()
     for w in wfuncs:

@@ -409,8 +409,8 @@ def plot_importance(model, partition):
             plt.style.use('classic')
             plt.figure()
             plt.title(title)
-            plt.bar(list(range(n_top)), importances[indices][:n_top], color="b", align="center")
-            plt.xticks(list(range(n_top)), indices[:n_top])
+            plt.bar(range(n_top), importances[indices][:n_top], color="b", align="center")
+            plt.xticks(range(n_top), indices[:n_top])
             plt.xlim([-1, n_top])
             # save the plot
             tag = USEP.join([pstring, algo])
@@ -650,7 +650,7 @@ def plot_confusion_matrix(model, partition):
         cmn = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
         # place text in square of confusion matrix
         thresh = (cm.max() + cm.min()) / 2.0
-        for i, j in product(list(range(cm.shape[0])), list(range(cm.shape[1]))):
+        for i, j in product(range(cm.shape[0]), range(cm.shape[1])):
             cmr = round(cmn[i, j], 3)
             plt.text(j, i, cmr,
                      horizontalalignment="center",

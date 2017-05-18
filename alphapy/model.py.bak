@@ -1165,7 +1165,7 @@ def generate_metrics(model, partition):
         for algo in model.algolist:
             logger.info('-'*80)
             logger.info("Algorithm: %s", algo)
-            metrics = [(k[2], v) for k, v in list(model.metrics.items()) if k[0] == algo and k[1] == partition]
+            metrics = [(k[2], v) for k, v in model.metrics.items() if k[0] == algo and k[1] == partition]
             for key, value in sorted(metrics):
                 svalue = str(value)
                 svalue.replace('\n', ' ')

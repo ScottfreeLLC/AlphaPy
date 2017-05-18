@@ -115,7 +115,7 @@ def get_market_config():
 
     try:
         logger.info("Defining Groups")
-        for g, m in list(cfg['groups'].items()):
+        for g, m in cfg['groups'].items():
             Group(g, space)
             Group.groups[g].add(m)
     except:
@@ -125,7 +125,7 @@ def get_market_config():
 
     try:
         logger.info("Defining Aliases")
-        for k, v in list(cfg['aliases'].items()):
+        for k, v in cfg['aliases'].items():
             Alias(k, v)
     except:
         logger.info("No Aliases Found")
@@ -143,7 +143,7 @@ def get_market_config():
 
     try:
         logger.info("Defining Variables")
-        for k, v in list(cfg['variables'].items()):
+        for k, v in cfg['variables'].items():
             Variable(k, v)
     except:
         logger.info("No Variables Found")

@@ -386,7 +386,7 @@ def add_features(frame, fdict, flen, prefix=''):
     seqfloat = [0.0] * flen
     seqbool = [False] * flen
     # initialize new fields in frame
-    for key, value in list(fdict.items()):
+    for key, value in fdict.items():
         newkey = key
         if prefix:
             newkey = PSEP.join([prefix, newkey])
@@ -567,7 +567,7 @@ def insert_model_data(mf, mpos, mdict, tf, tpos, prefix):
 
     """
     team_row = tf.iloc[tpos]
-    for key, value in list(mdict.items()):
+    for key, value in mdict.items():
         newkey = key
         if prefix:
             newkey = PSEP.join([prefix, newkey])
@@ -599,7 +599,7 @@ def generate_delta_data(frame, fdict, prefix1, prefix2):
         The completed dataframe with the delta data.
 
     """
-    for key, value in list(fdict.items()):
+    for key, value in fdict.items():
         newkey = PSEP.join(['delta', key])
         key1 = PSEP.join([prefix1, key])
         key2 = PSEP.join([prefix2, key])
@@ -816,7 +816,7 @@ def main(args=None):
 
         # Create the model frame, initializing the home and away frames
 
-        mdict = {k:v for (k,v) in list(sports_dict.items()) if v != bool}
+        mdict = {k:v for (k,v) in sports_dict.items() if v != bool}
         team1_frame = pd.DataFrame()
         team1_frame = add_features(team1_frame, mdict, gf.shape[0], prefix=team1_prefix)
         team2_frame = pd.DataFrame()

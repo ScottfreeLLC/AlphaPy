@@ -713,7 +713,7 @@ def balance(p, tdate, cashlevel):
         weightby = weightby[1:]
     else:
         invert = False
-    attrs = [aname for aname in dir(positions[0]) if not aname.startswith('_')]
+    attrs = filter(lambda aname: not aname.startswith('_'), dir(positions[0]))
     for i, pos in enumerate(positions):
         if weightby in attrs:
             estr = '.'.join('pos', weightby)
@@ -786,7 +786,7 @@ def kick_out(p, tdate):
         koby = koby[1:]
     else:
         descending = False
-    attrs = [aname for aname in dir(positions[0]) if not aname.startswith('_')]
+    attrs = filter(lambda aname: not aname.startswith('_'), dir(positions[0]))
     for i, pos in enumerate(positions):
         if koby in attrs:
             estr = '.'.join('pos', koby)

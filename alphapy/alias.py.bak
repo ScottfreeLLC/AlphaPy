@@ -82,7 +82,7 @@ class Alias(object):
         # code
         efound = expr in [Alias.aliases[key] for key in Alias.aliases]
         if efound == True:
-            key = [key for key, aexpr in list(Alias.aliases.items()) if aexpr == expr]
+            key = [key for key, aexpr in Alias.aliases.items() if aexpr == expr]
             logger.info("Expression %s already exists for key %s", expr, key)
             return
         else:
