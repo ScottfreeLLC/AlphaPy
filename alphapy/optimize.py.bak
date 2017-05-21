@@ -308,7 +308,7 @@ def hyper_grid_search(model, estimator):
     # Convert the grid to pipeline format
 
     grid_new = {}
-    for k, v in list(grid.items()):
+    for k, v in grid.items():
         new_key = '__'.join(['est', k])
         grid_new[new_key] = grid[k]
 
