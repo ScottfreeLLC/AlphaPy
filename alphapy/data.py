@@ -369,14 +369,16 @@ def get_google_data(symbol, lookback_period, fractal):
 
 
 #
-# Function get_yahoo_data
+# Function get_pandas_data
 #
 
-def get_yahoo_data(symbol, lookback_period):
+def get_pandas_data(schema, symbol, lookback_period):
     r"""Get Yahoo Finance daily data.
 
     Parameters
     ----------
+    schema : str
+        The source of the pandas-datareader data.
     symbol : str
         A valid stock symbol.
     lookback_period : int
@@ -396,17 +398,14 @@ def get_yahoo_data(symbol, lookback_period):
 
     # Call the Pandas Web data reader.
 
-    df = web.DataReader(symbol, 'yahoo', start, end)
+    df = web.DataReader(symbol, schema, start, end)
 
-    # Set time series as index
+    # Rename columns to lower case.
 
     if len(df) > 0:
-        df.reset_index(level=0, inplace=True)
         df = df.rename(columns = lambda x: x.lower().replace(' ',''))
-        df['datetime'] = pd.to_datetime(df['date'])
-        del df['date']
-        df.index = df['datetime']
-        del df['datetime']
+    else:
+        logger.info("Empty data frame for: %s", symbol)
 
     return df
 
@@ -433,6 +432,7 @@ def get_feed_data(group, lookback_period):
     """
 
     gspace = group.space
+    schema = gspace.schema
     fractal = gspace.fractal
     # Determine the feed source
     if 'd' in fractal:
@@ -447,7 +447,7 @@ def get_feed_data(group, lookback_period):
     for item in group.members:
         logger.info("Getting %s data for last %d days", item, lookback_period)
         if daily_data:
-            df = get_yahoo_data(item, lookback_period)
+            df = get_pandas_data(schema, item, lookback_period)
         else:
             df = get_google_data(item, lookback_period, fractal)
         if len(df) > 0:
