@@ -780,7 +780,7 @@ def main(args=None):
         # Generate a frame for each season
 
         gf = df[df['season'] == season]
-        gf = gf.reset_index(level=0)
+        gf = gf.reset_index()
 
         # Generate derived variables for the game frame
 
@@ -810,7 +810,7 @@ def main(args=None):
             team_frame = USEP.join([league, team.lower(), series, str(season)])
             logger.info("Generating team frame: %s", team_frame)
             tf = get_team_frame(gf, team, home_team, away_team)
-            tf = tf.reset_index(level=0)
+            tf = tf.reset_index()
             tf = generate_team_frame(team, tf, home_team, away_team, window)
             team_frames[team_frame] = tf
 
