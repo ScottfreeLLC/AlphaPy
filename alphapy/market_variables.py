@@ -497,9 +497,9 @@ def vapply(group, vname, vfuncs=None):
                     logger.debug("Applying variable %s to %s", v, g)
                     f = vexec(f, v, vfuncs)
             else:
-                logger.info("Frame for %s is empty", g)
+                logger.debug("Frame for %s is empty", g)
         else:
-            logger.info("Frame not found: %s", fname)
+            logger.debug("Frame not found: %s", fname)
                 
 
 #

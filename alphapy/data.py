@@ -398,14 +398,12 @@ def get_pandas_data(schema, symbol, lookback_period):
 
     # Call the Pandas Web data reader.
 
-    df = web.DataReader(symbol, schema, start, end)
-
-    # Rename columns to lower case.
-
-    if len(df) > 0:
+    df = None
+    try:
+        df = web.DataReader(symbol, schema, start, end)
         df = df.rename(columns = lambda x: x.lower().replace(' ',''))
-    else:
-        logger.info("Empty data frame for: %s", symbol)
+    except:
+        logger.info("Could not retrieve data for: %s", symbol)
 
     return df
 
@@ -450,12 +448,12 @@ def get_feed_data(group, lookback_period):
             df = get_pandas_data(schema, item, lookback_period)
         else:
             df = get_google_data(item, lookback_period, fractal)
-        if len(df) > 0:
+        if df is not None and not df.empty:
             # allocate global Frame
             newf = Frame(item.lower(), gspace, df)
             if newf is None:
                 logger.error("Could not allocate Frame for: %s", item)
         else:
-            logger.info("Could not get data for: %s", item)
+            logger.info("No DataFrame for %s", item)
     # Indicate whether or not data is daily
     return daily_data

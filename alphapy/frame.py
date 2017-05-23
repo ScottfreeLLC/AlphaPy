@@ -256,17 +256,17 @@ def load_frames(group, directory, extension, separator, splits=False):
                 logger.info("Load Data Frame %s from file", fname)
                 df = read_frame(directory, fname, extension, separator)
             # add this frame to the consolidated frame list
-            if len(df) > 0:
+            if df is not None and not df.empty:
                 # set the name
                 df.insert(0, 'tag', gn)
                 all_frames.append(df)
             else:
-                logger.info("Empty Data Frame for: %s", gn)
+                logger.debug("Empty Data Frame for: %s", gn)
     else:
         # no splits, so use data from consolidated files
         fname = frame_name(gname, gspace)
         df = read_frame(directory, fname, extension, separator)
-        if df is not None:
+        if df is not None and not df.empty:
             all_frames.append(df)
     return all_frames
 
