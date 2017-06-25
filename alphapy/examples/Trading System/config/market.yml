@@ -4,7 +4,7 @@ market:
     fractal         : 1d
     leaders         : []
     predict_history : 50
-    schema          : prices
+    schema          : google
     target_group    : faang
 
 system:

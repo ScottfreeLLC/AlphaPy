@@ -4,7 +4,7 @@ market:
     fractal         : 1d
     leaders         : ['gap', 'gapbadown', 'gapbaup', 'gapdown', 'gapup']
     predict_history : 100
-    schema          : prices
+    schema          : google
     target_group    : test
 
 groups:
