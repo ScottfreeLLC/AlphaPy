@@ -7,10 +7,10 @@ DESCRIPTION = "AlphaPy: A Machine Learning Pipeline for Speculators"
 LONG_DESCRIPTION = "alphapy is a Python library for machine learning using scikit-learn. We have a stock market pipeline and a sports pipeline so that speculators can test predictive models, along with functions for trading systems and portfolio management."
 
 MAINTAINER = 'ScottFree LLC [Robert D. Scott II, Mark Conway]'
-MAINTAINER_EMAIL = 'mark.conway@scottfreellc.com'
+MAINTAINER_EMAIL = 'scottfree.analytics@scottfreellc.com'
 URL = "https://github.com/ScottFreeLLC/AlphaPy"
-LICENSE = "Apache License, Version 2.0.1"
-VERSION = "2.0.1"
+LICENSE = "Apache License, Version 2.1"
+VERSION = "2.1"
 
 classifiers = ['Development Status :: 4 - Beta',
                'Programming Language :: Python',

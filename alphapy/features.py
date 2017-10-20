@@ -26,11 +26,13 @@
 # Imports
 #
 
-from alphapy.globals import BSEP, NULLTEXT, PSEP, SSEP, USEP
+from alphapy.globals import BSEP, LOFF, NULLTEXT
+from alphapy.globals import PSEP, SSEP, USEP
 from alphapy.globals import Encoders
 from alphapy.globals import ModelType
 from alphapy.globals import Scalers
 from alphapy.market_variables import Variable
+from alphapy.market_variables import vparse
 
 import category_encoders as ce
 from importlib import import_module
@@ -38,6 +40,7 @@ from itertools import groupby
 import logging
 import math
 import numpy as np
+import os
 import pandas as pd
 import re
 from scipy import sparse
@@ -61,6 +64,7 @@ from sklearn.preprocessing import Imputer
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.preprocessing import StandardScaler
+import sys
 
 
 #
@@ -424,6 +428,8 @@ def apply_treatment(fname, df, fparams):
     module = fparams[0]
     func_name = fparams[1]
     plist = fparams[2:]
+    # Append to system path
+    sys.path.append(os.getcwd())
     # Import the external treatment function
     ext_module = import_module(module)
     func = getattr(ext_module, func_name)
@@ -476,17 +482,34 @@ def apply_treatments(model, X):
     logger.info("Applying Treatments")
     all_features = X
 
-    for fname in X:
-        if treatments and fname in treatments:
-            features = apply_treatment(fname, X, treatments[fname])
-            if features is not None:
-                if features.shape[0] == X.shape[0]:
-                    all_features = pd.concat([all_features, features], axis=1)
+    if treatments:
+        for fname in treatments:
+            # find feature series
+            fcols = []
+            for col in X.columns:
+                if col.split(LOFF)[0] == fname:
+                    fcols.append(col)
+            # get lag values
+            lag_values = []
+            for item in fcols:
+                _, _, _, lag = vparse(item)
+                lag_values.append(lag)
+            # apply treatment to the most recent value
+            if lag_values:
+                f_latest = fcols[lag_values.index(min(lag_values))]
+                features = apply_treatment(f_latest, X, treatments[fname])
+                if features is not None:
+                    if features.shape[0] == X.shape[0]:
+                        all_features = pd.concat([all_features, features], axis=1)
+                    else:
+                        raise IndexError("The number of treatment rows [%d] must match X [%d]" %
+                                         (features.shape[0], X.shape[0]))
                 else:
-                    raise IndexError("The number of treatment rows [%d] must match X [%d]" %
-                                     (features.shape[0], X.shape[0]))
+                    logger.info("Could not apply treatment for feature %s", fname)
             else:
-                logger.info("Could not apply treatment for feature %s", fname)
+                logger.info("Feature %s is missing for treatment", fname)
+    else:
+        logger.info("No Treatments Specified")
 
     logger.info("New Feature Count : %d", all_features.shape[1])
 
@@ -1575,7 +1598,15 @@ def drop_features(X, drop):
         The dataframe without the dropped features.
 
     """
-    X.drop(drop, axis=1, inplace=True, errors='ignore')
+    drop_cols = []
+    for d in drop:
+        for col in X.columns:
+            if col.split(LOFF)[0] == d:
+                drop_cols.append(col)
+    logger.info("Dropping Features: %s", drop_cols)
+    logger.info("Original Feature Count : %d", X.shape[1])
+    X.drop(drop_cols, axis=1, inplace=True, errors='ignore')
+    logger.info("Reduced Feature Count  : %d", X.shape[1])
     return X
 
 

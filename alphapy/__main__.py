@@ -39,6 +39,7 @@ from alphapy.features import drop_features
 from alphapy.features import remove_lv_features
 from alphapy.features import save_features
 from alphapy.features import select_features
+from alphapy.frame import write_frame
 from alphapy.globals import CSEP, PSEP, SSEP, USEP
 from alphapy.globals import ModelType
 from alphapy.globals import Partition, datasets
@@ -59,6 +60,7 @@ from alphapy.optimize import hyper_grid_search
 from alphapy.optimize import rfe_search
 from alphapy.optimize import rfecv_search
 from alphapy.plots import generate_plots
+from alphapy.utilities import get_datestamp
 from alphapy.utilities import np_store_data
 
 import argparse
@@ -106,7 +108,9 @@ def training_pipeline(model):
     # Unpack the model specifications
 
     calibration = model.specs['calibration']
+    directory = model.specs['directory']
     drop = model.specs['drop']
+    extension = model.specs['extension']
     feature_selection = model.specs['feature_selection']
     grid_search = model.specs['grid_search']
     model_type = model.specs['model_type']
@@ -114,6 +118,7 @@ def training_pipeline(model):
     rfe = model.specs['rfe']
     sampling = model.specs['sampling']
     scorer = model.specs['scorer']
+    separator = model.specs['separator']
     target = model.specs['target']
 
     # Get train and test data
@@ -127,13 +132,6 @@ def training_pipeline(model):
         logger.info("Test Labels Found")
         model.test_labels = True
     model = save_features(model, X_train, X_test, y_train, y_test)
-
-    # Drop features
-
-    logger.info("Dropping Features: %s", drop)
-    X_train = drop_features(X_train, drop)
-    X_test = drop_features(X_test, drop)
-    model = save_features(model, X_train, X_test)
 
     # Log feature statistics
 
@@ -161,10 +159,24 @@ def training_pipeline(model):
                          (X_train.shape[1], X_test.shape[1]))
 
     # Apply treatments to the feature matrix
-
     all_features = apply_treatments(model, X)
-    X_train, X_test = np.array_split(all_features, [split_point])
-    model = save_features(model, X_train, X_test)
+
+    # Drop features
+    all_features = drop_features(all_features, drop)
+
+    # Save the train and test files with extracted and dropped features
+
+    datestamp = get_datestamp()
+    data_dir = SSEP.join([directory, 'input'])
+    df_train = all_features.iloc[:split_point, :]
+    df_train = pd.concat([df_train, pd.DataFrame(y_train, columns=[target])], axis=1)
+    output_file = USEP.join([model.train_file, datestamp])
+    write_frame(df_train, data_dir, output_file, extension, separator)
+    df_test = all_features.iloc[split_point:, :]
+    if y_test.any():
+        df_test = pd.concat([df_test, pd.DataFrame(y_test, columns=[target])], axis=1)
+    output_file = USEP.join([model.test_file, datestamp])
+    write_frame(df_test, data_dir, output_file, extension, separator)
 
     # Create crosstabs for any categorical features
 
@@ -315,11 +327,6 @@ def prediction_pipeline(model):
     # Load feature_map
     model = load_feature_map(model, directory)
 
-    # Drop features
-
-    logger.info("Dropping Features: %s", drop)
-    X_predict = drop_features(X_predict, drop)
-
     # Log feature statistics
 
     logger.info("Feature Statistics")
@@ -328,6 +335,9 @@ def prediction_pipeline(model):
 
     # Apply treatments to the feature matrix
     all_features = apply_treatments(model, X_predict)
+
+    # Drop features
+    all_features = drop_features(all_features, drop)
 
     # Create initial features
     all_features = create_features(model, all_features)

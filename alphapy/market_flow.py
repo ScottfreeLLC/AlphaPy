@@ -91,6 +91,7 @@ def get_market_config():
 
     specs['forecast_period'] = cfg['market']['forecast_period']
     specs['fractal'] = cfg['market']['fractal']
+    specs['lag_period'] = cfg['market']['lag_period']
     specs['leaders'] = cfg['market']['leaders']
     specs['data_history'] = cfg['market']['data_history']
     specs['predict_history'] = cfg['market']['predict_history']
@@ -160,11 +161,12 @@ def get_market_config():
     # Log the stock parameters
 
     logger.info('MARKET PARAMETERS:')
+    logger.info('data_history    = %d', specs['data_history'])
     logger.info('features        = %s', specs['features'])
     logger.info('forecast_period = %d', specs['forecast_period'])
     logger.info('fractal         = %s', specs['fractal'])
+    logger.info('lag_period      = %d', specs['lag_period'])
     logger.info('leaders         = %s', specs['leaders'])
-    logger.info('data_history    = %d', specs['data_history'])
     logger.info('predict_history = %s', specs['predict_history'])
     logger.info('schema          = %s', specs['schema'])
     logger.info('system          = %s', specs['system'])
@@ -216,6 +218,7 @@ def market_pipeline(model, market_specs):
     features = market_specs['features']
     forecast_period = market_specs['forecast_period']
     functions = market_specs['functions']
+    lag_period = market_specs['lag_period']
     leaders = market_specs['leaders']
     predict_history = market_specs['predict_history']
     target_group = market_specs['target_group']
@@ -244,10 +247,14 @@ def market_pipeline(model, market_specs):
     group = Group.groups[target_group]
     logger.info("All Members: %s", group.members)
 
-    # Get stock data
+    # Get stock data. If we can't get all the data, then
+    # predict_history resets to the actual history obtained.
 
     lookback = predict_history if predict_mode else data_history
-    daily = get_feed_data(group, lookback)
+    new_history = get_feed_data(group, lookback)
+    if new_history < data_history:
+        logger.info("Maximum Data History is %d, not %d",
+                    new_history, data_history)
 
     # Apply the features to all of the frames
 
@@ -269,7 +276,8 @@ def market_pipeline(model, market_specs):
     else:
         # run the analysis, including the model pipeline
         a = Analysis(model, group)
-        results = run_analysis(a, forecast_period, leaders, predict_history)
+        results = run_analysis(a, lag_period, forecast_period, leaders,
+                               predict_history)
 
     # Return the completed model
     return model

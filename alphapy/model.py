@@ -38,6 +38,7 @@ from alphapy.globals import Partition, datasets
 from alphapy.globals import PSEP, SSEP, USEP
 from alphapy.globals import SamplingMethod
 from alphapy.globals import Scalers
+from alphapy.utilities import get_datestamp
 from alphapy.utilities import np_store_data
 
 from copy import copy
@@ -1209,10 +1210,7 @@ def save_predictions(model, tag, partition):
     separator = model.specs['separator']
 
     # Get date stamp to record file creation
-
-    d = datetime.now()
-    f = "%Y%m%d"
-    timestamp = d.strftime(f)
+    timestamp = get_datestamp()
 
     # Specify input and output directories
 

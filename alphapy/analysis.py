@@ -28,8 +28,9 @@
 
 from alphapy.__main__ import main_pipeline
 from alphapy.frame import load_frames
+from alphapy.frame import sequence_frame
 from alphapy.frame import write_frame
-from alphapy.globals import SSEP, USEP
+from alphapy.globals import SSEP, TAG_ID, USEP
 from alphapy.utilities import subtract_days
 
 from datetime import timedelta
@@ -133,7 +134,7 @@ class Analysis(object):
 # Function run_analysis
 #
 
-def run_analysis(analysis, forecast_period, leaders,
+def run_analysis(analysis, lag_period, forecast_period, leaders,
                  predict_history, splits=True):
     r"""Run an analysis for a given model and group.
 
@@ -147,10 +148,14 @@ def run_analysis(analysis, forecast_period, leaders,
     ----------
     analysis : alphapy.Analysis
         The analysis to run.
+    lag_period : int
+        The number of lagged features for the analysis.
     forecast_period : int
         The period for forecasting the target of the analysis.
     leaders : list
         The features that are contemporaneous with the target.
+    predict_history : int
+        The number of periods required for lookback calculations.
     splits : bool, optional
         If ``True``, then the data for each member of the analysis
         group are in separate files.
@@ -185,7 +190,11 @@ def run_analysis(analysis, forecast_period, leaders,
     train_date = model.specs['train_date']
 
     # Calculate split date
+    logger.info("Analysis Dates")
     split_date = subtract_days(predict_date, predict_history)
+    logger.info("Train Date: %s", train_date)
+    logger.info("Split Date: %s", split_date)
+    logger.info("Test  Date: %s", predict_date)
 
     # Load the data frames
     data_frames = load_frames(group, directory, extension, separator, splits)
@@ -203,20 +212,24 @@ def run_analysis(analysis, forecast_period, leaders,
     # Subset each individual frame and add to the master frame
 
     for df in data_frames:
+        try:
+            tag = df[TAG_ID].unique()[0]
+        except:
+            tag = 'Unknown'
+        first_date = df.index[0]
         last_date = df.index[-1]
-        # shift the target for the forecast period
-        if forecast_period > 0:
-            df[target] = df[target].shift(-forecast_period)
-        # shift any leading features if necessary
-        if leaders:
-            df[leaders] = df[leaders].shift(-1)
+        logger.info("Analyzing %s from %s to %s", tag, first_date, last_date)
+        # sequence leaders, laggards, and target(s)
+        df = sequence_frame(df, target, leaders, lag_period, forecast_period,
+                            exclude_cols=[TAG_ID])
         # get frame subsets
         if predict_mode:
             new_predict = df.loc[(df.index >= split_date) & (df.index <= last_date)]
             if len(new_predict) > 0:
                 predict_frame = predict_frame.append(new_predict)
             else:
-                logger.info("A prediction frame has zero rows. Check prediction date.")
+                logger.info("Prediction frame %s has zero rows. Check prediction date.",
+                            tag)
         else:
             # split data into train and test
             new_train = df.loc[(df.index >= train_date) & (df.index < split_date)]
@@ -225,12 +238,20 @@ def run_analysis(analysis, forecast_period, leaders,
                 train_frame = train_frame.append(new_train)
                 new_test = df.loc[(df.index >= split_date) & (df.index <= last_date)]
                 if len(new_test) > 0:
+                    # check if target column has NaN values
+                    nan_count = df[target].isnull().sum()
+                    forecast_check = forecast_period - 1
+                    if nan_count != forecast_check:
+                        logger.info("%s has %d records with NaN targets", tag, nan_count)
+                    # drop records with NaN values in target column
                     new_test = new_test.dropna(subset=[target])
+                    # append selected records to the test frame
                     test_frame = test_frame.append(new_test)
                 else:
-                    logger.info("A testing frame has zero rows. Check prediction date.")
+                    logger.info("Testing frame %s has zero rows. Check prediction date.",
+                                tag)
             else:
-                logger.warning("A training frame has zero rows. Check data source.")
+                logger.info("Training frame %s has zero rows. Check data source.", tag)
 
     # Write out the frames for input into the AlphaPy pipeline
 

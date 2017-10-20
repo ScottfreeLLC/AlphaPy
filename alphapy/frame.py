@@ -27,6 +27,7 @@
 #
 
 from alphapy.globals import PSEP, SSEP, USEP
+from alphapy.globals import TAG_ID
 
 import logging
 import pandas as pd
@@ -258,7 +259,7 @@ def load_frames(group, directory, extension, separator, splits=False):
             # add this frame to the consolidated frame list
             if df is not None and not df.empty:
                 # set the name
-                df.insert(0, 'tag', gn)
+                df.insert(0, TAG_ID, gn)
                 all_frames.append(df)
             else:
                 logger.debug("Empty Data Frame for: %s", gn)
@@ -305,3 +306,68 @@ def dump_frames(group, directory, extension, separator):
             write_frame(df, directory, fname, extension, separator, index=True)
         else:
             logger.info("Data Frame for %s not found", fname)
+
+
+#
+# Function sequence_frame
+#
+
+def sequence_frame(df, target, leaders, lag_period=1,
+                   forecast_period=1, exclude_cols=[]):
+    r"""Run an analysis for a given model and group.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The original dataframe.
+    target : str
+        The target variable for prediction.
+    leaders : list
+        The features that are contemporaneous with the target.
+    lag_period : int
+        The number of lagged rows for prediction.
+    forecast_period : int
+        The period for forecasting the target of the analysis.
+
+    Returns
+    -------
+    new_frame : pandas.DataFrame
+        The transformed dataframe with variable sequences.
+
+    """
+
+    # Set Leading and Lagging Columns
+    le_cols = sorted(leaders)
+    le_len = len(le_cols)
+    df_cols = sorted(list(set(df.columns) - set(le_cols)))
+    for c in exclude_cols:
+        df_cols.remove(c)
+    df_len = len(df_cols)
+
+    # Excluded Columns
+    new_cols, new_names = list(), list()
+    for c in exclude_cols:
+        new_cols.append(pd.DataFrame(df[c]))
+        new_names.append(c)
+
+    # Lag Features
+    for i in range(lag_period, 0, -1):
+        new_cols.append(df[df_cols].shift(i))
+        new_names += ['%s[%d]' % (df_cols[j], i) for j in range(df_len)]
+
+    # Lag Leaders
+    for i in range(lag_period-1, -1, -1):
+        new_cols.append(df[le_cols].shift(i))
+        if i == 0:
+            new_names += [le_cols[j] for j in range(le_len)]
+        else:
+            new_names += ['%s[%d]' % (le_cols[j], i) for j in range(le_len)]
+
+    # Forecast Target(s)
+    new_cols.append(pd.DataFrame(df[target].shift(1-forecast_period)))
+    new_names.append(target)
+
+    # Collect all columns into new frame
+    new_frame = pd.concat(new_cols, axis=1)
+    new_frame.columns = new_names
+    return new_frame

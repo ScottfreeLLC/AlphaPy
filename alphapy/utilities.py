@@ -47,6 +47,25 @@ logger = logging.getLogger(__name__)
 
 
 #
+# Function get_datestamp
+#
+
+def get_datestamp():
+    r"""Returns today's datestamp.
+
+    Returns
+    -------
+    datestamp : str
+        The valid date string in YYYY-mm-dd format.
+
+    """
+    d = datetime.now()
+    f = "%Y%m%d"
+    datestamp = d.strftime(f)
+    return datestamp
+
+
+#
 # Function np_store_data
 #
 

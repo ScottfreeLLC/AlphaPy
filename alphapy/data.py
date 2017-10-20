@@ -420,12 +420,12 @@ def get_feed_data(group, lookback_period):
     group : alphapy.Group
         The group of symbols.
     lookback_period : int
-        The number of days of data to retrieve.
+        The number of periods of data to retrieve.
 
     Returns
     -------
-    daily_data : bool
-        ``True`` if daily data
+    n_periods : int
+        The maximum number of periods actually retrieved.
 
     """
 
@@ -442,6 +442,7 @@ def get_feed_data(group, lookback_period):
         logger.info("Getting Intraday Data (Google 50-day limit)")
         daily_data = False
     # Get the data from the relevant feed
+    n_periods = 0
     for item in group.members:
         logger.info("Getting %s data for last %d days", item, lookback_period)
         if daily_data:
@@ -453,7 +454,11 @@ def get_feed_data(group, lookback_period):
             newf = Frame(item.lower(), gspace, df)
             if newf is None:
                 logger.error("Could not allocate Frame for: %s", item)
+            # calculate maximum number of periods
+            df_len = len(df)
+            if df_len > n_periods:
+                n_periods = df_len
         else:
             logger.info("No DataFrame for %s", item)
-    # Indicate whether or not data is daily
-    return daily_data
+    # The number of periods actually retrieved
+    return n_periods
