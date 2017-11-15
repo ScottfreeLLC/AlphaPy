@@ -322,7 +322,7 @@ def get_google_data(symbol, lookback_period, fractal):
     toffset = 7
     line_length = 6
     # make the request to Google
-    base_url = 'https://www.google.com/finance/getprices?q={}&i={}&p={}d&f=d,o,h,l,c,v'
+    base_url = 'https://finance.google.com/finance/getprices?q={}&i={}&p={}d&f=d,o,h,l,c,v'
     url = base_url.format(symbol, interval, lookback_period)
     response = requests.get(url)
     # process the response
