@@ -1,354 +1,361 @@
-[04/18/17 12:08:34] INFO	********************************************************************************
-[04/18/17 12:08:34] INFO	AlphaPy Start
-[04/18/17 12:08:34] INFO	********************************************************************************
-[04/18/17 12:08:34] INFO	Model Configuration
-[04/18/17 12:08:34] INFO	No Treatments Found
-[04/18/17 12:08:34] INFO	MODEL PARAMETERS:
-[04/18/17 12:08:34] INFO	algorithms        = ['RF', 'XGB']
-[04/18/17 12:08:34] INFO	balance_classes   = True
-[04/18/17 12:08:34] INFO	calibration       = False
-[04/18/17 12:08:34] INFO	cal_type          = sigmoid
-[04/18/17 12:08:34] INFO	calibration_plot  = False
-[04/18/17 12:08:34] INFO	clustering        = True
-[04/18/17 12:08:34] INFO	cluster_inc       = 3
-[04/18/17 12:08:34] INFO	cluster_max       = 30
-[04/18/17 12:08:34] INFO	cluster_min       = 3
-[04/18/17 12:08:34] INFO	confusion_matrix  = True
-[04/18/17 12:08:34] INFO	counts            = True
-[04/18/17 12:08:34] INFO	cv_folds          = 3
-[04/18/17 12:08:34] INFO	directory         = /Users/markconway/Projects/Titanic
-[04/18/17 12:08:34] INFO	extension         = csv
-[04/18/17 12:08:34] INFO	drop              = ['PassengerId']
-[04/18/17 12:08:34] INFO	encoder           = <Encoders.factorize: 3>
-[04/18/17 12:08:34] INFO	esr               = 20
-[04/18/17 12:08:34] INFO	factors           = []
-[04/18/17 12:08:34] INFO	features [X]      = *
-[04/18/17 12:08:34] INFO	feature_selection = False
-[04/18/17 12:08:34] INFO	fs_percentage     = 50
-[04/18/17 12:08:34] INFO	fs_score_func     = <function f_classif at 0x1188cdea0>
-[04/18/17 12:08:34] INFO	fs_uni_grid       = [5, 10, 15, 20, 25]
-[04/18/17 12:08:34] INFO	grid_search       = True
-[04/18/17 12:08:34] INFO	gs_iters          = 50
-[04/18/17 12:08:34] INFO	gs_random         = True
-[04/18/17 12:08:34] INFO	gs_sample         = False
-[04/18/17 12:08:34] INFO	gs_sample_pct     = 0.200000
-[04/18/17 12:08:34] INFO	importances       = True
-[04/18/17 12:08:34] INFO	interactions      = True
-[04/18/17 12:08:34] INFO	isomap            = False
-[04/18/17 12:08:34] INFO	iso_components    = 2
-[04/18/17 12:08:34] INFO	iso_neighbors     = 5
-[04/18/17 12:08:34] INFO	isample_pct       = 10
-[04/18/17 12:08:34] INFO	learning_curve    = True
-[04/18/17 12:08:34] INFO	logtransform      = False
-[04/18/17 12:08:34] INFO	lv_remove         = True
-[04/18/17 12:08:34] INFO	lv_threshold      = 0.100000
-[04/18/17 12:08:34] INFO	model_type        = <ModelType.classification: 1>
-[04/18/17 12:08:34] INFO	n_estimators      = 51
-[04/18/17 12:08:34] INFO	n_jobs            = -1
-[04/18/17 12:08:34] INFO	ngrams_max        = 3
-[04/18/17 12:08:34] INFO	numpy             = True
-[04/18/17 12:08:34] INFO	pca               = False
-[04/18/17 12:08:34] INFO	pca_inc           = 1
-[04/18/17 12:08:34] INFO	pca_max           = 10
-[04/18/17 12:08:34] INFO	pca_min           = 2
-[04/18/17 12:08:34] INFO	pca_whiten        = False
-[04/18/17 12:08:34] INFO	poly_degree       = 5
-[04/18/17 12:08:34] INFO	pvalue_level      = 0.010000
-[04/18/17 12:08:34] INFO	rfe               = True
-[04/18/17 12:08:34] INFO	rfe_step          = 3
-[04/18/17 12:08:34] INFO	roc_curve         = True
-[04/18/17 12:08:34] INFO	rounding          = 2
-[04/18/17 12:08:34] INFO	sampling          = False
-[04/18/17 12:08:34] INFO	sampling_method   = <SamplingMethod.under_random: 12>
-[04/18/17 12:08:34] INFO	sampling_ratio    = 0.500000
-[04/18/17 12:08:34] INFO	scaler_option     = True
-[04/18/17 12:08:34] INFO	scaler_type       = <Scalers.standard: 2>
-[04/18/17 12:08:34] INFO	scipy             = False
-[04/18/17 12:08:34] INFO	scorer            = roc_auc
-[04/18/17 12:08:34] INFO	seed              = 42
-[04/18/17 12:08:34] INFO	sentinel          = -1
-[04/18/17 12:08:34] INFO	separator         = ,
-[04/18/17 12:08:34] INFO	shuffle           = False
-[04/18/17 12:08:34] INFO	split             = 0.400000
-[04/18/17 12:08:34] INFO	submission_file   = gender_submission
-[04/18/17 12:08:34] INFO	submit_probas     = False
-[04/18/17 12:08:34] INFO	target [y]        = Survived
-[04/18/17 12:08:34] INFO	target_value      = 1
-[04/18/17 12:08:34] INFO	treatments        = None
-[04/18/17 12:08:34] INFO	tsne              = False
-[04/18/17 12:08:34] INFO	tsne_components   = 2
-[04/18/17 12:08:34] INFO	tsne_learn_rate   = 1000.000000
-[04/18/17 12:08:34] INFO	tsne_perplexity   = 30.000000
-[04/18/17 12:08:34] INFO	vectorize         = False
-[04/18/17 12:08:34] INFO	verbosity         = 0
-[04/18/17 12:08:34] INFO	Creating Model
-[04/18/17 12:08:34] INFO	Calling Pipeline
-[04/18/17 12:08:34] INFO	Training Pipeline
-[04/18/17 12:08:34] INFO	Loading Data
-[04/18/17 12:08:34] INFO	Loading data from /Users/markconway/Projects/Titanic/input/train.csv
-[04/18/17 12:08:34] INFO	Found target Survived in data frame
-[04/18/17 12:08:34] INFO	Dropping target Survived from data frame
-[04/18/17 12:08:34] INFO	Loading Data
-[04/18/17 12:08:34] INFO	Loading data from /Users/markconway/Projects/Titanic/input/test.csv
-[04/18/17 12:08:34] INFO	Target Survived not found in partition Partition.test
-[04/18/17 12:08:34] INFO	Saving New Features in Model
-[04/18/17 12:08:34] INFO	Dropping Features: ['PassengerId']
-[04/18/17 12:08:34] INFO	Saving New Features in Model
-[04/18/17 12:08:34] INFO	Original Feature Statistics
-[04/18/17 12:08:34] INFO	Number of Training Rows    : 891
-[04/18/17 12:08:34] INFO	Number of Training Columns : 10
-[04/18/17 12:08:34] INFO	Unique Training Values for Survived : [0 1]
-[04/18/17 12:08:34] INFO	Unique Training Counts for Survived : [549 342]
-[04/18/17 12:08:34] INFO	Number of Testing Rows     : 418
-[04/18/17 12:08:34] INFO	Number of Testing Columns  : 10
-[04/18/17 12:08:34] INFO	Original Features : Index(['Pclass', 'Name', 'Sex', 'Age', 'SibSp', 'Parch', 'Ticket', 'Fare',
+[12/30/17 23:17:49] INFO	********************************************************************************
+[12/30/17 23:17:49] INFO	AlphaPy Start
+[12/30/17 23:17:49] INFO	********************************************************************************
+[12/30/17 23:17:49] INFO	Model Configuration
+[12/30/17 23:17:49] INFO	No Treatments Found
+[12/30/17 23:17:49] INFO	MODEL PARAMETERS:
+[12/30/17 23:17:49] INFO	algorithms        = ['RF', 'XGB']
+[12/30/17 23:17:49] INFO	balance_classes   = True
+[12/30/17 23:17:49] INFO	calibration       = False
+[12/30/17 23:17:49] INFO	cal_type          = sigmoid
+[12/30/17 23:17:49] INFO	calibration_plot  = False
+[12/30/17 23:17:49] INFO	clustering        = True
+[12/30/17 23:17:49] INFO	cluster_inc       = 3
+[12/30/17 23:17:49] INFO	cluster_max       = 30
+[12/30/17 23:17:49] INFO	cluster_min       = 3
+[12/30/17 23:17:49] INFO	confusion_matrix  = True
+[12/30/17 23:17:49] INFO	counts            = True
+[12/30/17 23:17:49] INFO	cv_folds          = 3
+[12/30/17 23:17:49] INFO	directory         = .
+[12/30/17 23:17:49] INFO	extension         = csv
+[12/30/17 23:17:49] INFO	drop              = ['PassengerId']
+[12/30/17 23:17:49] INFO	encoder           = <Encoders.factorize: 3>
+[12/30/17 23:17:50] INFO	esr               = 20
+[12/30/17 23:17:50] INFO	factors           = []
+[12/30/17 23:17:50] INFO	features [X]      = *
+[12/30/17 23:17:50] INFO	feature_selection = False
+[12/30/17 23:17:50] INFO	fs_percentage     = 50
+[12/30/17 23:17:50] INFO	fs_score_func     = <function f_classif at 0x112f1dd90>
+[12/30/17 23:17:50] INFO	fs_uni_grid       = [5, 10, 15, 20, 25]
+[12/30/17 23:17:50] INFO	grid_search       = True
+[12/30/17 23:17:50] INFO	gs_iters          = 50
+[12/30/17 23:17:50] INFO	gs_random         = True
+[12/30/17 23:17:50] INFO	gs_sample         = False
+[12/30/17 23:17:50] INFO	gs_sample_pct     = 0.200000
+[12/30/17 23:17:50] INFO	importances       = True
+[12/30/17 23:17:50] INFO	interactions      = True
+[12/30/17 23:17:50] INFO	isomap            = False
+[12/30/17 23:17:50] INFO	iso_components    = 2
+[12/30/17 23:17:50] INFO	iso_neighbors     = 5
+[12/30/17 23:17:50] INFO	isample_pct       = 10
+[12/30/17 23:17:50] INFO	learning_curve    = True
+[12/30/17 23:17:50] INFO	logtransform      = False
+[12/30/17 23:17:50] INFO	lv_remove         = True
+[12/30/17 23:17:50] INFO	lv_threshold      = 0.100000
+[12/30/17 23:17:50] INFO	model_type        = <ModelType.classification: 1>
+[12/30/17 23:17:50] INFO	n_estimators      = 51
+[12/30/17 23:17:50] INFO	n_jobs            = -1
+[12/30/17 23:17:50] INFO	ngrams_max        = 3
+[12/30/17 23:17:50] INFO	numpy             = True
+[12/30/17 23:17:50] INFO	pca               = False
+[12/30/17 23:17:50] INFO	pca_inc           = 1
+[12/30/17 23:17:50] INFO	pca_max           = 10
+[12/30/17 23:17:50] INFO	pca_min           = 2
+[12/30/17 23:17:50] INFO	pca_whiten        = False
+[12/30/17 23:17:50] INFO	poly_degree       = 5
+[12/30/17 23:17:50] INFO	pvalue_level      = 0.010000
+[12/30/17 23:17:50] INFO	rfe               = True
+[12/30/17 23:17:50] INFO	rfe_step          = 3
+[12/30/17 23:17:50] INFO	roc_curve         = True
+[12/30/17 23:17:50] INFO	rounding          = 2
+[12/30/17 23:17:50] INFO	sampling          = False
+[12/30/17 23:17:50] INFO	sampling_method   = <SamplingMethod.under_random: 12>
+[12/30/17 23:17:50] INFO	sampling_ratio    = 0.500000
+[12/30/17 23:17:50] INFO	scaler_option     = True
+[12/30/17 23:17:50] INFO	scaler_type       = <Scalers.standard: 2>
+[12/30/17 23:17:50] INFO	scipy             = False
+[12/30/17 23:17:50] INFO	scorer            = roc_auc
+[12/30/17 23:17:50] INFO	seed              = 42
+[12/30/17 23:17:50] INFO	sentinel          = -1
+[12/30/17 23:17:50] INFO	separator         = ,
+[12/30/17 23:17:50] INFO	shuffle           = False
+[12/30/17 23:17:50] INFO	split             = 0.400000
+[12/30/17 23:17:50] INFO	submission_file   = gender_submission
+[12/30/17 23:17:50] INFO	submit_probas     = False
+[12/30/17 23:17:50] INFO	target [y]        = Survived
+[12/30/17 23:17:50] INFO	target_value      = 1
+[12/30/17 23:17:50] INFO	treatments        = None
+[12/30/17 23:17:50] INFO	tsne              = False
+[12/30/17 23:17:50] INFO	tsne_components   = 2
+[12/30/17 23:17:50] INFO	tsne_learn_rate   = 1000.000000
+[12/30/17 23:17:50] INFO	tsne_perplexity   = 30.000000
+[12/30/17 23:17:50] INFO	vectorize         = False
+[12/30/17 23:17:50] INFO	verbosity         = 0
+[12/30/17 23:17:50] INFO	Creating directory ./data
+[12/30/17 23:17:50] INFO	Creating directory ./model
+[12/30/17 23:17:50] INFO	Creating directory ./output
+[12/30/17 23:17:50] INFO	Creating directory ./plots
+[12/30/17 23:17:50] INFO	Creating Model
+[12/30/17 23:17:50] INFO	Calling Pipeline
+[12/30/17 23:17:50] INFO	Training Pipeline
+[12/30/17 23:17:50] INFO	Loading Data
+[12/30/17 23:17:50] INFO	Loading data from ./input/train.csv
+[12/30/17 23:17:50] INFO	Found target Survived in data frame
+[12/30/17 23:17:50] INFO	Labels (y) found for Partition.train
+[12/30/17 23:17:50] INFO	Loading Data
+[12/30/17 23:17:50] INFO	Loading data from ./input/test.csv
+[12/30/17 23:17:50] INFO	Target Survived not found in Partition.test
+[12/30/17 23:17:50] INFO	Saving New Features in Model
+[12/30/17 23:17:50] INFO	Original Feature Statistics
+[12/30/17 23:17:50] INFO	Number of Training Rows    : 891
+[12/30/17 23:17:50] INFO	Number of Training Columns : 11
+[12/30/17 23:17:50] INFO	Unique Training Values for Survived : [0 1]
+[12/30/17 23:17:50] INFO	Unique Training Counts for Survived : [549 342]
+[12/30/17 23:17:50] INFO	Number of Testing Rows     : 418
+[12/30/17 23:17:50] INFO	Number of Testing Columns  : 11
+[12/30/17 23:17:50] INFO	Original Features : Index(['PassengerId', 'Pclass', 'Name', 'Sex', 'Age', 'SibSp', 'Parch',
+       'Ticket', 'Fare', 'Cabin', 'Embarked'],
+      dtype='object')
+[12/30/17 23:17:50] INFO	Feature Count     : 11
+[12/30/17 23:17:50] INFO	Applying Treatments
+[12/30/17 23:17:50] INFO	No Treatments Specified
+[12/30/17 23:17:50] INFO	New Feature Count : 11
+[12/30/17 23:17:50] INFO	Dropping Features: ['PassengerId']
+[12/30/17 23:17:50] INFO	Original Feature Count : 11
+[12/30/17 23:17:50] INFO	Reduced Feature Count  : 10
+[12/30/17 23:17:50] INFO	Writing data frame to ./input/train_20171230.csv
+[12/30/17 23:17:50] INFO	Writing data frame to ./input/test_20171230.csv
+[12/30/17 23:17:50] INFO	Creating Cross-Tabulations
+[12/30/17 23:17:50] INFO	Original Features : Index(['Pclass', 'Name', 'Sex', 'Age', 'SibSp', 'Parch', 'Ticket', 'Fare',
        'Cabin', 'Embarked'],
       dtype='object')
-[04/18/17 12:08:34] INFO	Feature Count     : 10
-[04/18/17 12:08:34] INFO	Applying Treatments
-[04/18/17 12:08:34] INFO	New Feature Count : 10
-[04/18/17 12:08:34] INFO	Saving New Features in Model
-[04/18/17 12:08:34] INFO	Creating Cross-Tabulations
-[04/18/17 12:08:34] INFO	Original Features : Index(['Pclass', 'Name', 'Sex', 'Age', 'SibSp', 'Parch', 'Ticket', 'Fare',
-       'Cabin', 'Embarked'],
-      dtype='object')
-[04/18/17 12:08:34] INFO	Feature Count     : 10
-[04/18/17 12:08:34] INFO	Creating Count Features
-[04/18/17 12:08:34] INFO	NA Counts
-[04/18/17 12:08:34] INFO	Number Counts
-[04/18/17 12:08:34] INFO	New Feature Count : 21
-[04/18/17 12:08:34] INFO	Creating Base Features
-[04/18/17 12:08:34] INFO	Feature 1: Pclass is a numerical feature of type int64 with 3 unique values
-[04/18/17 12:08:34] INFO	Feature 2: Name is a text feature [12:82] with 1307 unique values
-[04/18/17 12:08:34] INFO	Feature 2: Name => Factorization
-[04/18/17 12:08:34] INFO	Feature 3: Sex is a text feature [4:6] with 2 unique values
-[04/18/17 12:08:34] INFO	Feature 3: Sex => Factorization
-[04/18/17 12:08:34] INFO	Feature 4: Age is a numerical feature of type float64 with 99 unique values
-[04/18/17 12:08:34] INFO	Feature 5: SibSp is a numerical feature of type int64 with 7 unique values
-[04/18/17 12:08:34] INFO	Feature 6: Parch is a numerical feature of type int64 with 8 unique values
-[04/18/17 12:08:34] INFO	Feature 7: Ticket is a text feature [3:18] with 929 unique values
-[04/18/17 12:08:34] INFO	Feature 7: Ticket => Factorization
-[04/18/17 12:08:34] INFO	Feature 8: Fare is a numerical feature of type float64 with 282 unique values
-[04/18/17 12:08:34] INFO	Feature 9: Cabin is a text feature [1:15] with 187 unique values
-[04/18/17 12:08:34] INFO	Feature 9: Cabin => Factorization
-[04/18/17 12:08:34] INFO	Feature 10: Embarked is a text feature [1:1] with 4 unique values
-[04/18/17 12:08:34] INFO	Feature 10: Embarked => Factorization
-[04/18/17 12:08:34] INFO	Feature 11: nan_count is a numerical feature of type int64 with 3 unique values
-[04/18/17 12:08:34] INFO	Feature 12: count_0 is a numerical feature of type int64 with 4 unique values
-[04/18/17 12:08:34] INFO	Feature 13: count_1 is a numerical feature of type int64 with 4 unique values
-[04/18/17 12:08:34] INFO	Feature 14: count_2 is a numerical feature of type int64 with 4 unique values
-[04/18/17 12:08:34] INFO	Feature 15: count_3 is a numerical feature of type int64 with 4 unique values
-[04/18/17 12:08:34] INFO	Feature 16: count_4 is a numerical feature of type int64 with 3 unique values
-[04/18/17 12:08:34] INFO	Feature 17: count_5 is a numerical feature of type int64 with 2 unique values
-[04/18/17 12:08:34] INFO	Feature 18: count_6 is a numerical feature of type int64 with 2 unique values
-[04/18/17 12:08:34] INFO	Feature 19: count_7 is a numerical feature of type int64 with 2 unique values
-[04/18/17 12:08:34] INFO	Feature 20: count_8 is a numerical feature of type int64 with 3 unique values
-[04/18/17 12:08:34] INFO	Feature 21: count_9 is a numerical feature of type int64 with 3 unique values
-[04/18/17 12:08:34] INFO	New Feature Count : 21
-[04/18/17 12:08:34] INFO	Scaling Base Features
-[04/18/17 12:08:34] INFO	Creating NumPy Features
-[04/18/17 12:08:34] INFO	NumPy Feature: sum
-[04/18/17 12:08:34] INFO	NumPy Feature: mean
-[04/18/17 12:08:34] INFO	NumPy Feature: standard deviation
-[04/18/17 12:08:34] INFO	NumPy Feature: variance
-[04/18/17 12:08:34] INFO	NumPy Feature Count : 4
-[04/18/17 12:08:34] INFO	New Feature Count : 25
-[04/18/17 12:08:34] INFO	Creating Clustering Features
-[04/18/17 12:08:34] INFO	Cluster Minimum   : 3
-[04/18/17 12:08:34] INFO	Cluster Maximum   : 30
-[04/18/17 12:08:34] INFO	Cluster Increment : 3
-[04/18/17 12:08:34] INFO	k = 3
-[04/18/17 12:08:34] INFO	k = 6
-[04/18/17 12:08:34] INFO	k = 9
-[04/18/17 12:08:34] INFO	k = 12
-[04/18/17 12:08:34] INFO	k = 15
-[04/18/17 12:08:34] INFO	k = 18
-[04/18/17 12:08:34] INFO	k = 21
-[04/18/17 12:08:34] INFO	k = 24
-[04/18/17 12:08:34] INFO	k = 27
-[04/18/17 12:08:34] INFO	k = 30
-[04/18/17 12:08:35] INFO	Clustering Feature Count : 10
-[04/18/17 12:08:35] INFO	New Feature Count : 35
-[04/18/17 12:08:35] INFO	Saving New Features in Model
-[04/18/17 12:08:35] INFO	Creating Interactions
-[04/18/17 12:08:35] INFO	Initial Feature Count  : 35
-[04/18/17 12:08:35] INFO	Generating Polynomial Features
-[04/18/17 12:08:35] INFO	Interaction Percentage : 10
-[04/18/17 12:08:35] INFO	Polynomial Degree      : 5
-[04/18/17 12:08:35] INFO	Polynomial Feature Count : 15
-[04/18/17 12:08:35] INFO	New Total Feature Count  : 50
-[04/18/17 12:08:35] INFO	Saving New Features in Model
-[04/18/17 12:08:35] INFO	Removing Low-Variance Features
-[04/18/17 12:08:35] INFO	Low-Variance Threshold  : 0.10
-[04/18/17 12:08:35] INFO	Original Feature Count  : 50
-[04/18/17 12:08:35] INFO	Reduced Feature Count   : 50
-[04/18/17 12:08:35] INFO	Saving New Features in Model
-[04/18/17 12:08:35] INFO	Skipping Shuffling
-[04/18/17 12:08:35] INFO	Skipping Sampling
-[04/18/17 12:08:35] INFO	Getting Class Weights
-[04/18/17 12:08:35] INFO	Class Weight for target Survived [1]: 1.605263
-[04/18/17 12:08:35] INFO	Getting All Estimators
-[04/18/17 12:08:35] INFO	Algorithm Configuration
-[04/18/17 12:08:35] INFO	Selecting Models
-[04/18/17 12:08:35] INFO	Algorithm: RF
-[04/18/17 12:08:35] INFO	Fitting Initial Model
-[04/18/17 12:08:35] INFO	Recursive Feature Elimination with CV
-[04/18/17 12:08:58] INFO	RFECV took 23.22 seconds for step 3 and 3 folds
-[04/18/17 12:08:58] INFO	Algorithm: RF, Selected Features: 14, Ranking: [ 5  1  1  1  8 11  1  1  4  8 11  8  9  9  9 13 12 13 13 11 12  1  1  1  1
- 12 10  7  6  2  7  4  6  7  3  3  1  5 10  1  2 10  1  4  6  1  2  3  5  1]
-[04/18/17 12:08:58] INFO	Randomized Grid Search
-[04/18/17 12:09:39] INFO	Grid Search took 40.42 seconds for 50 candidate parameter settings.
-[04/18/17 12:09:39] INFO	Model with rank: 1
-[04/18/17 12:09:39] INFO	Mean validation score: 0.862 (std: 0.022)
-[04/18/17 12:09:39] INFO	Parameters: {'est__n_estimators': 201, 'est__min_samples_split': 10, 'est__min_samples_leaf': 1, 'est__max_depth': 7, 'est__criterion': 'entropy', 'est__bootstrap': True}
-[04/18/17 12:09:39] INFO	Model with rank: 2
-[04/18/17 12:09:39] INFO	Mean validation score: 0.860 (std: 0.019)
-[04/18/17 12:09:39] INFO	Parameters: {'est__n_estimators': 201, 'est__min_samples_split': 10, 'est__min_samples_leaf': 3, 'est__max_depth': 10, 'est__criterion': 'gini', 'est__bootstrap': True}
-[04/18/17 12:09:39] INFO	Model with rank: 3
-[04/18/17 12:09:39] INFO	Mean validation score: 0.859 (std: 0.022)
-[04/18/17 12:09:39] INFO	Parameters: {'est__n_estimators': 201, 'est__min_samples_split': 2, 'est__min_samples_leaf': 3, 'est__max_depth': 5, 'est__criterion': 'gini', 'est__bootstrap': True}
-[04/18/17 12:09:39] INFO	Algorithm: RF, Best Score: 0.8617, Best Parameters: {'est__n_estimators': 201, 'est__min_samples_split': 10, 'est__min_samples_leaf': 1, 'est__max_depth': 7, 'est__criterion': 'entropy', 'est__bootstrap': True}
-[04/18/17 12:09:39] INFO	Final Model Predictions for RF
-[04/18/17 12:09:39] INFO	Skipping Calibration
-[04/18/17 12:09:39] INFO	Making Predictions
-[04/18/17 12:09:39] INFO	Predictions Complete
-[04/18/17 12:09:39] INFO	Algorithm: XGB
-[04/18/17 12:09:39] INFO	Fitting Initial Model
-[04/18/17 12:09:39] INFO	No RFE Available for XGB
-[04/18/17 12:09:39] INFO	Randomized Grid Search
-[04/18/17 12:10:03] INFO	Grid Search took 23.32 seconds for 50 candidate parameter settings.
-[04/18/17 12:10:03] INFO	Model with rank: 1
-[04/18/17 12:10:03] INFO	Mean validation score: 0.857 (std: 0.016)
-[04/18/17 12:10:03] INFO	Parameters: {'est__subsample': 0.5, 'est__n_estimators': 51, 'est__min_child_weight': 1.1, 'est__max_depth': 9, 'est__learning_rate': 0.02, 'est__colsample_bytree': 0.8}
-[04/18/17 12:10:03] INFO	Model with rank: 2
-[04/18/17 12:10:03] INFO	Mean validation score: 0.857 (std: 0.017)
-[04/18/17 12:10:03] INFO	Parameters: {'est__subsample': 0.5, 'est__n_estimators': 21, 'est__min_child_weight': 1.1, 'est__max_depth': 10, 'est__learning_rate': 0.01, 'est__colsample_bytree': 1.0}
-[04/18/17 12:10:03] INFO	Model with rank: 3
-[04/18/17 12:10:03] INFO	Mean validation score: 0.857 (std: 0.016)
-[04/18/17 12:10:03] INFO	Parameters: {'est__subsample': 0.8, 'est__n_estimators': 51, 'est__min_child_weight': 1.1, 'est__max_depth': 5, 'est__learning_rate': 0.05, 'est__colsample_bytree': 0.9}
-[04/18/17 12:10:03] INFO	Algorithm: XGB, Best Score: 0.8574, Best Parameters: {'est__subsample': 0.5, 'est__n_estimators': 51, 'est__min_child_weight': 1.1, 'est__max_depth': 9, 'est__learning_rate': 0.02, 'est__colsample_bytree': 0.8}
-[04/18/17 12:10:03] INFO	Final Model Predictions for XGB
-[04/18/17 12:10:03] INFO	Skipping Calibration
-[04/18/17 12:10:03] INFO	Making Predictions
-[04/18/17 12:10:03] INFO	Predictions Complete
-[04/18/17 12:10:03] INFO	Blending Models
-[04/18/17 12:10:03] INFO	Blending Start: 2017-04-18 12:10:03.066771
-[04/18/17 12:10:03] INFO	Blending Complete: 0:00:00.008102
-[04/18/17 12:10:03] INFO	================================================================================
-[04/18/17 12:10:03] INFO	Metrics for: Partition.train
-[04/18/17 12:10:03] INFO	--------------------------------------------------------------------------------
-[04/18/17 12:10:03] INFO	Algorithm: RF
-[04/18/17 12:10:03] INFO	accuracy: 0.894500561167
-[04/18/17 12:10:03] INFO	adjusted_rand_score: 0.61985360714
-[04/18/17 12:10:03] INFO	average_precision: 0.937994687253
-[04/18/17 12:10:03] INFO	confusion_matrix: [[525  24]
- [ 70 272]]
-[04/18/17 12:10:03] INFO	explained_variance: 0.565195624154
-[04/18/17 12:10:03] INFO	f1: 0.852664576803
-[04/18/17 12:10:03] INFO	mean_absolute_error: 0.105499438833
-[04/18/17 12:10:03] INFO	median_absolute_error: 0.0
-[04/18/17 12:10:03] INFO	neg_log_loss: 0.304153797611
-[04/18/17 12:10:03] INFO	neg_mean_squared_error: 0.105499438833
-[04/18/17 12:10:03] INFO	precision: 0.918918918919
-[04/18/17 12:10:03] INFO	r2: 0.553925798102
-[04/18/17 12:10:03] INFO	recall: 0.795321637427
-[04/18/17 12:10:03] INFO	roc_auc: 0.953855494839
-[04/18/17 12:10:03] INFO	--------------------------------------------------------------------------------
-[04/18/17 12:10:03] INFO	Algorithm: XGB
-[04/18/17 12:10:03] INFO	accuracy: 0.89898989899
-[04/18/17 12:10:03] INFO	adjusted_rand_score: 0.634084281404
-[04/18/17 12:10:03] INFO	average_precision: 0.933465422975
-[04/18/17 12:10:03] INFO	confusion_matrix: [[529  20]
- [ 70 272]]
-[04/18/17 12:10:03] INFO	explained_variance: 0.586222690911
-[04/18/17 12:10:03] INFO	f1: 0.858044164038
-[04/18/17 12:10:03] INFO	mean_absolute_error: 0.10101010101
-[04/18/17 12:10:03] INFO	median_absolute_error: 0.0
-[04/18/17 12:10:03] INFO	neg_log_loss: 0.413047928351
-[04/18/17 12:10:03] INFO	neg_mean_squared_error: 0.10101010101
-[04/18/17 12:10:03] INFO	precision: 0.931506849315
-[04/18/17 12:10:03] INFO	r2: 0.572907679034
-[04/18/17 12:10:03] INFO	recall: 0.795321637427
-[04/18/17 12:10:03] INFO	roc_auc: 0.950199192578
-[04/18/17 12:10:03] INFO	================================================================================
-[04/18/17 12:10:03] INFO	Metrics for: Partition.test
-[04/18/17 12:10:03] INFO	No labels for generating Partition.test metrics
-[04/18/17 12:10:03] INFO	================================================================================
-[04/18/17 12:10:03] INFO	Selecting Best Model
-[04/18/17 12:10:03] INFO	Scoring for: Partition.train
-[04/18/17 12:10:03] INFO	Best Model Selection Start: 2017-04-18 12:10:03.106245
-[04/18/17 12:10:03] INFO	Scoring RF Model
-[04/18/17 12:10:03] INFO	Scoring XGB Model
-[04/18/17 12:10:03] INFO	Scoring BLEND Model
-[04/18/17 12:10:03] INFO	Best Model is BLEND with a roc_auc score of 0.9539
-[04/18/17 12:10:03] INFO	Best Model Selection Complete: 0:00:00.001146
-[04/18/17 12:10:03] INFO	================================================================================
-[04/18/17 12:10:03] INFO	Generating Plots for partition: train
-[04/18/17 12:10:03] INFO	Generating Calibration Plot
-[04/18/17 12:10:03] INFO	Calibration for Algorithm: RF
-[04/18/17 12:10:03] INFO	Calibration for Algorithm: XGB
-[04/18/17 12:10:03] INFO	Writing plot to /Users/markconway/Projects/Titanic/plots/calibration_train.png
-[04/18/17 12:10:03] INFO	Generating Confusion Matrices
-[04/18/17 12:10:03] INFO	Confusion Matrix for Algorithm: RF
-[04/18/17 12:10:03] INFO	Confusion Matrix:
-[04/18/17 12:10:03] INFO	[[525  24]
- [ 70 272]]
-[04/18/17 12:10:03] INFO	Writing plot to /Users/markconway/Projects/Titanic/plots/confusion_train_RF.png
-[04/18/17 12:10:03] INFO	Confusion Matrix for Algorithm: XGB
-[04/18/17 12:10:03] INFO	Confusion Matrix:
-[04/18/17 12:10:03] INFO	[[529  20]
- [ 70 272]]
-[04/18/17 12:10:03] INFO	Writing plot to /Users/markconway/Projects/Titanic/plots/confusion_train_XGB.png
-[04/18/17 12:10:04] INFO	Generating ROC Curves
-[04/18/17 12:10:04] INFO	ROC Curve for Algorithm: RF
-[04/18/17 12:10:04] INFO	ROC Curve for Algorithm: XGB
-[04/18/17 12:10:04] INFO	Writing plot to /Users/markconway/Projects/Titanic/plots/roc_curve_train.png
-[04/18/17 12:10:04] INFO	Generating Learning Curves
-[04/18/17 12:10:04] INFO	Algorithm Configuration
-[04/18/17 12:10:04] INFO	Learning Curve for Algorithm: RF
-[04/18/17 12:10:06] INFO	Writing plot to /Users/markconway/Projects/Titanic/plots/learning_curve_train_RF.png
-[04/18/17 12:10:06] INFO	Learning Curve for Algorithm: XGB
-[04/18/17 12:10:06] INFO	Writing plot to /Users/markconway/Projects/Titanic/plots/learning_curve_train_XGB.png
-[04/18/17 12:10:06] INFO	Generating Feature Importance Plots
-[04/18/17 12:10:06] INFO	Feature Importances for Algorithm: RF
-[04/18/17 12:10:06] INFO	Feature Ranking:
-[04/18/17 12:10:06] INFO	1. Feature 2 (0.108046)
-[04/18/17 12:10:06] INFO	2. Feature 36 (0.073566)
-[04/18/17 12:10:06] INFO	3. Feature 39 (0.057581)
-[04/18/17 12:10:06] INFO	4. Feature 3 (0.051578)
-[04/18/17 12:10:06] INFO	5. Feature 7 (0.046824)
-[04/18/17 12:10:06] INFO	6. Feature 42 (0.046571)
-[04/18/17 12:10:06] INFO	7. Feature 24 (0.045251)
-[04/18/17 12:10:06] INFO	8. Feature 23 (0.044804)
-[04/18/17 12:10:06] INFO	9. Feature 22 (0.038629)
-[04/18/17 12:10:06] INFO	10. Feature 21 (0.037361)
-[04/18/17 12:10:06] INFO	Writing plot to /Users/markconway/Projects/Titanic/plots/feature_importance_train_RF.png
-[04/18/17 12:10:07] INFO	Feature Importances for Algorithm: XGB
-[04/18/17 12:10:07] INFO	Feature Ranking:
-[04/18/17 12:10:07] INFO	1. Feature 2 (0.138577)
-[04/18/17 12:10:07] INFO	2. Feature 3 (0.119850)
-[04/18/17 12:10:07] INFO	3. Feature 0 (0.116105)
-[04/18/17 12:10:07] INFO	4. Feature 7 (0.108614)
-[04/18/17 12:10:07] INFO	5. Feature 31 (0.104869)
-[04/18/17 12:10:07] INFO	6. Feature 23 (0.074906)
-[04/18/17 12:10:07] INFO	7. Feature 40 (0.067416)
-[04/18/17 12:10:07] INFO	8. Feature 4 (0.033708)
-[04/18/17 12:10:07] INFO	9. Feature 33 (0.029963)
-[04/18/17 12:10:07] INFO	10. Feature 9 (0.029963)
-[04/18/17 12:10:07] INFO	Writing plot to /Users/markconway/Projects/Titanic/plots/feature_importance_train_XGB.png
-[04/18/17 12:10:07] INFO	================================================================================
-[04/18/17 12:10:07] INFO	Saving Model Predictor
-[04/18/17 12:10:07] INFO	Writing model predictor to /Users/markconway/Projects/Titanic/model/model_20170418.pkl
-[04/18/17 12:10:07] INFO	Saving Feature Map
-[04/18/17 12:10:07] INFO	Writing feature map to /Users/markconway/Projects/Titanic/model/feature_map_20170418.pkl
-[04/18/17 12:10:07] INFO	Loading data from /Users/markconway/Projects/Titanic/input/test.csv
-[04/18/17 12:10:07] INFO	Saving Predictions
-[04/18/17 12:10:07] INFO	Storing output to /Users/markconway/Projects/Titanic/output/predictions_20170418.csv
-[04/18/17 12:10:07] INFO	Saving Probabilities
-[04/18/17 12:10:07] INFO	Storing output to /Users/markconway/Projects/Titanic/output/probabilities_20170418.csv
-[04/18/17 12:10:07] INFO	Saving Ranked Predictions
-[04/18/17 12:10:07] INFO	Writing data frame to /Users/markconway/Projects/Titanic/output/rankings_20170418.csv
-[04/18/17 12:10:07] INFO	Saving Submission
-[04/18/17 12:10:07] INFO	********************************************************************************
-[04/18/17 12:10:07] INFO	AlphaPy End
-[04/18/17 12:10:07] INFO	********************************************************************************
+[12/30/17 23:17:50] INFO	Feature Count     : 10
+[12/30/17 23:17:50] INFO	Creating Count Features
+[12/30/17 23:17:50] INFO	NA Counts
+[12/30/17 23:17:50] INFO	Number Counts
+[12/30/17 23:17:50] INFO	New Feature Count : 21
+[12/30/17 23:17:50] INFO	Creating Base Features
+[12/30/17 23:17:50] INFO	Feature 1: Pclass is a numerical feature of type int64 with 3 unique values
+[12/30/17 23:17:50] INFO	Feature 2: Name is a text feature [12:82] with 1307 unique values
+[12/30/17 23:17:50] INFO	Feature 2: Name => Factorization
+[12/30/17 23:17:50] INFO	Feature 3: Sex is a text feature [4:6] with 2 unique values
+[12/30/17 23:17:50] INFO	Feature 3: Sex => Factorization
+[12/30/17 23:17:50] INFO	Feature 4: Age is a numerical feature of type float64 with 99 unique values
+[12/30/17 23:17:50] INFO	Feature 5: SibSp is a numerical feature of type int64 with 7 unique values
+[12/30/17 23:17:50] INFO	Feature 6: Parch is a numerical feature of type int64 with 8 unique values
+[12/30/17 23:17:50] INFO	Feature 7: Ticket is a text feature [3:18] with 929 unique values
+[12/30/17 23:17:50] INFO	Feature 7: Ticket => Factorization
+[12/30/17 23:17:50] INFO	Feature 8: Fare is a numerical feature of type float64 with 282 unique values
+[12/30/17 23:17:50] INFO	Feature 9: Cabin is a text feature [1:15] with 187 unique values
+[12/30/17 23:17:50] INFO	Feature 9: Cabin => Factorization
+[12/30/17 23:17:50] INFO	Feature 10: Embarked is a text feature [1:1] with 4 unique values
+[12/30/17 23:17:50] INFO	Feature 10: Embarked => Factorization
+[12/30/17 23:17:50] INFO	Feature 11: nan_count is a numerical feature of type int64 with 3 unique values
+[12/30/17 23:17:50] INFO	Feature 12: count_0 is a numerical feature of type int64 with 4 unique values
+[12/30/17 23:17:50] INFO	Feature 13: count_1 is a numerical feature of type int64 with 4 unique values
+[12/30/17 23:17:50] INFO	Feature 14: count_2 is a numerical feature of type int64 with 4 unique values
+[12/30/17 23:17:50] INFO	Feature 15: count_3 is a numerical feature of type int64 with 4 unique values
+[12/30/17 23:17:50] INFO	Feature 16: count_4 is a numerical feature of type int64 with 3 unique values
+[12/30/17 23:17:50] INFO	Feature 17: count_5 is a numerical feature of type int64 with 2 unique values
+[12/30/17 23:17:50] INFO	Feature 18: count_6 is a numerical feature of type int64 with 2 unique values
+[12/30/17 23:17:50] INFO	Feature 19: count_7 is a numerical feature of type int64 with 2 unique values
+[12/30/17 23:17:50] INFO	Feature 20: count_8 is a numerical feature of type int64 with 3 unique values
+[12/30/17 23:17:50] INFO	Feature 21: count_9 is a numerical feature of type int64 with 3 unique values
+[12/30/17 23:17:50] INFO	New Feature Count : 21
+[12/30/17 23:17:50] INFO	Scaling Base Features
+[12/30/17 23:17:50] INFO	Creating NumPy Features
+[12/30/17 23:17:50] INFO	NumPy Feature: sum
+[12/30/17 23:17:50] INFO	NumPy Feature: mean
+[12/30/17 23:17:50] INFO	NumPy Feature: standard deviation
+[12/30/17 23:17:50] INFO	NumPy Feature: variance
+[12/30/17 23:17:50] INFO	NumPy Feature Count : 4
+[12/30/17 23:17:50] INFO	New Feature Count : 25
+[12/30/17 23:17:50] INFO	Creating Clustering Features
+[12/30/17 23:17:50] INFO	Cluster Minimum   : 3
+[12/30/17 23:17:50] INFO	Cluster Maximum   : 30
+[12/30/17 23:17:50] INFO	Cluster Increment : 3
+[12/30/17 23:17:50] INFO	k = 3
+[12/30/17 23:17:50] INFO	k = 6
+[12/30/17 23:17:50] INFO	k = 9
+[12/30/17 23:17:50] INFO	k = 12
+[12/30/17 23:17:50] INFO	k = 15
+[12/30/17 23:17:50] INFO	k = 18
+[12/30/17 23:17:50] INFO	k = 21
+[12/30/17 23:17:50] INFO	k = 24
+[12/30/17 23:17:50] INFO	k = 27
+[12/30/17 23:17:51] INFO	k = 30
+[12/30/17 23:17:51] INFO	Clustering Feature Count : 10
+[12/30/17 23:17:51] INFO	New Feature Count : 35
+[12/30/17 23:17:51] INFO	Saving New Features in Model
+[12/30/17 23:17:51] INFO	Creating Interactions
+[12/30/17 23:17:51] INFO	Initial Feature Count  : 35
+[12/30/17 23:17:51] INFO	Generating Polynomial Features
+[12/30/17 23:17:51] INFO	Interaction Percentage : 10
+[12/30/17 23:17:51] INFO	Polynomial Degree      : 5
+[12/30/17 23:17:51] INFO	Polynomial Feature Count : 15
+[12/30/17 23:17:51] INFO	New Total Feature Count  : 50
+[12/30/17 23:17:51] INFO	Saving New Features in Model
+[12/30/17 23:17:51] INFO	Removing Low-Variance Features
+[12/30/17 23:17:51] INFO	Low-Variance Threshold  : 0.10
+[12/30/17 23:17:51] INFO	Original Feature Count  : 50
+[12/30/17 23:17:51] INFO	Reduced Feature Count   : 50
+[12/30/17 23:17:51] INFO	Saving New Features in Model
+[12/30/17 23:17:51] INFO	Skipping Shuffling
+[12/30/17 23:17:51] INFO	Skipping Sampling
+[12/30/17 23:17:51] INFO	Getting Class Weights
+[12/30/17 23:17:51] INFO	Class Weight for target Survived [1]: 1.605263
+[12/30/17 23:17:51] INFO	Getting All Estimators
+[12/30/17 23:17:51] INFO	Algorithm Configuration
+[12/30/17 23:17:51] INFO	Selecting Models
+[12/30/17 23:17:51] INFO	Algorithm: RF
+[12/30/17 23:17:51] INFO	Fitting Initial Model
+[12/30/17 23:17:51] INFO	Recursive Feature Elimination with CV
+[12/30/17 23:18:14] INFO	RFECV took 22.72 seconds for step 3 and 3 folds
+[12/30/17 23:18:14] INFO	Algorithm: RF, Selected Features: 20, Ranking: [ 2  1  1  1  5  9  1  1  2  6  8  7  8  6  7 10 11 11 11 10 10  1  1  1  1
+  9  6  9  5  1  5  4  2  4  1  1  1  3  7  1  1  8  1  1  4  1  1  3  3  1]
+[12/30/17 23:18:14] INFO	Randomized Grid Search
+[12/30/17 23:19:08] INFO	Grid Search took 54.03 seconds for 50 candidate parameter settings.
+[12/30/17 23:19:08] INFO	Model with rank: 1
+[12/30/17 23:19:08] INFO	Mean validation score: 0.863 (std: 0.014)
+[12/30/17 23:19:08] INFO	Parameters: {'est__n_estimators': 501, 'est__min_samples_split': 5, 'est__min_samples_leaf': 3, 'est__max_depth': 7, 'est__criterion': 'entropy', 'est__bootstrap': True}
+[12/30/17 23:19:08] INFO	Model with rank: 2
+[12/30/17 23:19:08] INFO	Mean validation score: 0.862 (std: 0.015)
+[12/30/17 23:19:08] INFO	Parameters: {'est__n_estimators': 201, 'est__min_samples_split': 10, 'est__min_samples_leaf': 2, 'est__max_depth': 7, 'est__criterion': 'entropy', 'est__bootstrap': True}
+[12/30/17 23:19:08] INFO	Model with rank: 3
+[12/30/17 23:19:08] INFO	Mean validation score: 0.861 (std: 0.014)
+[12/30/17 23:19:08] INFO	Parameters: {'est__n_estimators': 101, 'est__min_samples_split': 2, 'est__min_samples_leaf': 3, 'est__max_depth': 7, 'est__criterion': 'entropy', 'est__bootstrap': True}
+[12/30/17 23:19:08] INFO	Algorithm: RF, Best Score: 0.8627, Best Parameters: {'est__n_estimators': 501, 'est__min_samples_split': 5, 'est__min_samples_leaf': 3, 'est__max_depth': 7, 'est__criterion': 'entropy', 'est__bootstrap': True}
+[12/30/17 23:19:08] INFO	Final Model Predictions for RF
+[12/30/17 23:19:08] INFO	Skipping Calibration
+[12/30/17 23:19:08] INFO	Making Predictions
+[12/30/17 23:19:09] INFO	Predictions Complete
+[12/30/17 23:19:09] INFO	Algorithm: XGB
+[12/30/17 23:19:09] INFO	Fitting Initial Model
+[12/30/17 23:19:09] INFO	No RFE Available for XGB
+[12/30/17 23:19:09] INFO	Randomized Grid Search
+[12/30/17 23:19:32] INFO	Grid Search took 23.44 seconds for 50 candidate parameter settings.
+[12/30/17 23:19:32] INFO	Model with rank: 1
+[12/30/17 23:19:32] INFO	Mean validation score: 0.863 (std: 0.020)
+[12/30/17 23:19:32] INFO	Parameters: {'est__subsample': 0.6, 'est__n_estimators': 21, 'est__min_child_weight': 1.1, 'est__max_depth': 12, 'est__learning_rate': 0.1, 'est__colsample_bytree': 0.7}
+[12/30/17 23:19:32] INFO	Model with rank: 2
+[12/30/17 23:19:32] INFO	Mean validation score: 0.856 (std: 0.014)
+[12/30/17 23:19:32] INFO	Parameters: {'est__subsample': 0.5, 'est__n_estimators': 51, 'est__min_child_weight': 1.0, 'est__max_depth': 8, 'est__learning_rate': 0.01, 'est__colsample_bytree': 0.7}
+[12/30/17 23:19:32] INFO	Model with rank: 3
+[12/30/17 23:19:32] INFO	Mean validation score: 0.855 (std: 0.023)
+[12/30/17 23:19:32] INFO	Parameters: {'est__subsample': 0.5, 'est__n_estimators': 21, 'est__min_child_weight': 1.0, 'est__max_depth': 7, 'est__learning_rate': 0.05, 'est__colsample_bytree': 0.6}
+[12/30/17 23:19:32] INFO	Algorithm: XGB, Best Score: 0.8627, Best Parameters: {'est__subsample': 0.6, 'est__n_estimators': 21, 'est__min_child_weight': 1.1, 'est__max_depth': 12, 'est__learning_rate': 0.1, 'est__colsample_bytree': 0.7}
+[12/30/17 23:19:32] INFO	Final Model Predictions for XGB
+[12/30/17 23:19:32] INFO	Skipping Calibration
+[12/30/17 23:19:32] INFO	Making Predictions
+[12/30/17 23:19:32] INFO	Predictions Complete
+[12/30/17 23:19:32] INFO	Blending Models
+[12/30/17 23:19:32] INFO	Blending Start: 2017-12-30 23:19:32.734086
+[12/30/17 23:19:32] INFO	Blending Complete: 0:00:00.010781
+[12/30/17 23:19:32] INFO	================================================================================
+[12/30/17 23:19:32] INFO	Metrics for: Partition.train
+[12/30/17 23:19:32] INFO	--------------------------------------------------------------------------------
+[12/30/17 23:19:32] INFO	Algorithm: RF
+[12/30/17 23:19:32] INFO	accuracy: 0.895622895623
+[12/30/17 23:19:32] INFO	adjusted_rand_score: 0.623145355109
+[12/30/17 23:19:32] INFO	average_precision: 0.939127507197
+[12/30/17 23:19:32] INFO	confusion_matrix: [[530  19]
+ [ 74 268]]
+[12/30/17 23:19:32] INFO	explained_variance: 0.574782432706
+[12/30/17 23:19:32] INFO	f1: 0.852146263911
+[12/30/17 23:19:32] INFO	mean_absolute_error: 0.104377104377
+[12/30/17 23:19:32] INFO	median_absolute_error: 0.0
+[12/30/17 23:19:32] INFO	neg_log_loss: 0.299193724458
+[12/30/17 23:19:32] INFO	neg_mean_squared_error: 0.104377104377
+[12/30/17 23:19:32] INFO	precision: 0.933797909408
+[12/30/17 23:19:32] INFO	r2: 0.558671268335
+[12/30/17 23:19:32] INFO	recall: 0.783625730994
+[12/30/17 23:19:32] INFO	roc_auc: 0.954665047561
+[12/30/17 23:19:32] INFO	--------------------------------------------------------------------------------
+[12/30/17 23:19:32] INFO	Algorithm: XGB
+[12/30/17 23:19:32] INFO	accuracy: 0.915824915825
+[12/30/17 23:19:32] INFO	adjusted_rand_score: 0.689583531462
+[12/30/17 23:19:32] INFO	average_precision: 0.958117084885
+[12/30/17 23:19:32] INFO	confusion_matrix: [[532  17]
+ [ 58 284]]
+[12/30/17 23:19:32] INFO	explained_variance: 0.653042746514
+[12/30/17 23:19:32] INFO	f1: 0.883359253499
+[12/30/17 23:19:32] INFO	mean_absolute_error: 0.0841750841751
+[12/30/17 23:19:32] INFO	median_absolute_error: 0.0
+[12/30/17 23:19:32] INFO	neg_log_loss: 0.295991903662
+[12/30/17 23:19:32] INFO	neg_mean_squared_error: 0.0841750841751
+[12/30/17 23:19:32] INFO	precision: 0.943521594684
+[12/30/17 23:19:32] INFO	r2: 0.644089732528
+[12/30/17 23:19:32] INFO	recall: 0.830409356725
+[12/30/17 23:19:32] INFO	roc_auc: 0.971127728246
+[12/30/17 23:19:32] INFO	================================================================================
+[12/30/17 23:19:32] INFO	Metrics for: Partition.test
+[12/30/17 23:19:32] INFO	No labels for generating Partition.test metrics
+[12/30/17 23:19:32] INFO	================================================================================
+[12/30/17 23:19:32] INFO	Selecting Best Model
+[12/30/17 23:19:32] INFO	Scoring for: Partition.train
+[12/30/17 23:19:32] INFO	Best Model Selection Start: 2017-12-30 23:19:32.779281
+[12/30/17 23:19:32] INFO	Scoring RF Model
+[12/30/17 23:19:32] INFO	Scoring XGB Model
+[12/30/17 23:19:32] INFO	Scoring BLEND Model
+[12/30/17 23:19:32] INFO	Best Model is XGB with a roc_auc score of 0.9711
+[12/30/17 23:19:32] INFO	Best Model Selection Complete: 0:00:00.000801
+[12/30/17 23:19:32] INFO	================================================================================
+[12/30/17 23:19:32] INFO	Generating Plots for partition: train
+[12/30/17 23:19:32] INFO	Generating Calibration Plot
+[12/30/17 23:19:32] INFO	Calibration for Algorithm: RF
+[12/30/17 23:19:32] INFO	Calibration for Algorithm: XGB
+[12/30/17 23:19:32] INFO	Writing plot to ./plots/calibration_train.png
+[12/30/17 23:19:33] INFO	Generating Confusion Matrices
+[12/30/17 23:19:33] INFO	Confusion Matrix for Algorithm: RF
+[12/30/17 23:19:33] INFO	Confusion Matrix:
+[12/30/17 23:19:33] INFO	[[530  19]
+ [ 74 268]]
+[12/30/17 23:19:33] INFO	Writing plot to ./plots/confusion_train_RF.png
+[12/30/17 23:19:33] INFO	Confusion Matrix for Algorithm: XGB
+[12/30/17 23:19:33] INFO	Confusion Matrix:
+[12/30/17 23:19:33] INFO	[[532  17]
+ [ 58 284]]
+[12/30/17 23:19:33] INFO	Writing plot to ./plots/confusion_train_XGB.png
+[12/30/17 23:19:33] INFO	Generating ROC Curves
+[12/30/17 23:19:33] INFO	ROC Curve for Algorithm: RF
+[12/30/17 23:19:33] INFO	ROC Curve for Algorithm: XGB
+[12/30/17 23:19:33] INFO	Writing plot to ./plots/roc_curve_train.png
+[12/30/17 23:19:33] INFO	Generating Learning Curves
+[12/30/17 23:19:33] INFO	Algorithm Configuration
+[12/30/17 23:19:33] INFO	Learning Curve for Algorithm: RF
+[12/30/17 23:19:35] INFO	Writing plot to ./plots/learning_curve_train_RF.png
+[12/30/17 23:19:35] INFO	Learning Curve for Algorithm: XGB
+[12/30/17 23:19:36] INFO	Writing plot to ./plots/learning_curve_train_XGB.png
+[12/30/17 23:19:36] INFO	Generating Feature Importance Plots
+[12/30/17 23:19:36] INFO	Feature Importances for Algorithm: RF
+[12/30/17 23:19:36] INFO	Feature Ranking:
+[12/30/17 23:19:36] INFO	1. Feature 2 (0.106345)
+[12/30/17 23:19:36] INFO	2. Feature 36 (0.074083)
+[12/30/17 23:19:36] INFO	3. Feature 39 (0.055330)
+[12/30/17 23:19:36] INFO	4. Feature 3 (0.050339)
+[12/30/17 23:19:36] INFO	5. Feature 7 (0.049228)
+[12/30/17 23:19:36] INFO	6. Feature 23 (0.044868)
+[12/30/17 23:19:36] INFO	7. Feature 22 (0.042925)
+[12/30/17 23:19:36] INFO	8. Feature 42 (0.042850)
+[12/30/17 23:19:36] INFO	9. Feature 21 (0.039954)
+[12/30/17 23:19:36] INFO	10. Feature 24 (0.038563)
+[12/30/17 23:19:36] INFO	Writing plot to ./plots/feature_importance_train_RF.png
+[12/30/17 23:19:36] INFO	Feature Importances for Algorithm: XGB
+[12/30/17 23:19:36] INFO	Feature Ranking:
+[12/30/17 23:19:36] INFO	1. Feature 2 (0.142857)
+[12/30/17 23:19:36] INFO	2. Feature 3 (0.120301)
+[12/30/17 23:19:36] INFO	3. Feature 0 (0.116541)
+[12/30/17 23:19:36] INFO	4. Feature 7 (0.109023)
+[12/30/17 23:19:36] INFO	5. Feature 31 (0.105263)
+[12/30/17 23:19:36] INFO	6. Feature 23 (0.075188)
+[12/30/17 23:19:36] INFO	7. Feature 40 (0.071429)
+[12/30/17 23:19:36] INFO	8. Feature 8 (0.033835)
+[12/30/17 23:19:36] INFO	9. Feature 4 (0.030075)
+[12/30/17 23:19:36] INFO	10. Feature 9 (0.030075)
+[12/30/17 23:19:36] INFO	Writing plot to ./plots/feature_importance_train_XGB.png
+[12/30/17 23:19:36] INFO	================================================================================
+[12/30/17 23:19:36] INFO	Saving Model Predictor
+[12/30/17 23:19:36] INFO	Writing model predictor to ./model/model_20171230.pkl
+[12/30/17 23:19:36] INFO	Saving Feature Map
+[12/30/17 23:19:36] INFO	Writing feature map to ./model/feature_map_20171230.pkl
+[12/30/17 23:19:36] INFO	Loading data from ./input/test.csv
+[12/30/17 23:19:36] INFO	Saving Predictions
+[12/30/17 23:19:36] INFO	Storing output to ./output/predictions_20171230.csv
+[12/30/17 23:19:36] INFO	Saving Probabilities
+[12/30/17 23:19:36] INFO	Storing output to ./output/probabilities_20171230.csv
+[12/30/17 23:19:36] INFO	Saving Ranked Predictions
+[12/30/17 23:19:36] INFO	Writing data frame to ./output/rankings_20171230.csv
+[12/30/17 23:19:36] INFO	Saving Submission to ./output/submission_20171230.csv
+[12/30/17 23:19:36] INFO	********************************************************************************
+[12/30/17 23:19:36] INFO	AlphaPy End
+[12/30/17 23:19:36] INFO	********************************************************************************

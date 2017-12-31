@@ -65,7 +65,20 @@ WILDCARD = '*'
 # Dictionaries
 #
 
-MULTIPLIERS = {'stock' : 1.0}
+MULTIPLIERS = {'crypto' : 1.0,
+               'stock' : 1.0}
+
+#
+# Pandas Time Offset Aliases
+#
+
+PD_INTRADAY_OFFSETS = ['H', 'T', 'min', 'S', 'L', 'ms', 'U', 'us', 'N']
+
+#
+# Pandas Web Reader Feeds
+#
+
+PD_WEB_DATA_FEEDS = ['google', 'quandl', 'yahoo']
 
 
 #

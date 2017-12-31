@@ -1,10 +1,13 @@
 market:
-    data_history    : 1000
+    data_history    : 500
     forecast_period : 1
     fractal         : 1d
+    lag_period      : 1
     leaders         : []
     predict_history : 50
-    schema          : google
+    resample_data   : False
+    schema          : quandl_wiki
+    subject         : stock
     target_group    : faang
 
 system:

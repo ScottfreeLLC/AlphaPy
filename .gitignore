@@ -24,3 +24,7 @@
 .idea/vcs.xml
 
 .idea/workspace.xml
+.idea/other.xml
+alphapy/examples/Trading System/.ipynb_checkpoints/A Trading System-checkpoint.ipynb
+*.pkl
+*.png

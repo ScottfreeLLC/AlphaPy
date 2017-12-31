@@ -263,7 +263,8 @@ def long_short(system, name, space, quantity):
 # Function open_range_breakout
 #
 
-def open_range_breakout(name, space, quantity, t1=3, t2=12):
+def open_range_breakout(name, space, quantity, t1=3, t2=12,
+                        long_only=False):
     r"""Run an Opening Range Breakout (ORB) system.
 
     An ORB system is an intraday strategy that waits for price to
@@ -329,7 +330,7 @@ def open_range_breakout(name, space, quantity, t1=3, t2=12):
                     tradelist.append((dt, [name, Orders.le, quantity, hh]))
                     inlong = True
                     traded = True
-                if l < ll and not traded:
+                if l < ll and not traded and not long_only:
                     # short breakout triggers
                     tradelist.append((dt, [name, Orders.se, -quantity, ll]))
                     inshort = True

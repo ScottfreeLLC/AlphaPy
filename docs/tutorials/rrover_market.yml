@@ -1,10 +1,13 @@
 market:
-    data_history    : 2000
+    data_history    : 500
     forecast_period : 1
     fractal         : 1d
+    lag_period      : 1
     leaders         : ['gap', 'gapbadown', 'gapbaup', 'gapdown', 'gapup']
     predict_history : 100
-    schema          : prices
+    resample_data   : False
+    schema          : yahoo
+    subject         : stock
     target_group    : test
 
 groups:

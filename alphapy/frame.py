@@ -228,8 +228,8 @@ def load_frames(group, directory, extension, separator, splits=False):
         The delimiter between fields in the file.
     splits : bool, optional
         If ``True``, then all the members of the group are stored in
-        one file. If ``False``, then the data are stored in separate
-        files corresponding with each member.
+        separate files corresponding with each member. If ``False``,
+        then the data are stored in a single file.
 
     Returns
     -------

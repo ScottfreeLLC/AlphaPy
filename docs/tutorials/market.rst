@@ -85,7 +85,7 @@ what we are trying to predict.
 
 **Step 2**: Now, let's run MarketFlow::
 
-    mflow --pdate 2017-01-01
+    mflow --pdate 2017-10-01
 
 As ``mflow`` runs, you will see the progress of the workflow,
 and the logging output is saved in ``market_flow.log``. When the
@@ -100,7 +100,9 @@ with a different datestamp::
         ├── model.yml
     └── data
     └── input
+        ├── test_20170420.csv
         ├── test.csv
+        ├── train_20170420.csv
         ├── train.csv
     └── model
         ├── feature_map_20170420.pkl

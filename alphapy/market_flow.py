@@ -29,7 +29,7 @@
 from alphapy.alias import Alias
 from alphapy.analysis import Analysis
 from alphapy.analysis import run_analysis
-from alphapy.data import get_feed_data
+from alphapy.data import get_market_data
 from alphapy.globals import PSEP, SSEP
 from alphapy.group import Group
 from alphapy.market_variables import Variable
@@ -90,17 +90,25 @@ def get_market_config():
     # Section: market [this section must be first]
 
     specs['forecast_period'] = cfg['market']['forecast_period']
-    specs['fractal'] = cfg['market']['fractal']
+    fractal = cfg['market']['fractal']
+    try:
+        test_interval = pd.to_timedelta(fractal)
+    except:
+        logger.info("Pandas offset alias [%s] is invalid for resampling",
+                    fractal)
+    specs['fractal'] = fractal
     specs['lag_period'] = cfg['market']['lag_period']
     specs['leaders'] = cfg['market']['leaders']
     specs['data_history'] = cfg['market']['data_history']
     specs['predict_history'] = cfg['market']['predict_history']
+    specs['resample_data'] = cfg['market']['resample_data']
     specs['schema'] = cfg['market']['schema']
+    specs['subject'] = cfg['market']['subject']
     specs['target_group'] = cfg['market']['target_group']
 
     # Create the subject/schema/fractal namespace
 
-    sspecs = ['stock', specs['schema'], specs['fractal']]    
+    sspecs = [specs['subject'], specs['schema'], specs['fractal']]    
     space = Space(*sspecs)
 
     # Section: features
@@ -168,7 +176,9 @@ def get_market_config():
     logger.info('lag_period      = %d', specs['lag_period'])
     logger.info('leaders         = %s', specs['leaders'])
     logger.info('predict_history = %s', specs['predict_history'])
+    logger.info('resample_data   = %r', specs['resample_data'])
     logger.info('schema          = %s', specs['schema'])
+    logger.info('subject         = %s', specs['subject'])
     logger.info('system          = %s', specs['system'])
     logger.info('target_group    = %s', specs['target_group'])
 
@@ -221,6 +231,7 @@ def market_pipeline(model, market_specs):
     lag_period = market_specs['lag_period']
     leaders = market_specs['leaders']
     predict_history = market_specs['predict_history']
+    resample_data = market_specs['resample_data']
     target_group = market_specs['target_group']
 
     # Get the system specifications
@@ -251,10 +262,12 @@ def market_pipeline(model, market_specs):
     # predict_history resets to the actual history obtained.
 
     lookback = predict_history if predict_mode else data_history
-    new_history = get_feed_data(group, lookback)
+    new_history = get_market_data(model, group, lookback, resample_data)
     if new_history < data_history:
         logger.info("Maximum Data History is %d, not %d",
                     new_history, data_history)
+        if new_history == 0:
+            raise ValueError("Could not get market data from source")
 
     # Apply the features to all of the frames
 
