@@ -9,8 +9,8 @@ LONG_DESCRIPTION = "alphapy is a Python library for machine learning using sciki
 MAINTAINER = 'ScottFree LLC [Robert D. Scott II, Mark Conway]'
 MAINTAINER_EMAIL = 'scottfree.analytics@scottfreellc.com'
 URL = "https://github.com/ScottFreeLLC/AlphaPy"
-LICENSE = "Apache License, Version 2.2"
-VERSION = "2.2"
+LICENSE = "Apache License, Version 2"
+VERSION = "2.2.1"
 
 classifiers = ['Development Status :: 4 - Beta',
                'Programming Language :: Python',
