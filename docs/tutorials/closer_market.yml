@@ -1,11 +1,12 @@
 market:
+    create_model    : False
+    data_fractal    : 1d
     data_history    : 500
     forecast_period : 1
     fractal         : 1d
     lag_period      : 1
     leaders         : []
     predict_history : 50
-    resample_data   : False
     schema          : quandl_wiki
     subject         : stock
     target_group    : faang

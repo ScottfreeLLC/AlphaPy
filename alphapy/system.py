@@ -28,14 +28,18 @@
 
 from alphapy.frame import Frame
 from alphapy.frame import frame_name
+from alphapy.frame import read_frame
 from alphapy.frame import write_frame
 from alphapy.globals import Orders
-from alphapy.globals import SSEP
+from alphapy.globals import BSEP, SSEP
 from alphapy.market_variables import vexec
 from alphapy.space import Space
 from alphapy.portfolio import Trade
+from alphapy.utilities import most_recent_file
 
 import logging
+import numbers
+import pandas as pd
 from pandas import DataFrame
 
 
@@ -131,24 +135,24 @@ class System(object):
 
 
 #
-# Function long_short
+# Function trade_system
 #
 
-def long_short(system, name, space, quantity):
-    r"""Run a long/short system.
-
-    A long/short system is always in the market. At any given
-    time, either a long position is active, or a short position
-    is active.
+def trade_system(model, system, space, intraday, name, quantity):
+    r"""Trade the given system.
 
     Parameters
     ----------
+    model : alphapy.Model
+        The model object with specifications.
     system : alphapy.System
         The long/short system to run.
-    name : str
-        The symbol to trade.
     space : alphapy.Space
         Namespace of instrument prices.
+    intraday : bool
+        If True, then run an intraday system.
+    name : str
+        The symbol to trade.
     quantity : float
         The amount of the ``name`` to trade, e.g., number of shares
 
@@ -163,48 +167,76 @@ def long_short(system, name, space, quantity):
         All of the data frames containing price data.
 
     """
-    # extract the system parameters
+
+    # Unpack the model data.
+
+    directory = model.specs['directory']
+    extension = model.specs['extension']
+    separator = model.specs['separator']
+
+    # Unpack the system parameters.
+
     longentry = system.longentry
     shortentry = system.shortentry
     longexit = system.longexit
     shortexit = system.shortexit
     holdperiod = system.holdperiod
     scale = system.scale
-    # price frame
+
+    # Determine whether or not this is a model-driven system.
+
+    entries_and_exits = [longentry, shortentry, longexit, shortexit]
+    active_signals = [x for x in entries_and_exits if x is not None]
+    use_model = False
+    for signal in active_signals:
+        if any(x in signal for x in ['phigh', 'plow']):
+            use_model = True
+
+    # Read in the price frame
     pf = Frame.frames[frame_name(name, space)].df
-    # initialize the trade list
-    tradelist = []
-    # evaluate the long and short events
-    if longentry:
-        vexec(pf, longentry)
-    if shortentry:
-        vexec(pf, shortentry)
-    if longexit:
-        vexec(pf, longexit)
-    if shortexit:
-        vexec(pf, shortexit)
-    # generate trade file
+
+    # Use model output probabilities as input to the system
+
+    if use_model:
+        # get latest probabilities file
+        probs_dir = SSEP.join([directory, 'output'])
+        file_path = most_recent_file(probs_dir, 'probabilities*')
+        file_name = file_path.split(SSEP)[-1].split('.')[0]
+        # read the probabilities frame and trim the price frame
+        probs_frame = read_frame(probs_dir, file_name, extension, separator)
+        pf = pf[-probs_frame.shape[0]:]
+        probs_frame.index = pf.index
+        probs_frame.columns = ['probability']
+        # add probability column to price frame
+        pf = pd.concat([pf, probs_frame], axis=1)
+
+    # Evaluate the long and short events in the price frame
+
+    for signal in active_signals:
+        vexec(pf, signal)
+
+    # Initialize trading state variables
+
     inlong = False
     inshort = False
     h = 0
     p = 0
     q = quantity
+    tradelist = []
+
+    # Loop through prices and generate trades
+
     for dt, row in pf.iterrows():
-        # evaluate entry and exit conditions
-        lerow = None
-        if longentry:
-            lerow = row[longentry]
-        serow = None
-        if shortentry:
-            serow = row[shortentry]
-        lxrow = None
-        if longexit:
-            lxrow = row[longexit]
-        sxrow = None
-        if shortexit:
-            sxrow = row[shortexit]
         # get closing price
         c = row['close']
+        if intraday:
+            bar_number = row['bar_number']
+            end_of_day = row['end_of_day']            
+        # evaluate entry and exit conditions
+        lerow = row[longentry] if longentry else None
+        serow = row[shortentry] if shortentry else None
+        lxrow = row[longexit] if longexit else None
+        sxrow = row[shortexit] if shortexit else None
         # process the long and short events
         if lerow:
             if p < 0:
@@ -244,7 +276,7 @@ def long_short(system, name, space, quantity):
             h = 0
             p = 0
         # if a holding period was given, then check for exit
-        if holdperiod > 0 and h >= holdperiod:
+        if holdperiod and h >= holdperiod:
             if inlong:
                 tradelist.append((dt, [name, Orders.lh, -p, c]))
                 inlong = False
@@ -256,99 +288,17 @@ def long_short(system, name, space, quantity):
         # increment the hold counter
         if inlong or inshort:
             h += 1
-    return tradelist
-
-
-#
-# Function open_range_breakout
-#
-
-def open_range_breakout(name, space, quantity, t1=3, t2=12,
-                        long_only=False):
-    r"""Run an Opening Range Breakout (ORB) system.
-
-    An ORB system is an intraday strategy that waits for price to
-    "break out" in a certain direction after establishing an
-    initial High-Low range. The timing of the trade is either
-    time-based (e.g., 30 minutes after the Open) or price-based
-    (e.g., 20% of the average daily range). Either the position
-    is held until the end of the trading day, or the position is
-    closed with a stop loss (e.g., the other side of the opening
-    range).
-
-    Parameters
-    ----------
-    name : str
-        The symbol to trade.
-    space : alphapy.Space
-        Namespace of instrument prices.
-    quantity : float
-        The amount of the ``name`` to trade, e.g., number of shares
-
-    Returns
-    -------
-    tradelist : list
-        List of trade entries and exits.
-
-    Other Parameters
-    ----------------
-    Frame.frames : dict
-        All of the data frames containing price data.
-
-    """
-    # price frame
-    pf = Frame.frames[frame_name(name, space)].df
-    # initialize the trade list
-    tradelist = []
-    # generate trade file
-    for dt, row in pf.iterrows():
-        # extract data from row
-        bar_number = row['bar_number']
-        h = row['high']
-        l = row['low']
-        c = row['close']
-        end_of_day = row['end_of_day']
-        # open range breakout
-        if bar_number == 0:
-            # new day
-            traded = False
-            inlong = False
-            inshort = False
-            hh = h
-            ll = l
-        elif bar_number < t1:
-            # set opening range
-            if h > hh:
-                hh = h
-            if l < ll:
-                ll = l
-        else:
-            if not traded and bar_number < t2:
-                # trigger trade
-                if h > hh:
-                    # long breakout triggers
-                    tradelist.append((dt, [name, Orders.le, quantity, hh]))
-                    inlong = True
-                    traded = True
-                if l < ll and not traded and not long_only:
-                    # short breakout triggers
-                    tradelist.append((dt, [name, Orders.se, -quantity, ll]))
-                    inshort = True
-                    traded = True
-            # test stop loss
-            if inlong and l < ll:
-                tradelist.append((dt, [name, Orders.lx, -quantity, ll]))
-                inlong = False
-            if inshort and h > hh:
-                tradelist.append((dt, [name, Orders.sx, quantity, hh]))
-                inshort = False
-        # exit any positions at the end of the day
-        if inlong and end_of_day:
-            # long active, so exit long
-            tradelist.append((dt, [name, Orders.lx, -quantity, c]))
-        if inshort and end_of_day:
-            # short active, so exit short
-            tradelist.append((dt, [name, Orders.sx, quantity, c]))
+            if intraday and end_of_day:
+                if inlong:
+                    # long active, so exit long
+                    tradelist.append((dt, [name, Orders.lx, -p, c]))
+                    inlong = False
+                if inshort:
+                    # short active, so exit short
+                    tradelist.append((dt, [name, Orders.sx, -p, c]))
+                    inshort = False
+                h = 0
+                p = 0
     return tradelist
 
 
@@ -359,7 +309,7 @@ def open_range_breakout(name, space, quantity, t1=3, t2=12,
 def run_system(model,
                system,
                group,
-               system_params=None,
+               intraday = False,
                quantity = 1):
     r"""Run a system for a given group, creating a trades frame.
 
@@ -367,13 +317,12 @@ def run_system(model,
     ----------
     model : alphapy.Model
         The model object with specifications.
-    system : alphapy.System or str
-        The system to run, either a long/short system or a local one
-        identified by function name, e.g., 'open_range_breakout'.
+    system : alphapy.System
+        The system to run.
     group : alphapy.Group
-        The group of symbols to test.
-    system_params : list, optional
-        The parameters for the given system.
+        The group of symbols to trade.
+    intraday : bool, optional
+        If true, this is an intraday system.
     quantity : float, optional
         The amount to trade for each symbol, e.g., number of shares
 
@@ -384,11 +333,7 @@ def run_system(model,
 
     """
 
-    if system.__class__ == str:
-        system_name = system
-    else:
-        system_name = system.name
-
+    system_name = system.name
     logger.info("Generating Trades for System %s", system_name)
 
     # Unpack the model data.
@@ -408,18 +353,8 @@ def run_system(model,
     gtlist = []
     for symbol in gmembers:
         # generate the trades for this member
-        if system.__class__ == str:
-            try:
-                tlist = globals()[system_name](symbol, gspace, quantity,
-                                               *system_params)
-            except:
-                logger.info("Could not execute system for %s", symbol)
-        else:
-            # call default long/short system
-            tlist = long_short(system, symbol, gspace, quantity)
+        tlist = trade_system(model, system, gspace, intraday, symbol, quantity)
         if tlist:
-            # create the local trades frame
-            df = DataFrame.from_items(tlist, orient='index', columns=Trade.states)
             # add trades to global trade list
             for item in tlist:
                 gtlist.append(item)
@@ -435,8 +370,11 @@ def run_system(model,
         tf = DataFrame.from_items(gtlist, orient='index', columns=Trade.states)
         tfname = frame_name(gname, tspace)
         system_dir = SSEP.join([directory, 'systems'])
+        labels = ['date']
+        if intraday:
+            labels.append('time')
         write_frame(tf, system_dir, tfname, extension, separator,
-                    index=True, index_label='date')
+                    index=True, index_label=labels)
         del tspace
     else:
         logger.info("No trades were found")

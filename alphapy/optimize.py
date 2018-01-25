@@ -95,6 +95,7 @@ def rfecv_search(model, algo):
     # Extract model parameters.
 
     cv_folds = model.specs['cv_folds']
+    n_jobs = model.specs['n_jobs']
     rfe_step = model.specs['rfe_step']
     scorer = model.specs['scorer']
     verbosity = model.specs['verbosity']
@@ -104,7 +105,7 @@ def rfecv_search(model, algo):
 
     logger.info("Recursive Feature Elimination with CV")
     rfecv = RFECV(estimator, step=rfe_step, cv=cv_folds,
-                  scoring=scorer, verbose=verbosity)
+                  scoring=scorer, verbose=verbosity, n_jobs=n_jobs)
     start = time()
     selector = rfecv.fit(X_train, y_train)
     logger.info("RFECV took %.2f seconds for step %d and %d folds",

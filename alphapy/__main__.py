@@ -61,7 +61,6 @@ from alphapy.optimize import rfe_search
 from alphapy.optimize import rfecv_search
 from alphapy.plots import generate_plots
 from alphapy.utilities import get_datestamp
-from alphapy.utilities import np_store_data
 
 import argparse
 from datetime import datetime

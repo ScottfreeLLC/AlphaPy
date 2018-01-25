@@ -30,6 +30,7 @@ from alphapy.alias import Alias
 from alphapy.analysis import Analysis
 from alphapy.analysis import run_analysis
 from alphapy.data import get_market_data
+from alphapy.globals import PD_INTRADAY_OFFSETS
 from alphapy.globals import PSEP, SSEP
 from alphapy.group import Group
 from alphapy.market_variables import Variable
@@ -89,19 +90,26 @@ def get_market_config():
 
     # Section: market [this section must be first]
 
+    specs['create_model'] = cfg['market']['create_model']
+    fractal = cfg['market']['data_fractal']
+    try:
+        test_interval = pd.to_timedelta(fractal)
+    except:
+        logger.info("data_fractal [%s] is an invalid pandas offset",
+                    fractal)
+    specs['data_fractal'] = fractal
+    specs['data_history'] = cfg['market']['data_history']
     specs['forecast_period'] = cfg['market']['forecast_period']
     fractal = cfg['market']['fractal']
     try:
         test_interval = pd.to_timedelta(fractal)
     except:
-        logger.info("Pandas offset alias [%s] is invalid for resampling",
+        logger.info("fractal [%s] is an invalid pandas offset",
                     fractal)
     specs['fractal'] = fractal
     specs['lag_period'] = cfg['market']['lag_period']
     specs['leaders'] = cfg['market']['leaders']
-    specs['data_history'] = cfg['market']['data_history']
     specs['predict_history'] = cfg['market']['predict_history']
-    specs['resample_data'] = cfg['market']['resample_data']
     specs['schema'] = cfg['market']['schema']
     specs['subject'] = cfg['market']['subject']
     specs['target_group'] = cfg['market']['target_group']
@@ -150,8 +158,13 @@ def get_market_config():
 
     # Section: variables
 
+    logger.info("Defining AlphaPy Variables [phigh, plow]")
+
+    Variable('phigh', 'probability >= 0.7')
+    Variable('plow', 'probability <= 0.3')
+
     try:
-        logger.info("Defining Variables")
+        logger.info("Defining User Variables")
         for k, v in list(cfg['variables'].items()):
             Variable(k, v)
     except:
@@ -169,6 +182,8 @@ def get_market_config():
     # Log the stock parameters
 
     logger.info('MARKET PARAMETERS:')
+    logger.info('create_model    = %r', specs['create_model'])
+    logger.info('data_fractal    = %s', specs['data_fractal'])
     logger.info('data_history    = %d', specs['data_history'])
     logger.info('features        = %s', specs['features'])
     logger.info('forecast_period = %d', specs['forecast_period'])
@@ -176,7 +191,6 @@ def get_market_config():
     logger.info('lag_period      = %d', specs['lag_period'])
     logger.info('leaders         = %s', specs['leaders'])
     logger.info('predict_history = %s', specs['predict_history'])
-    logger.info('resample_data   = %r', specs['resample_data'])
     logger.info('schema          = %s', specs['schema'])
     logger.info('subject         = %s', specs['subject'])
     logger.info('system          = %s', specs['system'])
@@ -217,80 +231,82 @@ def market_pipeline(model, market_specs):
 
     logger.info("Running MarketFlow Pipeline")
 
-    # Get any model specifications
+    # Get model specifications
 
     predict_mode = model.specs['predict_mode']
     target = model.specs['target']
 
-    # Get any market specifications
+    # Get market specifications
 
+    create_model = market_specs['create_model']
+    data_fractal = market_specs['data_fractal']
     data_history = market_specs['data_history']
     features = market_specs['features']
     forecast_period = market_specs['forecast_period']
+    fractal = market_specs['fractal']
     functions = market_specs['functions']
     lag_period = market_specs['lag_period']
     leaders = market_specs['leaders']
     predict_history = market_specs['predict_history']
-    resample_data = market_specs['resample_data']
     target_group = market_specs['target_group']
-
-    # Get the system specifications
-
-    system_specs = market_specs['system']
-    if system_specs:
-        system_name = system_specs['name']
-        try:
-            longshort = True
-            longentry = system_specs['longentry']
-            shortentry = system_specs['shortentry']
-            longexit = system_specs['longexit']
-            shortexit = system_specs['shortexit']
-            holdperiod = system_specs['holdperiod']
-            scale = system_specs['scale']
-            logger.info("Running Long/Short System %s", system_name)
-        except:
-            longshort = False
-            system_params = system_specs['params']
-            logger.info("Running System %s", system_name)
 
     # Set the target group
 
     group = Group.groups[target_group]
-    logger.info("All Members: %s", group.members)
+    logger.info("All Symbols: %s", group.members)
+
+    # Determine whether or not this is an intraday analysis.
+
+    intraday = any(substring in fractal for substring in PD_INTRADAY_OFFSETS)
 
     # Get stock data. If we can't get all the data, then
     # predict_history resets to the actual history obtained.
 
     lookback = predict_history if predict_mode else data_history
-    new_history = get_market_data(model, group, lookback, resample_data)
+    new_history = get_market_data(model, group, lookback,
+                                  data_fractal, intraday)
     if new_history < data_history:
         logger.info("Maximum Data History is %d, not %d",
                     new_history, data_history)
         if new_history == 0:
             raise ValueError("Could not get market data from source")
 
-    # Apply the features to all of the frames
+    # Run an analysis to create the model
 
-    vmapply(group, features, functions)
-    vmapply(group, [target], functions)
-
-    # Run a system or an analysis
-
-    if system_specs:
-        # create and run the system
-        if longshort:
-            system_ls = System(system_name, longentry, shortentry,
-                               longexit, shortexit, holdperiod, scale)
-            tfs = run_system(model, system_ls, group)
-        else:
-            tfs = run_system(model, system_name, group, system_params)
-        # generate a portfolio
-        gen_portfolio(model, system_name, group, tfs)
-    else:
+    if create_model:
+        # apply features to all of the frames
+        vmapply(group, features, functions)
+        vmapply(group, [target], functions)
         # run the analysis, including the model pipeline
         a = Analysis(model, group)
-        results = run_analysis(a, lag_period, forecast_period, leaders,
-                               predict_history)
+        results = run_analysis(a, lag_period, forecast_period,
+                               leaders, predict_history)
+
+    # Run a system
+
+    system_specs = market_specs['system']
+    if system_specs:
+        # get the system specs
+        system_name = system_specs['name']
+        longentry = system_specs['longentry']
+        shortentry = system_specs['shortentry']
+        longexit = system_specs['longexit']
+        shortexit = system_specs['shortexit']
+        holdperiod = system_specs['holdperiod']
+        scale = system_specs['scale']
+        logger.info("Running System %s", system_name)
+        logger.info("Long Entry  : %s", longentry)
+        logger.info("Short Entry : %s", shortentry)
+        logger.info("Long Exit   : %s", longexit)
+        logger.info("Short Exit  : %s", shortexit)
+        logger.info("Hold Period : %d", holdperiod)
+        logger.info("Scale       : %r", scale)
+        # create and run the system
+        system = System(system_name, longentry, shortentry,
+                        longexit, shortexit, holdperiod, scale)
+        tfs = run_system(model, system, group, intraday)
+        # generate a portfolio
+        gen_portfolio(model, system_name, group, tfs)
 
     # Return the completed model
     return model

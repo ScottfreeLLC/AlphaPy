@@ -31,11 +31,11 @@ from alphapy.frame import frame_name
 from alphapy.frame import read_frame
 from alphapy.globals import ModelType
 from alphapy.globals import Partition, datasets
-from alphapy.globals import PD_INTRADAY_OFFSETS
 from alphapy.globals import PD_WEB_DATA_FEEDS
 from alphapy.globals import PSEP, SSEP, USEP
 from alphapy.globals import SamplingMethod
 from alphapy.globals import WILDCARD
+from alphapy.space import Space
 
 from datetime import datetime
 from datetime import timedelta
@@ -285,6 +285,57 @@ def sample_data(model):
 
 
 #
+# Function convert_data
+#
+
+def convert_data(df, index_column, intraday_data):
+    r"""Convert the market data frame to canonical format.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The intraday dataframe.
+    index_column : str
+        The name of the index column.
+    intraday_data : bool
+        Flag set to True if the frame contains intraday data.
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        The canonical dataframe with date/time index.
+
+    """
+
+    # Standardize column names
+    df = df.rename(columns = lambda x: x.lower().replace(' ',''))
+
+    # Create the time/date index if not already done 
+
+    if not isinstance(df.index, pd.DatetimeIndex):
+        if intraday_data:
+            dt_column = df['date'] + ' ' + df['time']
+        else:
+            dt_column = df['date']
+        df[index_column] = pd.to_datetime(dt_column)
+        df.set_index(pd.DatetimeIndex(df[index_column]),
+                     drop=True, inplace=True)
+        del df['date']
+        if intraday_data:
+            del df['time']
+
+    # Make the remaining columns floating point
+
+    cols_float = ['open', 'high', 'low', 'close', 'volume']
+    df[cols_float] = df[cols_float].astype(float)
+
+    # Order the frame by increasing date if necessary
+    df = df.sort_index()
+
+    return df
+
+
+#
 # Function enhance_intraday_data
 #
 
@@ -303,17 +354,12 @@ def enhance_intraday_data(df):
 
     """
 
-    # Convert the columns to proper data types
+    # Group by date first
 
-    index_column = 'datetime'
-    dt_column = df['date'] + ' ' + df['time']
-    df[index_column] = pd.to_datetime(dt_column)
-    cols_float = ['open', 'high', 'low', 'close', 'volume']
-    df[cols_float] = df[cols_float].astype(float)
+    df['date'] = df.index.strftime('%Y-%m-%d')
+    date_group = df.groupby('date')
 
     # Number the intraday bars
-
-    date_group = df.groupby('date')
     df['bar_number'] = date_group.cumcount()
 
     # Mark the end of the trading day
@@ -321,13 +367,9 @@ def enhance_intraday_data(df):
     df['end_of_day'] = False
     df.loc[date_group.tail(1).index, 'end_of_day'] = True
 
-    # Set the data frame's index
-    df.set_index(pd.DatetimeIndex(df[index_column]), drop=True, inplace=True)
-
     # Return the enhanced frame
 
     del df['date']
-    del df['time']
     return df
 
 
@@ -427,13 +469,13 @@ def get_pandas_data(schema, symbol, lookback_period):
 
     """
 
-    # Quandl is a special case.
+    # Quandl is a special case with subfeeds.
 
     if 'quandl' in schema:
         schema, symbol_prefix = schema.split(USEP)
         symbol = SSEP.join([symbol_prefix, symbol]).upper()
 
-    # Calculate the start and end date for Yahoo.
+    # Calculate the start and end date.
 
     start = datetime.now() - timedelta(lookback_period)
     end = datetime.now()
@@ -443,7 +485,6 @@ def get_pandas_data(schema, symbol, lookback_period):
     try:
         df = web.DataReader(symbol, schema, start, end)
     except:
-        df = None
         logger.info("Could not retrieve data for: %s", symbol)
 
     return df
@@ -453,7 +494,8 @@ def get_pandas_data(schema, symbol, lookback_period):
 # Function get_market_data
 #
 
-def get_market_data(model, group, lookback_period, resample_data):
+def get_market_data(model, group, lookback_period,
+                    data_fractal, intraday_data=False):
     r"""Get data from an external feed.
 
     Parameters
@@ -464,6 +506,10 @@ def get_market_data(model, group, lookback_period, resample_data):
         The group of symbols.
     lookback_period : int
         The number of periods of data to retrieve.
+    data_fractal : str
+        Pandas offset alias.
+    intraday_data : bool
+        If True, then get intraday data.
 
     Returns
     -------
@@ -486,15 +532,13 @@ def get_market_data(model, group, lookback_period, resample_data):
 
     # Determine the feed source
 
-    if any(substring in fractal for substring in PD_INTRADAY_OFFSETS):
+    if intraday_data:
         # intraday data (date and time)
-        logger.info("Getting Intraday Data [%s] from %s", fractal, schema)
-        intraday_data = True
+        logger.info("Getting Intraday Data [%s] from %s", data_fractal, schema)
         index_column = 'datetime'
     else:
         # daily data or higher (date only)
-        logger.info("Getting Daily Data [%s] from %s", fractal, schema)
-        intraday_data = False
+        logger.info("Getting Daily Data [%s] from %s", data_fractal, schema)
         index_column = 'date'
 
     # Get the data from the relevant feed
@@ -502,41 +546,42 @@ def get_market_data(model, group, lookback_period, resample_data):
     data_dir = SSEP.join([directory, 'data'])
     pandas_data = any(substring in schema for substring in PD_WEB_DATA_FEEDS)
     n_periods = 0
+    resample_data = True if fractal != data_fractal else False
 
     for item in group.members:
         logger.info("Getting %s data for last %d days", item, lookback_period)
         # Locate the data source
         if schema == 'data':
-            fname = frame_name(item.lower(), gspace)
+            # local intraday or daily
+            dspace = Space(gspace.subject, gspace.schema, data_fractal)
+            fname = frame_name(item.lower(), dspace)
             df = read_frame(data_dir, fname, extension, separator)
-            if not intraday_data:
-                df.set_index(pd.DatetimeIndex(df[index_column]),
-                             drop=True, inplace=True)
         elif schema == 'google' and intraday_data:
-            df = get_google_data(item, lookback_period, fractal)
+            # intraday only
+            df = get_google_data(item, lookback_period, data_fractal)
         elif pandas_data:
+            # daily only
             df = get_pandas_data(schema, item, lookback_period)
         else:
             logger.error("Unsupported Data Source: %s", schema)
         # Now that we have content, standardize the data
         if df is not None and not df.empty:
             logger.info("Rows: %d", len(df))
-            # standardize column names
-            df = df.rename(columns = lambda x: x.lower().replace(' ',''))
-            # add intraday columns if necessary
-            if intraday_data:
-                df = enhance_intraday_data(df)
-            # order by increasing date if necessary
-            df = df.sort_index()
-            # resample data
+            # convert data to canonical form
+            df = convert_data(df, index_column, intraday_data)
+            # resample data and forward fill any NA values
             if resample_data:
                 df = df.resample(fractal).agg({'open'   : 'first',
                                                'high'   : 'max',
                                                'low'    : 'min',
                                                'close'  : 'last',
                                                'volume' : 'sum'})
+                df.dropna(axis=0, how='any', inplace=True)
                 logger.info("Rows after Resampling at %s: %d",
                             fractal, len(df))
+            # add intraday columns if necessary
+            if intraday_data:
+                df = enhance_intraday_data(df)
             # allocate global Frame
             newf = Frame(item.lower(), gspace, df)
             if newf is None:

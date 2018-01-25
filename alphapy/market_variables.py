@@ -403,10 +403,9 @@ def vexec(f, v, vfuncs=None):
             expr = vroot.expr
             expr_new = vsub(vxlag, expr)
             estr = "%s" % expr_new
-            estr = BSEP.join([vxlag, '=', estr])
             logger.debug("Expression: %s", estr)
             # pandas eval
-            f.eval(estr, inplace=True)
+            f[vxlag] = f.eval(estr)
         else:
             logger.debug("Did not find variable: %s", root)
             # Must be a function call

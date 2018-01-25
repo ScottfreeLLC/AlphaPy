@@ -175,7 +175,7 @@ def read_frame(directory, filename, extension, separator,
 #
 
 def write_frame(df, directory, filename, extension, separator,
-                index=False, index_label=None):
+                index=False, index_label=None, columns=None):
     r"""Write a dataframe into a delimiter-separated file.
 
     Parameters
@@ -194,6 +194,8 @@ def write_frame(df, directory, filename, extension, separator,
         If ``True``, write the row names (index).
     index_label : str, optional
         A column label for the ``index``.
+    columns : str, optional
+        A list of column names.
 
     Returns
     -------
@@ -204,7 +206,8 @@ def write_frame(df, directory, filename, extension, separator,
     file_all = SSEP.join([directory, file_only])
     logger.info("Writing data frame to %s", file_all)
     try:
-        df.to_csv(file_all, sep=separator, index=index, index_label=index_label)
+        df.to_csv(file_all, sep=separator, index=index,
+                  index_label=index_label, columns=columns)
     except:
         logger.info("Could not write data frame to %s", file_all)
 

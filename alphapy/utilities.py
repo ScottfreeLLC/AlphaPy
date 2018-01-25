@@ -30,10 +30,12 @@ from alphapy.globals import PSEP, SSEP, USEP
 
 import argparse
 from datetime import datetime, timedelta
+import glob
 import inspect
 from itertools import groupby
 import logging
 import numpy as np
+import os
 from os import listdir
 from os.path import isfile, join
 import re
@@ -63,6 +65,34 @@ def get_datestamp():
     f = "%Y%m%d"
     datestamp = d.strftime(f)
     return datestamp
+
+
+#
+# Function most_recent_file
+#
+
+def most_recent_file(directory, file_spec):
+    r"""Find the most recent file in a directory.
+
+    Parameters
+    ----------
+    directory : str
+        Full directory specification.
+    file_spec : str
+        Wildcard search string for the file to locate.
+
+    Returns
+    -------
+    file_name : str
+        Name of the file to read, excluding the ``extension``.
+
+    """
+    # Create search path
+    search_path = SSEP.join([directory, file_spec])
+    # find the latest file
+    file_name = max(glob.iglob(search_path), key=os.path.getctime)
+    # load the model predictor
+    return file_name
 
 
 #

@@ -39,14 +39,12 @@ from alphapy.globals import PSEP, SSEP, USEP
 from alphapy.globals import SamplingMethod
 from alphapy.globals import Scalers
 from alphapy.utilities import get_datestamp
-from alphapy.utilities import np_store_data
+from alphapy.utilities import most_recent_file
 
 from copy import copy
 from datetime import datetime
-import glob
 import logging
 import numpy as np
-import os
 import pandas as pd
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.externals import joblib
@@ -476,17 +474,14 @@ def load_predictor(directory):
 
     """
 
-    # Create search path
-    search_path = SSEP.join([directory, 'model', 'model_*.pkl'])
-
     # Locate the model Pickle file
 
     try:
-        # find the latest file
-        filename = max(glob.iglob(search_path), key=os.path.getctime)
-        logger.info("Loading model predictor from %s", filename)
+        search_dir = SSEP.join([directory, 'model'])
+        file_name = most_recent_file(search_dir, 'model_*.pkl')
+        logger.info("Loading model predictor from %s", file_name)
         # load the model predictor
-        predictor = joblib.load(filename)
+        predictor = joblib.load(file_name)
     except:
         logging.error("Could not find model predictor in %s", search_path)
 
@@ -555,17 +550,14 @@ def load_feature_map(model, directory):
 
     """
 
-    # Create search path
-    search_path = SSEP.join([directory, 'model', 'feature_map_*.pkl'])
-
     # Locate the feature map and load it
 
     try:
-        # find the latest file
-        filename = max(glob.iglob(search_path), key=os.path.getctime)
-        logger.info("Loading feature map from %s", filename)
+        search_dir = SSEP.join([directory, 'model'])
+        file_name = most_recent_file(search_dir, 'feature_map_*.pkl')
+        logger.info("Loading feature map from %s", file_name)
         # load the feature map
-        feature_map = joblib.load(filename)
+        feature_map = joblib.load(file_name)
         model.feature_map = feature_map
     except:
         logging.error("Could not find feature map in %s", search_path)
@@ -1231,6 +1223,8 @@ def save_predictions(model, tag, partition):
     if found_pdate:
         pd_indices = pf[pf.date >= predict_date].index.tolist()
         pf = pf.ix[pd_indices]
+    else:
+        pd_indices = pf.index.tolist()
 
     # Save predictions for all projects
 
@@ -1239,7 +1233,9 @@ def save_predictions(model, tag, partition):
     preds = model.preds[(tag, partition)]
     if found_pdate:
         preds = np.take(preds, pd_indices)
-    np_store_data(preds, output_dir, output_file, extension, separator)
+    pred_series = pd.Series(preds, index=pd_indices)
+    df_pred = pd.DataFrame(pred_series, columns=['prediction'])
+    write_frame(df_pred, output_dir, output_file, extension, separator)
 
     # Save probabilities for classification projects
 
@@ -1250,14 +1246,16 @@ def save_predictions(model, tag, partition):
         probas = model.probas[(tag, partition)]
         if found_pdate:
             probas = np.take(probas, pd_indices)
-        np_store_data(probas, output_dir, output_file, extension, separator)
+        prob_series = pd.Series(probas, index=pd_indices)
+        df_prob = pd.DataFrame(prob_series, columns=['probability'])
+        write_frame(df_prob, output_dir, output_file, extension, separator)
 
     # Save ranked predictions
 
     logger.info("Saving Ranked Predictions")
-    pf['prediction'] = pd.Series(preds, index=pf.index)
+    pf['prediction'] = pred_series
     if model_type == ModelType.classification:
-        pf['probability'] = pd.Series(probas, index=pf.index)
+        pf['probability'] = prob_series
         pf.sort_values('probability', ascending=False, inplace=True)
     else:
         pf.sort_values('prediction', ascending=False, inplace=True)
