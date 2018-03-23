@@ -482,6 +482,7 @@ def get_pandas_data(schema, symbol, lookback_period):
 
     # Call the Pandas Web data reader.
 
+    df = None
     try:
         df = web.DataReader(symbol, schema, start, end)
     except:

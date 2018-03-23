@@ -46,6 +46,7 @@ from alphapy.utilities import valid_date
 import argparse
 import datetime
 import logging
+import multiprocessing as mp
 import os
 import pandas as pd
 import yaml
@@ -427,4 +428,5 @@ def main(args=None):
 #
 
 if __name__ == "__main__":
+    mp.set_start_method('forkserver')
     main()

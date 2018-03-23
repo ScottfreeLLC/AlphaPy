@@ -45,6 +45,7 @@ import datetime
 from itertools import groupby
 import logging
 import math
+import multiprocessing as mp
 import numpy as np
 import os
 import pandas as pd
@@ -911,4 +912,5 @@ def main(args=None):
 #
 
 if __name__ == "__main__":
+    mp.set_start_method('forkserver')
     main()
