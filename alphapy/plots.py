@@ -68,6 +68,7 @@ from itertools import product
 import logging
 import math
 import matplotlib.pyplot as plt
+plt.switch_backend('agg')
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import pandas as pd
