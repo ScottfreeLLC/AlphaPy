@@ -714,7 +714,7 @@ def first_fit(model, algo, est):
         eval_metric = xgb_score_map[scorer]
         est.fit(X1, y1, eval_set=eval_set, eval_metric=eval_metric,
                 early_stopping_rounds=esr)
-    elif class_weights and model_type != ModelType.classification:
+    elif class_weights and model_type == ModelType.classification:
         est.fit(X_train, y_train, sample_weight=class_weights)
     else:
         est.fit(X_train, y_train)
