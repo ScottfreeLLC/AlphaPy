@@ -47,7 +47,6 @@ from alphapy.globals import WILDCARD
 from alphapy.model import first_fit
 from alphapy.model import generate_metrics
 from alphapy.model import get_model_config
-from alphapy.model import get_class_weights
 from alphapy.model import load_feature_map
 from alphapy.model import load_predictor
 from alphapy.model import make_predictions
@@ -57,7 +56,6 @@ from alphapy.model import predict_blend
 from alphapy.model import save_model
 from alphapy.model import save_predictions
 from alphapy.optimize import hyper_grid_search
-from alphapy.optimize import rfe_search
 from alphapy.optimize import rfecv_search
 from alphapy.plots import generate_plots
 from alphapy.utilities import get_datestamp
@@ -69,6 +67,7 @@ import multiprocessing as mp
 import numpy as np
 import os
 import pandas as pd
+import warnings
 
 
 #
@@ -211,8 +210,6 @@ def training_pipeline(model):
             model = sample_data(model)
         else:
             logger.info("Skipping Sampling")
-        # Get sample weights (classification only)
-        model = get_class_weights(model)
 
     # Perform feature selection, independent of algorithm
 
@@ -238,7 +235,6 @@ def training_pipeline(model):
         # select estimator
         try:
             estimator = estimators[algo]
-            scoring = estimator.scoring
             est = estimator.estimator
         except KeyError:
             logger.info("Algorithm %s not found", algo)
@@ -246,10 +242,10 @@ def training_pipeline(model):
         model = first_fit(model, algo, est)
         # recursive feature elimination
         if rfe:
-            if scoring:
+            has_coef = hasattr(est, "coef_")
+            has_fimp = hasattr(est, "feature_importances_")
+            if has_coef or has_fimp:
                 model = rfecv_search(model, algo)
-            elif hasattr(est, "coef_"):
-                model = rfe_search(model, algo)
             else:
                 logger.info("No RFE Available for %s", algo)
         # grid search
@@ -504,5 +500,6 @@ def main(args=None):
 #
 
 if __name__ == "__main__":
+    warnings.filterwarnings(action='ignore', category=DeprecationWarning)
     mp.set_start_method('forkserver')
     main()

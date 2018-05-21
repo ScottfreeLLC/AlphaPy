@@ -43,6 +43,7 @@ from alphapy.utilities import most_recent_file
 
 from copy import copy
 from datetime import datetime
+from keras.models import load_model
 import logging
 import numpy as np
 import pandas as pd
@@ -53,7 +54,9 @@ from sklearn.linear_model import RidgeCV
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import auc
 from sklearn.metrics import average_precision_score
+from sklearn.metrics import brier_score_loss
 from sklearn.metrics import classification_report
+from sklearn.metrics import cohen_kappa_score
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import explained_variance_score
 from sklearn.metrics import f1_score
@@ -154,6 +157,7 @@ class Model:
             self.algolist = self.specs['algorithms']
         except:
             raise KeyError("Model specs must include the key: algorithms")
+        self.best_algo = None
         # feature map
         self.feature_map = {}
         # Key: (algorithm)
@@ -307,7 +311,6 @@ def get_model_config():
     # Section: model
 
     specs['algorithms'] = cfg['model']['algorithms']
-    specs['balance_classes'] = cfg['model']['balance_classes']
     specs['cv_folds'] = cfg['model']['cv_folds']
     # determine whether or not model type is valid
     model_types = {x.name: x.value for x in ModelType}
@@ -373,7 +376,6 @@ def get_model_config():
 
     logger.info('MODEL PARAMETERS:')
     logger.info('algorithms        = %s', specs['algorithms'])
-    logger.info('balance_classes   = %s', specs['balance_classes'])
     logger.info('calibration       = %r', specs['calibration'])
     logger.info('cal_type          = %s', specs['cal_type'])
     logger.info('calibration_plot  = %r', specs['calibration'])
@@ -474,15 +476,22 @@ def load_predictor(directory):
 
     """
 
-    # Locate the model Pickle file
+    # Locate the model Pickle or HD5 file
 
-    try:
-        search_dir = SSEP.join([directory, 'model'])
-        file_name = most_recent_file(search_dir, 'model_*.pkl')
+    search_dir = SSEP.join([directory, 'model'])
+    file_name = most_recent_file(search_dir, 'model_*.*')
+
+    # Load the model from the file
+
+    file_ext = file_name.split(PSEP)[-1]
+    if file_ext == 'pkl' or file_ext == 'h5':
         logger.info("Loading model predictor from %s", file_name)
         # load the model predictor
-        predictor = joblib.load(file_name)
-    except:
+        if file_ext == 'pkl':
+            predictor = joblib.load(file_name)
+        elif file_ext == 'h5':
+            predictor = load_model(file_name)
+    else:
         logging.error("Could not find model predictor in %s", search_path)
 
     # Return the model predictor
@@ -517,15 +526,18 @@ def save_predictor(model, timestamp):
     # Get the best predictor
     predictor = model.estimators['BEST']
 
-    # Create full path name.
-
-    filename = 'model_' + timestamp + '.pkl'
-    full_path = SSEP.join([directory, 'model', filename])
-
     # Save model object
 
-    logger.info("Writing model predictor to %s", full_path)
-    joblib.dump(predictor, full_path)
+    if 'KERAS' in model.best_algo:
+        filename = 'model_' + timestamp + '.h5'
+        full_path = SSEP.join([directory, 'model', filename])
+        logger.info("Writing model predictor to %s", full_path)
+        predictor.model.save(full_path)
+    else:
+        filename = 'model_' + timestamp + '.pkl'
+        full_path = SSEP.join([directory, 'model', filename])
+        logger.info("Writing model predictor to %s", full_path)
+        joblib.dump(predictor, full_path)
 
 
 #
@@ -603,56 +615,6 @@ def save_feature_map(model, timestamp):
 
 
 #
-# Function get_class_weights
-#
-
-def get_class_weights(model):
-    r"""Set the class weights for fitting the model.
-
-    Parameters
-    ----------
-    model : alphapy.Model
-        The model object with specifications.
-
-    Returns
-    -------
-    model : alphapy.Model
-        The model object with class weights.
-
-    """
-
-    # Extract model parameters.
-
-    balance_classes = model.specs['balance_classes']
-    target = model.specs['target']
-    target_value = model.specs['target_value']
-
-    # Extract model data.
-
-    y_train = model.y_train
-
-    # Calculate sample weights
-
-    sw = None
-    if balance_classes:
-        logger.info("Getting Class Weights")
-        uv, uc = np.unique(y_train, return_counts=True)
-        target_index = np.where(uv == target_value)[0][0]
-        nontarget_index = np.where(uv != target_value)[0][0]
-        weight = uc[nontarget_index] / uc[target_index]
-        logger.info("Class Weight for target %s [%r]: %f",
-                    target, target_value, weight)
-        sw = [weight if x==target_value else 1.0 for x in y_train]
-    else:
-        logger.info("Skipping Class Weights")  
-
-    # Set weights
-
-    model.specs['class_weights'] = sw
-    return model
-
-
-#
 # Function first_fit
 #
 
@@ -693,13 +655,6 @@ def first_fit(model, algo, est):
     seed = model.specs['seed']
     split = model.specs['split']
 
-    # Initialize class weights.
-
-    if model_type == ModelType.classification:
-        class_weights = model.specs['class_weights']
-    else:
-        class_weights = None
-
     # Extract model data.
 
     X_train = model.X_train
@@ -707,15 +662,16 @@ def first_fit(model, algo, est):
 
     # Fit the initial model.
 
-    if 'XGB' in algo and scorer in xgb_score_map:
+    algo_keras = 'KERAS' in algo
+    algo_xgb = 'XGB' in algo
+
+    if algo_xgb and scorer in xgb_score_map:
         X1, X2, y1, y2 = train_test_split(X_train, y_train, test_size=split,
                                           random_state=seed)
         eval_set = [(X1, y1), (X2, y2)]
         eval_metric = xgb_score_map[scorer]
         est.fit(X1, y1, eval_set=eval_set, eval_metric=eval_metric,
                 early_stopping_rounds=esr)
-    elif class_weights and model_type == ModelType.classification:
-        est.fit(X_train, y_train, sample_weight=class_weights)
     else:
         est.fit(X_train, y_train)
 
@@ -772,13 +728,6 @@ def make_predictions(model, algo, calibrate):
     cv_folds = model.specs['cv_folds']
     model_type = model.specs['model_type']
 
-    # Initialize class weights.
-
-    if model_type == ModelType.classification:
-        class_weights = model.specs['class_weights']
-    else:
-        class_weights = None
-
     # Get the estimator
 
     est = model.estimators[algo]
@@ -800,7 +749,7 @@ def make_predictions(model, algo, calibrate):
         if calibrate:
             logger.info("Calibrating Classifier")
             est = CalibratedClassifierCV(est, cv=cv_folds, method=cal_type)
-            est.fit(X_train, y_train, sample_weight=class_weights)
+            est.fit(X_train, y_train)
             model.estimators[algo] = est
             logger.info("Calibration Complete")
         else:
@@ -910,6 +859,7 @@ def predict_best(model):
     # Record predictions of best estimator
 
     logger.info("Best Model is %s with a %s score of %.4f", best_algo, scorer, best_score)
+    model.best_algo = best_algo
     model.estimators[best_tag] = model.estimators[best_algo]
     model.preds[(best_tag, Partition.train)] = model.preds[(best_algo, Partition.train)]
     model.preds[(best_tag, Partition.test)] = model.preds[(best_algo, Partition.test)]
@@ -1094,66 +1044,72 @@ def generate_metrics(model, partition):
         for algo in algolist:
             # get predictions for the given algorithm
             predicted = model.preds[(algo, partition)]
-            try:
-                model.metrics[(algo, partition, 'accuracy')] = accuracy_score(expected, predicted)
-            except:
-                logger.info("Accuracy Score not calculated")
-            try:
-                model.metrics[(algo, partition, 'adjusted_rand_score')] = adjusted_rand_score(expected, predicted)
-            except:
-                logger.info("Adjusted Rand Index not calculated")
-            try:
-                model.metrics[(algo, partition, 'confusion_matrix')] = confusion_matrix(expected, predicted)
-            except:
-                logger.info("Confusion Matrix not calculated")
-            try:
-                model.metrics[(algo, partition, 'explained_variance')] = explained_variance_score(expected, predicted)
-            except:
-                logger.info("Explained Variance Score not calculated")
-            try:
-                model.metrics[(algo, partition, 'f1')] = f1_score(expected, predicted)
-            except:
-                logger.info("F1 Score not calculated")
-            try:
-                model.metrics[(algo, partition, 'mean_absolute_error')] = mean_absolute_error(expected, predicted)
-            except:
-                logger.info("Mean Absolute Error not calculated")
-            try:
-                model.metrics[(algo, partition, 'median_absolute_error')] = median_absolute_error(expected, predicted)
-            except:
-                logger.info("Median Absolute Error not calculated")
-            try:
-                model.metrics[(algo, partition, 'neg_mean_squared_error')] = mean_squared_error(expected, predicted)
-            except:
-                logger.info("Mean Squared Error not calculated")
-            try:
-                model.metrics[(algo, partition, 'precision')] = precision_score(expected, predicted)
-            except:
-                logger.info("Precision Score not calculated")
-            try:
-                model.metrics[(algo, partition, 'r2')] = r2_score(expected, predicted)
-            except:
-                logger.info("R-Squared Score not calculated")
-            try:
-                model.metrics[(algo, partition, 'recall')] = recall_score(expected, predicted)
-            except:
-                logger.info("Recall Score not calculated")
-            # Probability-Based Metrics
+            # classification metrics
             if model_type == ModelType.classification:
-                predicted = model.probas[(algo, partition)]
+                probas = model.probas[(algo, partition)]
                 try:
-                    model.metrics[(algo, partition, 'average_precision')] = average_precision_score(expected, predicted)
+                    model.metrics[(algo, partition, 'accuracy')] = accuracy_score(expected, predicted)
+                except:
+                    logger.info("Accuracy Score not calculated")
+                try:
+                    model.metrics[(algo, partition, 'average_precision')] = average_precision_score(expected, probas)
                 except:
                     logger.info("Average Precision Score not calculated")
                 try:
-                    model.metrics[(algo, partition, 'neg_log_loss')] = log_loss(expected, predicted)
+                    model.metrics[(algo, partition, 'brier_score')] = brier_score_loss(expected, probas)
+                except:
+                    logger.info("Brier Score not calculated")
+                try:
+                    model.metrics[(algo, partition, 'cohen_kappa')] = cohen_kappa_score(expected, predicted)
+                except:
+                    logger.info("Cohen's Kappa Score not calculated")
+                try:
+                    model.metrics[(algo, partition, 'confusion_matrix')] = confusion_matrix(expected, predicted)
+                except:
+                    logger.info("Confusion Matrix not calculated")
+                try:
+                    model.metrics[(algo, partition, 'f1')] = f1_score(expected, predicted)
+                except:
+                    logger.info("F1 Score not calculated")
+                try:
+                    model.metrics[(algo, partition, 'neg_log_loss')] = log_loss(expected, probas)
                 except:
                     logger.info("Log Loss not calculated")
                 try:
-                    fpr, tpr, _ = roc_curve(expected, predicted)
+                    model.metrics[(algo, partition, 'precision')] = precision_score(expected, predicted)
+                except:
+                    logger.info("Precision Score not calculated")
+                try:
+                    model.metrics[(algo, partition, 'recall')] = recall_score(expected, predicted)
+                except:
+                    logger.info("Recall Score not calculated")
+                try:
+                    fpr, tpr, _ = roc_curve(expected, probas)
                     model.metrics[(algo, partition, 'roc_auc')] = auc(fpr, tpr)
                 except:
                     logger.info("ROC AUC Score not calculated")
+            # regression metrics
+            elif model_type == ModelType.regression:
+                try:
+                    model.metrics[(algo, partition, 'explained_variance')] = explained_variance_score(expected, predicted)
+                except:
+                    logger.info("Explained Variance Score not calculated")
+                try:
+                    model.metrics[(algo, partition, 'mean_absolute_error')] = mean_absolute_error(expected, predicted)
+                except:
+                    logger.info("Mean Absolute Error not calculated")
+                try:
+                    model.metrics[(algo, partition, 'median_absolute_error')] = median_absolute_error(expected, predicted)
+                except:
+                    logger.info("Median Absolute Error not calculated")
+                try:
+                    model.metrics[(algo, partition, 'neg_mean_squared_error')] = mean_squared_error(expected, predicted)
+                except:
+                    logger.info("Mean Squared Error not calculated")
+                try:
+                    model.metrics[(algo, partition, 'r2')] = r2_score(expected, predicted)
+                except:
+                    logger.info("R-Squared Score not calculated")
         # log the metrics for each algorithm
         for algo in model.algolist:
             logger.info('-'*80)
@@ -1230,7 +1186,7 @@ def save_predictions(model, tag, partition):
 
     logger.info("Saving Predictions")
     output_file = USEP.join(['predictions', timestamp])
-    preds = model.preds[(tag, partition)]
+    preds = model.preds[(tag, partition)].squeeze()
     if found_pdate:
         preds = np.take(preds, pd_indices)
     pred_series = pd.Series(preds, index=pd_indices)
@@ -1243,7 +1199,7 @@ def save_predictions(model, tag, partition):
     if model_type == ModelType.classification:
         logger.info("Saving Probabilities")
         output_file = USEP.join(['probabilities', timestamp])
-        probas = model.probas[(tag, partition)]
+        probas = model.probas[(tag, partition)].squeeze()
         if found_pdate:
             probas = np.take(probas, pd_indices)
         prob_series = pd.Series(probas, index=pd_indices)

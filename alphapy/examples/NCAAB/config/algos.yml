@@ -10,7 +10,6 @@ AB:
     grid       : {"n_estimators" : [10, 50, 100, 150, 200],
                   "learning_rate" : [0.2, 0.5, 0.7, 1.0, 1.5, 2.0],
                   "algorithm" : ['SAMME', 'SAMME.R']}
-    scoring    : True
 
 GB:
     # Gradient Boosting
@@ -25,7 +24,6 @@ GB:
                   "max_depth" : [3, 5, 10],
                   "min_samples_split" : [2, 3],
                   "min_samples_leaf" : [1, 2]}
-    scoring    : True
 
 GBR:
     # Gradient Boosting Regression
@@ -34,7 +32,31 @@ GBR:
                   "random_state" : seed,
                   "verbose" : verbosity}
     grid       : {}
-    scoring    : False
+
+KERASC:
+    # Keras Classification
+    model_type : classification
+    layers     : ["Dense(12, activation='relu')",
+                  "Dense(1, activation='sigmoid')"]
+    compiler   : {"optimizer" : 'rmsprop',
+                  "loss" : 'binary_crossentropy',
+                  "metrics" : 'accuracy'}
+    params     : {"epochs" : 50,
+                  "batch_size" : 10,
+                  "verbose" : 1}
+    grid       : {}
+
+KERASR:
+    # Keras Regression
+    model_type : regression
+    layers     : ["Dense(10, activation='relu')",
+                  "Dense(1)"]
+    compiler   : {"optimizer" : 'rmsprop',
+                  "loss" : 'mse'}
+    params     : {"epochs" : 50,
+                  "batch_size" : 10,
+                  "verbose" : 1}
+    grid       : {}
 
 KNN:
     # K-Nearest Neighbors
@@ -44,14 +66,12 @@ KNN:
                   "weights" : ['uniform', 'distance'],
                   "algorithm" : ['ball_tree', 'kd_tree', 'brute', 'auto'],
                   "leaf_size" : [10, 20, 30, 40, 50]}
-    scoring    : False
 
 KNR:
     # K-Nearest Neighbor Regression
     model_type : regression
     params     : {"n_jobs" : n_jobs}
     grid       : {}
-    scoring    : False
 
 LOGR:
     # Logistic Regression
@@ -63,7 +83,6 @@ LOGR:
                   "C" : [0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000, 1e4, 1e5, 1e6, 1e7],
                   "fit_intercept" : [True, False],
                   "solver" : ['newton-cg', 'lbfgs', 'liblinear', 'sag']}
-    scoring    : True
 
 LR:
     # Linear Regression
@@ -72,7 +91,6 @@ LR:
     grid       : {"fit_intercept" : [True, False],
                   "normalize" : [True, False],
                   "copy_X" : [True, False]}
-    scoring    : False
 
 LSVC:
     # Linear Support Vector Classification
@@ -88,7 +106,6 @@ LSVC:
                   "dual" : [True, False],
                   "tol" : [0.0005, 0.001, 0.005],
                   "max_iter" : [500, 1000, 2000]}
-    scoring    : False
 
 LSVM:
     # Linear Support Vector Machine
@@ -102,7 +119,6 @@ LSVM:
                   "shrinking" : [True, False],
                   "tol" : [0.0005, 0.001, 0.005],
                   "decision_function_shape" : ['ovo', 'ovr']}
-    scoring    : False
 
 NB:
     # Naive Bayes
@@ -110,7 +126,6 @@ NB:
     params     : {}
     grid       : {"alpha" : [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 1.0, 2.0, 5.0, 10.0],
                   "fit_prior" : [True, False]}
-    scoring    : True
 
 RBF:
     # Radial Basis Function
@@ -124,7 +139,6 @@ RBF:
                   "shrinking" : [True, False],
                   "tol" : [0.0005, 0.001, 0.005],
                   "decision_function_shape" : ['ovo', 'ovr']}
-    scoring    : False
 
 RF:
     # Random Forest
@@ -144,7 +158,6 @@ RF:
                   "min_samples_leaf" : [1, 2, 3],
                   "bootstrap" : [True, False],
                   "criterion" : ['gini', 'entropy']}
-    scoring    : True
 
 RFR:
     # Random Forest Regression
@@ -154,7 +167,6 @@ RFR:
                   "n_jobs" : n_jobs,
                   "verbose" : verbosity}
     grid       : {}
-    scoring    : False
 
 SVM:
     # Support Vector Machine
@@ -167,19 +179,18 @@ SVM:
                   "shrinking" : [True, False],
                   "tol" : [0.0005, 0.001, 0.005],
                   "decision_function_shape" : ['ovo', 'ovr']}
-    scoring    : False
 
 XGB:
     # XGBoost Binary
     model_type : classification
     params     : {"objective" : 'binary:logistic',
-                  "n_estimators" : n_estimators,
+                  "n_estimators" : 300,
                   "seed" : seed,
-                  "max_depth" : 6,
-                  "learning_rate" : 0.1,
-                  "min_child_weight" : 1.1,
-                  "subsample" : 0.9,
-                  "colsample_bytree" : 0.9,
+                  "max_depth" : 3,
+                  "learning_rate" : 0.05,
+                  "min_child_weight" : 1.0,
+                  "subsample" : 1.0,
+                  "colsample_bytree" : 1.0,
                   "nthread" : n_jobs,
                   "silent" : True}
     grid       : {"n_estimators" : [21, 51, 101, 201, 501],
@@ -188,7 +199,6 @@ XGB:
                   "min_child_weight" : [1.0, 1.1],
                   "subsample" : [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
                   "colsample_bytree" : [0.5, 0.6, 0.7, 0.8, 0.9, 1.0]}
-    scoring    : False
 
 XGBM:
     # XGBoost Multiclass
@@ -204,7 +214,6 @@ XGBM:
                   "nthread" : n_jobs,
                   "silent" : True}
     grid       : {}
-    scoring    : False
 
 XGBR:
     # XGBoost Regression
@@ -221,7 +230,6 @@ XGBR:
                   "nthread" : n_jobs,
                   "silent" : True}
     grid       : {}
-    scoring    : False
 
 XT:
     # Extra Trees
@@ -237,7 +245,6 @@ XT:
                   "min_samples_leaf" : [1, 2],
                   "bootstrap" : [True, False],
                   "warm_start" : [True, False]}
-    scoring    : True
 
 XTR:
     # Extra Trees Regression
@@ -247,4 +254,3 @@ XTR:
                   "n_jobs" : n_jobs,
                   "verbose" : verbosity}
     grid       : {}
-    scoring    : False

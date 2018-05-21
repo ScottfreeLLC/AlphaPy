@@ -12,7 +12,7 @@ market:
     target_group    : faang
 
 system:
-    name       : 'closer'
+    name       : closer
     holdperiod : 0
     longentry  : hc
     longexit   :
@@ -22,8 +22,6 @@ system:
 
 groups:
     faang      : ['fb', 'aapl', 'amzn', 'nflx', 'googl']
-
-features       : ['hc', 'lc']
 
 aliases:
     hc         : 'higher_close'

@@ -77,7 +77,6 @@ import seaborn as sns
 from sklearn.calibration import calibration_curve
 from sklearn.ensemble.partial_dependence import partial_dependence
 from sklearn.ensemble.partial_dependence import plot_partial_dependence
-from sklearn.learning_curve import validation_curve
 from sklearn.metrics import auc
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import roc_curve
@@ -85,6 +84,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import learning_curve
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import validation_curve
 
 
 #

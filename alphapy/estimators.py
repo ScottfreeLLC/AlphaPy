@@ -30,6 +30,10 @@ from alphapy.globals import ModelType
 from alphapy.globals import Objective
 from alphapy.globals import SSEP
 
+from keras.layers import *
+from keras.models import Sequential
+from keras.wrappers.scikit_learn import KerasClassifier
+from keras.wrappers.scikit_learn import KerasRegressor
 import logging
 import numpy as np
 from scipy.stats import randint as sp_randint
@@ -112,8 +116,6 @@ class Estimator:
         A scikit-learn, TensorFlow, or XGBoost function.
     grid : dict
         The dictionary of hyperparameters for grid search.
-    scoring : bool, optional
-        Use a scoring function to evaluate the best model.
 
     """
 
@@ -123,8 +125,7 @@ class Estimator:
                 algorithm,
                 model_type,
                 estimator,
-                grid,
-                scoring=False):
+                grid):
         return super(Estimator, cls).__new__(cls)
     
     # __init__
@@ -133,13 +134,11 @@ class Estimator:
                  algorithm,
                  model_type,
                  estimator,
-                 grid,
-                 scoring=False):
+                 grid):
         self.algorithm = algorithm.upper()
         self.model_type = model_type
         self.estimator = estimator
         self.grid = grid
-        self.scoring = scoring
         
     # __str__
 
@@ -148,59 +147,14 @@ class Estimator:
 
 
 #
-# Classes
-#
-
-class AdaBoostClassifierCoef(AdaBoostClassifier):
-    """An AdaBoost classifier where the coefficients are set to
-    the feature importances for Recursive Feature Elimination
-    to work.
-
-    """
-    def fit(self, *args, **kwargs):
-        super(AdaBoostClassifierCoef, self).fit(*args, **kwargs)
-        self.coef_ = self.feature_importances_
-
-
-class ExtraTreesClassifierCoef(ExtraTreesClassifier):
-    """An Extra Trees classifier where the coefficients are set to
-    the feature importances for Recursive Feature Elimination
-    to work.
-
-    """
-    def fit(self, *args, **kwargs):
-        super(ExtraTreesClassifierCoef, self).fit(*args, **kwargs)
-        self.coef_ = self.feature_importances_
-
-
-class RandomForestClassifierCoef(RandomForestClassifier):
-    """A Random Forest classifier where the coefficients are set to
-    the feature importances for Recursive Feature Elimination
-    to work.
-
-    """
-    def fit(self, *args, **kwargs):
-        super(RandomForestClassifierCoef, self).fit(*args, **kwargs)
-        self.coef_ = self.feature_importances_
-
-class GradientBoostingClassifierCoef(GradientBoostingClassifier):
-    """A Gradient Boostin classifier where the coefficients are set to
-    the feature importances for Recursive Feature Elimination
-    to work.
-
-    """
-    def fit(self, *args, **kwargs):
-        super(GradientBoostingClassifierCoef, self).fit(*args, **kwargs)
-        self.coef_ = self.feature_importances_
-
-
-#
 # Define estimator map
 #
 
-estimator_map = {'AB'     : AdaBoostClassifierCoef,
-                 'GB'     : GradientBoostingClassifierCoef,
+estimator_map = {'AB'     : AdaBoostClassifier,
+                 'GB'     : GradientBoostingClassifier,
                  'GBR'    : GradientBoostingRegressor,
+                 'KERASC' : KerasClassifier,
+                 'KERASR' : KerasRegressor,
                  'KNN'    : KNeighborsClassifier,
                  'KNR'    : KNeighborsRegressor,
                  'LOGR'   : LogisticRegression,
@@ -209,13 +163,13 @@ estimator_map = {'AB'     : AdaBoostClassifierCoef,
                  'LSVM'   : SVC,
                  'NB'     : MultinomialNB,
                  'RBF'    : SVC,
-                 'RF'     : RandomForestClassifierCoef,
+                 'RF'     : RandomForestClassifier,
                  'RFR'    : RandomForestRegressor,
                  'SVM'    : SVC,
                  'XGB'    : xgb.XGBClassifier,
                  'XGBM'   : xgb.XGBClassifier,
                  'XGBR'   : xgb.XGBRegressor,
-                 'XT'     : ExtraTreesClassifierCoef,
+                 'XT'     : ExtraTreesClassifier,
                  'XTR'    : ExtraTreesRegressor
                 }
 
@@ -250,11 +204,16 @@ def get_algos_config(cfg_dir):
 
     # Ensure each algorithm has required keys
 
-    required_keys = ['model_type', 'params', 'grid', 'scoring']
+    minimum_keys = ['model_type', 'params', 'grid']
+    required_keys_keras = minimum_keys + ['layers', 'compiler']
     for algo in specs:
+        if 'KERAS' in algo:
+            required_keys = required_keys_keras
+        else:
+            required_keys = minimum_keys
         algo_keys = list(specs[algo].keys())
         if set(algo_keys) != set(required_keys):
-            logger.warning("Algorithm %s is missing the required keys %s",
+            logger.warning("Algorithm %s has the wrong keys %s",
                            algo, required_keys)
             logger.warning("Keys found instead: %s", algo_keys)
         else:
@@ -271,24 +230,57 @@ def get_algos_config(cfg_dir):
 
 
 #
-# Function get_estimators
+# Function create_keras_model
 #
 
-# AdaBoost (feature_importances_)
-# Gradient Boosting (feature_importances_)
-# K-Nearest Neighbors (NA)
-# Linear Regression (coef_)
-# Linear Support Vector Machine (coef_)
-# Logistic Regression (coef_)
-# Naive Bayes (coef_)
-# Radial Basis Function (NA)
-# Random Forest (feature_importances_)
-# Support Vector Machine (NA)
-# XGBoost Binary (NA)
-# XGBoost Multi (NA)
-# Extra Trees (feature_importances_)
-# Random Forest (feature_importances_)
-# Randomized Lasso
+def create_keras_model(nlayers,
+                       layer1=None,
+                       layer2=None,
+                       layer3=None,
+                       layer4=None,
+                       layer5=None,
+                       layer6=None,
+                       layer7=None,
+                       layer8=None,
+                       layer9=None,
+                       layer10=None,
+                       optimizer=None,
+                       loss=None,
+                       metrics=None):
+    r"""Create a Keras Sequential model.
+
+    Parameters
+    ----------
+    nlayers : int
+        Number of layers of the Sequential model.
+    layer1...layer10 : str
+        Ordered layers of the Sequential model.
+    optimizer : str
+        Compiler optimizer for the Sequential model.
+    loss : str
+        Compiler loss function for the Sequential model.
+    metrics : str
+        Compiler evaluation metric for the Sequential model.
+
+    Returns
+    -------
+    model : keras.models.Sequential
+        Compiled Keras Sequential Model.
+
+    """
+
+    model = Sequential()
+    for i in range(nlayers):
+        lvar = 'layer' + str(i+1)
+        layer = eval(lvar)
+        model.add(eval(layer))
+    model.compile(optimizer=optimizer, loss=loss, metrics=[metrics])
+    return model
+
+
+#
+# Function get_estimators
+#
 
 def get_estimators(model):
     r"""Define all the AlphaPy estimators based on the contents
@@ -314,10 +306,14 @@ def get_estimators(model):
     seed = model.specs['seed']
     verbosity = model.specs['verbosity']
 
+    # Reference training data for Keras input_dim
+    X_train = model.X_train
+
     # Initialize estimator dictionary
     estimators = {}
 
     # Global parameter substitution fields
+
     ps_fields = {'n_estimators' : 'n_estimators',
                  'n_jobs'       : 'n_jobs',
                  'nthread'      : 'n_jobs',
@@ -339,10 +335,24 @@ def get_estimators(model):
             if param in ps_fields and isinstance(param, str):
                 algo_specs[algo]['params'][param] = eval(ps_fields[param])
         func = estimator_map[algo]
+        if 'KERAS' in algo:
+            params['build_fn'] = create_keras_model
+            layers = algo_specs[algo]['layers']
+            params['nlayers'] = len(layers)
+            input_dim_string = ', input_dim={})'.format(X_train.shape[1])
+            layers[0] = layers[0].replace(')', input_dim_string)
+            for i, layer in enumerate(layers):
+                params['layer'+str(i+1)] = layer
+            compiler = algo_specs[algo]['compiler']
+            params['optimizer'] = compiler['optimizer']
+            params['loss'] = compiler['loss']
+            try:
+                params['metrics'] = compiler['metrics']
+            except:
+                pass
         est = func(**params)
         grid = algo_specs[algo]['grid']
-        scoring = algo_specs[algo]['scoring']
-        estimators[algo] = Estimator(algo, model_type, est, grid, scoring)
+        estimators[algo] = Estimator(algo, model_type, est, grid)
 
     # return the entire classifier list
     return estimators

@@ -49,6 +49,7 @@ import multiprocessing as mp
 import numpy as np
 import os
 import pandas as pd
+import warnings
 import yaml
 
 
@@ -912,5 +913,6 @@ def main(args=None):
 #
 
 if __name__ == "__main__":
+    warnings.filterwarnings(action='ignore', category=DeprecationWarning)
     mp.set_start_method('forkserver')
     main()
