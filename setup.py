@@ -10,7 +10,7 @@ MAINTAINER = 'ScottFree LLC [Robert D. Scott II, Mark Conway]'
 MAINTAINER_EMAIL = 'scottfree.analytics@scottfreellc.com'
 URL = "https://github.com/ScottFreeLLC/AlphaPy"
 LICENSE = "Apache License, Version 2"
-VERSION = "2.2.2"
+VERSION = "2.3"
 
 classifiers = ['Development Status :: 4 - Beta',
                'Programming Language :: Python',
@@ -29,15 +29,15 @@ install_reqs = [
     'imbalanced-learn>=0.2.1',
     'ipython>=3.2.3',
     'matplotlib>=2.0.0',
-    'numpy>=1.9.1',
-    'pandas>=0.19.0',
+    'numpy>=1.12',
+    'pandas>=0.21.0',
     'pandas-datareader>=0.3',
-    'pyfolio>=0.7',
+    'pyfolio>=0.8',
     'pyyaml>=3.12',
-    'scikit-learn>=0.17.1',
-    'scipy>=0.18.1',
+    'scikit-learn>=0.18',
+    'scipy>=1.0',
     'seaborn>=0.7.1',
-    'xgboost>=0.6a2',
+    'xgboost>=0.71',
 ]
 
 if __name__ == "__main__":
