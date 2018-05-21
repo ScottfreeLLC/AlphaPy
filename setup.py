@@ -30,7 +30,7 @@ install_reqs = [
     'ipython>=3.2.3',
     'matplotlib>=2.0.0',
     'numpy>=1.12',
-    'pandas>=0.21.0',
+    'pandas>=0.19,<=0.22',
     'pandas-datareader>=0.6',
     'pyfolio>=0.8',
     'pyyaml>=3.12',
