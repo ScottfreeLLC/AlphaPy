@@ -23,7 +23,7 @@ before_install:
 
 install:
   # Replace dep1 dep2 ... with your dependencies
-  - conda create -q -n testenv python=$TRAVIS_PYTHON_VERSION bokeh ipython matplotlib numpy pandas pyyaml scikit-learn scipy seaborn xgboost category_encoders imbalanced-learn pandas-datareader pyfolio
+  - conda create -q -n testenv python=$TRAVIS_PYTHON_VERSION bokeh ipython matplotlib numpy pandas pyyaml scikit-learn scipy seaborn pandas-datareader
   - source activate testenv
   - pip install category_encoders
   - pip install imbalanced-learn
