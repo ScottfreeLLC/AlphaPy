@@ -28,6 +28,10 @@ install:
   - pip install category_encoders
   - pip install imbalanced-learn
   - pip install pyfolio
+  
+script:
+  # Add test coverage
+
 branches:
   only:
     - master
