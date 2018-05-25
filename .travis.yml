@@ -30,7 +30,7 @@ install:
   - pip install pyfolio
   
 script:
-  # Add test coverage
+  nosetests
 
 branches:
   only:
