@@ -1,0 +1,40 @@
+language: python
+sudo: false
+
+python:
+  - "3.5"
+  - "3.6"
+
+before_install:
+  # We do this conditionally because it saves us some downloading if the
+  # version is the same.
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+    else
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  # Useful for debugging any issues with conda
+  - conda info -a
+
+install:
+  # Replace dep1 dep2 ... with your dependencies
+  - conda create -q -n testenv python=$TRAVIS_PYTHON_VERSION bokeh ipython matplotlib numpy pandas pyyaml scikit-learn scipy seaborn pandas-datareader
+  - source activate testenv
+  - pip install category_encoders
+  - pip install imbalanced-learn
+  - pip install pyfolio
+  
+script:
+  nosetests
+
+notifications:
+  email: false
+
+branches:
+  only:
+    - master
