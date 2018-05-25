@@ -1,3 +1,8 @@
+.. image:: https://badge.fury.io/py/alphapy.svg
+    :target: https://badge.fury.io/py/alphapy
+
+.. image:: https://travis-ci.org/ScottFreeLLC/AlphaPy.svg?branch=master
+
 AlphaPy
 =======
 
