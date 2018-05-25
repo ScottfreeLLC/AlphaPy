@@ -7,10 +7,10 @@ AlphaPy
 =======
 
 **AlphaPy** is a machine learning framework for both speculators and
-data scientists. It is written in Python with the ``scikit-learn``
-and ``pandas`` libraries, as well as many other helpful libraries
-for feature engineering and visualization. Here are just some of the
-things you can do with AlphaPy:
+data scientists. It is written in Python with the ``scikit-learn``,
+``pandas``, and ``Keras`` libraries, as well as many other helpful
+libraries for feature engineering and visualization. Here are just
+some of the things you can do with AlphaPy:
 
 * Run machine learning models using ``scikit-learn`` and ``xgboost``.
 * Create models for analyzing the markets with *MarketFlow*.
