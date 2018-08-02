@@ -3,6 +3,10 @@
 
 .. image:: https://travis-ci.org/ScottFreeLLC/AlphaPy.svg?branch=master
 
+.. image:: https://readthedocs.org/projects/alphapy/badge/?version=latest
+:target: https://alphapy.readthedocs.io/en/latest/?badge=latest
+:alt: Documentation Status
+
 AlphaPy
 =======
 
