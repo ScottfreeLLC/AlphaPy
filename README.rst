@@ -1,14 +1,7 @@
-.. image:: https://badge.fury.io/py/alphapy.svg
-    :target: https://badge.fury.io/py/alphapy
-
-.. image:: https://travis-ci.org/ScottFreeLLC/AlphaPy.svg?branch=master
-
-.. image:: https://readthedocs.org/projects/alphapy/badge/?version=latest
-    :target: https://alphapy.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation Status
-
 AlphaPy
 =======
+
+|badge_pypi| |badge_build| |badge_docs|
 
 **AlphaPy** is a machine learning framework for both speculators and
 data scientists. It is written in Python with the ``scikit-learn``,
@@ -86,3 +79,8 @@ Donations
 If you like the software, please donate:
 
 http://alphapy.readthedocs.io/en/latest/introduction/support.html#donations
+
+
+.. |badge_pypi| image:: https://badge.fury.io/py/alphapy.svg
+.. |badge_build| image:: https://travis-ci.org/ScottFreeLLC/AlphaPy.svg?branch=master
+.. |badge_docs| image:: https://readthedocs.org/projects/alphapy/badge/?version=latest
