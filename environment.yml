@@ -8,7 +8,7 @@ dependencies:
 - ipython>=3.2.3
 - matplotlib>=2.0.0
 - numpy>=1.9.1
-- pandas>=0.19.0
+- pandas>=0.22.0
 - pyyaml>=3.12
 - scikit-learn>=0.17.1
 - scipy>=0.18.1
