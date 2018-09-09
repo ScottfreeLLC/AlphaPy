@@ -71,7 +71,7 @@ http://github.com/ScottFreeLLC/AlphaPy/issues
 
 Follow us on Twitter:
 
-https://twitter.com/scottfreellc?lang=en
+https://twitter.com/_AlphaPy_?lang=en
 
 Donations
 ---------
