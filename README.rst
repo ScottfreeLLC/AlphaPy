@@ -67,7 +67,7 @@ Support
 
 The official channel for support is to open an issue on Github.
 
-http://github.com/ScottFreeLLC/AlphaPy/issues
+http://github.com/ScottfreeLLC/AlphaPy/issues
 
 Follow us on Twitter:
 
@@ -82,5 +82,5 @@ http://alphapy.readthedocs.io/en/latest/introduction/support.html#donations
 
 
 .. |badge_pypi| image:: https://badge.fury.io/py/alphapy.svg
-.. |badge_build| image:: https://travis-ci.org/ScottFreeLLC/AlphaPy.svg?branch=master
+.. |badge_build| image:: https://travis-ci.org/ScottfreeLLC/AlphaPy.svg?branch=master
 .. |badge_docs| image:: https://readthedocs.org/projects/alphapy/badge/?version=latest
