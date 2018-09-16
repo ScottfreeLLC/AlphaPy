@@ -315,9 +315,8 @@ def dump_frames(group, directory, extension, separator):
 # Function sequence_frame
 #
 
-def sequence_frame(df, target, leaders, lag_period=1,
-                   forecast_period=1, exclude_cols=[]):
-    r"""Run an analysis for a given model and group.
+def sequence_frame(df, target, forecast_period=1, leaders=[], lag_period=1):
+    r"""Create sequences of lagging and leading values.
 
     Parameters
     ----------
@@ -325,12 +324,12 @@ def sequence_frame(df, target, leaders, lag_period=1,
         The original dataframe.
     target : str
         The target variable for prediction.
+    forecast_period : int
+        The period for forecasting the target of the analysis.
     leaders : list
         The features that are contemporaneous with the target.
     lag_period : int
         The number of lagged rows for prediction.
-    forecast_period : int
-        The period for forecasting the target of the analysis.
 
     Returns
     -------
@@ -339,32 +338,21 @@ def sequence_frame(df, target, leaders, lag_period=1,
 
     """
 
-    # Set Leading and Lagging Columns
+    # Set Leaders and Laggards
     le_cols = sorted(leaders)
     le_len = len(le_cols)
     df_cols = sorted(list(set(df.columns) - set(le_cols)))
-    for c in exclude_cols:
-        df_cols.remove(c)
     df_len = len(df_cols)
 
-    # Excluded Columns
+    # Add lagged columns
     new_cols, new_names = list(), list()
-    for c in exclude_cols:
-        new_cols.append(pd.DataFrame(df[c]))
-        new_names.append(c)
-
-    # Lag Features
     for i in range(lag_period, 0, -1):
         new_cols.append(df[df_cols].shift(i))
         new_names += ['%s[%d]' % (df_cols[j], i) for j in range(df_len)]
 
-    # Lag Leaders
-    for i in range(lag_period-1, -1, -1):
-        new_cols.append(df[le_cols].shift(i))
-        if i == 0:
-            new_names += [le_cols[j] for j in range(le_len)]
-        else:
-            new_names += ['%s[%d]' % (le_cols[j], i) for j in range(le_len)]
+    # Preserve leader columns
+    new_cols.append(df[le_cols])
+    new_names += [le_cols[j] for j in range(le_len)]
 
     # Forecast Target(s)
     new_cols.append(pd.DataFrame(df[target].shift(1-forecast_period)))

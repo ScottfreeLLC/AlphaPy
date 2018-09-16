@@ -211,6 +211,7 @@ def run_analysis(analysis, lag_period, forecast_period, leaders,
 
     # Subset each individual frame and add to the master frame
 
+    leaders.extend([TAG_ID])
     for df in data_frames:
         try:
             tag = df[TAG_ID].unique()[0]
@@ -220,8 +221,7 @@ def run_analysis(analysis, lag_period, forecast_period, leaders,
         last_date = df.index[-1]
         logger.info("Analyzing %s from %s to %s", tag, first_date, last_date)
         # sequence leaders, laggards, and target(s)
-        df = sequence_frame(df, target, leaders, lag_period, forecast_period,
-                            exclude_cols=[TAG_ID])
+        df = sequence_frame(df, target, forecast_period, leaders, lag_period)
         # get frame subsets
         if predict_mode:
             new_predict = df.loc[(df.index >= split_date) & (df.index <= last_date)]
