@@ -314,6 +314,7 @@ def convert_data(df, index_column, intraday_data):
     # Create the time/date index if not already done 
 
     if not isinstance(df.index, pd.DatetimeIndex):
+        df.reset_index(inplace=True)
         if intraday_data:
             dt_column = df['date'] + ' ' + df['time']
         else:
@@ -473,8 +474,11 @@ def get_pandas_data(schema, symbol, lookback_period):
     # Quandl is a special case with subfeeds.
 
     if 'quandl' in schema:
-        schema, symbol_prefix = schema.split(USEP)
-        symbol = SSEP.join([symbol_prefix, symbol]).upper()
+        try:
+            schema, symbol_prefix = schema.split(USEP)
+            symbol = SSEP.join([symbol_prefix, symbol])
+        except:
+            logger.info("Quandl schema format must be: quandl_DB. Ex: quandl_wiki")
 
     # Calculate the start and end date.
 
@@ -485,7 +489,7 @@ def get_pandas_data(schema, symbol, lookback_period):
 
     df = None
     try:
-        df = web.DataReader(symbol, schema, start, end)
+        df = web.DataReader(symbol.upper(), schema, start, end)
     except:
         logger.info("Could not retrieve data for: %s", symbol)
 
@@ -549,6 +553,9 @@ def get_market_data(model, group, lookback_period,
     pandas_data = any(substring in schema for substring in PD_WEB_DATA_FEEDS)
     n_periods = 0
     resample_data = True if fractal != data_fractal else False
+    df = None
+    to_date = pd.to_datetime('today')
+    from_date = to_date - pd.to_timedelta(lookback_period, unit='d')
 
     for item in group.members:
         logger.info("Getting %s data for last %d days", item, lookback_period)
@@ -568,7 +575,7 @@ def get_market_data(model, group, lookback_period,
             logger.error("Unsupported Data Source: %s", schema)
         # Now that we have content, standardize the data
         if df is not None and not df.empty:
-            logger.info("Rows: %d", len(df))
+            logger.info("%d data points from %s to %s", len(df), from_date, to_date)
             # convert data to canonical form
             df = convert_data(df, index_column, intraday_data)
             # resample data and forward fill any NA values
