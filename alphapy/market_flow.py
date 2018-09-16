@@ -46,10 +46,12 @@ from alphapy.utilities import valid_date
 import argparse
 import datetime
 import logging
-import multiprocessing as mp
 import os
 import pandas as pd
+import sys
 import warnings
+warnings.simplefilter(action='ignore', category=DeprecationWarning)
+warnings.simplefilter(action='ignore', category=FutureWarning)
 import yaml
 
 
@@ -265,13 +267,11 @@ def market_pipeline(model, market_specs):
     # predict_history resets to the actual history obtained.
 
     lookback = predict_history if predict_mode else data_history
-    new_history = get_market_data(model, group, lookback,
-                                  data_fractal, intraday)
-    if new_history < data_history:
-        logger.info("Maximum Data History is %d, not %d",
-                    new_history, data_history)
-        if new_history == 0:
-            raise ValueError("Could not get market data from source")
+    npoints = get_market_data(model, group, lookback, data_fractal, intraday)
+    if npoints > 0:
+        logger.info("Number of Data Points: %d", npoints)
+    else:
+        raise ValueError("Could not get market data from source")
 
     # Run an analysis to create the model
 
@@ -429,6 +429,4 @@ def main(args=None):
 #
 
 if __name__ == "__main__":
-    warnings.filterwarnings(action='ignore', category=DeprecationWarning)
-    mp.set_start_method('forkserver')
     main()

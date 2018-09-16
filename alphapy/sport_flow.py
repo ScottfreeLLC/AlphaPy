@@ -45,11 +45,13 @@ import datetime
 from itertools import groupby
 import logging
 import math
-import multiprocessing as mp
 import numpy as np
 import os
 import pandas as pd
+import sys
 import warnings
+warnings.simplefilter(action='ignore', category=DeprecationWarning)
+warnings.simplefilter(action='ignore', category=FutureWarning)
 import yaml
 
 
@@ -792,6 +794,9 @@ def main(args=None):
             gf['away.score'] = np.random.randint(points_min, points_max, total_games)
         gf['total_points'] = gf['home.score'] + gf['away.score']
 
+        # gf['line_delta'] = gf['line'] - gf['line_open']
+        # gf['over_under_delta'] = gf['over_under'] - gf['over_under_open']
+
         gf = add_features(gf, game_dict, gf.shape[0])
         for index, row in gf.iterrows():
             gf['point_margin_game'].at[index] = get_point_margin(row, 'home.score', 'away.score')
@@ -855,7 +860,6 @@ def main(args=None):
                         mpos = np.where((mf[away_team] == key_team) & (mf['date'] == key_date))[0][0]
                 except:
                     raise IndexError("Team/Date Key not found in Model Frame")
-                # print team, gindex, mpos
                 # insert team data into model row
                 mf = insert_model_data(mf, mpos, mdict, tf, index, team1_prefix if at_home else team2_prefix)
 
@@ -913,6 +917,4 @@ def main(args=None):
 #
 
 if __name__ == "__main__":
-    warnings.filterwarnings(action='ignore', category=DeprecationWarning)
-    mp.set_start_method('forkserver')
     main()

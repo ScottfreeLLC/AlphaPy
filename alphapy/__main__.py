@@ -63,11 +63,13 @@ from alphapy.utilities import get_datestamp
 import argparse
 from datetime import datetime
 import logging
-import multiprocessing as mp
 import numpy as np
 import os
 import pandas as pd
+import sys
 import warnings
+warnings.simplefilter(action='ignore', category=DeprecationWarning)
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 #
@@ -500,6 +502,4 @@ def main(args=None):
 #
 
 if __name__ == "__main__":
-    warnings.filterwarnings(action='ignore', category=DeprecationWarning)
-    mp.set_start_method('forkserver')
     main()
