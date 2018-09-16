@@ -5,17 +5,17 @@ channels:
 
 dependencies:
 - bokeh>=0.12
-- ipython>=3.2.3
+- ipython>=5.0
 - matplotlib>=2.0.0
-- numpy>=1.9.1
-- pandas>=0.22.0
+- numpy>=1.12
+- pandas>=0.22
 - pyyaml>=3.12
-- scikit-learn>=0.17.1
-- scipy>=0.18.1
-- seaborn>=0.7.1
-- xgboost>=0.6a2
+- scikit-learn>=0.19
+- scipy>=1.0
+- seaborn>=0.8
+- xgboost>=0.71
 - pip:
   - category_encoders>=1.2.0
-  - imbalanced-learn>=0.2.1
-  - pandas-datareader>=0.3
-  - pyfolio>=0.7
+  - imbalanced-learn>=0.3
+  - pandas-datareader>=0.6
+  - pyfolio>=0.8
