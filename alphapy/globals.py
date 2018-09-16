@@ -78,7 +78,7 @@ PD_INTRADAY_OFFSETS = ['H', 'T', 'min', 'S', 'L', 'ms', 'U', 'us', 'N']
 # Pandas Web Reader Feeds
 #
 
-PD_WEB_DATA_FEEDS = ['google', 'quandl', 'yahoo']
+PD_WEB_DATA_FEEDS = ['google', 'iex', 'quandl', 'yahoo']
 
 
 #

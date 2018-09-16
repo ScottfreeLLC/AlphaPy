@@ -7,7 +7,7 @@ market:
     lag_period      : 1
     leaders         : ['gap', 'gapbadown', 'gapbaup', 'gapdown', 'gapup']
     predict_history : 100
-    schema          : quandl_wiki
+    schema          : iex
     subject         : stock
     target_group    : test
 

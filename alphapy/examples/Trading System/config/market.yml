@@ -7,7 +7,7 @@ market:
     lag_period      : 1
     leaders         : []
     predict_history : 50
-    schema          : quandl_wiki
+    schema          : iex
     subject         : stock
     target_group    : faang
 
