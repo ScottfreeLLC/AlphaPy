@@ -83,8 +83,4 @@ http://alphapy.readthedocs.io/en/latest/introduction/support.html#donations
 
 .. |badge_pypi| image:: https://badge.fury.io/py/alphapy.svg
 .. |badge_build| image:: https://travis-ci.org/ScottfreeLLC/AlphaPy.svg?branch=master
-<<<<<<< HEAD
 .. |badge_docs| image:: https://readthedocs.org/projects/alphapy/badge/?version=latest
-=======
-.. |badge_docs| image:: https://readthedocs.org/projects/alphapy/badge/?version=latest
->>>>>>> eec5ba3919152c161e4f8acd3aa25dab0b89c6cf
