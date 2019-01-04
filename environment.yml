@@ -6,6 +6,7 @@ channels:
 dependencies:
 - bokeh>=0.12
 - ipython>=5.0
+- keras>=2.2
 - matplotlib>=2.0.0
 - numpy>=1.12
 - pandas>=0.22
