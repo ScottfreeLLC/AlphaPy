@@ -14,6 +14,7 @@ dependencies:
 - scikit-learn>=0.19
 - scipy>=1.0
 - seaborn>=0.8
+- tensorflow>=1.12
 - xgboost>=0.71
 - pip:
   - category_encoders>=1.2.0
