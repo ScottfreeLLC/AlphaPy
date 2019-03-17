@@ -4,7 +4,7 @@
 # Module    : model
 # Created   : July 11, 2013
 #
-# Copyright 2017 ScottFree Analytics LLC
+# Copyright 2019 ScottFree Analytics LLC
 # Mark Conway & Robert D. Scott II
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,6 +54,7 @@ from sklearn.linear_model import RidgeCV
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import auc
 from sklearn.metrics import average_precision_score
+from sklearn.metrics import balanced_accuracy_score
 from sklearn.metrics import brier_score_loss
 from sklearn.metrics import classification_report
 from sklearn.metrics import cohen_kappa_score
@@ -63,6 +64,7 @@ from sklearn.metrics import f1_score
 from sklearn.metrics import log_loss
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_log_error
 from sklearn.metrics import median_absolute_error
 from sklearn.metrics import precision_score
 from sklearn.metrics import r2_score
@@ -70,6 +72,7 @@ from sklearn.metrics import recall_score
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import roc_curve
 from sklearn.metrics.cluster import adjusted_rand_score
+from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import train_test_split
 import sys
 import yaml
@@ -134,9 +137,9 @@ class Model:
         stored in ``algolist``.
 
     """
-            
+
     # __init__
-            
+
     def __init__(self,
                  specs):
         # specifications
@@ -170,7 +173,7 @@ class Model:
         self.probas = {}
         # Keys: (algorithm, partition, metric)
         self.metrics = {}
-                
+
     # __str__
 
     def __str__(self):
@@ -649,11 +652,14 @@ def first_fit(model, algo, est):
 
     # Extract model parameters.
 
+    cv_folds = model.specs['cv_folds']
     esr = model.specs['esr']
     model_type = model.specs['model_type']
+    n_jobs = model.specs['n_jobs']
     scorer = model.specs['scorer']
     seed = model.specs['seed']
     split = model.specs['split']
+    verbosity = model.specs['verbosity']
 
     # Extract model data.
 
@@ -662,7 +668,6 @@ def first_fit(model, algo, est):
 
     # Fit the initial model.
 
-    algo_keras = 'KERAS' in algo
     algo_xgb = 'XGB' in algo
 
     if algo_xgb and scorer in xgb_score_map:
@@ -675,8 +680,14 @@ def first_fit(model, algo, est):
     else:
         est.fit(X_train, y_train)
 
-    # Store the estimator
+    # Get the initial scores
 
+    logger.info("Cross-Validation")
+    scores = cross_val_score(est, X_train, y_train, scoring=scorer, cv=cv_folds,
+                             n_jobs=n_jobs, verbose=verbosity)
+    logger.info("Cross-Validation Scores: %s", scores)
+
+    # Store the estimator
     model.estimators[algo] = est
 
     # Record importances and coefficients if necessary.
@@ -965,7 +976,7 @@ def predict_blend(model):
         model.probas[(blend_tag, Partition.test)] = clf.predict_proba(X_blend_test)[:, 1]
     else:
         alphas = [0.0001, 0.005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5,
-                  1.0, 5.0, 10.0, 50.0, 100.0, 500.0, 1000.0]    
+                  1.0, 5.0, 10.0, 50.0, 100.0, 500.0, 1000.0]
         rcvr = RidgeCV(alphas=alphas, normalize=True, cv=cv_folds)
         rcvr.fit(X_blend_train, y_train)
         model.estimators[blend_tag] = rcvr
@@ -1056,7 +1067,11 @@ def generate_metrics(model, partition):
                 except:
                     logger.info("Average Precision Score not calculated")
                 try:
-                    model.metrics[(algo, partition, 'brier_score')] = brier_score_loss(expected, probas)
+                    model.metrics[(algo, partition, 'balanced_accuracy')] = balanced_accuracy_score(expected, predicted)
+                except:
+                    logger.info("Accuracy Score not calculated")
+                try:
+                    model.metrics[(algo, partition, 'brier_score_loss')] = brier_score_loss(expected, probas)
                 except:
                     logger.info("Brier Score not calculated")
                 try:
@@ -1095,17 +1110,21 @@ def generate_metrics(model, partition):
                 except:
                     logger.info("Explained Variance Score not calculated")
                 try:
-                    model.metrics[(algo, partition, 'mean_absolute_error')] = mean_absolute_error(expected, predicted)
+                    model.metrics[(algo, partition, 'neg_mean_absolute_error')] = mean_absolute_error(expected, predicted)
                 except:
                     logger.info("Mean Absolute Error not calculated")
                 try:
-                    model.metrics[(algo, partition, 'median_absolute_error')] = median_absolute_error(expected, predicted)
+                    model.metrics[(algo, partition, 'neg_median_absolute_error')] = median_absolute_error(expected, predicted)
                 except:
                     logger.info("Median Absolute Error not calculated")
                 try:
                     model.metrics[(algo, partition, 'neg_mean_squared_error')] = mean_squared_error(expected, predicted)
                 except:
                     logger.info("Mean Squared Error not calculated")
+                try:
+                    model.metrics[(algo, partition, 'neg_mean_squared_log_error')] = mean_squared_log_error(expected, predicted)
+                except:
+                    logger.info("Mean Squared Log Error not calculated")
                 try:
                     model.metrics[(algo, partition, 'r2')] = r2_score(expected, predicted)
                 except:

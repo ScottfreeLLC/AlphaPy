@@ -4,7 +4,7 @@
 # Module    : plots
 # Created   : July 11, 2013
 #
-# Copyright 2017 ScottFree Analytics LLC
+# Copyright 2019 ScottFree Analytics LLC
 # Mark Conway & Robert D. Scott II
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -67,8 +67,9 @@ from itertools import cycle
 from itertools import product
 import logging
 import math
+import matplotlib
+matplotlib.use('PS')
 import matplotlib.pyplot as plt
-plt.switch_backend('agg')
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import pandas as pd
@@ -469,7 +470,7 @@ def plot_learning_curve(model, partition):
 
     cv = StratifiedKFold(n_splits=cv_folds, shuffle=shuffle, random_state=seed)
 
-    # Plot a learning curve for each algorithm.   
+    # Plot a learning curve for each algorithm.
 
     ylim = (0.4, 1.01)
 
@@ -715,7 +716,7 @@ def plot_validation_curve(model, partition, pname, prange):
     alpha = 0.2
 
     # Calculate a validation curve for each algorithm.
-    
+
     for algo in model.algolist:
         logger.info("Algorithm: %s", algo)
         # get estimator
