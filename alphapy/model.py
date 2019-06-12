@@ -683,9 +683,12 @@ def first_fit(model, algo, est):
     # Get the initial scores
 
     logger.info("Cross-Validation")
-    scores = cross_val_score(est, X_train, y_train, scoring=scorer, cv=cv_folds,
-                             n_jobs=n_jobs, verbose=verbosity)
-    logger.info("Cross-Validation Scores: %s", scores)
+    try:
+        scores = cross_val_score(est, X_train, y_train, scoring=scorer, cv=cv_folds,
+                                 n_jobs=n_jobs, verbose=verbosity)
+        logger.info("Cross-Validation Scores: %s", scores)
+    except:
+        logger.info("Cross-Validation Failed: Try setting number_jobs = 1 in model.yml")
 
     # Store the estimator
     model.estimators[algo] = est
