@@ -46,14 +46,10 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import LogisticRegression
-from sklearn.linear_model import RandomizedLasso
-from sklearn.linear_model import RandomizedLogisticRegression
-from sklearn.naive_bayes import GaussianNB
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import LinearSVC
-from sklearn.svm import OneClassSVM
 from sklearn.svm import SVC
 import xgboost as xgb
 import yaml
