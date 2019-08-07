@@ -213,7 +213,7 @@ def zscore(vec):
         zscore = 0
     return zscore
 
-    
+
 #
 # Function runs_test
 #
@@ -845,6 +845,7 @@ def get_factors(model, df, fnum, fname, nvalues, dtype,
         logger.info("Rounding: %d", rounding)
         feature = feature.apply(float_factor, args=[rounding])
     # encoders
+    pd_features = pd.DataFrame()
     enc = None
     ef = pd.DataFrame(feature)
     if encoder == Encoders.factorize:
@@ -1309,7 +1310,7 @@ def create_features(model, X):
         # standard processing of numerical, categorical, and text features
         if fc in factors:
             features = get_factors(model, X, fnum, fc, nunique, dtype,
-                                   encoder, rounding, sentinel)            
+                                   encoder, rounding, sentinel)
         elif dtype == 'float64' or dtype == 'int64' or dtype == 'bool':
             features = get_numerical_features(fnum, fc, X, nunique, dtype,
                                               sentinel, logtransform, pvalue_level)
