@@ -1,9 +1,6 @@
-
 *.pyc
 
 *.iml
-
-.idea/.name
 
 *.egg-info*
 
@@ -13,18 +10,10 @@
 
 *.gz
 
-.idea/encodings.xml
+.idea/*
 
-.idea/inspectionProfiles/profiles_settings.xml
+.eggs/*
 
-.idea/misc.xml
-
-.idea/modules.xml
-
-.idea/vcs.xml
-
-.idea/workspace.xml
-.idea/other.xml
 alphapy/examples/Trading System/.ipynb_checkpoints/A Trading System-checkpoint.ipynb
 *.pkl
 *.png
