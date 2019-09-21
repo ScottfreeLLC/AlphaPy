@@ -2,8 +2,8 @@ language: python
 sudo: false
 
 python:
-  - "3.5"
   - "3.6"
+  - "3.7"
 
 before_install:
   # We do this conditionally because it saves us some downloading if the
@@ -28,7 +28,7 @@ install:
   - pip install category_encoders
   - pip install imbalanced-learn
   - pip install pyfolio
-  
+
 script:
   nosetests
 
