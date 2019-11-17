@@ -4,7 +4,7 @@
 # Module    : analysis
 # Created   : July 11, 2013
 #
-# Copyright 2017 ScottFree Analytics LLC
+# Copyright 2019 ScottFree Analytics LLC
 # Mark Conway & Robert D. Scott II
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -95,7 +95,7 @@ class Analysis(object):
     analyses = {}
 
     # __new__
-    
+
     def __new__(cls,
                 model,
                 group):
@@ -123,7 +123,7 @@ class Analysis(object):
         self.group = group
         # add analysis to analyses list
         Analysis.analyses[an] = self
-        
+
     # __str__
 
     def __str__(self):
@@ -192,9 +192,6 @@ def run_analysis(analysis, lag_period, forecast_period, leaders,
     # Calculate split date
     logger.info("Analysis Dates")
     split_date = subtract_days(predict_date, predict_history)
-    logger.info("Train Date: %s", train_date)
-    logger.info("Split Date: %s", split_date)
-    logger.info("Test  Date: %s", predict_date)
 
     # Load the data frames
     data_frames = load_frames(group, directory, extension, separator, splits)
@@ -203,9 +200,11 @@ def run_analysis(analysis, lag_period, forecast_period, leaders,
 
     if predict_mode:
         # create predict frame
+        logger.info("Split Date for Prediction Mode: %s", split_date)
         predict_frame = pd.DataFrame()
     else:
         # create train and test frames
+        logger.info("Split Date for Training Mode: %s", predict_date)
         train_frame = pd.DataFrame()
         test_frame = pd.DataFrame()
 
@@ -232,11 +231,11 @@ def run_analysis(analysis, lag_period, forecast_period, leaders,
                             tag)
         else:
             # split data into train and test
-            new_train = df.loc[(df.index >= train_date) & (df.index < split_date)]
+            new_train = df.loc[(df.index >= train_date) & (df.index < predict_date)]
             if len(new_train) > 0:
                 new_train = new_train.dropna()
                 train_frame = train_frame.append(new_train)
-                new_test = df.loc[(df.index >= split_date) & (df.index <= last_date)]
+                new_test = df.loc[(df.index >= predict_date) & (df.index <= last_date)]
                 if len(new_test) > 0:
                     # check if target column has NaN values
                     nan_count = df[target].isnull().sum()

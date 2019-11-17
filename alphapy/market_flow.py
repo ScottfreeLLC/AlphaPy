@@ -4,7 +4,7 @@
 # Module    : market_flow
 # Created   : July 11, 2013
 #
-# Copyright 2017 ScottFree Analytics LLC
+# Copyright 2019 ScottFree Analytics LLC
 # Mark Conway & Robert D. Scott II
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -86,7 +86,7 @@ def get_market_config():
 
     full_path = SSEP.join([PSEP, 'config', 'market.yml'])
     with open(full_path, 'r') as ymlfile:
-        cfg = yaml.load(ymlfile)
+        cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
     # Store configuration parameters in dictionary
 
@@ -115,12 +115,19 @@ def get_market_config():
     specs['leaders'] = cfg['market']['leaders']
     specs['predict_history'] = cfg['market']['predict_history']
     specs['schema'] = cfg['market']['schema']
+    specs['subschema'] = cfg['market']['subschema']
+    specs['api_key_name'] = cfg['market']['api_key_name']
+    specs['api_key'] = cfg['market']['api_key']
     specs['subject'] = cfg['market']['subject']
     specs['target_group'] = cfg['market']['target_group']
 
+    # Set API Key environment variable
+    if specs['api_key']:
+        os.environ[specs['api_key_name']] = specs['api_key']
+
     # Create the subject/schema/fractal namespace
 
-    sspecs = [specs['subject'], specs['schema'], specs['fractal']]    
+    sspecs = [specs['subject'], specs['schema'], specs['fractal']]
     space = Space(*sspecs)
 
     # Section: features
@@ -186,6 +193,8 @@ def get_market_config():
     # Log the stock parameters
 
     logger.info('MARKET PARAMETERS:')
+    logger.info('api_key         = %s', specs['api_key'])
+    logger.info('api_key_name    = %s', specs['api_key_name'])
     logger.info('create_model    = %r', specs['create_model'])
     logger.info('data_fractal    = %s', specs['data_fractal'])
     logger.info('data_history    = %d', specs['data_history'])
@@ -197,6 +206,7 @@ def get_market_config():
     logger.info('predict_history = %s', specs['predict_history'])
     logger.info('schema          = %s', specs['schema'])
     logger.info('subject         = %s', specs['subject'])
+    logger.info('subschema       = %s', specs['subschema'])
     logger.info('system          = %s', specs['system'])
     logger.info('target_group    = %s', specs['target_group'])
 
@@ -243,7 +253,6 @@ def market_pipeline(model, market_specs):
     # Get market specifications
 
     create_model = market_specs['create_model']
-    data_fractal = market_specs['data_fractal']
     data_history = market_specs['data_history']
     features = market_specs['features']
     forecast_period = market_specs['forecast_period']
@@ -267,7 +276,7 @@ def market_pipeline(model, market_specs):
     # predict_history resets to the actual history obtained.
 
     lookback = predict_history if predict_mode else data_history
-    npoints = get_market_data(model, group, lookback, data_fractal, intraday)
+    npoints = get_market_data(model, market_specs, group, lookback, intraday)
     if npoints > 0:
         logger.info("Number of Data Points: %d", npoints)
     else:

@@ -7,7 +7,10 @@ market:
     lag_period      : 1
     leaders         : ['gap', 'gapbadown', 'gapbaup', 'gapdown', 'gapup']
     predict_history : 100
-    schema          : iex
+    schema          : yahoo
+    subschema       :
+    api_key_name    :
+    api_key         :
     subject         : stock
     target_group    : test
 

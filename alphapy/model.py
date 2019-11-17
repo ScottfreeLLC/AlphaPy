@@ -43,12 +43,12 @@ from alphapy.utilities import most_recent_file
 
 from copy import copy
 from datetime import datetime
+import joblib
 from keras.models import load_model
 import logging
 import numpy as np
 import pandas as pd
 from sklearn.calibration import CalibratedClassifierCV
-from sklearn.externals import joblib
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import RidgeCV
 from sklearn.metrics import accuracy_score
@@ -214,7 +214,7 @@ def get_model_config():
 
     full_path = SSEP.join([PSEP, 'config', 'model.yml'])
     with open(full_path, 'r') as ymlfile:
-        cfg = yaml.load(ymlfile)
+        cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
     # Store configuration parameters in dictionary
 
@@ -654,7 +654,6 @@ def first_fit(model, algo, est):
 
     cv_folds = model.specs['cv_folds']
     esr = model.specs['esr']
-    model_type = model.specs['model_type']
     n_jobs = model.specs['n_jobs']
     scorer = model.specs['scorer']
     seed = model.specs['seed']
@@ -1188,7 +1187,10 @@ def save_predictions(model, tag, partition):
     output_dir = SSEP.join([directory, 'output'])
 
     # Read the prediction frame
-    pf = read_frame(input_dir, datasets[partition], extension, separator)
+    file_spec = ''.join([datasets[partition], '*'])
+    file_name = most_recent_file(input_dir, file_spec)
+    file_name = file_name.split(SSEP)[-1].split(PSEP)[0]
+    pf = read_frame(input_dir, file_name, extension, separator)
 
     # Cull records before the prediction date
 

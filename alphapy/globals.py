@@ -4,7 +4,7 @@
 # Module    : globals
 # Created   : July 11, 2013
 #
-# Copyright 2017 ScottFree Analytics LLC
+# Copyright 2019 ScottFree Analytics LLC
 # Mark Conway & Robert D. Scott II
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -73,13 +73,6 @@ MULTIPLIERS = {'crypto' : 1.0,
 #
 
 PD_INTRADAY_OFFSETS = ['H', 'T', 'min', 'S', 'L', 'ms', 'U', 'us', 'N']
-
-#
-# Pandas Web Reader Feeds
-#
-
-PD_WEB_DATA_FEEDS = ['google', 'iex', 'quandl', 'yahoo']
-
 
 #
 # Encoder Types

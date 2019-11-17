@@ -163,9 +163,9 @@ def read_frame(directory, filename, extension, separator,
     logger.info("Loading data from %s", file_all)
     try:
         df = pd.read_csv(file_all, sep=separator, index_col=index_col,
-                         squeeze=squeeze)
+                         squeeze=squeeze, low_memory=False)
     except:
-        df = None
+        df = pd.DataFrame()
         logger.info("Could not find or access %s", file_all)
     return df
 
@@ -260,7 +260,7 @@ def load_frames(group, directory, extension, separator, splits=False):
                 logger.info("Load Data Frame %s from file", fname)
                 df = read_frame(directory, fname, extension, separator)
             # add this frame to the consolidated frame list
-            if df is not None and not df.empty:
+            if not df.empty:
                 # set the name
                 df.insert(0, TAG_ID, gn)
                 all_frames.append(df)
@@ -270,7 +270,7 @@ def load_frames(group, directory, extension, separator, splits=False):
         # no splits, so use data from consolidated files
         fname = frame_name(gname, gspace)
         df = read_frame(directory, fname, extension, separator)
-        if df is not None and not df.empty:
+        if not df.empty:
             all_frames.append(df)
     return all_frames
 

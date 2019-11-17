@@ -1308,7 +1308,7 @@ def create_features(model, X):
         dtype = X[fc].dtypes
         nunique = len(X[fc].unique())
         # standard processing of numerical, categorical, and text features
-        if fc in factors:
+        if factors and fc in factors:
             features = get_factors(model, X, fnum, fc, nunique, dtype,
                                    encoder, rounding, sentinel)
         elif dtype == 'float64' or dtype == 'int64' or dtype == 'bool':
@@ -1600,14 +1600,15 @@ def drop_features(X, drop):
 
     """
     drop_cols = []
-    for d in drop:
-        for col in X.columns:
-            if col.split(LOFF)[0] == d:
-                drop_cols.append(col)
-    logger.info("Dropping Features: %s", drop_cols)
-    logger.info("Original Feature Count : %d", X.shape[1])
-    X.drop(drop_cols, axis=1, inplace=True, errors='ignore')
-    logger.info("Reduced Feature Count  : %d", X.shape[1])
+    if drop:
+        for d in drop:
+            for col in X.columns:
+                if col.split(LOFF)[0] == d:
+                    drop_cols.append(col)
+        logger.info("Dropping Features: %s", drop_cols)
+        logger.info("Original Feature Count : %d", X.shape[1])
+        X.drop(drop_cols, axis=1, inplace=True, errors='ignore')
+        logger.info("Reduced Feature Count  : %d", X.shape[1])
     return X
 
 

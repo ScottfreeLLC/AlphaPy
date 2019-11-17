@@ -157,7 +157,7 @@ def get_sport_config():
 
     full_path = SSEP.join(['.', 'config', 'sport.yml'])
     with open(full_path, 'r') as ymlfile:
-        cfg = yaml.load(ymlfile)
+        cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
     # Store configuration parameters in dictionary
 

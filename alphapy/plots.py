@@ -86,6 +86,7 @@ from sklearn.model_selection import learning_curve
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import validation_curve
+from sklearn.utils.multiclass import unique_labels
 
 
 #
@@ -269,7 +270,6 @@ def write_plot(vizlib, plot, plot_type, tag, directory=None):
         file_all = SSEP.join([directory, file_only])
         logger.info("Writing plot to %s", file_all)
         if vizlib == 'matplotlib':
-            plot.tight_layout()
             plot.savefig(file_all)
         elif vizlib == 'seaborn':
             plot.savefig(file_all)
@@ -622,45 +622,63 @@ def plot_confusion_matrix(model, partition):
         return None
 
     # Get X, Y for correct partition.
-
     X, y = get_partition_data(model, partition)
+
+    # Plot Parameters
+    np.set_printoptions(precision=2)
+    cmap = plt.cm.Blues
+    fmt = '.2f'
+
+    # Generate a Confusion Matrix for each algorithm
 
     for algo in model.algolist:
         logger.info("Confusion Matrix for Algorithm: %s", algo)
+
         # get predictions for this partition
         y_pred = model.preds[(algo, partition)]
+
         # compute confusion matrix
         cm = confusion_matrix(y, y_pred)
         logger.info('Confusion Matrix:')
         logger.info('%s', cm)
+
+        # normalize confusion matrix
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+
         # initialize plot
-        np.set_printoptions(precision=2)
-        plt.style.use('classic')
-        plt.figure()
-        # plot the confusion matrix
-        cmap = plt.cm.Blues
-        plt.imshow(cm, interpolation='nearest', cmap=cmap)
+        _, ax = plt.subplots()
+
+        # set the title of the confusion matrix
         title = BSEP.join([algo, "Confusion Matrix [", pstring, "]"])
         plt.title(title)
-        plt.colorbar()
-        # set up x and y axes
-        y_values, y_counts = np.unique(y, return_counts=True)
-        tick_marks = np.arange(len(y_values))
-        plt.xticks(tick_marks, y_values, rotation=45)
-        plt.yticks(tick_marks, y_values)
-        # normalize confusion matrix
-        cmn = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-        # place text in square of confusion matrix
+
+        # only use the labels that appear in the data
+        classes = unique_labels(y, y_pred)
+
+        # show all ticks
+        ax.set(xticks=np.arange(cm.shape[1]),
+            yticks=np.arange(cm.shape[0]),
+            xticklabels=classes, yticklabels=classes,
+            title=title,
+            ylabel='True Label',
+            xlabel='Predicted Label')
+
+        # rotate the tick labels and set their alignment
+        plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+                rotation_mode="anchor")
+
+        # loop over data dimensions and create text annotations
         thresh = (cm.max() + cm.min()) / 2.0
-        for i, j in product(list(range(cm.shape[0])), list(range(cm.shape[1]))):
-            cmr = round(cmn[i, j], 3)
-            plt.text(j, i, cmr,
-                     horizontalalignment="center",
-                     color="white" if cm[i, j] > thresh else "black")
-        # labels
-        plt.tight_layout()
-        plt.ylabel('True Label')
-        plt.xlabel('Predicted Label')
+        for i in range(cm.shape[0]):
+            for j in range(cm.shape[1]):
+                ax.text(j, i, format(cm[i, j], fmt),
+                        ha="center", va="center",
+                        color="white" if cm[i, j] > thresh else "black")
+
+        # show the color bar
+        im = ax.imshow(cm, interpolation='nearest', cmap=cmap)
+        ax.figure.colorbar(im, ax=ax)
+
         # save the chart
         tag = USEP.join([pstring, algo])
         write_plot('matplotlib', plt, 'confusion', tag, plot_dir)

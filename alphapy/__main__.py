@@ -66,6 +66,7 @@ import logging
 import numpy as np
 import os
 import pandas as pd
+from sklearn.model_selection import train_test_split
 import sys
 import warnings
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
@@ -115,17 +116,26 @@ def training_pipeline(model):
     feature_selection = model.specs['feature_selection']
     grid_search = model.specs['grid_search']
     model_type = model.specs['model_type']
-    predict_mode = model.specs['predict_mode']
     rfe = model.specs['rfe']
     sampling = model.specs['sampling']
     scorer = model.specs['scorer']
+    seed = model.specs['seed']
     separator = model.specs['separator']
+    split = model.specs['split']
     target = model.specs['target']
 
     # Get train and test data
 
     X_train, y_train = get_data(model, Partition.train)
     X_test, y_test = get_data(model, Partition.test)
+
+    # If there is no test partition, then we will split the train partition
+
+    if X_test.empty:
+        logger.info("No Test Data Found")
+        logger.info("Splitting Training Data")
+        X_train, X_test, y_train, y_test = train_test_split(
+            X_train, y_train, test_size=split, random_state=seed)
 
     # Determine if there are any test labels
 
@@ -311,11 +321,9 @@ def prediction_pipeline(model):
 
     directory = model.specs['directory']
     drop = model.specs['drop']
-    extension = model.specs['extension']
     feature_selection = model.specs['feature_selection']
     model_type = model.specs['model_type']
     rfe = model.specs['rfe']
-    separator = model.specs['separator']
 
     # Get all data. We need original train and test for interactions.
 
@@ -379,14 +387,11 @@ def prediction_pipeline(model):
     if model_type == ModelType.classification:
         model.probas[(tag, partition)]  = predictor.predict_proba(all_features)[:, 1]
 
-    # Get date stamp to record file creation
-
-    d = datetime.now()
-    f = "%Y%m%d"
-    timestamp = d.strftime(f)
-
     # Save predictions
     save_predictions(model, tag, partition)
+
+    # Return the model
+    return model
 
 
 #

@@ -17,3 +17,7 @@
 alphapy/examples/Trading System/.ipynb_checkpoints/A Trading System-checkpoint.ipynb
 *.pkl
 *.png
+*.code-workspace
+alphapy/.vscode/launch.json
+alphapy/.vscode/settings.json
+*.log

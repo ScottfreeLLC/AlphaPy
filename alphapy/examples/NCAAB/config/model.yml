@@ -5,10 +5,9 @@ project:
     submit_probas     : False
 
 data:
-    drop              : ['Unnamed: 0', 'index', 'season', 'date', 'home.team', 'away.team',
-                         'home.score', 'away.score', 'total_points', 'point_margin_game',
-                         'won_on_points', 'lost_on_points', 'cover_margin_game',
-                         'lost_on_spread', 'overunder_margin', 'over', 'under']
+    drop              : ['index', 'season', 'date', 'home.team', 'away.team', 'home.score', 'away.score',
+                         'total_points', 'point_margin_game', 'won_on_points', 'lost_on_points',
+                         'cover_margin_game', 'lost_on_spread', 'overunder_margin', 'over', 'under']
     features          : '*'
     sampling          :
         option        : False
