@@ -4,7 +4,7 @@
 # Module    : plots
 # Created   : July 11, 2013
 #
-# Copyright 2019 ScottFree Analytics LLC
+# Copyright 2020 ScottFree Analytics LLC
 # Mark Conway & Robert D. Scott II
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -63,8 +63,7 @@ from alphapy.globals import Q1, Q3
 from alphapy.utilities import remove_list_items
 
 from bokeh.plotting import figure, show, output_file
-from itertools import cycle
-from itertools import product
+import itertools
 import logging
 import math
 import matplotlib
@@ -270,6 +269,7 @@ def write_plot(vizlib, plot, plot_type, tag, directory=None):
         file_all = SSEP.join([directory, file_only])
         logger.info("Writing plot to %s", file_all)
         if vizlib == 'matplotlib':
+            plot.tight_layout()
             plot.savefig(file_all)
         elif vizlib == 'seaborn':
             plot.savefig(file_all)
@@ -389,36 +389,44 @@ def plot_importance(model, partition):
     plot_dir = get_plot_directory(model)
     pstring = datasets[partition]
 
-    # Get X, Y for correct partition
-
-    X, y = get_partition_data(model, partition)
-
     # For each algorithm that has importances, generate the plot.
 
-    n_top = 10
+    n_top = 20
+
     for algo in model.algolist:
         logger.info("Feature Importances for Algorithm: %s", algo)
         try:
-            importances = model.importances[algo]
-            # forest was input parameter
+            # get feature importances
+            importances = np.array(model.importances[algo])
+            imp_flag = True
+        except:
+            imp_flag = False
+        if imp_flag:
+            # sort the importances by index
             indices = np.argsort(importances)[::-1]
+            # get feature names
+            feature_names = np.array(model.fnames_algo[algo])
+            n_features = len(feature_names)
             # log the feature ranking
             logger.info("Feature Ranking:")
-            for f in range(n_top):
-                logger.info("%d. Feature %d (%f)" % (f + 1, indices[f], importances[indices[f]]))
+            n_min = min(n_top, n_features)
+            for i in range(n_min):
+                logger.info("%d. %s (%f)" % (i + 1,
+                            feature_names[indices[i]],
+                            importances[indices[i]]))
             # plot the feature importances
             title = BSEP.join([algo, "Feature Importances [", pstring, "]"])
-            plt.style.use('classic')
             plt.figure()
             plt.title(title)
-            plt.bar(list(range(n_top)), importances[indices][:n_top], color="b", align="center")
-            plt.xticks(list(range(n_top)), indices[:n_top])
-            plt.xlim([-1, n_top])
+            plt.barh(range(n_min), importances[indices][:n_min][::-1])
+            plt.yticks(range(n_min), feature_names[indices][:n_min][::-1])
+            plt.ylim([-1, n_min])
+            plt.xlabel('Relative Importance')
             # save the plot
             tag = USEP.join([pstring, algo])
             write_plot('matplotlib', plt, 'feature_importance', tag, plot_dir)
-        except:
-            logger.info("%s does not have feature importances", algo)
+        else:
+            logger.info("No Feature Importances for %s" % algo)
 
 
 #
@@ -556,15 +564,12 @@ def plot_roc_curve(model, partition):
 
     plt.style.use('classic')
     plt.figure()
-    colors = cycle(['cyan', 'indigo', 'seagreen', 'yellow', 'blue', 'darkorange'])
     lw = 2
 
     # Plot a ROC Curve for each algorithm.
 
     for algo in model.algolist:
         logger.info("ROC Curve for Algorithm: %s", algo)
-        # get estimator
-        estimator = model.estimators[algo]
         # compute ROC curve and ROC area for each class
         probas = model.probas[(algo, partition)]
         fpr, tpr, _ = roc_curve(y, probas)
@@ -643,13 +648,13 @@ def plot_confusion_matrix(model, partition):
         logger.info('%s', cm)
 
         # normalize confusion matrix
-        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        cm_pct = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
 
         # initialize plot
         _, ax = plt.subplots()
 
         # set the title of the confusion matrix
-        title = BSEP.join([algo, "Confusion Matrix [", pstring, "]"])
+        title = algo +  " Confusion Matrix: " + pstring + " [" + str(np.sum(cm)) + "]"
         plt.title(title)
 
         # only use the labels that appear in the data
@@ -668,15 +673,16 @@ def plot_confusion_matrix(model, partition):
                 rotation_mode="anchor")
 
         # loop over data dimensions and create text annotations
-        thresh = (cm.max() + cm.min()) / 2.0
+        thresh = (cm_pct.max() + cm_pct.min()) / 2.0
         for i in range(cm.shape[0]):
             for j in range(cm.shape[1]):
-                ax.text(j, i, format(cm[i, j], fmt),
+                cm_text = format(cm_pct[i, j], fmt) + "  [" + str(cm[i, j]) + "]"
+                ax.text(j, i, cm_text,
                         ha="center", va="center",
-                        color="white" if cm[i, j] > thresh else "black")
+                        color="white" if cm_pct[i, j] >= thresh else "black")
 
         # show the color bar
-        im = ax.imshow(cm, interpolation='nearest', cmap=cmap)
+        im = ax.imshow(cm_pct, interpolation='nearest', cmap=cmap)
         ax.figure.colorbar(im, ax=ax)
 
         # save the chart
