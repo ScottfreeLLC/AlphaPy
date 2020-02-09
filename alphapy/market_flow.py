@@ -4,7 +4,7 @@
 # Module    : market_flow
 # Created   : July 11, 2013
 #
-# Copyright 2019 ScottFree Analytics LLC
+# Copyright 2020 ScottFree Analytics LLC
 # Mark Conway & Robert D. Scott II
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,8 +50,6 @@ import os
 import pandas as pd
 import sys
 import warnings
-warnings.simplefilter(action='ignore', category=DeprecationWarning)
-warnings.simplefilter(action='ignore', category=FutureWarning)
 import yaml
 
 
@@ -97,7 +95,7 @@ def get_market_config():
     specs['create_model'] = cfg['market']['create_model']
     fractal = cfg['market']['data_fractal']
     try:
-        test_interval = pd.to_timedelta(fractal)
+        _ = pd.to_timedelta(fractal)
     except:
         logger.info("data_fractal [%s] is an invalid pandas offset",
                     fractal)
@@ -285,13 +283,15 @@ def market_pipeline(model, market_specs):
     # Run an analysis to create the model
 
     if create_model:
+        logger.info("Creating Model")
         # apply features to all of the frames
         vmapply(group, features, functions)
         vmapply(group, [target], functions)
         # run the analysis, including the model pipeline
         a = Analysis(model, group)
-        results = run_analysis(a, lag_period, forecast_period,
-                               leaders, predict_history)
+        run_analysis(a, lag_period, forecast_period, leaders, predict_history)
+    else:
+        logger.info("No Model (System Only)")
 
     # Run a system
 
@@ -345,6 +345,11 @@ def main(args=None):
         Training date must be before prediction date.
 
     """
+
+    # Suppress Warnings
+
+    warnings.simplefilter(action='ignore', category=DeprecationWarning)
+    warnings.simplefilter(action='ignore', category=FutureWarning)
 
     # Logging
 
@@ -418,9 +423,7 @@ def main(args=None):
             logger.info("Creating directory %s", output_dir)
             os.makedirs(output_dir)
 
-    # Create a model from the arguments
-
-    logger.info("Creating Model")
+    # Create a model object from the specifications
     model = Model(model_specs)
 
     # Start the pipeline
