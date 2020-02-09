@@ -4,7 +4,7 @@
 # Module    : optimize
 # Created   : July 11, 2013
 #
-# Copyright 2017 ScottFree Analytics LLC
+# Copyright 2020 ScottFree Analytics LLC
 # Mark Conway & Robert D. Scott II
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,9 +29,9 @@
 from alphapy.globals import ModelType
 
 from datetime import datetime
+import itertools
 import logging
 import numpy as np
-from sklearn.feature_selection import RFE
 from sklearn.feature_selection import RFECV
 from sklearn.feature_selection import SelectPercentile
 from sklearn.model_selection import GridSearchCV
@@ -67,10 +67,6 @@ def rfecv_search(model, algo):
     model : alphapy.Model
         The model object with the RFE support vector and the best
         estimator.
-
-    See Also
-    --------
-    rfe_search
 
     Notes
     -----
@@ -113,10 +109,14 @@ def rfecv_search(model, algo):
     logger.info("Algorithm: %s, Selected Features: %d, Ranking: %s",
                 algo, selector.n_features_, selector.ranking_)
 
-    # Record the new estimator and support vector
+    # Record the new estimator, support vector, feature names, and importances
 
-    model.estimators[algo] = selector.estimator_
+    best_estimator = selector.estimator_
+    model.estimators[algo] = best_estimator
     model.support[algo] = selector.support_
+    model.fnames_algo[algo] = list(itertools.compress(model.fnames_algo[algo], selector.support_))
+    if hasattr(best_estimator, "feature_importances_"):
+        model.importances[algo] = best_estimator.feature_importances_
 
     # Return the model with the support vector
 
