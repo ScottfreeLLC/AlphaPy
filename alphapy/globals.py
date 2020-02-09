@@ -4,7 +4,7 @@
 # Module    : globals
 # Created   : July 11, 2013
 #
-# Copyright 2019 ScottFree Analytics LLC
+# Copyright 2020 ScottFree Analytics LLC
 # Mark Conway & Robert D. Scott II
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -90,13 +90,20 @@ class Encoders(Enum):
 
     """
     backdiff = 1
-    binary = 2
-    factorize = 3
-    helmert = 4
-    onehot = 5
-    ordinal = 6
-    polynomial = 7
-    sumcont = 8
+    basen = 2
+    binary = 3
+    catboost = 4
+    hashing = 5
+    helmert = 6
+    jstein = 7
+    leaveone = 8
+    mestimate = 9
+    onehot = 10
+    ordinal = 11
+    polynomial = 12
+    sum = 13
+    target = 14
+    woe = 15
 
 
 #
