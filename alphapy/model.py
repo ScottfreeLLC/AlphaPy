@@ -4,7 +4,7 @@
 # Module    : model
 # Created   : July 11, 2013
 #
-# Copyright 2019 ScottFree Analytics LLC
+# Copyright 2020 ScottFree Analytics LLC
 # Mark Conway & Robert D. Scott II
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,6 +43,7 @@ from alphapy.utilities import most_recent_file
 
 from copy import copy
 from datetime import datetime
+import itertools
 import joblib
 from keras.models import load_model
 import logging
@@ -161,6 +162,8 @@ class Model:
         except:
             raise KeyError("Model specs must include the key: algorithms")
         self.best_algo = None
+        # feature names
+        self.feature_names = []
         # feature map
         self.feature_map = {}
         # Key: (algorithm)
@@ -168,6 +171,7 @@ class Model:
         self.importances = {}
         self.coefs = {}
         self.support = {}
+        self.fnames_algo = {}
         # Keys: (algorithm, partition)
         self.preds = {}
         self.probas = {}
@@ -1202,7 +1206,7 @@ def save_predictions(model, tag, partition):
 
     if found_pdate:
         pd_indices = pf[pf.date >= predict_date].index.tolist()
-        pf = pf.ix[pd_indices]
+        pf = pf.iloc[pd_indices]
     else:
         pd_indices = pf.index.tolist()
 
