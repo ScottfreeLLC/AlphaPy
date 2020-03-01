@@ -56,7 +56,7 @@ features:
         option        : False
     encoding          :
         rounding      : 3
-        type          : factorize
+        type          : target
     factors           : ['line', 'delta.wins', 'delta.losses', 'delta.ties',
                          'delta.point_win_streak', 'delta.point_loss_streak',
                          'delta.cover_win_streak', 'delta.cover_loss_streak',

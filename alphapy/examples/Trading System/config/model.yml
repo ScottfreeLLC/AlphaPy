@@ -54,7 +54,7 @@ features:
         option        : False
     encoding          :
         rounding      : 3
-        type          : factorize
+        type          : target
     factors           : []
     interactions      :
         option        : True
