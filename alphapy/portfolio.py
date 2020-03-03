@@ -4,7 +4,7 @@
 # Module    : portfolio
 # Created   : July 11, 2013
 #
-# Copyright 2017 ScottFree Analytics LLC
+# Copyright 2020 ScottFree Analytics LLC
 # Mark Conway & Robert D. Scott II
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -437,7 +437,7 @@ def valuate_position(position, tdate):
     # get current price
     pdata = position.pdata
     if tdate in pdata.index:
-        cp = float(pdata.ix[tdate]['close'])
+        cp = float(pdata.loc[tdate]['close'])
         # start valuation
         multiplier = position.multiplier
         netpos = 0
@@ -524,7 +524,7 @@ def close_position(p, position, tdate):
         tradesize = -pq
         position.date = tdate
         pdata = position.pdata
-        cp = pdata.ix[tdate]['close']
+        cp = pdata.loc[tdate]['close']
         newtrade = Trade(position.name, tradesize, cp, tdate)
         p = update_portfolio(p, position, newtrade)
         position.quantity = 0
@@ -719,7 +719,7 @@ def balance(p, tdate, cashlevel):
             estr = '.'.join('pos', weightby)
             bdata[i] = eval(estr)
         else:
-            bdata[i] = pos.pdata.ix[tdate][weightby]
+            bdata[i] = pos.pdata.loc[tdate][weightby]
     if invert:
         bweights = (2 * bdata.mean() - bdata) / sum(bdata)
     else:
@@ -728,7 +728,7 @@ def balance(p, tdate, cashlevel):
     for i, pos in enumerate(positions):
         multiplier = pos.multiplier
         bdelta = bweights[i] * pvalue - pos.value
-        cp = pos.pdata.ix[tdate]['close']
+        cp = pos.pdata.loc[tdate]['close']
         tradesize = math.trunc(bdelta / cp)
         ntv = abs(tradesize) * cp * multiplier
         if tradesize > 0:
@@ -792,7 +792,7 @@ def kick_out(p, tdate):
             estr = '.'.join('pos', koby)
             kovalue[i] = eval(estr)
         else:
-            kovalue[i] = pos.pdata.ix[tdate][koby]
+            kovalue[i] = pos.pdata.loc[tdate][koby]
     koorder = np.argsort(np.argsort(kovalues))
     if descending:
         koorder = [i for i in reversed(koorder)]
@@ -985,7 +985,7 @@ def exec_trade(p, name, order, quantity, price, tdate):
     else:
         if order == Orders.le or order == Orders.se:
             pf = Frame.frames[frame_name(name, p.space)].df
-            cv = float(pf.ix[tdate][p.posby])
+            cv = float(pf.loc[tdate][p.posby])
             tsize = math.trunc((p.value * p.fixedfrac) / cv)
             if quantity < 0:
                 tsize = -tsize
@@ -1101,7 +1101,7 @@ def gen_portfolio(model, system, group, tframe,
     for d in drange:
         # process today's trades
         if d in trange:
-            trades = tframe.ix[d]
+            trades = tframe.loc[d]
             if isinstance(trades, Series):
                 trades = DataFrame(trades).transpose()
             for t in trades.iterrows():
@@ -1114,7 +1114,7 @@ def gen_portfolio(model, system, group, tframe,
                     logger.info("Trade could not be executed for %s", row['name'])
         # iterate through current positions
         positions = p.positions
-        pfrow = pf.ix[d]
+        pfrow = pf.loc[d]
         for key in positions:
             pos = positions[key]
             if pos.quantity > 0:
@@ -1135,7 +1135,7 @@ def gen_portfolio(model, system, group, tframe,
 
     logger.info("Recording Returns Frame")
     rspace = Space(system, 'returns', gspace.fractal)
-    rf = DataFrame.from_items(rs, orient='index', columns=['return'])
+    rf = DataFrame.from_dict(dict(rs), orient='index', columns=['return'])
     rfname = frame_name(gname, rspace)
     write_frame(rf, system_dir, rfname, extension, separator,
                 index=True, index_label='date')
@@ -1154,7 +1154,7 @@ def gen_portfolio(model, system, group, tframe,
 
     logger.info("Recording Transactions Frame")
     tspace = Space(system, 'transactions', gspace.fractal)
-    tf = DataFrame.from_items(ts, orient='index', columns=['amount', 'price', 'symbol'])
+    tf = DataFrame.from_dict(dict(ts), orient='index', columns=['amount', 'price', 'symbol'])
     tfname = frame_name(gname, tspace)
     write_frame(tf, system_dir, tfname, extension, separator,
                 index=True, index_label='date')
