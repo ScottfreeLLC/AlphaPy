@@ -31,8 +31,8 @@ from alphapy.globals import PSEP, SSEP, USEP
 from alphapy.globals import Encoders
 from alphapy.globals import ModelType
 from alphapy.globals import Scalers
-from alphapy.market_variables import Variable
-from alphapy.market_variables import vparse
+from alphapy.variables import Variable
+from alphapy.variables import vparse
 
 import category_encoders as ce
 from importlib import import_module
@@ -108,287 +108,11 @@ encoder_map = {Encoders.backdiff     : ce.BackwardDifferenceEncoder,
 
 
 #
-# Function rtotal
+# Function apply_transform
 #
 
-def rtotal(vec):
-    r"""Calculate the running total.
-
-    Parameters
-    ----------
-    vec : pandas.Series
-        The input array for calculating the running total.
-
-    Returns
-    -------
-    running_total : int
-        The final running total.
-
-    Example
-    -------
-
-    >>> vec.rolling(window=20).apply(rtotal)
-
-    """
-    tcount = np.count_nonzero(vec)
-    fcount = len(vec) - tcount
-    running_total = tcount - fcount
-    return running_total
-
-
-#
-# Function runs
-#
-
-def runs(vec):
-    r"""Calculate the total number of runs.
-
-    Parameters
-    ----------
-    vec : pandas.Series
-        The input array for calculating the number of runs.
-
-    Returns
-    -------
-    runs_value : int
-        The total number of runs.
-
-    Example
-    -------
-
-    >>> vec.rolling(window=20).apply(runs)
-
-    """
-    runs_value = len(list(itertools.groupby(vec)))
-    return runs_value
-
-
-#
-# Function streak
-#
-
-def streak(vec):
-    r"""Determine the length of the latest streak.
-
-    Parameters
-    ----------
-    vec : pandas.Series
-        The input array for calculating the latest streak.
-
-    Returns
-    -------
-    latest_streak : int
-        The length of the latest streak.
-
-    Example
-    -------
-
-    >>> vec.rolling(window=20).apply(streak)
-
-    """
-    latest_streak = [len(list(g)) for k, g in itertools.groupby(vec)][-1]
-    return latest_streak
-
-
-#
-# Function zscore
-#
-
-def zscore(vec):
-    r"""Calculate the Z-Score.
-
-    Parameters
-    ----------
-    vec : pandas.Series
-        The input array for calculating the Z-Score.
-
-    Returns
-    -------
-    zscore : float
-        The value of the Z-Score.
-
-    References
-    ----------
-    To calculate the Z-Score, you can find more information here [ZSCORE]_.
-
-    .. [ZSCORE] https://en.wikipedia.org/wiki/Standard_score
-
-    Example
-    -------
-
-    >>> vec.rolling(window=20).apply(zscore)
-
-    """
-    n1 = np.count_nonzero(vec)
-    n2 = len(vec) - n1
-    fac1 = float(2 * n1 * n2)
-    fac2 = float(n1 + n2)
-    rbar = fac1 / fac2 + 1
-    sr2num = fac1 * (fac1 - n1 - n2)
-    sr2den = math.pow(fac2, 2) * (fac2 - 1)
-    sr = math.sqrt(sr2num / sr2den)
-    if sr2den and sr:
-        zscore = (runs(vec) - rbar) / sr
-    else:
-        zscore = 0
-    return zscore
-
-
-#
-# Function runs_test
-#
-
-def runs_test(f, c, wfuncs, window):
-    r"""Perform a runs test on binary series.
-
-    Parameters
-    ----------
-    f : pandas.DataFrame
-        Dataframe containing the column ``c``.
-    c : str
-        Name of the column in the dataframe ``f``.
-    wfuncs : list
-        The set of runs test functions to apply to the column:
-
-        ``'all'``:
-            Run all of the functions below.
-        ``'rtotal'``:
-            The running total over the ``window`` period.
-        ``'runs'``:
-            Total number of runs in ``window``.
-        ``'streak'``:
-            The length of the latest streak.
-        ``'zscore'``:
-            The Z-Score over the ``window`` period.
-    window : int
-        The rolling period.
-
-    Returns
-    -------
-    new_features : pandas.DataFrame
-        The dataframe containing the runs test features.
-
-    References
-    ----------
-    For more information about runs tests for detecting non-randomness,
-    refer to [RUNS]_.
-
-    .. [RUNS] http://www.itl.nist.gov/div898/handbook/eda/section3/eda35d.htm
-
-    """
-
-    fc = f[c]
-    all_funcs = {'runs'   : runs,
-                 'streak' : streak,
-                 'rtotal' : rtotal,
-                 'zscore' : zscore}
-    # use all functions
-    if 'all' in wfuncs:
-        wfuncs = list(all_funcs.keys())
-    # apply each of the runs functions
-    new_features = pd.DataFrame()
-    for w in wfuncs:
-        if w in all_funcs:
-            new_feature = fc.rolling(window=window).apply(all_funcs[w])
-            new_feature.fillna(0, inplace=True)
-            new_column_name = PSEP.join([c, w])
-            new_feature = new_feature.rename(new_column_name)
-            frames = [new_features, new_feature]
-            new_features = pd.concat(frames, axis=1)
-        else:
-            logger.info("Runs Function %s not found", w)
-    return new_features
-
-
-#
-# Function split_to_letters
-#
-
-def split_to_letters(f, c):
-    r"""Separate text into distinct characters.
-
-    Parameters
-    ----------
-    f : pandas.DataFrame
-        Dataframe containing the column ``c``.
-    c : str
-        Name of the text column in the dataframe ``f``.
-
-    Returns
-    -------
-    new_feature : pandas.Series
-        The array containing the new feature.
-
-    Example
-    -------
-    The value 'abc' becomes 'a b c'.
-
-    """
-    fc = f[c]
-    new_feature = None
-    dtype = fc.dtypes
-    if dtype == 'object':
-        fc.fillna(NULLTEXT, inplace=True)
-        maxlen = fc.str.len().max()
-        if maxlen > 1:
-            new_feature = fc.apply(lambda x: BSEP.join(list(x)))
-    return new_feature
-
-
-#
-# Function texplode
-#
-
-def texplode(f, c):
-    r"""Get dummy values for a text column.
-
-    Parameters
-    ----------
-    f : pandas.DataFrame
-        Dataframe containing the column ``c``.
-    c : str
-        Name of the text column in the dataframe ``f``.
-
-    Returns
-    -------
-    dummies : pandas.DataFrame
-        The dataframe containing the dummy variables.
-
-    Example
-    -------
-
-    This function is useful for columns that appear to
-    have separate character codes but are consolidated
-    into a single column. Here, the column ``c`` is
-    transformed into five dummy variables.
-
-    === === === === === ===
-     c  0_a 1_x 1_b 2_x 2_z
-    === === === === === ===
-    abz   1   0   1   0   1
-    abz   1   0   1   0   1
-    axx   1   1   0   1   0
-    abz   1   0   1   0   1
-    axz   1   1   0   0   1
-    === === === === === ===
-
-    """
-    fc = f[c]
-    maxlen = fc.str.len().max()
-    fc.fillna(maxlen * BSEP, inplace=True)
-    fpad = str().join(['{:', BSEP, '>', str(maxlen), '}'])
-    fcpad = fc.apply(fpad.format)
-    fcex = fcpad.apply(lambda x: pd.Series(list(x)))
-    dummies = pd.get_dummies(fcex)
-    return dummies
-
-
-#
-# Function apply_treatment
-#
-
-def apply_treatment(fname, df, fparams):
-    r"""Apply a treatment function to a column of the dataframe.
+def apply_transform(fname, df, fparams):
+    r"""Apply a transform function to a column of the dataframe.
 
     Parameters
     ----------
@@ -397,62 +121,62 @@ def apply_treatment(fname, df, fparams):
     df : pandas.DataFrame
         Dataframe containing the column ``fname``.
     fparams : list
-        The module, function, and parameter list of the treatment
+        The module, function, and parameter list of the transform
         function
 
     Returns
     -------
     new_features : pandas.DataFrame
-        The set of features after applying a treatment function.
+        The set of features after applying a transform function.
 
     """
-    # Extract the treatment parameter list
+    # Extract the transform parameter list
     module = fparams[0]
     func_name = fparams[1]
     plist = fparams[2:]
     # Append to system path
     sys.path.append(os.getcwd())
-    # Import the external treatment function
+    # Import the external transform function
     ext_module = import_module(module)
     func = getattr(ext_module, func_name)
     # Prepend the parameter list with the data frame and feature name
     plist.insert(0, fname)
     plist.insert(0, df)
-    # Apply the treatment
+    # Apply the transform
     logger.info("Applying function %s from module %s to feature %s",
                 func_name, module, fname)
     return func(*plist)
 
 
 #
-# Function apply_treatments
+# Function apply_transforms
 #
 
-def apply_treatments(model, X):
+def apply_transforms(model, X):
     r"""Apply special functions to the original features.
 
     Parameters
     ----------
     model : alphapy.Model
-        Model specifications indicating any treatments.
+        Model specifications indicating any transforms.
     X : pandas.DataFrame
         Combined train and test data, or just prediction data.
 
     Returns
     -------
     all_features : pandas.DataFrame
-        All features, including treatments.
+        All features, including transforms.
 
     Raises
     ------
     IndexError
-        The number of treatment rows must match the number of
+        The number of transform rows must match the number of
         rows in ``X``.
 
     """
 
     # Extract model parameters
-    treatments = model.specs['treatments']
+    transforms = model.specs['transforms']
 
     # Log input parameters
 
@@ -461,11 +185,11 @@ def apply_treatments(model, X):
 
     # Iterate through columns, dispatching and transforming each feature.
 
-    logger.info("Applying Treatments")
+    logger.info("Applying transforms")
     all_features = X
 
-    if treatments:
-        for fname in treatments:
+    if transforms:
+        for fname in transforms:
             # find feature series
             fcols = []
             for col in X.columns:
@@ -476,22 +200,22 @@ def apply_treatments(model, X):
             for item in fcols:
                 _, _, _, lag = vparse(item)
                 lag_values.append(lag)
-            # apply treatment to the most recent value
+            # apply transform to the most recent value
             if lag_values:
                 f_latest = fcols[lag_values.index(min(lag_values))]
-                features = apply_treatment(f_latest, X, treatments[fname])
+                features = apply_transform(f_latest, X, transforms[fname])
                 if features is not None:
                     if features.shape[0] == X.shape[0]:
                         all_features = pd.concat([all_features, features], axis=1)
                     else:
-                        raise IndexError("The number of treatment rows [%d] must match X [%d]" %
+                        raise IndexError("The number of transform rows [%d] must match X [%d]" %
                                          (features.shape[0], X.shape[0]))
                 else:
-                    logger.info("Could not apply treatment for feature %s", fname)
+                    logger.info("Could not apply transform for feature %s", fname)
             else:
-                logger.info("Feature %s is missing for treatment", fname)
+                logger.info("Feature %s is missing for transform", fname)
     else:
-        logger.info("No Treatments Specified")
+        logger.info("No transforms Specified")
 
     logger.info("New Feature Count : %d", all_features.shape[1])
 

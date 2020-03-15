@@ -367,13 +367,13 @@ def get_model_config():
     specs['learning_curve'] = cfg['plots']['learning_curve']
     specs['roc_curve'] = cfg['plots']['roc_curve']
 
-    # Section: treatments
+    # Section: transforms
 
     try:
-        specs['treatments'] = cfg['treatments']
+        specs['transforms'] = cfg['transforms']
     except:
-        specs['treatments'] = None
-        logger.info("No Treatments Found")
+        specs['transforms'] = None
+        logger.info("No transforms Found")
 
     # Section: xgboost
 
@@ -451,7 +451,7 @@ def get_model_config():
     logger.info('submit_probas     = %r', specs['submit_probas'])
     logger.info('target [y]        = %s', specs['target'])
     logger.info('target_value      = %d', specs['target_value'])
-    logger.info('treatments        = %s', specs['treatments'])
+    logger.info('transforms        = %s', specs['transforms'])
     logger.info('tsne              = %r', specs['tsne'])
     logger.info('tsne_components   = %d', specs['tsne_components'])
     logger.info('tsne_learn_rate   = %f', specs['tsne_learn_rate'])

@@ -32,7 +32,7 @@ from alphapy.frame import read_frame
 from alphapy.frame import write_frame
 from alphapy.globals import Orders
 from alphapy.globals import BSEP, SSEP
-from alphapy.market_variables import vexec
+from alphapy.variables import vexec
 from alphapy.space import Space
 from alphapy.portfolio import Trade
 from alphapy.utilities import most_recent_file

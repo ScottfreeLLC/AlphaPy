@@ -95,18 +95,18 @@ features:
         threshold     : 0.1
 
 treatments:
-    doji              : ['alphapy.features', 'runs_test', ['all'], 18]
-    hc                : ['alphapy.features', 'runs_test', ['all'], 18]
-    hh                : ['alphapy.features', 'runs_test', ['all'], 18]
-    hl                : ['alphapy.features', 'runs_test', ['all'], 18]
-    ho                : ['alphapy.features', 'runs_test', ['all'], 18]
-    rrhigh            : ['alphapy.features', 'runs_test', ['all'], 18]
-    rrlow             : ['alphapy.features', 'runs_test', ['all'], 18]
-    rrover            : ['alphapy.features', 'runs_test', ['all'], 18]
-    rrunder           : ['alphapy.features', 'runs_test', ['all'], 18]
-    sephigh           : ['alphapy.features', 'runs_test', ['all'], 18]
-    seplow            : ['alphapy.features', 'runs_test', ['all'], 18]
-    trend             : ['alphapy.features', 'runs_test', ['all'], 18]
+    doji              : ['alphapy.transforms', 'runs_test', ['all'], 18]
+    hc                : ['alphapy.transforms', 'runs_test', ['all'], 18]
+    hh                : ['alphapy.transforms', 'runs_test', ['all'], 18]
+    hl                : ['alphapy.transforms', 'runs_test', ['all'], 18]
+    ho                : ['alphapy.transforms', 'runs_test', ['all'], 18]
+    rrhigh            : ['alphapy.transforms', 'runs_test', ['all'], 18]
+    rrlow             : ['alphapy.transforms', 'runs_test', ['all'], 18]
+    rrover            : ['alphapy.transforms', 'runs_test', ['all'], 18]
+    rrunder           : ['alphapy.transforms', 'runs_test', ['all'], 18]
+    sephigh           : ['alphapy.transforms', 'runs_test', ['all'], 18]
+    seplow            : ['alphapy.transforms', 'runs_test', ['all'], 18]
+    trend             : ['alphapy.transforms', 'runs_test', ['all'], 18]
 
 pipeline:
     number_jobs       : -1

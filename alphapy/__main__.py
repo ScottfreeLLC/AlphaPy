@@ -31,7 +31,7 @@ from alphapy.data import sample_data
 from alphapy.data import shuffle_data
 from alphapy.estimators import get_estimators
 from alphapy.estimators import scorers
-from alphapy.features import apply_treatments
+from alphapy.features import apply_transforms
 from alphapy.features import create_crosstabs
 from alphapy.features import create_features
 from alphapy.features import create_interactions
@@ -167,8 +167,8 @@ def training_pipeline(model):
         raise IndexError("The number of training and test columns [%d, %d] must match." %
                          (X_train.shape[1], X_test.shape[1]))
 
-    # Apply treatments to the feature matrix
-    X_all = apply_treatments(model, X_all)
+    # Apply transforms to the feature matrix
+    X_all = apply_transforms(model, X_all)
 
     # Drop features
     X_all = drop_features(X_all, drop)
@@ -341,8 +341,8 @@ def prediction_pipeline(model):
     logger.info("Number of Prediction Rows    : %d", X_predict.shape[0])
     logger.info("Number of Prediction Columns : %d", X_predict.shape[1])
 
-    # Apply treatments to the feature matrix
-    X_all = apply_treatments(model, X_predict)
+    # Apply transforms to the feature matrix
+    X_all = apply_transforms(model, X_predict)
 
     # Drop features
     X_all = drop_features(X_all, drop)
@@ -454,7 +454,7 @@ def main(args=None):
     # Logging
 
     logging.basicConfig(format="[%(asctime)s] %(levelname)s\t%(message)s",
-                        filename="alphapy.log", filemode='a', level=logging.DEBUG,
+                        filename="alphapy.log", filemode='a', level=logging.INFO,
                         datefmt='%m/%d/%y %H:%M:%S')
     formatter = logging.Formatter("[%(asctime)s] %(levelname)s\t%(message)s",
                                   datefmt='%m/%d/%y %H:%M:%S')

@@ -33,8 +33,8 @@ from alphapy.data import get_market_data
 from alphapy.globals import PD_INTRADAY_OFFSETS
 from alphapy.globals import PSEP, SSEP
 from alphapy.group import Group
-from alphapy.market_variables import Variable
-from alphapy.market_variables import vmapply
+from alphapy.variables import Variable
+from alphapy.variables import vmapply
 from alphapy.model import get_model_config
 from alphapy.model import Model
 from alphapy.portfolio import gen_portfolio
