@@ -579,7 +579,7 @@ def load_feature_map(model, directory):
         feature_map = joblib.load(file_name)
         model.feature_map = feature_map
     except:
-        logging.error("Could not find feature map in %s", search_path)
+        logging.error("Could not find feature map in %s", search_dir)
 
     # Return the model with the feature map
     return model
