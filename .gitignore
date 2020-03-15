@@ -21,3 +21,4 @@ alphapy/examples/Trading System/.ipynb_checkpoints/A Trading System-checkpoint.i
 alphapy/.vscode/launch.json
 alphapy/.vscode/settings.json
 *.log
+docs/.vscode/settings.json
