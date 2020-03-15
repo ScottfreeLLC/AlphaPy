@@ -28,6 +28,14 @@ alphapy.analysis module
     :undoc-members:
     :show-inheritance:
 
+alphapy.calendrical module
+--------------------------
+
+.. automodule:: alphapy.calendrical
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 alphapy.data module
 -------------------
 
@@ -80,14 +88,6 @@ alphapy.market_flow module
 --------------------------
 
 .. automodule:: alphapy.market_flow
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-alphapy.market_variables module
--------------------------------
-
-.. automodule:: alphapy.market_variables
     :members:
     :undoc-members:
     :show-inheritance:
@@ -148,10 +148,26 @@ alphapy.system module
     :undoc-members:
     :show-inheritance:
 
+alphapy.transforms module
+-------------------------
+
+.. automodule:: alphapy.transforms
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 alphapy.utilities module
 ------------------------
 
 .. automodule:: alphapy.utilities
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+alphapy.variables module
+------------------------
+
+.. automodule:: alphapy.variables
     :members:
     :undoc-members:
     :show-inheritance:
