@@ -23,8 +23,19 @@
 
 
 #
+# Suppress Warnings
+#
+
+import warnings
+warnings.simplefilter(action='ignore', category=DeprecationWarning)
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
+
+#
 # Imports
 #
+
+print(__doc__)
 
 from alphapy.alias import Alias
 from alphapy.analysis import Analysis
@@ -49,7 +60,6 @@ import logging
 import os
 import pandas as pd
 import sys
-import warnings
 import yaml
 
 
@@ -345,11 +355,6 @@ def main(args=None):
         Training date must be before prediction date.
 
     """
-
-    # Suppress Warnings
-
-    warnings.simplefilter(action='ignore', category=DeprecationWarning)
-    warnings.simplefilter(action='ignore', category=FutureWarning)
 
     # Logging
 

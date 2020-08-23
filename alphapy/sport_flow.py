@@ -23,6 +23,15 @@
 
 
 #
+# Suppress Warnings
+#
+
+import warnings
+warnings.simplefilter(action='ignore', category=DeprecationWarning)
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
+
+#
 # Imports
 #
 
@@ -49,7 +58,6 @@ import numpy as np
 import os
 import pandas as pd
 import sys
-import warnings
 import yaml
 
 
@@ -633,11 +641,6 @@ def main(args=None):
         Training date must be before prediction date.
 
     """
-
-    # Suppress Warnings
-
-    warnings.simplefilter(action='ignore', category=DeprecationWarning)
-    warnings.simplefilter(action='ignore', category=FutureWarning)
 
     # Logging
 

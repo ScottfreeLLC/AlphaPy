@@ -23,8 +23,19 @@
 
 
 #
+# Suppress Warnings
+#
+
+import warnings
+warnings.simplefilter(action='ignore', category=DeprecationWarning)
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
+
+#
 # Imports
 #
+
+print(__doc__)
 
 from alphapy.data import get_data
 from alphapy.data import sample_data
@@ -68,7 +79,6 @@ import os
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import sys
-import warnings
 
 
 #
@@ -445,11 +455,6 @@ def main(args=None):
     (5) Call the main AlphaPy pipeline.
 
     """
-
-    # Suppress Warnings
-
-    warnings.simplefilter(action='ignore', category=DeprecationWarning)
-    warnings.simplefilter(action='ignore', category=FutureWarning)
 
     # Logging
 
