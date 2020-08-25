@@ -266,21 +266,22 @@ def impute_values(feature, dt, sentinel):
         # for numpy array
         feature = feature.reshape(-1, 1)
 
-    imp = None
     if dt == 'float64':
         logger.info("    Imputation for Data Type %s: Median Strategy" % dt)
+        # replace infinity with imputed value
+        feature[np.isinf(feature)] = np.nan
         imp = SimpleImputer(missing_values=np.nan, strategy='median')
     elif dt == 'int64':
         logger.info("    Imputation for Data Type %s: Most Frequent Strategy" % dt)
         imp = SimpleImputer(missing_values=np.nan, strategy='most_frequent')
-    else:
+    elif dt != 'bool':
         logger.info("    Imputation for Data Type %s: Fill Strategy with %d" % (dt, sentinel))
-
-    if imp:
-        imputed = imp.fit_transform(feature)
+        imp = SimpleImputer(missing_values=np.nan, strategy='constant', fill_value=sentinel)
     else:
-        feature[np.isnan(feature)] = sentinel
-        imputed = feature
+        logger.info("    No Imputation for Data Type %s" % dt)
+        imp = None
+
+    imputed = imp.fit_transform(feature) if imp else feature
     return imputed
 
 
@@ -415,8 +416,8 @@ def get_text_features(fnum, fname, df, nvalues, vectorize, ngrams_max):
 
     """
     feature = df[fname]
-    min_length = int(feature.str.len().min())
-    max_length = int(feature.str.len().max())
+    min_length = int(feature.astype(str).str.len().min())
+    max_length = int(feature.astype(str).str.len().max())
     if len(feature) == nvalues:
         logger.info("Feature %d: %s is a text feature [%d:%d] with maximum number of values %d",
                     fnum, fname, min_length, max_length, nvalues)
