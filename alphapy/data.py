@@ -43,8 +43,7 @@ from iexfinance.stocks import get_historical_data
 from iexfinance.stocks import get_historical_intraday
 from imblearn.combine import SMOTEENN
 from imblearn.combine import SMOTETomek
-from imblearn.ensemble import BalanceCascade
-from imblearn.ensemble import EasyEnsemble
+import imblearn.ensemble
 from imblearn.over_sampling import RandomOverSampler
 from imblearn.over_sampling import SMOTE
 from imblearn.under_sampling import ClusterCentroids
@@ -269,10 +268,10 @@ def sample_data(model):
         sampler = SMOTETomek(ratio=ratio)
     elif sampling_method == SamplingMethod.overunder_smote_enn:
         sampler = SMOTEENN(ratio=ratio)
-    elif sampling_method == SamplingMethod.ensemble_easy:
-        sampler = EasyEnsemble()
     elif sampling_method == SamplingMethod.ensemble_bc:
         sampler = BalanceCascade()
+    elif sampling_method == SamplingMethod.ensemble_easy:
+        sampler = EasyEnsemble()
     else:
         raise ValueError("Unknown Sampling Method %s" % sampling_method)
 
