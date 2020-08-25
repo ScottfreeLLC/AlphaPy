@@ -487,7 +487,7 @@ def extract_bizday(f, c):
 #
 
 def extract_date(f, c):
-    r"""Extract date into its components: year, month, day.
+    r"""Extract date into its components: year, month, day, dayofweek.
 
     Parameters
     ----------
@@ -508,7 +508,8 @@ def extract_date(f, c):
         fyear = pd.Series(fc.dt.year, name='year')
         fmonth = pd.Series(fc.dt.month, name='month')
         fday = pd.Series(fc.dt.day, name='day')
-        frames = [fyear, fmonth, fday]
+        fdow = pd.Series(fc.dt.dayofweek, name='day_of_week')
+        frames = [fyear, fmonth, fday, fdow]
         date_features = pd.concat(frames, axis=1)
     except:
         logger.info("Could not extract date information from %s column", c)
@@ -1345,7 +1346,7 @@ def split_to_letters(f, c):
     dtype = fc.dtypes
     if dtype == 'object':
         fc.fillna(NULLTEXT, inplace=True)
-        maxlen = fc.str.len().max()
+        maxlen = fc.astype(str).str.len().max()
         if maxlen > 1:
             new_feature = fc.apply(lambda x: BSEP.join(list(x)))
     return new_feature
@@ -1417,7 +1418,7 @@ def texplode(f, c):
 
     """
     fc = f[c]
-    maxlen = fc.str.len().max()
+    maxlen = fc.astype(str).str.len().max()
     fc.fillna(maxlen * BSEP, inplace=True)
     fpad = str().join(['{:', BSEP, '>', str(maxlen), '}'])
     fcpad = fc.apply(fpad.format)
