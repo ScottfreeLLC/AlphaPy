@@ -75,8 +75,8 @@ import pandas as pd
 from scipy import interp
 import seaborn as sns
 from sklearn.calibration import calibration_curve
-from sklearn.ensemble.partial_dependence import partial_dependence
-from sklearn.ensemble.partial_dependence import plot_partial_dependence
+from sklearn.inspection import partial_dependence
+from sklearn.inspection import plot_partial_dependence
 from sklearn.metrics import auc
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import roc_curve
