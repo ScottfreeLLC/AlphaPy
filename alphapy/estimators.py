@@ -51,7 +51,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import LinearSVC
 from sklearn.svm import SVC
-import xgboost as xgb
+import sys
 import yaml
 
 
@@ -166,12 +166,43 @@ estimator_map = {'AB'     : AdaBoostClassifier,
                  'RF'     : RandomForestClassifier,
                  'RFR'    : RandomForestRegressor,
                  'SVM'    : SVC,
-                 'XGB'    : xgb.XGBClassifier,
-                 'XGBM'   : xgb.XGBClassifier,
-                 'XGBR'   : xgb.XGBRegressor,
                  'XT'     : ExtraTreesClassifier,
                  'XTR'    : ExtraTreesRegressor
                 }
+
+
+#
+# Find optional packages
+#
+
+def find_optional_packages():
+
+    module_name = 'xgboost'
+    try:
+        import xgboost as xgb
+        estimator_map['XGB'] = xgb.XGBClassifier
+        estimator_map['XGBM'] = xgb.XGBClassifier
+        estimator_map['XGBR'] = xgb.XGBRegressor
+    except:
+        logger.info("Cannot load %s" % module_name)
+
+    module_name = 'lightgbm'
+    try:
+        import lightgbm as lgb
+        estimator_map['LGB'] = lgb.LGBMClassifier
+        estimator_map['LGBR'] = lgb.LGBMRegressor
+    except:
+        logger.info("Cannot load %s" % module_name)
+
+    module_name = 'catboost'
+    try:
+        import catboost as catb
+        estimator_map['CATB'] = catb.CatBoostClassifier
+        estimator_map['CATBR'] = catb.CatBoostRegressor
+    except:
+        logger.info("Cannot load %s" % module_name)
+
+    return
 
 
 #
@@ -201,6 +232,10 @@ def get_algos_config(cfg_dir):
     full_path = SSEP.join([cfg_dir, 'algos.yml'])
     with open(full_path, 'r') as ymlfile:
         specs = yaml.load(ymlfile, Loader=yaml.FullLoader)
+
+    # Find optional packages
+
+    find_optional_packages()
 
     # Ensure each algorithm has required keys
 
@@ -315,10 +350,14 @@ def get_estimators(model):
     # Global parameter substitution fields
 
     ps_fields = {'n_estimators' : 'n_estimators',
+                 'iterations'   : 'n_estimators',
                  'n_jobs'       : 'n_jobs',
                  'nthread'      : 'n_jobs',
-                 'random_state' : 'seed',
+                 'thread_count' : 'n_jobs',
                  'seed'         : 'seed',
+                 'random_state' : 'seed',
+                 'random_seed'  : 'seed',
+                 'verbosity'    : 'verbosity',
                  'verbose'      : 'verbosity'}
 
     # Get algorithm specifications
@@ -334,25 +373,32 @@ def get_estimators(model):
         for param in params:
             if param in ps_fields and isinstance(param, str):
                 algo_specs[algo]['params'][param] = eval(ps_fields[param])
-        func = estimator_map[algo]
-        if 'KERAS' in algo:
-            params['build_fn'] = create_keras_model
-            layers = algo_specs[algo]['layers']
-            params['nlayers'] = len(layers)
-            input_dim_string = ', input_dim={})'.format(X_train.shape[1])
-            layers[0] = layers[0].replace(')', input_dim_string)
-            for i, layer in enumerate(layers):
-                params['layer'+str(i+1)] = layer
-            compiler = algo_specs[algo]['compiler']
-            params['optimizer'] = compiler['optimizer']
-            params['loss'] = compiler['loss']
-            try:
-                params['metrics'] = compiler['metrics']
-            except:
-                pass
-        est = func(**params)
-        grid = algo_specs[algo]['grid']
-        estimators[algo] = Estimator(algo, model_type, est, grid)
+        try:
+            algo_found = True
+            func = estimator_map[algo]
+        except:
+            algo_found = False
+            logger.info("Algorithm %s not found (check package installation)" % algo)
+        if algo_found:
+            if 'KERAS' in algo:
+                params['build_fn'] = create_keras_model
+                layers = algo_specs[algo]['layers']
+                params['nlayers'] = len(layers)
+                input_dim_string = ', input_dim={})'.format(X_train.shape[1])
+                layers[0] = layers[0].replace(')', input_dim_string)
+                for i, layer in enumerate(layers):
+                    params['layer'+str(i+1)] = layer
+                compiler = algo_specs[algo]['compiler']
+                params['optimizer'] = compiler['optimizer']
+                params['loss'] = compiler['loss']
+                try:
+                    params['metrics'] = compiler['metrics']
+                except:
+                    pass
+            est = func(**params)
+            grid = algo_specs[algo]['grid']
+            estimators[algo] = Estimator(algo, model_type, est, grid)
+            
 
     # return the entire classifier list
     return estimators

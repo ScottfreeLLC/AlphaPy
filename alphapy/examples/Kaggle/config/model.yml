@@ -19,7 +19,7 @@ data:
     target_value      : 1
 
 model:
-    algorithms        : ['RF', 'XGB']
+    algorithms        : ['CATB', 'KERASC', 'LGB', 'XGB']
     balance_classes   : True
     calibration       :
         option        : False
@@ -55,10 +55,10 @@ features:
     encoding          :
         rounding      : 2
         type          : target
-    factors           : []
+    factors           : ['Embarked']
     interactions      :
-        option        : True
-        poly_degree   : 5
+        option        : False
+        poly_degree   : 2
         sampling_pct  : 10
     isomap            :
         option        : False
@@ -80,7 +80,7 @@ features:
     scipy             :
         option        : False
     text              :
-        ngrams        : 3
+        ngrams        : 2
         vectorize     : False
     tsne              :
         option        : False

@@ -4,12 +4,13 @@ AlphaPy
 |badge_pypi| |badge_build| |badge_docs| |badge_downloads|
 
 **AlphaPy** is a machine learning framework for both speculators and
-data scientists. It is written in Python with the ``scikit-learn``,
-``pandas``, and ``Keras`` libraries, as well as many other helpful
-libraries for feature engineering and visualization. Here are just
+data scientists. It is written in Python mainly with the ``scikit-learn``
+and ``pandas`` libraries, as well as many other helpful
+packages for feature engineering and visualization. Here are just
 some of the things you can do with AlphaPy:
 
-* Run machine learning models using ``scikit-learn``, ``xgboost``, and ``Keras``.
+* Run machine learning models using ``scikit-learn``, ``Keras``, ``xgboost``,
+``LightGBM``, and ``CatBoost``.
 * Generate blended or stacked ensembles.
 * Create models for analyzing the markets with *MarketFlow*.
 * Predict sporting events with *SportFlow*.
@@ -21,11 +22,16 @@ some of the things you can do with AlphaPy:
     :alt: AlphaPy Model Pipeline
     :align: center
 
+Documentation
+-------------
+
+http://alphapy.readthedocs.io/en/latest/
+
 Installation
 ------------
 
-You should already have pip, Python, and XGBoost (see below)
-installed on your system. Run the following command to install
+You should already have pip, Python, and optionally XGBoost, LightGBM, and
+CatBoost installed on your system (see below). Run the following command to install
 AlphaPy::
 
     pip install -U alphapy
@@ -37,10 +43,17 @@ For Mac and Windows users, XGBoost will *not* install automatically
 with ``pip``. For instructions to install XGBoost on your specific
 platform, go to http://xgboost.readthedocs.io/en/latest/build.html.
 
-Documentation
--------------
+LightGBM
+~~~~~~~~
 
-http://alphapy.readthedocs.io/en/latest/
+For instructions to install LightGBM on your specific
+platform, go to https://lightgbm.readthedocs.io/en/latest/Installation-Guide.html.
+
+CatBoost
+~~~~~~~~
+
+For instructions to install CatBoost on your specific
+platform, go to https://catboost.ai/docs/concepts/python-installation.html.
 
 MarketFlow
 ----------
