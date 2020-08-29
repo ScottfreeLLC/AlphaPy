@@ -9,8 +9,7 @@ and ``pandas`` libraries, as well as many other helpful
 packages for feature engineering and visualization. Here are just
 some of the things you can do with AlphaPy:
 
-* Run machine learning models using ``scikit-learn``, ``Keras``, ``xgboost``,
-``LightGBM``, and ``CatBoost``.
+* Run machine learning models using ``scikit-learn``, ``Keras``, ``xgboost``, ``LightGBM``, and ``CatBoost``.
 * Generate blended or stacked ensembles.
 * Create models for analyzing the markets with *MarketFlow*.
 * Predict sporting events with *SportFlow*.
