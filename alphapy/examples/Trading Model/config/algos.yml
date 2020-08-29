@@ -11,6 +11,24 @@ AB:
                   "learning_rate" : [0.2, 0.5, 0.7, 1.0, 1.5, 2.0],
                   "algorithm" : ['SAMME', 'SAMME.R']}
 
+CATB:
+    # CatBoost Binary
+    model_type : classification
+    params     : {"iterations" : n_estimators,
+                  "random_seed" : seed,
+                  "thread_count" : n_jobs,
+                  "verbose" : verbosity}
+    grid       : {}
+
+CATBR:
+    # CatBoost Regression
+    model_type : regression
+    params     : {"iterations" : n_estimators,
+                  "random_seed" : seed,
+                  "thread_count" : n_jobs,
+                  "verbose" : verbosity}
+    grid       : {}
+
 GB:
     # Gradient Boosting
     model_type : classification
@@ -43,7 +61,7 @@ KERASC:
                   "metrics" : 'accuracy'}
     params     : {"epochs" : 50,
                   "batch_size" : 10,
-                  "verbose" : 1}
+                  "verbose" : verbosity}
     grid       : {}
 
 KERASR:
@@ -55,7 +73,7 @@ KERASR:
                   "loss" : 'mse'}
     params     : {"epochs" : 50,
                   "batch_size" : 10,
-                  "verbose" : 1}
+                  "verbose" : verbosity}
     grid       : {}
 
 KNN:
@@ -71,6 +89,24 @@ KNR:
     # K-Nearest Neighbor Regression
     model_type : regression
     params     : {"n_jobs" : n_jobs}
+    grid       : {}
+
+LGB:
+    # LightGBM Binary
+    model_type : classification
+    params     : {"n_estimators" : n_estimators,
+                  "random_state" : seed,
+                  "n_jobs" : n_jobs,
+                  "silent" : verbosity}
+    grid       : {}
+
+LGBR:
+    # LightGBM Regression
+    model_type : regression
+    params     : {"n_estimators" : n_estimators,
+                  "random_state" : seed,
+                  "n_jobs" : n_jobs,
+                  "silent" : verbosity}
     grid       : {}
 
 LOGR:
@@ -192,7 +228,7 @@ XGB:
                   "subsample" : 1.0,
                   "colsample_bytree" : 1.0,
                   "nthread" : n_jobs,
-                  "verbosity" : 0}
+                  "verbosity" : verbosity}
     grid       : {"n_estimators" : [21, 51, 101, 201, 501],
                   "max_depth" : [5, 6, 7, 8, 9, 10, 12, 15, 20],
                   "learning_rate" : [0.01, 0.02, 0.05, 0.1, 0.2],
@@ -212,7 +248,7 @@ XGBM:
                   "subsample" : 0.9,
                   "colsample_bytree" : 0.9,
                   "nthread" : n_jobs,
-                  "verbosity" : 0}
+                  "verbosity" : verbosity}
     grid       : {}
 
 XGBR:
@@ -220,7 +256,6 @@ XGBR:
     model_type : regression
     params     : {"objective" : 'reg:linear',
                   "n_estimators" : n_estimators,
-                  "seed" : seed,
                   "max_depth" : 10,
                   "learning_rate" : 0.1,
                   "min_child_weight" : 1.1,
@@ -228,7 +263,7 @@ XGBR:
                   "colsample_bytree" : 0.9,
                   "seed" : seed,
                   "nthread" : n_jobs,
-                  "verbosity" : 0}
+                  "verbosity" : verbosity}
     grid       : {}
 
 XT:
