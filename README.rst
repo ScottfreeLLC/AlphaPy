@@ -35,6 +35,18 @@ AlphaPy::
 
     pip install -U alphapy
 
+Pyfolio
+~~~~~~~
+
+Pyfolio is automatically installed by AlphaPy, but if you encounter
+the following error when trying to create a tear sheet:
+
+    *AttributeError: 'numpy.int64' object has no attribute 'to_pydatetime'*
+
+Install pyfolio with this command:
+
+    pip install git+https://github.com/quantopian/pyfolio
+
 XGBoost
 ~~~~~~~
 
