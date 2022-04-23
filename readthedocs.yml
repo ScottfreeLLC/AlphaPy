@@ -1,2 +1,5 @@
 conda:
     file: environment.yml
+
+python:
+    system_packages: true
