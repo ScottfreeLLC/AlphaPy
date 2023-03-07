@@ -276,8 +276,10 @@ def sample_data(model):
         raise ValueError("Unknown Sampling Method %s" % sampling_method)
 
     # Get the newly sampled features.
-
-    X, y = sampler.fit_sample(X_train, y_train)
+    try:
+        X, y = sampler.fit_sample(X_train, y_train)
+    except AttributeError:
+        X, y = sampler.fit_resample(X_train, y_train)
 
     logger.info("Original Samples : %d", X_train.shape[0])
     logger.info("New Samples      : %d", X.shape[0])
