@@ -1044,8 +1044,12 @@ def create_features(model, X, X_train, X_test, y_train):
             features, fnames = get_factors(model, X_train, X_test, y_train, fnum, fname,
                                            nunique, dtype, encoder, rounding, sentinel)
         elif dtype == 'float64' or dtype == 'int64' or dtype == 'bool':
+
             features, fnames = get_numerical_features(fnum, fname, X, nunique, dtype,
                                                       sentinel, logtransform, pvalue_level)
+            if nunique == 1 and np.isnan(X[fname].unique()):
+                # all nan, features shape is (len, 0), cause Mismatched Features and Names
+                features = np.zeros((X.shape[0], 1))
         elif dtype == 'object':
             features, fnames = get_text_features(fnum, fname, X, nunique, vectorize, ngrams_max)
         else:
