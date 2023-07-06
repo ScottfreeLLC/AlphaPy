@@ -38,7 +38,7 @@ install_reqs = [
     'pyfolio>=0.9',
     'pyyaml>=5.0',
     'scikit-learn>=0.23.1',
-    'scipy==1.4.1',
+    'scipy==1.10.0',
     'seaborn>=0.9',
     'tensorflow>=2.0',
 ]
