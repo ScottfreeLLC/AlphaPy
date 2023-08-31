@@ -1,7 +1,7 @@
 AlphaPy
 =======
 
-|badge_pypi| |badge_build| |badge_docs| |badge_downloads|
+|badge_pypi| |badge_downloads| |badge_docs| |badge_build|
 
 **AlphaPy** is a machine learning framework for both speculators and
 data scientists. It is written in Python mainly with the ``scikit-learn``
