@@ -25,10 +25,3 @@ sphinx:
 
 conda:
     environment: environment.yml
-
-# Optionally declare the Python requirements required to build your docs
-#     install:
-#         - requirements: docs/requirements.txt
-
-python:
-   system_packages: true
