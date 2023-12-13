@@ -22,3 +22,4 @@ dependencies:
   - imbalanced-learn>=0.5
   - pandas-datareader>=0.8
   - pyfolio>=0.9
+  - sphinx_rtd_theme>=2.0
