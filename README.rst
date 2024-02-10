@@ -21,15 +21,15 @@ some of the things you can do with AlphaPy:
     :alt: AlphaPy Model Pipeline
     :align: center
 
+AlphaPy Pro: Coming Soon
+------------------------
+
+https://www.scottfreellc.com/alphapy-pro
+
 Documentation
 -------------
 
 http://alphapy.readthedocs.io/en/latest/
-
-Coming Soon: AlphaPy Pro
-------------------------
-
-https://www.scottfreellc.com/alphapy-pro
 
 Installation
 ------------
@@ -91,6 +91,13 @@ SportFlow
     :width: 100%
     :alt: SportFlow
     :align: center
+
+GamePT
+------
+
+You can find an implementation of MarketFlow here:
+
+https://www.scottfreellc.com/gamept
 
 Support
 -------
