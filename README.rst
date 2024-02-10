@@ -26,6 +26,11 @@ Documentation
 
 http://alphapy.readthedocs.io/en/latest/
 
+Coming Soon: AlphaPy Pro
+------------------------
+
+https://www.scottfreellc.com/alphapy-pro
+
 Installation
 ------------
 
