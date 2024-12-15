@@ -56,7 +56,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'AlphaPy'
-copyright = '2020, ScottFree Analytics LLC'
+copyright = '2024, ScottFree Analytics LLC'
 author = 'Robert D. Scott II, Mark Conway'
 
 # The version info for the project you're documenting, acts as replacement for
