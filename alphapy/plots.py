@@ -164,7 +164,7 @@ def generate_plots(model, partition):
     confusion_matrix = model.specs['confusion_matrix']
     importances = model.specs['importances']
     learning_curve = model.specs['learning_curve']
-    roc_curve = model.specs['roc_curve']
+    roc_curve = model.specs['roc_curve']l.specs['roc_curve']
 
     # Generate plots
 
