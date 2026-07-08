@@ -76,6 +76,8 @@ import sys
 
 logger = logging.getLogger(__name__)
 
+FXMACRODATA_API_ROOT = 'https://fxmacrodata.com/api/v1'
+
 
 #
 # Function get_data
@@ -725,10 +727,68 @@ def get_yahoo_data(schema, subschema, symbol, intraday_data, data_fractal,
 
 
 #
+# Function get_fxmacrodata_data
+#
+
+def get_fxmacrodata_data(schema, subschema, symbol, intraday_data, data_fractal,
+                         from_date, to_date, lookback_period):
+    r"""Get daily FX reference rates from FXMacroData.
+
+    FXMacroData returns one official reference value per currency pair and
+    date. The value is copied into open, high, low, and close with zero volume
+    so MarketFlow can consume it through the normal OHLCV path.
+
+    """
+
+    df = pd.DataFrame()
+    if intraday_data:
+        logger.info("FXMacroData supports daily reference rates, not intraday bars")
+        return df
+
+    pair = symbol.upper().replace('/', '').replace('-', '').replace('_', '')
+    if len(pair) != 6:
+        logger.error("FXMacroData symbol must be formatted like EURUSD or EUR/USD")
+        return df
+
+    base = pair[:3]
+    quote = pair[3:]
+    url = SSEP.join([FXMACRODATA_API_ROOT.rstrip('/'), 'forex', base, quote])
+    params = {
+        'start_date': from_date,
+        'end_date': to_date,
+        'limit': 5000,
+    }
+    api_key = os.environ.get('FXMACRODATA_API_KEY')
+    if api_key:
+        params['api_key'] = api_key
+
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        rows = response.json().get('data', [])
+    except Exception:
+        logger.info("Could not retrieve %s data with FXMacroData", symbol.upper())
+        return df
+
+    records = []
+    for row in rows:
+        value = float(row['val'])
+        records.append((row['date'], value, value, value, value, 0.0))
+
+    if records:
+        df = pd.DataFrame.from_records(
+            records,
+            columns=['date', 'open', 'high', 'low', 'close', 'volume'])
+
+    return df
+
+
+#
 # Data Dispatch Tables
 #
 
 data_dispatch_table = {'google' : get_google_data,
+                       'fxmacrodata' : get_fxmacrodata_data,
                        'iex'    : get_iex_data,
                        'pandas' : get_pandas_data,
                        'quandl' : get_quandl_data,
