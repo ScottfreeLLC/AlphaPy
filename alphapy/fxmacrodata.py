@@ -50,10 +50,11 @@ def get_fxmacrodata_data(schema, subschema, symbol, intraday_data, data_fractal,
     quote = pair[3:]
     url = '/'.join([FXMACRODATA_API_ROOT.rstrip('/'), 'forex', base, quote])
     base_params = {'start_date': from_date, 'end_date': to_date}
+    headers = {}
     api_key = (os.environ.get('FXMACRODATA_API_KEY') or
                os.environ.get('FXMD_API_KEY'))
     if api_key:
-        base_params['api_key'] = api_key
+        headers['X-API-Key'] = api_key
 
     rows = []
     offset = 0
@@ -61,7 +62,7 @@ def get_fxmacrodata_data(schema, subschema, symbol, intraday_data, data_fractal,
         while True:
             params = dict(base_params)
             params.update({'limit': FXMACRODATA_PAGE_SIZE, 'offset': offset})
-            response = requests.get(url, params=params, timeout=30)
+            response = requests.get(url, params=params, headers=headers, timeout=30)
             if not response.ok:
                 logger.info("FXMacroData returned HTTP %s for %s",
                             response.status_code, symbol.upper())

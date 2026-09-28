@@ -1,4 +1,5 @@
 import unittest
+from unittest import mock
 
 from alphapy import fxmacrodata
 
@@ -20,31 +21,35 @@ class TestFXMacroDataData(unittest.TestCase):
 
         calls = {}
 
-        def mock_get(url, params, timeout):
+        def mock_get(url, params, headers, timeout):
             calls['url'] = url
             calls['params'] = params
+            calls['headers'] = headers
             calls['timeout'] = timeout
             return MockResponse()
 
         original_get = fxmacrodata.requests.get
         try:
             fxmacrodata.requests.get = mock_get
-            df = fxmacrodata.get_fxmacrodata_data(
-                'fxmacrodata',
-                '',
-                'EUR/USD',
-                False,
-                '1D',
-                '2026-01-01',
-                '2026-01-02',
-                2,
-            )
+            with mock.patch.dict('os.environ', {'FXMACRODATA_API_KEY': 'test-key'}):
+                df = fxmacrodata.get_fxmacrodata_data(
+                    'fxmacrodata',
+                    '',
+                    'EUR/USD',
+                    False,
+                    '1D',
+                    '2026-01-01',
+                    '2026-01-02',
+                    2,
+                )
         finally:
             fxmacrodata.requests.get = original_get
 
         self.assertEqual(calls['url'], 'https://api.fxmacrodata.com/v1/forex/EUR/USD')
         self.assertEqual(calls['params']['start_date'], '2026-01-01')
         self.assertEqual(calls['params']['limit'], 100)
+        self.assertNotIn('api_key', calls['params'])
+        self.assertEqual(calls['headers'], {'X-API-Key': 'test-key'})
         self.assertEqual(calls['timeout'], 30)
         self.assertEqual(list(df.columns), ['date', 'open', 'high', 'low', 'close', 'volume'])
         self.assertEqual(list(df['close']), [1.1, 1.2])
@@ -68,7 +73,7 @@ class TestFXMacroDataData(unittest.TestCase):
         ] * 100
         second_page = [{'date': '2026-01-01', 'val': '1.05'}]
 
-        def mock_get(url, params, timeout):
+        def mock_get(url, params, headers, timeout):
             calls.append(dict(params))
             rows = first_page if params['offset'] == 0 else second_page
             return MockResponse(rows)
