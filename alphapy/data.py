@@ -29,6 +29,7 @@
 from alphapy.frame import Frame
 from alphapy.frame import frame_name
 from alphapy.frame import read_frame
+from alphapy.fxmacrodata import get_fxmacrodata_data
 from alphapy.globals import ModelType
 from alphapy.globals import Partition, datasets
 from alphapy.globals import PSEP, SSEP, USEP
@@ -75,7 +76,6 @@ import sys
 #
 
 logger = logging.getLogger(__name__)
-
 
 #
 # Function get_data
@@ -729,6 +729,7 @@ def get_yahoo_data(schema, subschema, symbol, intraday_data, data_fractal,
 #
 
 data_dispatch_table = {'google' : get_google_data,
+                       'fxmacrodata' : get_fxmacrodata_data,
                        'iex'    : get_iex_data,
                        'pandas' : get_pandas_data,
                        'quandl' : get_quandl_data,

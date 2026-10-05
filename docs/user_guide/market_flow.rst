@@ -41,6 +41,19 @@ that are shortened.
    we recommend that you save the data on an ongoing basis for a
    a larger backtesting window.
 
+FXMacroData daily FX reference rates are available through the
+``fxmacrodata`` schema. Use six-letter currency-pair subjects such as
+``EURUSD`` (``EUR/USD`` is also accepted). FX history normally requires an
+API key, read from ``FXMACRODATA_API_KEY`` or ``FXMD_API_KEY`` in the
+environment. Returned official reference observations are mapped to
+the standard OHLCV frame. When the API provides reference-observation OHLC,
+those values are preserved; otherwise the daily reference value is used for
+all four price fields and volume is zero. Intraday retrieval is not supported.
+
+This MarketFlow adapter supports FX rates only. FXMacroData catalogue,
+macroeconomic history, release calendar, forecasts, COT, commodities,
+sessions, news, and seasonality surfaces are not exposed by AlphaPy.
+
 Domain Configuration
 --------------------
 
