@@ -62,8 +62,10 @@ def get_fxmacrodata_data(schema, subschema, symbol, intraday_data, data_fractal,
         while True:
             params = dict(base_params)
             params.update({'limit': FXMACRODATA_PAGE_SIZE, 'offset': offset})
-            response = requests.get(url, params=params, headers=headers, timeout=30)
-            if not response.ok:
+            # Redirects are not followed, so the key never leaves this host.
+            response = requests.get(url, params=params, headers=headers,
+                                    timeout=30, allow_redirects=False)
+            if response.status_code != 200:
                 logger.info("FXMacroData returned HTTP %s for %s",
                             response.status_code, symbol.upper())
                 return df

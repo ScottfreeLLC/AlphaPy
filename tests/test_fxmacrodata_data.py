@@ -21,8 +21,9 @@ class TestFXMacroDataData(unittest.TestCase):
 
         calls = {}
 
-        def mock_get(url, params, headers, timeout):
+        def mock_get(url, params, headers, timeout, allow_redirects=True):
             calls['url'] = url
+            calls['allow_redirects'] = allow_redirects
             calls['params'] = params
             calls['headers'] = headers
             calls['timeout'] = timeout
@@ -51,6 +52,7 @@ class TestFXMacroDataData(unittest.TestCase):
         self.assertNotIn('api_key', calls['params'])
         self.assertEqual(calls['headers'], {'X-API-Key': 'test-key'})
         self.assertEqual(calls['timeout'], 30)
+        self.assertFalse(calls['allow_redirects'])
         self.assertEqual(list(df.columns), ['date', 'open', 'high', 'low', 'close', 'volume'])
         self.assertEqual(list(df['close']), [1.1, 1.2])
 
@@ -73,7 +75,7 @@ class TestFXMacroDataData(unittest.TestCase):
         ] * 100
         second_page = [{'date': '2026-01-01', 'val': '1.05'}]
 
-        def mock_get(url, params, headers, timeout):
+        def mock_get(url, params, headers, timeout, allow_redirects=True):
             calls.append(dict(params))
             rows = first_page if params['offset'] == 0 else second_page
             return MockResponse(rows)
@@ -93,6 +95,33 @@ class TestFXMacroDataData(unittest.TestCase):
         self.assertEqual(df.iloc[1]['high'], 1.3)
         self.assertEqual(df.iloc[1]['low'], 1.0)
         self.assertEqual(df.iloc[1]['close'], 1.25)
+
+    def test_get_fxmacrodata_data_does_not_follow_redirects(self):
+        calls = []
+
+        class MockResponse:
+            ok = True
+            status_code = 302
+
+            def json(self):
+                raise AssertionError('redirect body must not be parsed')
+
+        def mock_get(url, params, headers, timeout, allow_redirects=True):
+            calls.append(allow_redirects)
+            return MockResponse()
+
+        original_get = fxmacrodata.requests.get
+        try:
+            fxmacrodata.requests.get = mock_get
+            with mock.patch.dict('os.environ', {'FXMACRODATA_API_KEY': 'test-key'}):
+                df = fxmacrodata.get_fxmacrodata_data(
+                    'fxmacrodata', '', 'EURUSD', False, '1D',
+                    '2026-01-01', '2026-01-02', 2)
+        finally:
+            fxmacrodata.requests.get = original_get
+
+        self.assertEqual(calls, [False])
+        self.assertTrue(df.empty)
 
     def test_get_fxmacrodata_data_rejects_invalid_pair_without_request(self):
         original_get = fxmacrodata.requests.get
